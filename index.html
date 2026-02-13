@@ -2,146 +2,128 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>FP ROBOTIK INTERFACE | HUB</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Roboto:wght@100;300;700&display=swap" rel="stylesheet">
+    <title>FP ROBOTIK | Central Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Roboto:wght@300;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --deep-blue: #000b1a;
-            --electric: #00d4ff;
-            --accent: #9d00ff;
-            --glass: rgba(0, 212, 255, 0.05);
+            --electric-blue: #00d4ff;
+            --deep-blue: #001a33;
+            --glow: rgba(0, 212, 255, 0.4);
         }
 
         body {
             margin: 0; padding: 0;
-            /* Gradiente de fondo espectacular */
-            background: linear-gradient(135deg, #000b1a 0%, #001a33 50%, #003366 100%);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
+            background: #000b1a url('https://raw.githubusercontent.com/ibanarruti91/FP-ROBOTIK-INTERFACE/main/fondo_circuito.png') no-repeat center center fixed;
+            background-size: cover;
             color: white; font-family: 'Roboto', sans-serif;
             height: 100vh; overflow: hidden;
             display: flex; flex-direction: column; align-items: center;
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        /* Overlay de gradiente para suavizar la imagen de fondo */
+        .bg-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, rgba(0, 26, 51, 0.6) 0%, #000b1a 100%);
+            z-index: -1;
         }
 
-        /* Título con resplandor */
-        .header {
-            margin-top: 40px; text-align: center; z-index: 10;
-        }
+        .header { margin-top: 50px; text-align: center; z-index: 10; }
         .header h1 {
-            font-family: 'Orbitron'; font-size: 2.5rem; letter-spacing: 12px;
-            margin: 0; background: linear-gradient(to bottom, #fff, var(--electric));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 20px rgba(0,212,255,0.6));
+            font-family: 'Orbitron'; font-size: 2.8rem; letter-spacing: 8px;
+            margin: 0; color: #fff; text-shadow: 0 0 20px var(--electric-blue);
         }
-        .header p { font-weight: 300; letter-spacing: 4px; color: var(--electric); opacity: 0.8; }
 
-        /* Contenedor de Red */
-        .network-wrap {
-            position: relative; width: 900px; height: 500px;
+        /* Contenedor del Servidor Centralizado */
+        .hub-map {
+            position: relative; width: 800px; height: 500px;
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* El Servidor (Círculo Central) */
-        .core {
-            width: 220px; height: 220px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--electric); border-radius: 50%;
+        .main-server {
+            width: 200px; height: 200px;
+            border: 2px solid var(--electric-blue); border-radius: 50%;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            box-shadow: 0 0 60px rgba(0, 212, 255, 0.2);
-            backdrop-filter: blur(15px); z-index: 5;
-            transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: rgba(0, 26, 51, 0.8); backdrop-filter: blur(10px);
+            box-shadow: 0 0 40px var(--glow); z-index: 5;
         }
-        .core:hover { transform: scale(1.05); box-shadow: 0 0 80px var(--electric); }
 
-        /* Nodos Interactivos */
         .node {
-            position: absolute; width: 220px; padding: 15px;
-            background: var(--glass); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px; cursor: pointer; transition: 0.4s;
-            backdrop-filter: blur(10px); z-index: 10;
+            position: absolute; width: 200px; padding: 15px;
+            background: rgba(255,255,255,0.05); border: 1px solid var(--electric-blue);
+            border-radius: 10px; cursor: pointer; transition: 0.3s;
+            backdrop-filter: blur(5px); text-align: center;
         }
-        .node:hover {
-            border-color: var(--electric); background: rgba(0, 212, 255, 0.1);
-            transform: translateY(-10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .node-name { font-family: 'Orbitron'; font-size: 0.75rem; color: var(--electric); margin-bottom: 5px; }
-        .node-info { font-size: 0.7rem; color: #aaa; line-height: 1.4; }
+        .node:hover { transform: scale(1.1); box-shadow: 0 0 20px var(--electric-blue); background: rgba(0, 212, 255, 0.1); }
+        
+        /* Posiciones */
+        .n-urnieta { top: 0; left: 0; }
+        .n-repelega { top: 0; right: 0; }
+        .n-blockly { bottom: 0; left: 50%; transform: translateX(-50%); border-color: #ff33bb; }
 
-        /* Posicionamiento de Nodos */
-        .n-urnieta { top: 10%; left: 0; }
-        .n-repelega { top: 10%; right: 0; }
-        .n-blockly  { bottom: 5%; left: 50%; transform: translateX(-50%); border-bottom: 3px solid var(--accent); }
+        /* Líneas de conexión SVG */
+        .svg-conns { position: absolute; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        .conn-line { stroke: var(--electric-blue); stroke-width: 1.5; stroke-dasharray: 10; animation: pulse 2s infinite linear; opacity: 0.5; }
+        @keyframes pulse { from { stroke-dashoffset: 20; } to { stroke-dashoffset: 0; } }
 
-        /* Líneas de conexión animadas */
-        .svg-lines { position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: 1; }
-        .line-conn { stroke: var(--electric); stroke-width: 1; opacity: 0.3; stroke-dasharray: 8; animation: moveLine 3s infinite linear; }
-        @keyframes moveLine { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
-
-        /* Capa de Visualización (Iframe) */
-        #overlay {
+        /* Panel Deslizante (Capa de abajo/Superior) */
+        #portal-layer {
             position: fixed; top: 100%; left: 0; width: 100%; height: 100%;
-            background: var(--deep-blue); z-index: 100; transition: 0.6s cubic-bezier(0.86, 0, 0.07, 1);
+            background: #000; z-index: 100; transition: 0.7s cubic-bezier(0.19, 1, 0.22, 1);
             display: flex; flex-direction: column;
         }
-        #overlay.active { top: 10%; border-top: 2px solid var(--electric); border-radius: 30px 30px 0 0; }
-        .close-btn { align-self: flex-end; padding: 15px 30px; color: var(--electric); cursor: pointer; font-family: 'Orbitron'; }
+        #portal-layer.active { top: 5%; border-radius: 30px 30px 0 0; border-top: 3px solid var(--electric-blue); }
+        .close-portal { padding: 15px; text-align: right; cursor: pointer; font-family: 'Orbitron'; color: var(--electric-blue); }
     </style>
 </head>
 <body>
+    <div class="bg-overlay"></div>
 
     <div class="header">
-        <h1>FP ROBOTIK</h1>
-        <p>CENTRAL INTELLIGENCE INTERFACE</p>
+        <h1>FP ROBOTIK INTERFACE</h1>
+        <p style="letter-spacing: 5px; font-weight: 100;">SERVIDOR CENTRALIZADO DE GESTIÓN</p>
     </div>
 
-    <div class="network-wrap">
-        <svg class="svg-lines">
-            <line class="line-conn" x1="450" y1="250" x2="110" y2="100" />
-            <line class="line-conn" x1="450" y1="250" x2="790" y2="100" />
-            <line class="line-conn" x1="450" y1="250" x2="450" y2="430" />
+    <div class="hub-map">
+        <svg class="svg-conns">
+            <line class="conn-line" x1="400" y1="250" x2="100" y2="100" />
+            <line class="conn-line" x1="400" y1="250" x2="700" y2="100" />
+            <line class="conn-line" x1="400" y1="250" x2="400" y2="430" />
         </svg>
 
-        <div class="core">
-            <div style="font-size: 0.6rem; letter-spacing: 3px; opacity: 0.6;">NETWORK STATUS</div>
-            <div style="font-family: 'Orbitron'; font-size: 1.6rem; color: var(--electric);">ONLINE</div>
-            <div id="telemetry-summary" style="font-size: 0.7rem; margin-top: 10px; color: #888;">Nodes: 3 Active</div>
+        <div class="main-server">
+            <span style="font-size: 0.6rem; opacity: 0.7;">CENTRAL CORE</span>
+            <div style="font-family: 'Orbitron'; font-size: 1.4rem; color: var(--electric-blue);">ONLINE</div>
         </div>
 
-        <div class="node n-urnieta" onclick="openNode('http://TU_IP_URNIETA')">
-            <div class="node-name">IOT SALESIANOS</div>
-            <div class="node-info">Monitorización UR5 Urnieta.<br>Acceso a telemetría y telecontrol.</div>
+        <div class="node n-urnieta" onclick="openService('http://192.168.200.1:1880/ui/')">
+            <b style="font-family: 'Orbitron'; font-size: 0.8rem;">IOT SALESIANOS</b><br>
+            <span style="font-size: 0.7rem;">Acceso a Dashboard UR5</span>
         </div>
 
-        <div class="node n-repelega">
-            <div class="node-name" style="color: #666;">IOT REPELEGA</div>
-            <div class="node-info">UR3e System: Standby.<br>Esperando enlace de red...</div>
+        <div class="node n-repelega" onclick="alert('Nodo Repélega en mantenimiento')">
+            <b style="font-family: 'Orbitron'; font-size: 0.8rem; opacity: 0.5;">IOT REPELEGA</b><br>
+            <span style="font-size: 0.7rem;">Próximamente...</span>
         </div>
 
-        <div class="node n-blockly" onclick="openNode('AQUI_PEGA_TU_URL_BLOCKLY')">
-            <div class="node-name">CONVERSOR BLOCKLY</div>
-            <div class="node-info">Programación lógica universal.<br>Sincronizado con GitHub Repos.</div>
+        <div class="node n-blockly" onclick="openService('https://yunamuno.github.io/FP_Robotik_Interface_v2/')">
+            <b style="font-family: 'Orbitron'; font-size: 0.8rem;">CONVERSOR BLOCKLY</b><br>
+            <span style="font-size: 0.7rem;">Entorno de Programación</span>
         </div>
     </div>
 
-    <div id="overlay">
-        <div class="close-btn" onclick="closeNode()">CERRAR PANEL [X]</div>
-        <iframe id="content-frame" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+    <div id="portal-layer">
+        <div class="close-portal" onclick="closeService()">[ CERRAR MÓDULO X ]</div>
+        <iframe id="service-frame" src="" style="width: 100%; height: 100%; border: none;"></iframe>
     </div>
 
     <script>
-        function openNode(url) {
-            document.getElementById('content-frame').src = url;
-            document.getElementById('overlay').classList.add('active');
+        function openService(url) {
+            document.getElementById('service-frame').src = url;
+            document.getElementById('portal-layer').classList.add('active');
         }
-        function closeNode() {
-            document.getElementById('overlay').classList.remove('active');
-            setTimeout(() => { document.getElementById('content-frame').src = ''; }, 600);
+        function closeService() {
+            document.getElementById('portal-layer').classList.remove('active');
+            setTimeout(() => { document.getElementById('service-frame').src = ''; }, 700);
         }
     </script>
 </body>
