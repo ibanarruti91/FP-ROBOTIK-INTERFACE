@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FP ROBOTIK INTERFACE</title>
+    <style>
+        body {
+            margin: 0;
+            background: linear-gradient(to right, #0000FF, #00FFFF);
+            font-family: Arial, sans-serif;
+            color: white;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .background-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('circuit-pattern.png') repeat;
+            opacity: 0.2;
+        }
+        .logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: url('logo.png') no-repeat center center;
+            background-size: cover;
+            position: relative;
+            z-index: 2;
+        }
+        .navigation {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            position: absolute;
+            bottom: 20px;
+            z-index: 1;
+        }
+        .button {
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            border-radius: 15px;
+            padding: 15px 30px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .button:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="background-pattern"></div>
+    <div class="logo"></div>
+    <div class="navigation">
+        <button class="button">IoT Management</button>
+        <button class="button">Telemetry Monitoring</button>
+        <button class="button">Blockly Converter</button>
+    </div>
+</body>
+</html>
