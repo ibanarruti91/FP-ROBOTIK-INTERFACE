@@ -1,1 +1,113 @@
-<!DOCTYPE html>\n<html lang="en">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Interactive Circuit Page</title>\n    <style>\n        body {\n            margin: 0;\n            font-family: Arial, sans-serif;\n            background: linear-gradient(135deg, #1e3c72, #2a5298);\n            overflow: hidden;\n        }\n        .neon-logo {\n            color: #00ffcc;\n            text-align: center;\n            font-size: 3em;\n            text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc;\n        }\n        nav {\n            display: flex;\n            justify-content: center;\n            margin: 20px 0;\n        }\n        nav a {\n            color: #fff;\n            margin: 0 15px;\n            text-decoration: none;\n            background: rgba(0, 100, 255, 0.7);\n            padding: 10px 20px;\n            border-radius: 10px;\n            box-shadow: 0 0 10px rgba(0, 100, 255, 0.5);\n            transition: all 0.3s ease;\n        }\n        nav a:hover {\n            box-shadow: 0 0 20px rgba(0, 100, 255, 0.9);\n        }\n        /* Particle effect container */\n        .particles {\n            position: absolute;\n            top: 0;\n            left: 0;\n            width: 100%;\n            height: 100%;\n            pointer-events: none;\n        }\n        /* SVG Circuits */\n        .circuit {\n            fill: none;\n            stroke: #ffcc00;\n            stroke-width: 2;\n            stroke-dasharray: 5;\n        }\n    </style>\n</head>\n<body>\n    <div class="neon-logo">Welcome to the Circuit</div>\n    <nav>\n        <a href="#home">Home</a>\n        <a href="#about">About</a>\n        <a href="#services">Services</a>\n        <a href="#contact">Contact</a>\n    </nav>\n    <svg class="circuit" width="100%" height="100%">\n        <path d="M10,150 C50,100 150,100 200,150" />\n        <path d="M200,150 L300,250" />\n        <path d="M300,250 C350,300 400,400 450,350" />\n    </svg>\n    <div class="particles"></div>\n    <script>\n        // Particle effect logic goes here\n    </script>\n</body>\n</html>\n
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Circuit Page</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            overflow: hidden;
+        }
+        .neon-logo {
+            color: #00ffcc;
+            text-align: center;
+            font-size: 3em;
+            text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc;
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        nav a {
+            color: #fff;
+            margin: 0 15px;
+            text-decoration: none;
+            background: rgba(0, 100, 255, 0.7);
+            padding: 10px 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 100, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+        nav a:hover {
+            box-shadow: 0 0 20px rgba(0, 100, 255, 0.9);
+        }
+        /* Particle effect container */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        /* SVG Circuits */
+        .circuit {
+            fill: none;
+            stroke: #ffcc00;
+            stroke-width: 2;
+            stroke-dasharray: 5;
+        }
+        /* Circular Node */
+        .node-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+        .circular-node {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00ffcc, #0066ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.6), 0 0 50px rgba(0, 102, 255, 0.4);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            border: 3px solid #fff;
+        }
+        .circular-node:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 40px rgba(0, 255, 204, 0.8), 0 0 70px rgba(0, 102, 255, 0.6);
+        }
+        .node-text {
+            color: #fff;
+            font-size: 1.2em;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="neon-logo">Welcome to the Circuit</div>
+    <nav>
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#services">Services</a>
+        <a href="#contact">Contact</a>
+    </nav>
+    <svg class="circuit" width="100%" height="100%">
+        <path d="M10,150 C50,100 150,100 200,150" />
+        <path d="M200,150 L300,250" />
+        <path d="M300,250 C350,300 400,400 450,350" />
+    </svg>
+    <div class="node-container">
+        <a href="https://yunamuno.github.io/FP_Robotik_Interface_v2/" target="_blank" class="circular-node">
+            <div class="node-text">INTERFAZ CONVERSOR BLOCKY</div>
+        </a>
+    </div>
+    <div class="particles"></div>
+    <script>
+        // Particle effect logic goes here
+    </script>
+</body>
+</html>
