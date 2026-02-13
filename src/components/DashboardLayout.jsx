@@ -11,6 +11,9 @@ function DashboardLayout() {
           </div>
         </div>
         <nav className="nav-menu">
+          <NavLink to="/" className="nav-link" end>
+            Inicio
+          </NavLink>
           <NavLink to="/telemetria" className="nav-link">
             Telemetría
           </NavLink>
