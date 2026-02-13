@@ -2,128 +2,142 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>FP ROBOTIK | Central Hub</title>
+    <title>FP ROBOTIK | CENTRAL HUB</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Roboto:wght@300;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --electric-blue: #00d4ff;
-            --deep-blue: #001a33;
-            --glow: rgba(0, 212, 255, 0.4);
+            --deep-blue: #000b1a;
+            --accent-purple: #9d00ff;
+            --glass: rgba(0, 212, 255, 0.1);
         }
 
         body {
             margin: 0; padding: 0;
-            background: #000b1a url('https://raw.githubusercontent.com/ibanarruti91/FP-ROBOTIK-INTERFACE/main/fondo_circuito.png') no-repeat center center fixed;
-            background-size: cover;
+            /* Fondo inspirado en tu imagen: azul profundo con patrón de circuitos */
+            background: #000b1a linear-gradient(135deg, #000b1a 0%, #001a33 100%);
+            background-image: radial-gradient(circle at 20% 30%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                              url('https://www.transparenttextures.com/patterns/circuit-board.png'); /* Patrón de circuitos */
             color: white; font-family: 'Roboto', sans-serif;
             height: 100vh; overflow: hidden;
             display: flex; flex-direction: column; align-items: center;
         }
 
-        /* Overlay de gradiente para suavizar la imagen de fondo */
-        .bg-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at center, rgba(0, 26, 51, 0.6) 0%, #000b1a 100%);
-            z-index: -1;
-        }
-
+        /* Cabecera Principal */
         .header { margin-top: 50px; text-align: center; z-index: 10; }
         .header h1 {
-            font-family: 'Orbitron'; font-size: 2.8rem; letter-spacing: 8px;
-            margin: 0; color: #fff; text-shadow: 0 0 20px var(--electric-blue);
+            font-family: 'Orbitron'; font-size: 3rem; letter-spacing: 10px; margin: 0;
+            background: linear-gradient(to bottom, #fff, var(--electric-blue));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px var(--electric-blue));
         }
 
-        /* Contenedor del Servidor Centralizado */
-        .hub-map {
-            position: relative; width: 800px; height: 500px;
+        /* Mapa de Red */
+        .network-container {
+            position: relative; width: 900px; height: 500px;
             display: flex; justify-content: center; align-items: center;
         }
 
-        .main-server {
+        /* Servidor Central */
+        .central-core {
             width: 200px; height: 200px;
             border: 2px solid var(--electric-blue); border-radius: 50%;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             background: rgba(0, 26, 51, 0.8); backdrop-filter: blur(10px);
-            box-shadow: 0 0 40px var(--glow); z-index: 5;
+            box-shadow: 0 0 40px var(--electric-blue), inset 0 0 20px var(--electric-blue);
+            z-index: 5; transition: 0.5s;
         }
+        .central-core:hover { transform: scale(1.05); box-shadow: 0 0 60px var(--electric-blue); }
 
-        .node {
-            position: absolute; width: 200px; padding: 15px;
-            background: rgba(255,255,255,0.05); border: 1px solid var(--electric-blue);
-            border-radius: 10px; cursor: pointer; transition: 0.3s;
-            backdrop-filter: blur(5px); text-align: center;
+        /* Nodos */
+        .node-box {
+            position: absolute; width: 220px; padding: 20px;
+            background: var(--glass); border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 15px; cursor: pointer; transition: 0.4s;
+            backdrop-filter: blur(8px); text-align: center;
         }
-        .node:hover { transform: scale(1.1); box-shadow: 0 0 20px var(--electric-blue); background: rgba(0, 212, 255, 0.1); }
-        
-        /* Posiciones */
-        .n-urnieta { top: 0; left: 0; }
-        .n-repelega { top: 0; right: 0; }
-        .n-blockly { bottom: 0; left: 50%; transform: translateX(-50%); border-color: #ff33bb; }
+        .node-box:hover {
+            border-color: var(--electric-blue); background: rgba(0, 212, 255, 0.2);
+            transform: translateY(-10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .node-title { font-family: 'Orbitron'; font-size: 0.8rem; color: var(--electric-blue); margin-bottom: 8px; }
+        .node-status { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* Líneas de conexión SVG */
-        .svg-conns { position: absolute; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-        .conn-line { stroke: var(--electric-blue); stroke-width: 1.5; stroke-dasharray: 10; animation: pulse 2s infinite linear; opacity: 0.5; }
-        @keyframes pulse { from { stroke-dashoffset: 20; } to { stroke-dashoffset: 0; } }
+        /* Posicionamiento */
+        .pos-urnieta { top: 10%; left: 0; }
+        .pos-repelega { top: 10%; right: 0; }
+        .pos-blockly { bottom: 5%; left: 50%; transform: translateX(-50%); border-bottom: 3px solid var(--accent-purple); }
 
-        /* Panel Deslizante (Capa de abajo/Superior) */
-        #portal-layer {
+        /* Líneas de Red */
+        .svg-layer { position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: 1; pointer-events: none; }
+        .line { stroke: var(--electric-blue); stroke-width: 1; opacity: 0.4; stroke-dasharray: 10; animation: flow 3s infinite linear; }
+        @keyframes flow { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+
+        /* Capa de Visualización para Blockly */
+        #display-panel {
             position: fixed; top: 100%; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 100; transition: 0.7s cubic-bezier(0.19, 1, 0.22, 1);
+            background: #000; z-index: 100; transition: 0.6s cubic-bezier(0.86, 0, 0.07, 1);
             display: flex; flex-direction: column;
         }
-        #portal-layer.active { top: 5%; border-radius: 30px 30px 0 0; border-top: 3px solid var(--electric-blue); }
-        .close-portal { padding: 15px; text-align: right; cursor: pointer; font-family: 'Orbitron'; color: var(--electric-blue); }
+        #display-panel.active { top: 8%; border-radius: 30px 30px 0 0; border-top: 2px solid var(--electric-blue); }
+        .btn-close { align-self: flex-end; padding: 15px 40px; color: var(--electric-blue); cursor: pointer; font-family: 'Orbitron'; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="bg-overlay"></div>
 
     <div class="header">
-        <h1>FP ROBOTIK INTERFACE</h1>
-        <p style="letter-spacing: 5px; font-weight: 100;">SERVIDOR CENTRALIZADO DE GESTIÓN</p>
+        <h1>FP ROBOTIK</h1>
+        <p>CENTRAL SERVER INTERFACE</p>
     </div>
 
-    <div class="hub-map">
-        <svg class="svg-conns">
-            <line class="conn-line" x1="400" y1="250" x2="100" y2="100" />
-            <line class="conn-line" x1="400" y1="250" x2="700" y2="100" />
-            <line class="conn-line" x1="400" y1="250" x2="400" y2="430" />
+    <div class="network-container">
+        <svg class="svg-layer">
+            <line class="line" x1="450" y1="250" x2="110" y2="105" />
+            <line class="line" x1="450" y1="250" x2="790" y2="105" />
+            <line class="line" x1="450" y1="250" x2="450" y2="425" />
         </svg>
 
-        <div class="main-server">
-            <span style="font-size: 0.6rem; opacity: 0.7;">CENTRAL CORE</span>
-            <div style="font-family: 'Orbitron'; font-size: 1.4rem; color: var(--electric-blue);">ONLINE</div>
+        <div class="central-core">
+            <div style="font-size: 0.6rem; letter-spacing: 3px;">SYSTEM STATUS</div>
+            <div style="font-family: 'Orbitron'; font-size: 1.6rem; color: var(--electric-blue);">ONLINE</div>
         </div>
 
-        <div class="node n-urnieta" onclick="openService('http://192.168.200.1:1880/ui/')">
-            <b style="font-family: 'Orbitron'; font-size: 0.8rem;">IOT SALESIANOS</b><br>
-            <span style="font-size: 0.7rem;">Acceso a Dashboard UR5</span>
+        <div class="node-box pos-urnieta" onclick="handleLink('http://192.168.200.1:1880/ui/#/0', true)">
+            <div class="node-title">IOT SALESIANOS</div>
+            <div class="node-status">Dashboard Urnieta</div>
         </div>
 
-        <div class="node n-repelega" onclick="alert('Nodo Repélega en mantenimiento')">
-            <b style="font-family: 'Orbitron'; font-size: 0.8rem; opacity: 0.5;">IOT REPELEGA</b><br>
-            <span style="font-size: 0.7rem;">Próximamente...</span>
+        <div class="node-box pos-repelega" onclick="alert('Nodo Repélega: Esperando configuración de red.')">
+            <div class="node-title" style="color: #555;">IOT REPELEGA</div>
+            <div class="node-status">System Standby</div>
         </div>
 
-        <div class="node n-blockly" onclick="openService('https://yunamuno.github.io/FP_Robotik_Interface_v2/')">
-            <b style="font-family: 'Orbitron'; font-size: 0.8rem;">CONVERSOR BLOCKLY</b><br>
-            <span style="font-size: 0.7rem;">Entorno de Programación</span>
+        <div class="node-box pos-blockly" onclick="handleLink('https://yunamuno.github.io/FP_Robotik_Interface_v2/', false)">
+            <div class="node-title">CONVERSOR BLOCKLY</div>
+            <div class="node-status">V2 Interface Ready</div>
         </div>
     </div>
 
-    <div id="portal-layer">
-        <div class="close-portal" onclick="closeService()">[ CERRAR MÓDULO X ]</div>
-        <iframe id="service-frame" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+    <div id="display-panel">
+        <div class="btn-close" onclick="closePanel()">CERRAR MÓDULO [X]</div>
+        <iframe id="viewer-frame" src="" style="width: 100%; height: 100%; border: none;"></iframe>
     </div>
 
     <script>
-        function openService(url) {
-            document.getElementById('service-frame').src = url;
-            document.getElementById('portal-layer').classList.add('active');
+        function handleLink(url, isExternal) {
+            if (isExternal) {
+                // Abre en pestaña nueva para evitar bloqueos de seguridad HTTP/HTTPS
+                window.open(url, '_blank');
+            } else {
+                // Abre dentro de la web de forma fluida
+                document.getElementById('viewer-frame').src = url;
+                document.getElementById('display-panel').classList.add('active');
+            }
         }
-        function closeService() {
-            document.getElementById('portal-layer').classList.remove('active');
-            setTimeout(() => { document.getElementById('service-frame').src = ''; }, 700);
+
+        function closePanel() {
+            document.getElementById('display-panel').classList.remove('active');
+            setTimeout(() => { document.getElementById('viewer-frame').src = ''; }, 600);
         }
     </script>
 </body>
