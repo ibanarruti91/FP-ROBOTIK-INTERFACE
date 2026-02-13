@@ -1,0 +1,119 @@
+.validation-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 1024px) {
+  .validation-panel {
+    grid-template-columns: 1fr;
+  }
+}
+
+.code-section,
+.validation-results {
+  background: var(--panel-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.code-section h3,
+.validation-results h3 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+}
+
+.code-editor {
+  background: rgba(11, 18, 32, 0.8);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 8px;
+  padding: 1rem;
+  font-family: 'Courier New', monospace;
+  overflow-x: auto;
+}
+
+.code-line {
+  display: flex;
+  gap: 1rem;
+  padding: 0.25rem 0;
+  line-height: 1.6;
+}
+
+.line-number {
+  color: var(--text-secondary);
+  user-select: none;
+  min-width: 30px;
+  text-align: right;
+}
+
+.code-text {
+  color: var(--accent-cyan);
+  white-space: pre;
+}
+
+.validation-results {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.result-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(11, 18, 32, 0.6);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.result-item:hover {
+  background: rgba(11, 18, 32, 0.8);
+  transform: translateX(5px);
+}
+
+.result-item.success {
+  border-left: 3px solid var(--accent-online);
+}
+
+.result-item.warning {
+  border-left: 3px solid var(--accent-magenta);
+}
+
+.result-item.error {
+  border-left: 3px solid #ef4444;
+}
+
+.result-icon {
+  font-size: 1.25rem;
+  min-width: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.result-item.success .result-icon {
+  color: var(--accent-online);
+}
+
+.result-item.warning .result-icon {
+  color: var(--accent-magenta);
+}
+
+.result-item.error .result-icon {
+  color: #ef4444;
+}
+
+.result-item span:last-child {
+  flex: 1;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}

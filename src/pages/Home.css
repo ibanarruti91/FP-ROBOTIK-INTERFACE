@@ -1,0 +1,256 @@
+.home {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.connection-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.connection-line {
+  stroke-dasharray: 5, 5;
+  animation: dash 20s linear infinite;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -1000;
+  }
+}
+
+.binary-text {
+  font-family: var(--font-display);
+  animation: binaryPulse 3s ease-in-out infinite;
+}
+
+@keyframes binaryPulse {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.3; }
+}
+
+/* Planet */
+.planet-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+.planet {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.planet-core {
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle at 30% 30%, #00e5ff, #0b1220);
+  border-radius: 50%;
+  position: relative;
+  z-index: 2;
+  box-shadow: 
+    0 0 30px rgba(0, 229, 255, 0.4),
+    inset 0 0 40px rgba(0, 229, 255, 0.2);
+  animation: planetPulse 4s ease-in-out infinite;
+}
+
+@keyframes planetPulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 30px rgba(0, 229, 255, 0.4),
+      inset 0 0 40px rgba(0, 229, 255, 0.2);
+  }
+  50% {
+    box-shadow: 
+      0 0 50px rgba(0, 229, 255, 0.6),
+      inset 0 0 60px rgba(0, 229, 255, 0.3);
+  }
+}
+
+.planet-ring {
+  position: absolute;
+  border: 2px solid;
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: rotate 20s linear infinite;
+}
+
+.planet-ring-1 {
+  width: 160px;
+  height: 160px;
+  border-color: var(--accent-cyan);
+  animation-duration: 15s;
+}
+
+.planet-ring-2 {
+  width: 180px;
+  height: 180px;
+  border-color: var(--accent-purple);
+  animation-duration: 20s;
+  animation-direction: reverse;
+}
+
+.planet-ring-3 {
+  width: 200px;
+  height: 200px;
+  border-color: var(--accent-magenta);
+  animation-duration: 25s;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.planet-glow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(0, 229, 255, 0.2), transparent 70%);
+  border-radius: 50%;
+  filter: blur(20px);
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+}
+
+/* Orbital Nodes */
+.orbital-node {
+  position: absolute;
+  z-index: 3;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.orbital-node:hover {
+  transform: scale(1.1);
+}
+
+.orbital-node.top-left {
+  top: 20%;
+  left: 20%;
+}
+
+.orbital-node.top-right {
+  top: 20%;
+  right: 20%;
+}
+
+.orbital-node.bottom-center {
+  bottom: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.orbital-node.bottom-center:hover {
+  transform: translateX(-50%) scale(1.1);
+}
+
+/* Hexagon */
+.hexagon {
+  width: 160px;
+  height: 92px;
+  position: relative;
+  background: var(--panel-bg);
+  backdrop-filter: blur(10px);
+  border: 2px solid var(--node-color, var(--accent-cyan));
+  clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.orbital-node:hover .hexagon {
+  background: rgba(12, 18, 30, 0.95);
+  box-shadow: 0 0 30px var(--node-color);
+  border-width: 3px;
+}
+
+.hexagon-inner {
+  padding: 1rem;
+  text-align: center;
+  width: 100%;
+}
+
+.node-title {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.3;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.node-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  opacity: 0.2;
+  filter: blur(30px);
+  border-radius: 50%;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+}
+
+.orbital-node:hover .node-glow {
+  opacity: 0.4;
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.orbital-node.top-left {
+  animation: float 6s ease-in-out infinite;
+}
+
+.orbital-node.top-right {
+  animation: float 5s ease-in-out infinite;
+  animation-delay: 0.5s;
+}
+
+.orbital-node.bottom-center {
+  animation: float 7s ease-in-out infinite;
+  animation-delay: 1s;
+}
