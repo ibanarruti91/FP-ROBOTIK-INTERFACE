@@ -1,16 +1,112 @@
-# React + Vite
+# FP Robotic Interface
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Una SPA profesional construida con React + Vite + React Router para gestión de interfaces robóticas.
 
-Currently, two official plugins are available:
+## 🚀 Características
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Sidebar fija** de 320px con navegación vertical
+- **Home interactivo** con planeta digital y nodos hexagonales orbitales
+- **Páginas de telemetría y validación** con diseño profesional
+- **Dark tech theme** con colores cian, púrpura y magenta
+- **Animaciones suaves** y efectos hover con glow
+- **Router Hash** para compatibilidad con GitHub Pages
+- **Tipografías**: Orbitron (display) + Roboto (body)
 
-## React Compiler
+## 📋 Páginas
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Home (`/`)
+- Planeta digital central con anillos orbitales animados
+- 3 nodos hexagonales flotantes con conexiones
+- Navegación interactiva a todas las secciones
 
-## Expanding the ESLint configuration
+### Telemetría (`/telemetria`)
+- Dashboard con métricas en tiempo real
+- Tarjetas de CPU, Memoria, Red y Almacenamiento
+- Indicadores visuales con barras de progreso
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Validación (`/validacion`)
+- Editor de código con numeración de líneas
+- Resultados de validación en tiempo real
+- Sistema de alertas (success/warning/error)
+
+## 🛠️ Tecnologías
+
+- React 19.2
+- Vite 7.3
+- React Router DOM (HashRouter)
+- CSS modular con variables personalizadas
+- Google Fonts (Orbitron + Roboto)
+
+## 📦 Instalación
+
+```bash
+npm install
+```
+
+## 🏃‍♂️ Desarrollo
+
+```bash
+npm run dev
+```
+
+Abre [http://localhost:5173/FP-ROBOTIK-INTERFACE/](http://localhost:5173/FP-ROBOTIK-INTERFACE/)
+
+## 🏗️ Build
+
+```bash
+npm run build
+```
+
+## 🚀 Despliegue en GitHub Pages
+
+El proyecto incluye un workflow de GitHub Actions que despliega automáticamente a GitHub Pages en cada push a `main`.
+
+### Configuración manual:
+1. Ve a Settings > Pages en tu repositorio
+2. Selecciona "GitHub Actions" como fuente
+3. El workflow `.github/workflows/deploy.yml` se encargará del despliegue
+
+## 📁 Estructura del Proyecto
+
+```
+├── public/
+│   ├── assets/
+│   │   └── logo.png
+│   └── .nojekyll
+├── src/
+│   ├── components/
+│   │   ├── Layout.jsx
+│   │   ├── Layout.css
+│   │   ├── Sidebar.jsx
+│   │   └── Sidebar.css
+│   ├── pages/
+│   │   ├── Home.jsx
+│   │   ├── Home.css
+│   │   ├── Telemetria.jsx
+│   │   ├── Telemetria.css
+│   │   ├── Validacion.jsx
+│   │   └── Validacion.css
+│   ├── App.jsx
+│   ├── App.css
+│   ├── index.css
+│   └── main.jsx
+├── index.html
+├── vite.config.js
+└── package.json
+```
+
+## 🎨 Paleta de Colores
+
+- **Fondo**: #0f172a / #0b1220
+- **Panel**: rgba(12, 18, 30, 0.85)
+- **Texto primario**: #ffffff
+- **Texto secundario**: #94a3b8
+- **Cian**: #00e5ff
+- **Púrpura**: #a855f7
+- **Magenta**: #ff33bb
+- **Online**: #10b981
+
+## 📝 Licencia
+
+MIT
+
