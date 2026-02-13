@@ -5,7 +5,7 @@ concentrar los enlaces oficiales disponibles para obtener los módulos de kernel
 de la IOT2040 (UVC) para la imagen **V3.1.1** con kernel
 **4.4.302-cip69-st5**.
 
-## Paquetes UVC solicitados
+## Paquetes UVC requeridos
 
 - `kernel-module-uvcvideo`
 - `kernel-module-videobuf2-v4l2`
