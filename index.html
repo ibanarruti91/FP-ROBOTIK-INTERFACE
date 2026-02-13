@@ -2,142 +2,139 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>FP ROBOTIK | CENTRAL HUB</title>
+    <title>FP ROBOTIK | HUB CENTRAL</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Roboto:wght@300;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --electric-blue: #00d4ff;
-            --deep-blue: #000b1a;
-            --accent-purple: #9d00ff;
-            --glass: rgba(0, 212, 255, 0.1);
+            --neon-blue: #00d4ff;
+            --dark-core: #000814;
+            --circuit-line: rgba(0, 212, 255, 0.15);
         }
 
         body {
             margin: 0; padding: 0;
-            /* Fondo inspirado en tu imagen: azul profundo con patrón de circuitos */
-            background: #000b1a linear-gradient(135deg, #000b1a 0%, #001a33 100%);
-            background-image: radial-gradient(circle at 20% 30%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
-                              url('https://www.transparenttextures.com/patterns/circuit-board.png'); /* Patrón de circuitos */
+            background-color: var(--dark-core);
+            /* FONDO DE CIRCUITOS (Simulando tu foto) */
+            background-image: 
+                linear-gradient(var(--circuit-line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--circuit-line) 1px, transparent 1px),
+                radial-gradient(circle at center, #001a33 0%, var(--dark-core) 100%);
+            background-size: 40px 40px, 40px 40px, cover;
             color: white; font-family: 'Roboto', sans-serif;
             height: 100vh; overflow: hidden;
             display: flex; flex-direction: column; align-items: center;
         }
 
-        /* Cabecera Principal */
-        .header { margin-top: 50px; text-align: center; z-index: 10; }
-        .header h1 {
-            font-family: 'Orbitron'; font-size: 3rem; letter-spacing: 10px; margin: 0;
-            background: linear-gradient(to bottom, #fff, var(--electric-blue));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 15px var(--electric-blue));
+        /* Efecto de líneas de circuito diagonales adicionales */
+        body::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://www.transparenttextures.com/patterns/circuit-board.png');
+            opacity: 0.3; pointer-events: none;
         }
 
-        /* Mapa de Red */
-        .network-container {
-            position: relative; width: 900px; height: 500px;
+        .header { margin-top: 40px; text-align: center; z-index: 10; }
+        .header h1 {
+            font-family: 'Orbitron'; font-size: 3.2rem; letter-spacing: 12px; margin: 0;
+            color: #fff; text-shadow: 0 0 20px var(--neon-blue), 0 0 40px var(--neon-blue);
+        }
+
+        .network-grid {
+            position: relative; width: 1000px; height: 600px;
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* Servidor Central */
-        .central-core {
-            width: 200px; height: 200px;
-            border: 2px solid var(--electric-blue); border-radius: 50%;
+        /* NODO CENTRAL (Servidor) */
+        .server-hub {
+            width: 240px; height: 240px;
+            background: rgba(0, 20, 40, 0.9);
+            border: 3px solid var(--neon-blue); border-radius: 50%;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: rgba(0, 26, 51, 0.8); backdrop-filter: blur(10px);
-            box-shadow: 0 0 40px var(--electric-blue), inset 0 0 20px var(--electric-blue);
-            z-index: 5; transition: 0.5s;
+            box-shadow: 0 0 50px var(--neon-blue), inset 0 0 30px var(--neon-blue);
+            z-index: 5; backdrop-filter: blur(10px);
         }
-        .central-core:hover { transform: scale(1.05); box-shadow: 0 0 60px var(--electric-blue); }
 
-        /* Nodos */
-        .node-box {
-            position: absolute; width: 220px; padding: 20px;
-            background: var(--glass); border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 15px; cursor: pointer; transition: 0.4s;
-            backdrop-filter: blur(8px); text-align: center;
+        /* BOTONES / NODOS EXTERNOS */
+        .node-btn {
+            position: absolute; width: 250px; padding: 25px;
+            background: rgba(0, 212, 255, 0.05);
+            border: 1px solid var(--neon-blue); border-radius: 15px;
+            cursor: pointer; transition: 0.4s all; backdrop-filter: blur(10px);
+            text-align: center; z-index: 10;
         }
-        .node-box:hover {
-            border-color: var(--electric-blue); background: rgba(0, 212, 255, 0.2);
-            transform: translateY(-10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+
+        .node-btn:hover {
+            background: rgba(0, 212, 255, 0.2);
+            transform: scale(1.1) translateY(-10px);
+            box-shadow: 0 0 30px var(--neon-blue);
         }
-        .node-title { font-family: 'Orbitron'; font-size: 0.8rem; color: var(--electric-blue); margin-bottom: 8px; }
-        .node-status { font-size: 0.7rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* Posicionamiento */
-        .pos-urnieta { top: 10%; left: 0; }
-        .pos-repelega { top: 10%; right: 0; }
-        .pos-blockly { bottom: 5%; left: 50%; transform: translateX(-50%); border-bottom: 3px solid var(--accent-purple); }
+        /* Ubicaciones de los nodos */
+        .n-salesianos { top: 10%; left: 5%; }
+        .n-repelega { top: 10%; right: 5%; opacity: 0.5; }
+        .n-blockly { bottom: 10%; left: 50%; transform: translateX(-50%); border-bottom-width: 5px; }
 
-        /* Líneas de Red */
-        .svg-layer { position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: 1; pointer-events: none; }
-        .line { stroke: var(--electric-blue); stroke-width: 1; opacity: 0.4; stroke-dasharray: 10; animation: flow 3s infinite linear; }
-        @keyframes flow { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+        /* Conexiones de Red Animadas */
+        .conn-svg { position: absolute; width: 100%; height: 100%; pointer-events: none; }
+        .conn-line { stroke: var(--neon-blue); stroke-width: 2; stroke-dasharray: 15; animation: flow 2s infinite linear; opacity: 0.4; }
+        @keyframes flow { from { stroke-dashoffset: 150; } to { stroke-dashoffset: 0; } }
 
-        /* Capa de Visualización para Blockly */
-        #display-panel {
+        /* Capa para Blockly */
+        #blockly-layer {
             position: fixed; top: 100%; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 100; transition: 0.6s cubic-bezier(0.86, 0, 0.07, 1);
-            display: flex; flex-direction: column;
+            background: #000; z-index: 1000; transition: 0.8s cubic-bezier(0.19, 1, 0.22, 1);
         }
-        #display-panel.active { top: 8%; border-radius: 30px 30px 0 0; border-top: 2px solid var(--electric-blue); }
-        .btn-close { align-self: flex-end; padding: 15px 40px; color: var(--electric-blue); cursor: pointer; font-family: 'Orbitron'; font-weight: bold; }
+        #blockly-layer.active { top: 5%; border-radius: 40px 40px 0 0; border-top: 4px solid var(--neon-blue); }
+        .close-bar { padding: 15px; text-align: right; color: var(--neon-blue); cursor: pointer; font-family: 'Orbitron'; background: #111; border-radius: 40px 40px 0 0; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>FP ROBOTIK</h1>
-        <p>CENTRAL SERVER INTERFACE</p>
+        <h1>FP ROBOTIK INTERFACE</h1>
+        <p style="color: var(--neon-blue); letter-spacing: 5px;">SERVIDOR CENTRALIZADO</p>
     </div>
 
-    <div class="network-container">
-        <svg class="svg-layer">
-            <line class="line" x1="450" y1="250" x2="110" y2="105" />
-            <line class="line" x1="450" y1="250" x2="790" y2="105" />
-            <line class="line" x1="450" y1="250" x2="450" y2="425" />
+    <div class="network-grid">
+        <svg class="conn-svg">
+            <line class="conn-line" x1="500" y1="300" x2="200" y2="120" />
+            <line class="conn-line" x1="500" y1="300" x2="800" y2="120" />
+            <line class="conn-line" x1="500" y1="300" x2="500" y2="480" />
         </svg>
 
-        <div class="central-core">
-            <div style="font-size: 0.6rem; letter-spacing: 3px;">SYSTEM STATUS</div>
-            <div style="font-family: 'Orbitron'; font-size: 1.6rem; color: var(--electric-blue);">ONLINE</div>
+        <div class="server-hub">
+            <span style="font-size: 0.7rem; letter-spacing: 2px;">NETWORK CORE</span>
+            <div style="font-family: 'Orbitron'; font-size: 1.8rem; color: #fff;">ACTIVE</div>
         </div>
 
-        <div class="node-box pos-urnieta" onclick="handleLink('http://192.168.200.1:1880/ui/#/0', true)">
-            <div class="node-title">IOT SALESIANOS</div>
-            <div class="node-status">Dashboard Urnieta</div>
+        <div class="node-btn n-salesianos" onclick="window.open('http://192.168.200.1:1880/ui/#/0', '_blank')">
+            <div style="font-family:'Orbitron'; color: var(--neon-blue);">DASHBOARD IOT</div>
+            <div style="font-size: 0.8rem; margin-top:5px;">SALESIANOS URNIETA</div>
         </div>
 
-        <div class="node-box pos-repelega" onclick="alert('Nodo Repélega: Esperando configuración de red.')">
-            <div class="node-title" style="color: #555;">IOT REPELEGA</div>
-            <div class="node-status">System Standby</div>
+        <div class="node-btn n-repelega">
+            <div style="font-family:'Orbitron'; color: #555;">IOT REPELEGA</div>
+            <div style="font-size: 0.8rem; margin-top:5px;">SIN CONEXIÓN</div>
         </div>
 
-        <div class="node-box pos-blockly" onclick="handleLink('https://yunamuno.github.io/FP_Robotik_Interface_v2/', false)">
-            <div class="node-title">CONVERSOR BLOCKLY</div>
-            <div class="node-status">V2 Interface Ready</div>
+        <div class="node-btn n-blockly" onclick="openBlockly()">
+            <div style="font-family:'Orbitron'; color: var(--neon-blue); font-size: 1.2rem;">CONVERSOR BLOCKLY</div>
+            <div style="font-size: 0.8rem; margin-top:5px;">ENTORNO DE PROGRAMACIÓN V2</div>
         </div>
     </div>
 
-    <div id="display-panel">
-        <div class="btn-close" onclick="closePanel()">CERRAR MÓDULO [X]</div>
-        <iframe id="viewer-frame" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+    <div id="blockly-layer">
+        <div class="close-bar" onclick="closeBlockly()">CERRAR INTERFAZ [X]</div>
+        <iframe id="blockly-frame" src="" style="width: 100%; height: 95%; border: none;"></iframe>
     </div>
 
     <script>
-        function handleLink(url, isExternal) {
-            if (isExternal) {
-                // Abre en pestaña nueva para evitar bloqueos de seguridad HTTP/HTTPS
-                window.open(url, '_blank');
-            } else {
-                // Abre dentro de la web de forma fluida
-                document.getElementById('viewer-frame').src = url;
-                document.getElementById('display-panel').classList.add('active');
-            }
+        function openBlockly() {
+            document.getElementById('blockly-frame').src = 'https://yunamuno.github.io/FP_Robotik_Interface_v2/';
+            document.getElementById('blockly-layer').classList.add('active');
         }
-
-        function closePanel() {
-            document.getElementById('display-panel').classList.remove('active');
-            setTimeout(() => { document.getElementById('viewer-frame').src = ''; }, 600);
+        function closeBlockly() {
+            document.getElementById('blockly-layer').classList.remove('active');
+            setTimeout(() => { document.getElementById('blockly-frame').src = ''; }, 800);
         }
     </script>
 </body>
