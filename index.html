@@ -160,13 +160,20 @@
         const INITIAL_DELAY = 500; // Wait for CSS animations to position nodes
         const PARTICLE_STAGGER_DELAY = 2000; // Delay between particle creation per node
         const RESIZE_DEBOUNCE_DELAY = 250; // Debounce delay for resize events
+        const PARTICLES_PER_NODE = 3; // Number of binary particles per node
         
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         }
         resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
+        
+        // Debounced canvas resize handler
+        let canvasResizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(canvasResizeTimeout);
+            canvasResizeTimeout = setTimeout(resizeCanvas, RESIZE_DEBOUNCE_DELAY);
+        });
         
         const binaryParticles = [];
         const nodes = document.querySelectorAll('.circular-node');
@@ -231,7 +238,7 @@
                     const nodeY = rect.top + rect.height / 2;
                     
                     // Create multiple particles per node
-                    for (let i = 0; i < 3; i++) {
+                    for (let i = 0; i < PARTICLES_PER_NODE; i++) {
                         setTimeout(() => {
                             binaryParticles.push(new BinaryParticle(nodeX, nodeY, logoX, logoY));
                         }, i * PARTICLE_STAGGER_DELAY);
