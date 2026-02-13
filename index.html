@@ -47,13 +47,29 @@
             height: 100%;
             pointer-events: none;
         }
-        /* Circular Node */
-        .node-container {
+        /* Canvas for binary data flow */
+        #binaryCanvas {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            z-index: 10;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
         }
+        /* Nodes Wrapper */
+        .nodes-wrapper {
+            position: absolute;
+            bottom: 50px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 10;
+            padding: 0 10%;
+        }
+        /* Circular Node */
         .circular-node {
             width: 200px;
             height: 200px;
@@ -67,11 +83,12 @@
             cursor: pointer;
             text-decoration: none;
             border: 3px solid #fff;
-            transform: translate(-50%, -50%);
+            animation: float 3s ease-in-out infinite;
         }
         .circular-node:hover {
-            transform: translate(-50%, -50%) scale(1.1);
-            box-shadow: 0 0 40px rgba(0, 255, 204, 0.8), 0 0 70px rgba(0, 102, 255, 0.6);
+            transform: scale(1.15);
+            box-shadow: 0 0 50px rgba(0, 255, 204, 1), 0 0 90px rgba(0, 102, 255, 0.8);
+            filter: brightness(1.3);
         }
         .node-text {
             color: #fff;
@@ -81,9 +98,19 @@
             padding: 20px;
             text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
+        /* Float animation */
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
     </style>
 </head>
 <body>
+    <canvas id="binaryCanvas"></canvas>
     <div class="neon-logo">Welcome to the Circuit</div>
     <nav>
         <a href="#home">Home</a>
@@ -94,14 +121,143 @@
     <svg class="circuit" width="100%" height="100%">
         <path d="M200,150 L300,250" />
     </svg>
-    <div class="node-container">
+    <div class="nodes-wrapper">
+        <div class="circular-node">
+            <div class="node-text">NODE 1</div>
+        </div>
         <a href="https://yunamuno.github.io/FP_Robotik_Interface_v2/" target="_blank" rel="noopener noreferrer" class="circular-node">
             <div class="node-text">INTERFAZ CONVERSOR BLOCKY</div>
         </a>
+        <div class="circular-node">
+            <div class="node-text">NODE 3</div>
+        </div>
     </div>
     <div class="particles"></div>
     <script>
-        // Particle effect logic goes here
+        // Canvas setup for binary data flow
+        const canvas = document.getElementById('binaryCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Resize canvas on window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Binary data particles
+        const particles = [];
+        const particleCount = 30;
+
+        // Get logo position (approximate center top)
+        function getLogoPosition() {
+            const logo = document.querySelector('.neon-logo');
+            const rect = logo.getBoundingClientRect();
+            return {
+                x: rect.left + rect.width / 2,
+                y: rect.top + rect.height / 2
+            };
+        }
+
+        // Get node positions
+        function getNodePositions() {
+            const nodes = document.querySelectorAll('.circular-node');
+            return Array.from(nodes).map(node => {
+                const rect = node.getBoundingClientRect();
+                return {
+                    x: rect.left + rect.width / 2,
+                    y: rect.top + rect.height / 2
+                };
+            });
+        }
+
+        // Particle class
+        class BinaryParticle {
+            constructor(startPos, endPos) {
+                this.start = { ...startPos };
+                this.end = { ...endPos };
+                this.x = startPos.x;
+                this.y = startPos.y;
+                this.progress = 0;
+                this.speed = 0.003 + Math.random() * 0.005;
+                this.text = Math.random() > 0.5 ? '1' : '0';
+                this.opacity = 1;
+                this.size = 14 + Math.random() * 10;
+            }
+
+            update() {
+                this.progress += this.speed;
+                if (this.progress >= 1) {
+                    // Reset particle
+                    this.progress = 0;
+                    this.opacity = 1;
+                }
+                
+                // Smooth curve interpolation
+                const t = this.progress;
+                this.x = this.start.x + (this.end.x - this.start.x) * t;
+                this.y = this.start.y + (this.end.y - this.start.y) * t;
+                
+                // Fade out near the end
+                if (this.progress > 0.7) {
+                    this.opacity = 1 - ((this.progress - 0.7) / 0.3);
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                ctx.font = `bold ${this.size}px monospace`;
+                ctx.fillStyle = this.text === '1' ? '#00ffcc' : '#0066ff';
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.text === '1' ? '#00ffcc' : '#0066ff';
+                ctx.fillText(this.text, this.x, this.y);
+                ctx.restore();
+            }
+        }
+
+        // Initialize particles
+        function initParticles() {
+            const logoPos = getLogoPosition();
+            const nodePositions = getNodePositions();
+            
+            particles.length = 0;
+            nodePositions.forEach(nodePos => {
+                for (let i = 0; i < particleCount / 3; i++) {
+                    particles.push(new BinaryParticle(nodePos, logoPos));
+                }
+            });
+        }
+
+        // Animation loop
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            
+            requestAnimationFrame(animate);
+        }
+
+        // Start animation after page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                initParticles();
+                animate();
+            }, 500);
+        });
+
+        // Reinitialize on resize
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                initParticles();
+            }, 250);
+        });
     </script>
 </body>
 </html>
