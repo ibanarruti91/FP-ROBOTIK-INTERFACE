@@ -140,15 +140,13 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        // Resize canvas on window resize
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
-
         // Binary data particles
         const particles = [];
         const particleCount = 30;
+        const MIN_PARTICLE_SPEED = 0.003;
+        const SPEED_VARIANCE = 0.005;
+        const MIN_PARTICLE_SIZE = 14;
+        const SIZE_VARIANCE = 10;
 
         // Get logo position (approximate center top)
         function getLogoPosition() {
@@ -180,10 +178,10 @@
                 this.x = startPos.x;
                 this.y = startPos.y;
                 this.progress = 0;
-                this.speed = 0.003 + Math.random() * 0.005;
+                this.speed = MIN_PARTICLE_SPEED + Math.random() * SPEED_VARIANCE;
                 this.text = Math.random() > 0.5 ? '1' : '0';
                 this.opacity = 1;
-                this.size = 14 + Math.random() * 10;
+                this.size = MIN_PARTICLE_SIZE + Math.random() * SIZE_VARIANCE;
             }
 
             update() {
@@ -223,8 +221,9 @@
             const nodePositions = getNodePositions();
             
             particles.length = 0;
+            const particlesPerNode = Math.floor(particleCount / 3);
             nodePositions.forEach(nodePos => {
-                for (let i = 0; i < particleCount / 3; i++) {
+                for (let i = 0; i < particlesPerNode; i++) {
                     particles.push(new BinaryParticle(nodePos, logoPos));
                 }
             });
@@ -250,11 +249,13 @@
             }, 500);
         });
 
-        // Reinitialize on resize
+        // Consolidated resize handler with debounce
         let resizeTimer;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(() => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
                 initParticles();
             }, 250);
         });
