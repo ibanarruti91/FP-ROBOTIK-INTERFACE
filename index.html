@@ -89,6 +89,7 @@
             transform: scale(1.15);
             box-shadow: 0 0 50px rgba(0, 255, 204, 1), 0 0 90px rgba(0, 102, 255, 0.8);
             filter: brightness(1.3);
+            animation-play-state: paused;
         }
         .node-text {
             color: #fff;
@@ -147,6 +148,7 @@
         const SPEED_VARIANCE = 0.005;
         const MIN_PARTICLE_SIZE = 14;
         const SIZE_VARIANCE = 10;
+        const RESIZE_DEBOUNCE_MS = 250;
 
         // Get logo position (approximate center top)
         function getLogoPosition() {
@@ -221,9 +223,12 @@
             const nodePositions = getNodePositions();
             
             particles.length = 0;
-            const particlesPerNode = Math.floor(particleCount / 3);
-            nodePositions.forEach(nodePos => {
-                for (let i = 0; i < particlesPerNode; i++) {
+            const particlesPerNode = Math.floor(particleCount / nodePositions.length);
+            const remainder = particleCount % nodePositions.length;
+            
+            nodePositions.forEach((nodePos, index) => {
+                const count = particlesPerNode + (index < remainder ? 1 : 0);
+                for (let i = 0; i < count; i++) {
                     particles.push(new BinaryParticle(nodePos, logoPos));
                 }
             });
@@ -257,7 +262,7 @@
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
                 initParticles();
-            }, 250);
+            }, RESIZE_DEBOUNCE_MS);
         });
     </script>
 </body>
