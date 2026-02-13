@@ -157,7 +157,7 @@
         const ctx = canvas.getContext('2d');
         
         // Configuration constants
-        const INITIAL_DELAY = 500; // Wait for CSS animations to position nodes
+        const INITIAL_DELAY = 1500; // Wait for CSS animations to complete (longest animation: 0.4s delay + 0.8s duration = 1.2s)
         const PARTICLE_STAGGER_DELAY = 2000; // Delay between particle creation per node
         const RESIZE_DEBOUNCE_DELAY = 250; // Debounce delay for resize events
         const PARTICLES_PER_NODE = 3; // Number of binary particles per node
