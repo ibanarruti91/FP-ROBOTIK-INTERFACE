@@ -56,7 +56,6 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
             z-index: 10;
         }
         .circular-node {
@@ -72,9 +71,10 @@
             cursor: pointer;
             text-decoration: none;
             border: 3px solid #fff;
+            transform: translate(-50%, -50%);
         }
         .circular-node:hover {
-            transform: scale(1.1);
+            transform: translate(-50%, -50%) scale(1.1);
             box-shadow: 0 0 40px rgba(0, 255, 204, 0.8), 0 0 70px rgba(0, 102, 255, 0.6);
         }
         .node-text {
@@ -101,7 +101,7 @@
         <path d="M300,250 C350,300 400,400 450,350" />
     </svg>
     <div class="node-container">
-        <a href="https://yunamuno.github.io/FP_Robotik_Interface_v2/" target="_blank" rel="noopener noreferrer" aria-label="Ir a Interfaz Conversor Blocky" class="circular-node">
+        <a href="https://yunamuno.github.io/FP_Robotik_Interface_v2/" target="_blank" rel="noopener noreferrer" aria-label="Go to Blocky Converter Interface" class="circular-node">
             <div class="node-text">INTERFAZ CONVERSOR BLOCKY</div>
         </a>
     </div>
