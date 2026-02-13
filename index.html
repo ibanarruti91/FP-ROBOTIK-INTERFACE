@@ -156,6 +156,11 @@
         const canvas = document.getElementById('binaryCanvas');
         const ctx = canvas.getContext('2d');
         
+        // Configuration constants
+        const INITIAL_DELAY = 500; // Wait for CSS animations to position nodes
+        const PARTICLE_STAGGER_DELAY = 2000; // Delay between particle creation per node
+        const RESIZE_DEBOUNCE_DELAY = 250; // Debounce delay for resize events
+        
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -229,16 +234,16 @@
                     for (let i = 0; i < 3; i++) {
                         setTimeout(() => {
                             binaryParticles.push(new BinaryParticle(nodeX, nodeY, logoX, logoY));
-                        }, i * 2000); // Stagger particle creation
+                        }, i * PARTICLE_STAGGER_DELAY);
                     }
                 });
-            }, 500);
+            }, INITIAL_DELAY);
         }
         
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            binaryParticles.forEach((particle, index) => {
+            binaryParticles.forEach(particle => {
                 particle.update();
                 particle.draw();
             });
@@ -249,10 +254,14 @@
         createBinaryParticles();
         animate();
         
-        // Recreate particles on window resize
+        // Debounced resize handler to avoid excessive particle recreation
+        let resizeTimeout;
         window.addEventListener('resize', () => {
-            binaryParticles.length = 0;
-            createBinaryParticles();
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                binaryParticles.length = 0;
+                createBinaryParticles();
+            }, RESIZE_DEBOUNCE_DELAY);
         });
     </script>
 </body>
