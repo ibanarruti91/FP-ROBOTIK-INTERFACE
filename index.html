@@ -2,100 +2,147 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>FP ROBOTIK INTERFACE | Central Server</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+    <title>FP ROBOTIK INTERFACE | HUB</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Roboto:wght@100;300;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --neon-cyan: #00e5ff;
-            --neon-purple: #a855f7;
-            --neon-pink: #ff33bb;
-            --bg-dark: #050505;
+            --deep-blue: #000b1a;
+            --electric: #00d4ff;
+            --accent: #9d00ff;
+            --glass: rgba(0, 212, 255, 0.05);
         }
 
         body {
-            margin: 0; background-color: var(--bg-dark);
+            margin: 0; padding: 0;
+            /* Gradiente de fondo espectacular */
+            background: linear-gradient(135deg, #000b1a 0%, #001a33 50%, #003366 100%);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
             color: white; font-family: 'Roboto', sans-serif;
-            overflow: hidden; height: 100vh;
-        }
-
-        /* Contenedor del Logo e Interfaz 3D */
-        .main-container {
+            height: 100vh; overflow: hidden;
             display: flex; flex-direction: column; align-items: center;
-            justify-content: center; height: 100vh; position: relative;
         }
 
-        .central-hub {
-            position: relative; width: 400px; height: 400px;
-            display: flex; align-items: center; justify-content: center;
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
-        /* El Servidor Central (Logo) */
-        .server-core {
-            width: 150px; height: 150px;
-            border: 4px solid var(--neon-purple); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 30px var(--neon-purple);
-            z-index: 10; background: rgba(0,0,0,0.8);
-            font-family: 'Orbitron'; text-align: center; font-size: 0.8rem;
+        /* Título con resplandor */
+        .header {
+            margin-top: 40px; text-align: center; z-index: 10;
+        }
+        .header h1 {
+            font-family: 'Orbitron'; font-size: 2.5rem; letter-spacing: 12px;
+            margin: 0; background: linear-gradient(to bottom, #fff, var(--electric));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 20px rgba(0,212,255,0.6));
+        }
+        .header p { font-weight: 300; letter-spacing: 4px; color: var(--electric); opacity: 0.8; }
+
+        /* Contenedor de Red */
+        .network-wrap {
+            position: relative; width: 900px; height: 500px;
+            display: flex; justify-content: center; align-items: center;
         }
 
-        /* Nodos Satélite */
+        /* El Servidor (Círculo Central) */
+        .core {
+            width: 220px; height: 220px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--electric); border-radius: 50%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: 0 0 60px rgba(0, 212, 255, 0.2);
+            backdrop-filter: blur(15px); z-index: 5;
+            transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .core:hover { transform: scale(1.05); box-shadow: 0 0 80px var(--electric); }
+
+        /* Nodos Interactivos */
         .node {
-            position: absolute; width: 120px; height: 80px;
-            border: 1px solid var(--neon-cyan); background: rgba(0, 229, 255, 0.1);
-            border-radius: 10px; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; cursor: pointer;
-            transition: 0.4s; font-size: 0.7rem; text-align: center; padding: 5px;
+            position: absolute; width: 220px; padding: 15px;
+            background: var(--glass); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; cursor: pointer; transition: 0.4s;
+            backdrop-filter: blur(10px); z-index: 10;
         }
-
         .node:hover {
-            transform: scale(1.1); box-shadow: 0 0 20px var(--neon-cyan);
-            background: rgba(0, 229, 255, 0.3);
+            border-color: var(--electric); background: rgba(0, 212, 255, 0.1);
+            transform: translateY(-10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
+        .node-name { font-family: 'Orbitron'; font-size: 0.75rem; color: var(--electric); margin-bottom: 5px; }
+        .node-info { font-size: 0.7rem; color: #aaa; line-height: 1.4; }
 
-        /* Posicionamiento de los 3 Nodos */
-        .node-urnieta { top: -50px; left: 50%; transform: translateX(-50%); border-color: var(--neon-cyan); }
-        .node-repelega { bottom: -50px; left: 10%; border-color: var(--neon-purple); opacity: 0.6; }
-        .node-blockly { bottom: -50px; right: 10%; border-color: var(--neon-pink); }
+        /* Posicionamiento de Nodos */
+        .n-urnieta { top: 10%; left: 0; }
+        .n-repelega { top: 10%; right: 0; }
+        .n-blockly  { bottom: 5%; left: 50%; transform: translateX(-50%); border-bottom: 3px solid var(--accent); }
 
-        /* Líneas de conexión (SVG) */
-        .connections {
-            position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none;
+        /* Líneas de conexión animadas */
+        .svg-lines { position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: 1; }
+        .line-conn { stroke: var(--electric); stroke-width: 1; opacity: 0.3; stroke-dasharray: 8; animation: moveLine 3s infinite linear; }
+        @keyframes moveLine { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+
+        /* Capa de Visualización (Iframe) */
+        #overlay {
+            position: fixed; top: 100%; left: 0; width: 100%; height: 100%;
+            background: var(--deep-blue); z-index: 100; transition: 0.6s cubic-bezier(0.86, 0, 0.07, 1);
+            display: flex; flex-direction: column;
         }
-
-        line { stroke: var(--neon-cyan); stroke-width: 2; stroke-dasharray: 5; animation: dash 2s linear infinite; }
-
-        @keyframes dash { to { stroke-dashoffset: -20; } }
-
-        h1 { font-family: 'Orbitron'; letter-spacing: 5px; color: var(--neon-cyan); margin-bottom: 50px; }
+        #overlay.active { top: 10%; border-top: 2px solid var(--electric); border-radius: 30px 30px 0 0; }
+        .close-btn { align-self: flex-end; padding: 15px 30px; color: var(--electric); cursor: pointer; font-family: 'Orbitron'; }
     </style>
 </head>
 <body>
 
-    <div class="main-container">
-        <h1>FP ROBOTIK INTERFACE</h1>
+    <div class="header">
+        <h1>FP ROBOTIK</h1>
+        <p>CENTRAL INTELLIGENCE INTERFACE</p>
+    </div>
 
-        <div class="central-hub">
-            <svg class="connections">
-                <line x1="200" y1="200" x2="200" y2="30" /> <line x1="200" y1="200" x2="80" y2="350" />  <line x1="200" y1="200" x2="320" y2="350" /> </svg>
+    <div class="network-wrap">
+        <svg class="svg-lines">
+            <line class="line-conn" x1="450" y1="250" x2="110" y2="100" />
+            <line class="line-conn" x1="450" y1="250" x2="790" y2="100" />
+            <line class="line-conn" x1="450" y1="250" x2="450" y2="430" />
+        </svg>
 
-            <div class="server-core">
-                SERVIDOR<br>CENTRALIZADO
-            </div>
+        <div class="core">
+            <div style="font-size: 0.6rem; letter-spacing: 3px; opacity: 0.6;">NETWORK STATUS</div>
+            <div style="font-family: 'Orbitron'; font-size: 1.6rem; color: var(--electric);">ONLINE</div>
+            <div id="telemetry-summary" style="font-size: 0.7rem; margin-top: 10px; color: #888;">Nodes: 3 Active</div>
+        </div>
 
-            <div class="node node-urnieta" onclick="window.open('http://TU_IP_URNIETA', '_blank')">
-                <strong>IOT</strong><br>SALESIANOS URNIETA
-            </div>
+        <div class="node n-urnieta" onclick="openNode('http://TU_IP_URNIETA')">
+            <div class="node-name">IOT SALESIANOS</div>
+            <div class="node-info">Monitorización UR5 Urnieta.<br>Acceso a telemetría y telecontrol.</div>
+        </div>
 
-            <div class="node node-repelega">
-                <strong>IOT</strong><br>REPELEGA (Offline)
-            </div>
+        <div class="node n-repelega">
+            <div class="node-name" style="color: #666;">IOT REPELEGA</div>
+            <div class="node-info">UR3e System: Standby.<br>Esperando enlace de red...</div>
+        </div>
 
-            <div class="node node-blockly" onclick="window.open('https://TU_GITHUB_BLOCKLY', '_blank')">
-                <strong>CONVERSOR</strong><br>BLOCKLY
-            </div>
+        <div class="node n-blockly" onclick="openNode('AQUI_PEGA_TU_URL_BLOCKLY')">
+            <div class="node-name">CONVERSOR BLOCKLY</div>
+            <div class="node-info">Programación lógica universal.<br>Sincronizado con GitHub Repos.</div>
         </div>
     </div>
 
+    <div id="overlay">
+        <div class="close-btn" onclick="closeNode()">CERRAR PANEL [X]</div>
+        <iframe id="content-frame" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+    </div>
+
+    <script>
+        function openNode(url) {
+            document.getElementById('content-frame').src = url;
+            document.getElementById('overlay').classList.add('active');
+        }
+        function closeNode() {
+            document.getElementById('overlay').classList.remove('active');
+            setTimeout(() => { document.getElementById('content-frame').src = ''; }, 600);
+        }
+    </script>
 </body>
 </html>
