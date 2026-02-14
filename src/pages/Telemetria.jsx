@@ -10,7 +10,7 @@ function Telemetria() {
         ← Volver
       </button>
       <div className="page-header">
-        <h1 className="page-title">Telemetría avanzadas centros</h1>
+        <h1 className="page-title">Telemetría avanzada</h1>
         <div className="status-badge online">
           <span className="status-dot"></span>
           Sistema Online

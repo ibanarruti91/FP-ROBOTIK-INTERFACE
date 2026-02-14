@@ -7,9 +7,9 @@ function Home() {
   const nodes = [
     {
       id: 1,
-      title: 'Telemetría avanzadas centros',
+      title: 'Telemetría avanzada',
       position: 'node-1',
-      path: '/telemetria',
+      path: '/centros',
       color: '#00e5ff',
       icon: 'chart'
     },
@@ -139,12 +139,22 @@ function Home() {
           onClick={() => handleNodeClick(node)}
           style={{ '--node-color': node.color }}
         >
-          <div className="node-card">
-            <div className="node-icon">
-              {renderIcon(node.icon, node.color)}
+          <div className="node-hexagon">
+            <svg className="hexagon-shape" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <polygon 
+                points="50 2, 95 27.5, 95 72.5, 50 98, 5 72.5, 5 27.5" 
+                fill="var(--panel-bg)"
+                stroke="var(--node-color)"
+                strokeWidth="2"
+              />
+            </svg>
+            <div className="node-content">
+              <div className="node-icon">
+                {renderIcon(node.icon, node.color)}
+              </div>
+              <span className="node-title">{node.title}</span>
+              {node.external && <span className="external-badge">↗</span>}
             </div>
-            <span className="node-title">{node.title}</span>
-            {node.external && <span className="external-badge">↗</span>}
           </div>
           <div className="node-glow" style={{ backgroundColor: node.color }}></div>
         </div>
