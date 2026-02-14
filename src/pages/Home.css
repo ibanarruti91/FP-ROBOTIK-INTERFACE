@@ -65,7 +65,7 @@
   border-radius: 50%;
   opacity: 0.4;
   z-index: 1;
-  animation: circuitRotate 30s linear infinite;
+  animation: circuitRotate 60s linear infinite;
 }
 
 @keyframes circuitRotate {
