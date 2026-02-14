@@ -1,5 +1,11 @@
 /* =========================
-   SIDEBAR AJUSTADO
+   SIDEBAR — CSS COMPLETO (AJUSTADO)
+   Objetivos:
+   - Logo y encabezado más juntos (menos hueco entre logo y título)
+   - Encabezado más arriba (compactado)
+   - Menú/accesos más arriba, pero con aire respecto al encabezado
+   - Sin scroll horizontal
+   - SIN tocar tamaño del logo (height: 450px)
    ========================= */
 
 .sidebar {
@@ -14,30 +20,34 @@
 
   padding: 1.5rem 1.25rem;
 
-  /* Control limpio del espaciado */
-  gap: 0.75rem;
-
   overflow-y: auto;
   overflow-x: hidden;
+
+  /* Control vertical global */
+  gap: 0; /* Lo gestionamos por bloques para no pegarlo todo */
 }
 
+/* Encabezado: logo + textos deben ser un bloque compacto */
 .sidebar-header {
-  margin-bottom: 0; /* antes 1.5rem */
   text-align: center;
   transition: transform 0.3s ease;
+
+  /* Aire correcto entre encabezado y accesos */
+  margin-bottom: 1rem;
 }
 
 .sidebar-header:hover {
   transform: translateY(-3px);
 }
 
-/* IMPORTANTE: NO SE TOCA EL TAMAÑO DEL LOGO */
+/* LOGO: mantener tamaño, pero pegarlo al título */
 .logo {
   width: auto;
-  height: 450px; /* igual que antes */
+  height: 450px; /* NO TOCADO */
   object-fit: contain;
 
-  margin-bottom: 0.25rem; /* reducido */
+  /* Clave: elimina el hueco excesivo logo -> título */
+  margin-bottom: 0.05rem;
 
   filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.4));
   transition: transform 0.3s ease, filter 0.3s ease;
@@ -48,50 +58,77 @@
   filter: drop-shadow(0 0 35px rgba(0, 229, 255, 0.6));
 }
 
+/* Título: compacto (sube visualmente el encabezado) */
 .sidebar-title {
   font-family: var(--font-display);
   font-size: 1.6rem;
   font-weight: 800;
+  color: var(--text-primary);
   margin: 0;
+  line-height: 1.05;
   letter-spacing: 0.5px;
+
   background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
+/* Subtítulo: compacto */
 .sidebar-subtitle {
+  font-family: var(--font-body);
   font-size: 0.75rem;
   color: var(--text-secondary);
-  margin-top: 0.3rem;
+  margin-top: 0.25rem;
+  line-height: 1.1;
   letter-spacing: 1px;
   font-weight: 300;
   opacity: 0.8;
 }
 
+/* Menú: más arriba, pero con separación controlada por header */
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
 
-  /* sube ligeramente los accesos */
-  margin-top: -0.5rem;
+  /* Menos “aire” para que suba todo, pero sin ir pegado */
+  gap: 0.85rem;
+
+  /* Importante: SIN margin-top negativo (eso pegaba el menú al título) */
+  margin-top: 0;
 }
 
-/* Tarjetas */
+/* Tarjeta de navegación */
 .nav-card {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1.25rem;
+
+  padding: 1.1rem 1.25rem;
+
   background: rgba(15, 23, 42, 0.6);
   border: 1px solid rgba(148, 163, 184, 0.1);
   border-radius: 12px;
+
   color: var(--text-primary);
   text-decoration: none;
+
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
   cursor: pointer;
+}
+
+.nav-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 3px;
+  background: linear-gradient(180deg, var(--accent-cyan), var(--accent-purple));
+  transform: scaleY(0);
+  transition: transform 0.3s ease;
 }
 
 .nav-card:hover {
@@ -99,4 +136,50 @@
   border-color: var(--accent-cyan);
   transform: translateX(5px);
   box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
+}
+
+.nav-card:hover::before {
+  transform: scaleY(1);
+}
+
+.nav-card.active {
+  background: rgba(0, 229, 255, 0.1);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.25);
+}
+
+.nav-card.active::before {
+  transform: scaleY(1);
+}
+
+.nav-icon {
+  font-size: 1.5rem;
+  min-width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-title {
+  flex: 1;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.external-indicator {
+  font-size: 1rem;
+  color: var(--accent-purple);
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.nav-card:hover .external-indicator {
+  opacity: 1;
+}
+
+/* Extra: seguridad anti-scroll horizontal por sombras/transform */
+.sidebar * {
+  box-sizing: border-box;
 }
