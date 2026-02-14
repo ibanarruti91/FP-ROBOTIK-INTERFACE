@@ -1,5 +1,9 @@
-/* =========================
-   SIDEBAR AJUSTADO - FINAL
+/* ========================= 
+   SIDEBAR AJUSTADO - FINAL (v2)
+   Objetivo:
+   - Texto más pegado al logo
+   - Botones un poco más arriba
+   - Más espacio entre texto y primer botón
    ========================= */
 
 .sidebar {
@@ -11,10 +15,10 @@
 
   display: flex;
   flex-direction: column;
-  
-  padding: 1.5rem 1.25rem;
-  
-  /* Eliminamos el gap automático para controlar distancias manualmente */
+
+  /* CAMBIO: subimos todo un poco reduciendo el padding-top */
+  padding: 1.1rem 1.25rem 1.5rem; /* antes 1.5rem 1.25rem */
+
   gap: 0;
 
   overflow-y: auto;
@@ -26,9 +30,10 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  
-  /* Esta es la separación entre el bloque Texto y los Accesos */
-  margin-bottom: 2rem; 
+
+  /* CAMBIO: damos aire REAL entre el texto y los accesos */
+  margin-bottom: 2.4rem; /* antes 2rem */
+
   transition: transform 0.3s ease;
 }
 
@@ -39,19 +44,17 @@
 /* IMPORTANTE: NO SE TOCA EL TAMAÑO DEL LOGO */
 .logo {
   width: auto;
-  height: 450px; /* Se mantiene altura fija solicitada */
+  height: 450px;
   object-fit: contain;
-  
-  /* CLAVE 1: Alineamos la imagen abajo para pegarla al título */
+
   object-position: bottom;
 
-  /* CLAVE 2: Margen negativo para compensar el aire interno del PNG */
-  margin-bottom: -40px; 
+  /* Compensa aire interno del PNG */
+  margin-bottom: -40px;
 
   filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.4));
   transition: transform 0.3s ease, filter 0.3s ease;
-  
-  /* Asegura que no tape la interacción, aunque visualmente solape */
+
   position: relative;
   z-index: 1;
 }
@@ -70,10 +73,10 @@
   background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  
-  /* Ajuste fino superior para despegarlo lo justo del logo */
-  margin-top: 0.5rem;
-  
+
+  /* CAMBIO: título MÁS pegado al logo */
+  margin-top: 0.15rem; /* antes 0.5rem */
+
   position: relative;
   z-index: 2;
 }
@@ -81,7 +84,10 @@
 .sidebar-subtitle {
   font-size: 0.75rem;
   color: var(--text-secondary);
-  margin-top: 0.3rem;
+
+  /* CAMBIO: compactamos un poco el subtítulo */
+  margin-top: 0.2rem; /* antes 0.3rem */
+
   letter-spacing: 1px;
   font-weight: 300;
   opacity: 0.8;
@@ -92,8 +98,6 @@
   flex-direction: column;
   gap: 0.9rem;
   width: 100%;
-  
-  /* Ya no necesitamos margen negativo, lo controla el header */
   margin-top: 0;
 }
 
@@ -141,3 +145,4 @@
   font-size: 0.8rem;
   opacity: 0.7;
 }
+
