@@ -1,11 +1,5 @@
 /* =========================
-   SIDEBAR — CSS COMPLETO (AJUSTADO)
-   Objetivos:
-   - Logo y encabezado más juntos (menos hueco entre logo y título)
-   - Encabezado más arriba (compactado)
-   - Menú/accesos más arriba, pero con aire respecto al encabezado
-   - Sin scroll horizontal
-   - SIN tocar tamaño del logo (height: 450px)
+   SIDEBAR AJUSTADO - FINAL
    ========================= */
 
 .sidebar {
@@ -17,40 +11,49 @@
 
   display: flex;
   flex-direction: column;
-
+  
   padding: 1.5rem 1.25rem;
+  
+  /* Eliminamos el gap automático para controlar distancias manualmente */
+  gap: 0;
 
   overflow-y: auto;
   overflow-x: hidden;
-
-  /* Control vertical global */
-  gap: 0; /* Lo gestionamos por bloques para no pegarlo todo */
 }
 
-/* Encabezado: logo + textos deben ser un bloque compacto */
 .sidebar-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
+  
+  /* Esta es la separación entre el bloque Texto y los Accesos */
+  margin-bottom: 2rem; 
   transition: transform 0.3s ease;
-
-  /* Aire correcto entre encabezado y accesos */
-  margin-bottom: 1rem;
 }
 
 .sidebar-header:hover {
   transform: translateY(-3px);
 }
 
-/* LOGO: mantener tamaño, pero pegarlo al título */
+/* IMPORTANTE: NO SE TOCA EL TAMAÑO DEL LOGO */
 .logo {
   width: auto;
-  height: 450px; /* NO TOCADO */
+  height: 450px; /* Se mantiene altura fija solicitada */
   object-fit: contain;
+  
+  /* CLAVE 1: Alineamos la imagen abajo para pegarla al título */
+  object-position: bottom;
 
-  /* Clave: elimina el hueco excesivo logo -> título */
-  margin-bottom: 0.05rem;
+  /* CLAVE 2: Margen negativo para compensar el aire interno del PNG */
+  margin-bottom: -40px; 
 
   filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.4));
   transition: transform 0.3s ease, filter 0.3s ease;
+  
+  /* Asegura que no tape la interacción, aunque visualmente solape */
+  position: relative;
+  z-index: 1;
 }
 
 .sidebar-header:hover .logo {
@@ -58,77 +61,57 @@
   filter: drop-shadow(0 0 35px rgba(0, 229, 255, 0.6));
 }
 
-/* Título: compacto (sube visualmente el encabezado) */
 .sidebar-title {
   font-family: var(--font-display);
   font-size: 1.6rem;
   font-weight: 800;
-  color: var(--text-primary);
   margin: 0;
-  line-height: 1.05;
   letter-spacing: 0.5px;
-
   background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
+  
+  /* Ajuste fino superior para despegarlo lo justo del logo */
+  margin-top: 0.5rem;
+  
+  position: relative;
+  z-index: 2;
 }
 
-/* Subtítulo: compacto */
 .sidebar-subtitle {
-  font-family: var(--font-body);
   font-size: 0.75rem;
   color: var(--text-secondary);
-  margin-top: 0.25rem;
-  line-height: 1.1;
+  margin-top: 0.3rem;
   letter-spacing: 1px;
   font-weight: 300;
   opacity: 0.8;
 }
 
-/* Menú: más arriba, pero con separación controlada por header */
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-
-  /* Menos “aire” para que suba todo, pero sin ir pegado */
-  gap: 0.85rem;
-
-  /* Importante: SIN margin-top negativo (eso pegaba el menú al título) */
+  gap: 0.9rem;
+  width: 100%;
+  
+  /* Ya no necesitamos margen negativo, lo controla el header */
   margin-top: 0;
 }
 
-/* Tarjeta de navegación */
+/* Tarjetas */
 .nav-card {
   display: flex;
   align-items: center;
   gap: 1rem;
-
-  padding: 1.1rem 1.25rem;
-
+  padding: 1.25rem;
   background: rgba(15, 23, 42, 0.6);
   border: 1px solid rgba(148, 163, 184, 0.1);
   border-radius: 12px;
-
   color: var(--text-primary);
   text-decoration: none;
-
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
   cursor: pointer;
-}
-
-.nav-card::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 3px;
-  background: linear-gradient(180deg, var(--accent-cyan), var(--accent-purple));
-  transform: scaleY(0);
-  transition: transform 0.3s ease;
 }
 
 .nav-card:hover {
@@ -138,48 +121,23 @@
   box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
 }
 
-.nav-card:hover::before {
-  transform: scaleY(1);
-}
-
 .nav-card.active {
   background: rgba(0, 229, 255, 0.1);
   border-color: var(--accent-cyan);
-  box-shadow: 0 0 20px rgba(0, 229, 255, 0.25);
-}
-
-.nav-card.active::before {
-  transform: scaleY(1);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.15);
 }
 
 .nav-icon {
-  font-size: 1.5rem;
-  min-width: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 1.2rem;
 }
 
 .nav-title {
-  flex: 1;
-  font-family: var(--font-body);
-  font-size: 0.95rem;
   font-weight: 500;
-  line-height: 1.35;
+  letter-spacing: 0.5px;
 }
 
 .external-indicator {
-  font-size: 1rem;
-  color: var(--accent-purple);
+  margin-left: auto;
+  font-size: 0.8rem;
   opacity: 0.7;
-  transition: opacity 0.3s ease;
-}
-
-.nav-card:hover .external-indicator {
-  opacity: 1;
-}
-
-/* Extra: seguridad anti-scroll horizontal por sombras/transform */
-.sidebar * {
-  box-sizing: border-box;
 }
