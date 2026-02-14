@@ -239,12 +239,8 @@
 }
 
 /* Maintain hover effect with animation */
-.space-node.node-1:hover,
-.space-node.node-2:hover,
-.space-node.node-3:hover,
-.space-node.node-4:hover {
+.space-node:hover {
   animation-play-state: paused;
-  transform: scale(1.15) translateY(0);
 }
 
 /* Node halo effect */
