@@ -1,8 +1,14 @@
+import { useNavigate } from 'react-router-dom';
 import './Telemetria.css';
 
 function Telemetria() {
+  const navigate = useNavigate();
+
   return (
     <div className="page-container">
+      <button className="back-button" onClick={() => navigate('/')} aria-label="Volver al inicio">
+        ← Volver
+      </button>
       <div className="page-header">
         <h1 className="page-title">Telemetría avanzadas centros</h1>
         <div className="status-badge online">
