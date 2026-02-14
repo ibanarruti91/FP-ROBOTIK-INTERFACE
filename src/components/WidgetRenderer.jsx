@@ -30,8 +30,9 @@ function formatValue(value, format) {
   }
   
   if (typeof value === 'number') {
-    const decimals = parseInt(format) || 0;
-    return value.toFixed(decimals);
+    const decimals = parseInt(format, 10);
+    const validDecimals = isNaN(decimals) ? 0 : Math.max(0, decimals);
+    return value.toFixed(validDecimals);
   }
   
   return String(value);
