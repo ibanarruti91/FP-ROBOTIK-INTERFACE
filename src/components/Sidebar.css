@@ -62,7 +62,7 @@
   -webkit-text-fill-color: transparent;
 
   /* 🔼 Subimos solo el texto */
-  transform: translateY(-85px);
+  transform: translateY(-105px);
 
   position: relative;
   z-index: 2;
@@ -79,7 +79,7 @@
   opacity: 0.8;
 
   /* 🔼 Subimos también el subtítulo */
-  transform: translateY(-85px);
+  transform: translateY(-105px);
 }
 
 /* =========================
