@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import './Sidebar.css';
+import logo from '/assets/logo.png';
 
 function Sidebar() {
   const menuItems = [
@@ -28,7 +29,7 @@ function Sidebar() {
     <aside className="sidebar">
       <div className="sidebar-header">
         <img 
-          src="/assets/logo.png" 
+          src={logo} 
           alt="FP Robotic Interface Logo" 
           className="logo"
         />
