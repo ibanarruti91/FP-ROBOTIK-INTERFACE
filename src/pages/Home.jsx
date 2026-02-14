@@ -8,7 +8,7 @@ function Home() {
     {
       id: 1,
       title: 'Centros de Telemetría',
-      image: '/assets/nodo-centros.png',
+      image: `${import.meta.env.BASE_URL}assets/nodo-centros.png`,
       position: 'node-1',
       path: '/centros',
       color: '#00e5ff'
@@ -16,7 +16,7 @@ function Home() {
     {
       id: 2,
       title: 'Conversor Blockly',
-      image: '/assets/nodo-blockly.png',
+      image: `${import.meta.env.BASE_URL}assets/nodo-blockly.png`,
       position: 'node-2',
       path: '/conversor',
       color: '#a855f7'
@@ -24,7 +24,7 @@ function Home() {
     {
       id: 3,
       title: 'Validación de Código',
-      image: '/assets/nodo-validacion.png',
+      image: `${import.meta.env.BASE_URL}assets/nodo-validacion.png`,
       position: 'node-3',
       path: '/validacion',
       color: '#ff33bb'
@@ -32,7 +32,7 @@ function Home() {
     {
       id: 4,
       title: 'Monitor del Sistema',
-      image: '/assets/nodo-monitor.png',
+      image: `${import.meta.env.BASE_URL}assets/nodo-monitor.png`,
       position: 'node-4',
       path: '/monitor',
       color: '#10b981'
@@ -62,7 +62,7 @@ function Home() {
       {/* Central planet */}
       <div className="planet-wrapper">
         <div className="planet-glow"></div>
-        <img src="/assets/planeta-central.png" alt="Planeta Central" className="planet-central" />
+        <img src={`${import.meta.env.BASE_URL}assets/planeta-central.png`} alt="Planeta Central" className="planet-central" />
       </div>
 
       {/* Orbiting nodes */}
