@@ -12,22 +12,25 @@ function NexusHomeScene() {
   useEffect(() => {
     if (!mountRef.current) return;
 
+    // Store ref value for cleanup
+    const currentMount = mountRef.current;
+
     // Scene setup
     const scene = new THREE.Scene();
     scene.fog = new THREE.Fog(0x000509, 10, 50);
 
     const camera = new THREE.PerspectiveCamera(
       75,
-      mountRef.current.clientWidth / mountRef.current.clientHeight,
+      currentMount.clientWidth / currentMount.clientHeight,
       0.1,
       1000
     );
     camera.position.z = 12;
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
+    renderer.setSize(currentMount.clientWidth, currentMount.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    mountRef.current.appendChild(renderer.domElement);
+    currentMount.appendChild(renderer.domElement);
 
     // Raycaster for interaction
     const raycaster = new THREE.Raycaster();
@@ -190,7 +193,7 @@ function NexusHomeScene() {
 
     // Mouse move handler
     function onMouseMove(event) {
-      const rect = mountRef.current.getBoundingClientRect();
+      const rect = currentMount.getBoundingClientRect();
       mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
@@ -224,16 +227,16 @@ function NexusHomeScene() {
       }
     }
 
-    mountRef.current.addEventListener('mousemove', onMouseMove);
-    mountRef.current.addEventListener('click', onClick);
+    currentMount.addEventListener('mousemove', onMouseMove);
+    currentMount.addEventListener('click', onClick);
 
     // Window resize handler
     function onWindowResize() {
-      if (!mountRef.current) return;
+      if (!currentMount) return;
       
-      camera.aspect = mountRef.current.clientWidth / mountRef.current.clientHeight;
+      camera.aspect = currentMount.clientWidth / currentMount.clientHeight;
       camera.updateProjectionMatrix();
-      renderer.setSize(mountRef.current.clientWidth, mountRef.current.clientHeight);
+      renderer.setSize(currentMount.clientWidth, currentMount.clientHeight);
     }
 
     window.addEventListener('resize', onWindowResize);
@@ -348,9 +351,9 @@ function NexusHomeScene() {
         cancelAnimationFrame(animationId);
       }
       
-      if (mountRef.current) {
-        mountRef.current.removeEventListener('mousemove', onMouseMove);
-        mountRef.current.removeEventListener('click', onClick);
+      if (currentMount) {
+        currentMount.removeEventListener('mousemove', onMouseMove);
+        currentMount.removeEventListener('click', onClick);
       }
       window.removeEventListener('resize', onWindowResize);
 
@@ -369,8 +372,8 @@ function NexusHomeScene() {
 
       renderer.dispose();
       
-      if (mountRef.current && renderer.domElement) {
-        mountRef.current.removeChild(renderer.domElement);
+      if (currentMount && renderer.domElement) {
+        currentMount.removeChild(renderer.domElement);
       }
     };
   }, [navigate]);
