@@ -39,7 +39,7 @@
   object-position: bottom;
 
   /* posición actual ya ajustada */
-  transform: translateY(-40px);
+  transform: translateY(-50px);
   margin-bottom: -90px;
 
   filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.4));
@@ -62,7 +62,7 @@
   -webkit-text-fill-color: transparent;
 
   /* 🔼 Subimos solo el texto */
-  transform: translateY(-45px);
+  transform: translateY(-65px);
 
   position: relative;
   z-index: 2;
@@ -79,7 +79,7 @@
   opacity: 0.8;
 
   /* 🔼 Subimos también el subtítulo */
-  transform: translateY(-45px);
+  transform: translateY(-65px);
 }
 
 /* =========================
