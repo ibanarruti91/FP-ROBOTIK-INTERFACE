@@ -77,8 +77,9 @@ export function DataTable({ label, data, unit, format }) {
   
   const formatValue = (val) => {
     if (val === null || val === undefined) return '--';
-    const decimals = parseInt(format) || 2;
-    return typeof val === 'number' ? val.toFixed(decimals) : val;
+    const decimals = parseInt(format, 10);
+    const validDecimals = isNaN(decimals) ? 2 : Math.max(0, decimals);
+    return typeof val === 'number' ? val.toFixed(validDecimals) : val;
   };
   
   return (
