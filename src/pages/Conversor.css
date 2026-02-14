@@ -1,0 +1,187 @@
+.conversor-launcher {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 500px;
+  padding: 2rem;
+}
+
+.launcher-panel {
+  background: var(--panel-bg);
+  backdrop-filter: blur(10px);
+  border: 2px solid var(--accent-purple);
+  border-radius: 16px;
+  padding: 3rem;
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 
+    0 0 40px rgba(168, 85, 247, 0.3),
+    inset 0 0 40px rgba(168, 85, 247, 0.05);
+  animation: panelGlow 3s ease-in-out infinite;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.launcher-panel:hover {
+  transform: translateY(-5px);
+  box-shadow: 
+    0 0 60px rgba(168, 85, 247, 0.5),
+    inset 0 0 40px rgba(168, 85, 247, 0.1);
+}
+
+@keyframes panelGlow {
+  0%, 100% {
+    border-color: var(--accent-purple);
+    box-shadow: 
+      0 0 40px rgba(168, 85, 247, 0.3),
+      inset 0 0 40px rgba(168, 85, 247, 0.05);
+  }
+  50% {
+    border-color: var(--accent-magenta);
+    box-shadow: 
+      0 0 50px rgba(255, 51, 187, 0.4),
+      inset 0 0 50px rgba(255, 51, 187, 0.08);
+  }
+}
+
+.launcher-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 2rem;
+  color: var(--accent-purple);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(168, 85, 247, 0.1);
+  border: 2px solid var(--accent-purple);
+  border-radius: 50%;
+  animation: iconFloat 3s ease-in-out infinite;
+}
+
+@keyframes iconFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.launcher-icon svg {
+  width: 40px;
+  height: 40px;
+}
+
+.launcher-title {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-magenta));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.launcher-description {
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-bottom: 2.5rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.launcher-button {
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-magenta));
+  color: var(--text-primary);
+  border: none;
+  border-radius: 8px;
+  padding: 1rem 2.5rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(168, 85, 247, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.launcher-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.launcher-button:hover::before {
+  left: 100%;
+}
+
+.launcher-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 30px rgba(168, 85, 247, 0.6);
+}
+
+.launcher-button:active {
+  transform: scale(0.98);
+}
+
+.button-text {
+  position: relative;
+  z-index: 1;
+}
+
+.button-icon {
+  font-size: 1.5rem;
+  transition: transform 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.launcher-button:hover .button-icon {
+  transform: translateX(5px);
+}
+
+.launcher-note {
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  opacity: 0.7;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .launcher-panel {
+    padding: 2rem;
+  }
+
+  .launcher-title {
+    font-size: 1.5rem;
+  }
+
+  .launcher-description {
+    font-size: 1rem;
+  }
+
+  .launcher-button {
+    padding: 0.875rem 2rem;
+    font-size: 0.9rem;
+  }
+}
