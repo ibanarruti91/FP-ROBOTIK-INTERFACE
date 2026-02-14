@@ -1,9 +1,17 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import './Sidebar.css';
 import logo from '/assets/logo.png';
 
 function Sidebar() {
+  const navigate = useNavigate();
+
   const menuItems = [
+    {
+      id: 0,
+      title: 'Inicio',
+      path: '/',
+      icon: '🏠'
+    },
     {
       id: 1,
       title: 'Telemetría avanzadas centros',
@@ -27,14 +35,14 @@ function Sidebar() {
 
   return (
     <aside className="sidebar">
-      <div className="sidebar-header">
+      <div className="sidebar-header" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
         <img 
           src={logo} 
           alt="FP Robotic Interface Logo" 
           className="logo"
         />
         <h1 className="sidebar-title">FP Robotic Interface</h1>
-        <p className="sidebar-subtitle">Nexus Central · UI</p>
+        <p className="sidebar-subtitle">Colaboración Salesianos Urnieta × Repelega</p>
       </div>
 
       <nav className="sidebar-nav">

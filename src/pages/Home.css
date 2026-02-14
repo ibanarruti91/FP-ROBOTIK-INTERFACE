@@ -6,6 +6,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  background: radial-gradient(circle at center, rgba(0, 229, 255, 0.05), transparent 70%);
 }
 
 .connection-lines {
@@ -50,36 +51,72 @@
 
 .planet {
   position: relative;
-  width: 200px;
-  height: 200px;
+  width: 220px;
+  height: 220px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+.circuit-pattern {
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  opacity: 0.4;
+  z-index: 1;
+  animation: circuitRotate 30s linear infinite;
+}
+
+@keyframes circuitRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.server-icon {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  z-index: 3;
+  opacity: 0.7;
+  animation: serverPulse 3s ease-in-out infinite;
+}
+
+@keyframes serverPulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.05); }
+}
+
 .planet-core {
-  width: 140px;
-  height: 140px;
-  background: radial-gradient(circle at 30% 30%, #00e5ff, #0b1220);
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(circle at 35% 35%, 
+    rgba(0, 229, 255, 0.6), 
+    rgba(0, 229, 255, 0.3) 40%,
+    rgba(11, 18, 32, 0.95) 70%);
   border-radius: 50%;
   position: relative;
   z-index: 2;
   box-shadow: 
-    0 0 30px rgba(0, 229, 255, 0.4),
-    inset 0 0 40px rgba(0, 229, 255, 0.2);
+    0 0 40px rgba(0, 229, 255, 0.5),
+    inset 0 0 60px rgba(0, 229, 255, 0.2),
+    inset -10px -10px 40px rgba(0, 0, 0, 0.5);
   animation: planetPulse 4s ease-in-out infinite;
+  border: 1px solid rgba(0, 229, 255, 0.3);
 }
 
 @keyframes planetPulse {
   0%, 100% {
     box-shadow: 
-      0 0 30px rgba(0, 229, 255, 0.4),
-      inset 0 0 40px rgba(0, 229, 255, 0.2);
+      0 0 40px rgba(0, 229, 255, 0.5),
+      inset 0 0 60px rgba(0, 229, 255, 0.2),
+      inset -10px -10px 40px rgba(0, 0, 0, 0.5);
   }
   50% {
     box-shadow: 
-      0 0 50px rgba(0, 229, 255, 0.6),
-      inset 0 0 60px rgba(0, 229, 255, 0.3);
+      0 0 60px rgba(0, 229, 255, 0.7),
+      inset 0 0 80px rgba(0, 229, 255, 0.3),
+      inset -10px -10px 40px rgba(0, 0, 0, 0.5);
   }
 }
 
@@ -87,130 +124,193 @@
   position: absolute;
   border: 2px solid;
   border-radius: 50%;
-  opacity: 0.3;
+  opacity: 0.4;
   animation: rotate 20s linear infinite;
 }
 
 .planet-ring-1 {
-  width: 160px;
-  height: 160px;
+  width: 180px;
+  height: 180px;
   border-color: var(--accent-cyan);
-  animation-duration: 15s;
+  animation-duration: 18s;
 }
 
 .planet-ring-2 {
-  width: 180px;
-  height: 180px;
+  width: 200px;
+  height: 200px;
   border-color: var(--accent-purple);
-  animation-duration: 20s;
+  animation-duration: 24s;
   animation-direction: reverse;
+  opacity: 0.3;
 }
 
 .planet-ring-3 {
-  width: 200px;
-  height: 200px;
+  width: 220px;
+  height: 220px;
   border-color: var(--accent-magenta);
-  animation-duration: 25s;
+  animation-duration: 30s;
+  opacity: 0.25;
 }
 
 @keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .planet-glow {
   position: absolute;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle, rgba(0, 229, 255, 0.2), transparent 70%);
+  background: radial-gradient(circle, rgba(0, 229, 255, 0.3), transparent 65%);
   border-radius: 50%;
-  filter: blur(20px);
+  filter: blur(25px);
   animation: glowPulse 3s ease-in-out infinite;
+  z-index: 1;
 }
 
 @keyframes glowPulse {
   0%, 100% {
-    opacity: 0.5;
+    opacity: 0.6;
     transform: scale(1);
   }
   50% {
-    opacity: 0.8;
-    transform: scale(1.1);
+    opacity: 0.9;
+    transform: scale(1.15);
   }
 }
 
-/* Orbital Nodes */
+.planet-halo {
+  position: absolute;
+  width: 250px;
+  height: 250px;
+  border: 1px solid rgba(0, 229, 255, 0.15);
+  border-radius: 50%;
+  animation: haloExpand 4s ease-in-out infinite;
+  z-index: 0;
+}
+
+@keyframes haloExpand {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.08);
+  }
+}
+
+/* Orbital Nodes - Dynamic positioning around planet */
 .orbital-node {
   position: absolute;
   z-index: 3;
   cursor: pointer;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, filter 0.3s ease;
 }
 
 .orbital-node:hover {
-  transform: scale(1.1);
+  transform: scale(1.04);
+  filter: brightness(1.1);
 }
 
-.orbital-node.top-left {
-  top: 20%;
-  left: 20%;
+/* Position nodes dynamically around the planet - not in straight line */
+.orbital-node.node-1 {
+  top: 28%;
+  left: 15%;
+  animation: float 6s ease-in-out infinite;
 }
 
-.orbital-node.top-right {
-  top: 20%;
-  right: 20%;
+.orbital-node.node-2 {
+  top: 18%;
+  right: 15%;
+  animation: float 5.5s ease-in-out infinite 0.5s;
 }
 
-.orbital-node.bottom-center {
-  bottom: 15%;
+.orbital-node.node-3 {
+  bottom: 12%;
   left: 50%;
   transform: translateX(-50%);
+  animation: float 6.5s ease-in-out infinite 1s;
 }
 
-.orbital-node.bottom-center:hover {
-  transform: translateX(-50%) scale(1.1);
+.orbital-node.node-3:hover {
+  transform: translateX(-50%) scale(1.04);
 }
 
-/* Hexagon */
-.hexagon {
-  width: 160px;
-  height: 92px;
+/* Node Card Design */
+.node-card {
   position: relative;
   background: var(--panel-bg);
-  backdrop-filter: blur(10px);
-  border: 2px solid var(--node-color, var(--accent-cyan));
-  clip-path: polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%);
+  backdrop-filter: blur(15px);
+  border: 2px solid var(--node-color);
+  border-radius: 16px;
+  padding: 1.5rem 2rem;
+  min-width: 200px;
+  max-width: 250px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  gap: 1rem;
   transition: all 0.3s ease;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 0 20px var(--node-color);
 }
 
-.orbital-node:hover .hexagon {
+.orbital-node:hover .node-card {
   background: rgba(12, 18, 30, 0.95);
-  box-shadow: 0 0 30px var(--node-color);
+  box-shadow: 
+    0 12px 48px rgba(0, 0, 0, 0.4),
+    0 0 40px var(--node-color);
   border-width: 3px;
 }
 
-.hexagon-inner {
-  padding: 1rem;
-  text-align: center;
+.node-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid var(--node-color);
+  border-radius: 12px;
+  padding: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.orbital-node:hover .node-icon {
+  background: rgba(0, 0, 0, 0.5);
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 0 20px var(--node-color);
+}
+
+.node-icon svg {
   width: 100%;
+  height: 100%;
 }
 
 .node-title {
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--text-primary);
   line-height: 1.3;
-  display: block;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+
+.external-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-size: 1rem;
+  color: var(--node-color);
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.orbital-node:hover .external-badge {
+  opacity: 1;
 }
 
 .node-glow {
@@ -218,17 +318,18 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 100%;
-  height: 100%;
+  width: 120%;
+  height: 120%;
   opacity: 0.2;
-  filter: blur(30px);
+  filter: blur(40px);
   border-radius: 50%;
   z-index: -1;
   transition: opacity 0.3s ease;
+  pointer-events: none;
 }
 
 .orbital-node:hover .node-glow {
-  opacity: 0.4;
+  opacity: 0.5;
 }
 
 /* Animations */
@@ -237,20 +338,6 @@
     transform: translateY(0px);
   }
   50% {
-    transform: translateY(-10px);
+    transform: translateY(-12px);
   }
-}
-
-.orbital-node.top-left {
-  animation: float 6s ease-in-out infinite;
-}
-
-.orbital-node.top-right {
-  animation: float 5s ease-in-out infinite;
-  animation-delay: 0.5s;
-}
-
-.orbital-node.bottom-center {
-  animation: float 7s ease-in-out infinite;
-  animation-delay: 1s;
 }

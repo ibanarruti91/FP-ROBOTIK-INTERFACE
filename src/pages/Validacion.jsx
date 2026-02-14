@@ -1,8 +1,14 @@
+import { useNavigate } from 'react-router-dom';
 import './Validacion.css';
 
 function Validacion() {
+  const navigate = useNavigate();
+
   return (
     <div className="page-container">
+      <button className="back-button" onClick={() => navigate('/')} aria-label="Volver al inicio">
+        ← Volver
+      </button>
       <div className="page-header">
         <h1 className="page-title">Control de validación código</h1>
         <div className="status-badge online">

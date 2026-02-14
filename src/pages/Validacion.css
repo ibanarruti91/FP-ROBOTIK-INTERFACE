@@ -117,3 +117,114 @@
   color: var(--text-primary);
   font-size: 0.95rem;
 }
+
+/* Back button and page container styles */
+.page-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.back-button {
+  position: absolute;
+  top: -0.5rem;
+  left: 0;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-family: var(--font-body);
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+}
+
+.back-button:hover {
+  color: var(--accent-cyan);
+  background: rgba(0, 229, 255, 0.1);
+  transform: translateX(-3px);
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  margin-top: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+}
+
+.page-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(12, 18, 30, 0.6);
+  border: 1px solid var(--accent-online);
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--accent-online);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--accent-online);
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.page-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.info-card {
+  background: var(--panel-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.card-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  animation: iconFloat 3s ease-in-out infinite;
+}
+
+.info-card h2 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.info-card p {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto;
+}

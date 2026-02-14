@@ -1,12 +1,18 @@
+import { useNavigate } from 'react-router-dom';
 import './Conversor.css';
 
 function Conversor() {
+  const navigate = useNavigate();
+
   const handleOpenConverter = () => {
     window.open('https://yunamuno.github.io/FP_Robotik_Interface_v2/', '_blank', 'noopener,noreferrer');
   };
 
   return (
     <div className="page-container">
+      <button className="back-button" onClick={() => navigate('/')} aria-label="Volver al inicio">
+        ← Volver
+      </button>
       <div className="page-header">
         <h1 className="page-title">Interfaz Conversor Blocky</h1>
         <div className="status-badge online">
