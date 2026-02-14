@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CENTROS } from '../config/centros';
 import { getTelemetryLatest, getMockTelemetryData } from '../servicios/iot';
+import { SALESIANOS_LAYOUT } from '../ui/layouts/salesianos-urnieta.layout';
+import WidgetRenderer from '../components/WidgetRenderer';
 import './TelemetriaDetail.css';
 
 function TelemetriaDetail() {
@@ -11,8 +13,10 @@ function TelemetriaDetail() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [usingMockData, setUsingMockData] = useState(false);
+  const [activeTab, setActiveTab] = useState('menu-principal');
 
   const centro = CENTROS[centroId];
+  const layout = SALESIANOS_LAYOUT; // En el futuro, se podría cargar dinámicamente según el centro
 
   useEffect(() => {
     if (!centro) {
@@ -127,133 +131,31 @@ function TelemetriaDetail() {
         </div>
       </div>
       
-      <div className="telemetry-grid">
-        {/* Estado del sistema */}
-        {telemetry?.estado && (
-          <div className="telemetry-card estado-card">
-            <h3 className="card-title">Estado del Sistema</h3>
-            <div className="card-content">
-              <div className="metric-row">
-                <span className="metric-label">Estado:</span>
-                <span className={`metric-value ${telemetry.estado.online ? 'online' : 'offline'}`}>
-                  {telemetry.estado.online ? 'Online' : 'Offline'}
-                </span>
-              </div>
-              {telemetry.estado.mode && (
-                <div className="metric-row">
-                  <span className="metric-label">Modo:</span>
-                  <span className="metric-value">{telemetry.estado.mode}</span>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* TCP (Tool Center Point) */}
-        {telemetry?.tcp && (
-          <>
-            <div className="telemetry-card tcp-card">
-              <h3 className="card-title">TCP - Posición</h3>
-              <div className="card-content">
-                <div className="metric-row">
-                  <span className="metric-label">X:</span>
-                  <span className="metric-value">
-                    {telemetry.tcp.position?.x?.toFixed(2) ?? '--'} mm
-                  </span>
-                </div>
-                <div className="metric-row">
-                  <span className="metric-label">Y:</span>
-                  <span className="metric-value">
-                    {telemetry.tcp.position?.y?.toFixed(2) ?? '--'} mm
-                  </span>
-                </div>
-                <div className="metric-row">
-                  <span className="metric-label">Z:</span>
-                  <span className="metric-value">
-                    {telemetry.tcp.position?.z?.toFixed(2) ?? '--'} mm
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="telemetry-card tcp-card">
-              <h3 className="card-title">TCP - Velocidad</h3>
-              <div className="card-content">
-                <div className="metric-row">
-                  <span className="metric-label">X:</span>
-                  <span className="metric-value">
-                    {telemetry.tcp.velocity?.x?.toFixed(2) ?? '--'} mm/s
-                  </span>
-                </div>
-                <div className="metric-row">
-                  <span className="metric-label">Y:</span>
-                  <span className="metric-value">
-                    {telemetry.tcp.velocity?.y?.toFixed(2) ?? '--'} mm/s
-                  </span>
-                </div>
-                <div className="metric-row">
-                  <span className="metric-label">Z:</span>
-                  <span className="metric-value">
-                    {telemetry.tcp.velocity?.z?.toFixed(2) ?? '--'} mm/s
-                  </span>
-                </div>
-              </div>
-            </div>
-          </>
-        )}
-
-        {/* Joints */}
-        {telemetry?.joints && (
-          <>
-            {telemetry.joints.positions && (
-              <div className="telemetry-card joints-card">
-                <h3 className="card-title">Joints - Posiciones</h3>
-                <div className="card-content">
-                  {telemetry.joints.positions.map((pos, index) => (
-                    <div key={index} className="metric-row">
-                      <span className="metric-label">J{index + 1}:</span>
-                      <span className="metric-value">
-                        {pos?.toFixed(2) ?? '--'}°
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {telemetry.joints.temperatures && (
-              <div className="telemetry-card joints-card">
-                <h3 className="card-title">Joints - Temperaturas</h3>
-                <div className="card-content">
-                  {telemetry.joints.temperatures.map((temp, index) => (
-                    <div key={index} className="metric-row">
-                      <span className="metric-label">J{index + 1}:</span>
-                      <span className="metric-value">
-                        {temp?.toFixed(1) ?? '--'}°C
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {telemetry.joints.currents && (
-              <div className="telemetry-card joints-card">
-                <h3 className="card-title">Joints - Corrientes</h3>
-                <div className="card-content">
-                  {telemetry.joints.currents.map((current, index) => (
-                    <div key={index} className="metric-row">
-                      <span className="metric-label">J{index + 1}:</span>
-                      <span className="metric-value">
-                        {current?.toFixed(3) ?? '--'} A
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
-        )}
+      {/* Tab Navigation */}
+      <div className="tab-bar">
+        {layout.tabs.map(tab => (
+          <button
+            key={tab.id}
+            className={`tab-button ${activeTab === tab.id ? 'active' : ''}`}
+            onClick={() => setActiveTab(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+      
+      {/* Tab Content */}
+      <div className="tab-content">
+        {layout.tabs
+          .filter(tab => tab.id === activeTab)
+          .map(tab => (
+            <WidgetRenderer
+              key={tab.id}
+              groups={tab.groups}
+              data={telemetry}
+            />
+          ))
+        }
       </div>
 
       {telemetry?.timestamp && (
