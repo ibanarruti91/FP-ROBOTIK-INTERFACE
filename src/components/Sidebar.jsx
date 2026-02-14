@@ -1,6 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import './Sidebar.css';
-import logo from '/assets/logo.png';
 
 function Sidebar() {
   const navigate = useNavigate();
@@ -37,7 +36,7 @@ function Sidebar() {
     <aside className="sidebar">
       <div className="sidebar-header" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
         <img 
-          src={logo} 
+          src={`${import.meta.env.BASE_URL}assets/logo.png`}
           alt="FP Robotic Interface Logo" 
           className="logo"
         />
