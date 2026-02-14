@@ -14,7 +14,7 @@ function Sidebar() {
     },
     {
       id: 1,
-      title: 'Telemetría avanzada multicentros',
+      title: 'Telemetría multicentros',
       path: '/centros',
       icon: '📊'
     },
