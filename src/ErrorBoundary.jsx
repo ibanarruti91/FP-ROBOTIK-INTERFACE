@@ -53,6 +53,7 @@ class ErrorBoundary extends Component {
             </details>
             <button
               onClick={() => window.location.reload()}
+              aria-label="Recargar la página para intentar nuevamente"
               style={{
                 marginTop: '2rem',
                 padding: '1rem 2rem',
