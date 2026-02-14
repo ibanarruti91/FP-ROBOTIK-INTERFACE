@@ -14,7 +14,7 @@ function Sidebar() {
     },
     {
       id: 1,
-      title: 'Telemetría avanzada',
+      title: 'Centros con telemetría avanzada',
       path: '/centros',
       icon: '📊'
     },
