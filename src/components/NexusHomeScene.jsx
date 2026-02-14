@@ -111,7 +111,7 @@ function NexusHomeScene() {
       {
         id: 3,
         label: 'Sistema de monitoreo',
-        action: () => console.log('Acceso a nodo 4: Sistema de monitoreo'),
+        action: () => console.log('Acceso a nodo 4: Sistema de monitoreo'), // Placeholder as specified
         color: 0x10b981,
         angle: Math.PI * 1.2,
         radius: 6.5,
@@ -120,7 +120,7 @@ function NexusHomeScene() {
       {
         id: 4,
         label: 'Panel de configuración',
-        action: () => console.log('Acceso a nodo 5: Panel de configuración'),
+        action: () => console.log('Acceso a nodo 5: Panel de configuración'), // Placeholder as specified
         color: 0xfbbf24,
         angle: Math.PI * 1.6,
         radius: 6,
@@ -209,6 +209,7 @@ function NexusHomeScene() {
 
       if (intersects.length > 0) {
         const node = intersects[0].object;
+        // Log node access as specified in requirements
         console.log(`Acceso a nodo ${node.userData.id + 1}: ${node.userData.label}`);
         
         // Click animation
