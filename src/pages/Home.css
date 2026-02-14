@@ -6,7 +6,8 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: radial-gradient(circle at center, rgba(0, 229, 255, 0.05), transparent 70%);
+  background: radial-gradient(circle at center, rgba(0, 229, 255, 0.08), transparent 70%);
+  perspective: 1000px;
 }
 
 .connection-lines {
@@ -22,6 +23,7 @@
 .connection-line {
   stroke-dasharray: 5, 5;
   animation: dash 20s linear infinite;
+  opacity: 0.6;
 }
 
 @keyframes dash {
@@ -51,21 +53,23 @@
 
 .planet {
   position: relative;
-  width: 220px;
-  height: 220px;
+  width: 280px;
+  height: 280px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transform-style: preserve-3d;
 }
 
 .circuit-pattern {
   position: absolute;
-  width: 160px;
-  height: 160px;
+  width: 200px;
+  height: 200px;
   border-radius: 50%;
-  opacity: 0.4;
+  opacity: 0.6;
   z-index: 1;
   animation: circuitRotate 60s linear infinite;
+  transform: translateZ(20px);
 }
 
 @keyframes circuitRotate {
@@ -75,48 +79,64 @@
 
 .server-icon {
   position: absolute;
-  width: 50px;
-  height: 50px;
-  z-index: 3;
-  opacity: 0.7;
+  width: 60px;
+  height: 60px;
+  z-index: 4;
+  opacity: 0.85;
   animation: serverPulse 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.8));
+  transform: translateZ(40px);
 }
 
 @keyframes serverPulse {
-  0%, 100% { opacity: 0.7; transform: scale(1); }
-  50% { opacity: 0.9; transform: scale(1.05); }
+  0%, 100% { 
+    opacity: 0.85; 
+    transform: translateZ(40px) scale(1); 
+    filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.8));
+  }
+  50% { 
+    opacity: 1; 
+    transform: translateZ(40px) scale(1.1); 
+    filter: drop-shadow(0 0 25px rgba(0, 229, 255, 1));
+  }
 }
 
 .planet-core {
-  width: 160px;
-  height: 160px;
+  width: 200px;
+  height: 200px;
   background: radial-gradient(circle at 35% 35%, 
-    rgba(0, 229, 255, 0.6), 
-    rgba(0, 229, 255, 0.3) 40%,
+    rgba(0, 229, 255, 0.7), 
+    rgba(0, 229, 255, 0.4) 40%,
     rgba(11, 18, 32, 0.95) 70%);
   border-radius: 50%;
   position: relative;
-  z-index: 2;
+  z-index: 3;
   box-shadow: 
-    0 0 40px rgba(0, 229, 255, 0.5),
-    inset 0 0 60px rgba(0, 229, 255, 0.2),
-    inset -10px -10px 40px rgba(0, 0, 0, 0.5);
+    0 0 60px rgba(0, 229, 255, 0.7),
+    0 0 100px rgba(0, 229, 255, 0.4),
+    inset 0 0 80px rgba(0, 229, 255, 0.3),
+    inset -15px -15px 50px rgba(0, 0, 0, 0.6);
   animation: planetPulse 4s ease-in-out infinite;
-  border: 1px solid rgba(0, 229, 255, 0.3);
+  border: 2px solid rgba(0, 229, 255, 0.5);
+  transform: translateZ(30px);
 }
 
 @keyframes planetPulse {
   0%, 100% {
     box-shadow: 
-      0 0 40px rgba(0, 229, 255, 0.5),
-      inset 0 0 60px rgba(0, 229, 255, 0.2),
-      inset -10px -10px 40px rgba(0, 0, 0, 0.5);
+      0 0 60px rgba(0, 229, 255, 0.7),
+      0 0 100px rgba(0, 229, 255, 0.4),
+      inset 0 0 80px rgba(0, 229, 255, 0.3),
+      inset -15px -15px 50px rgba(0, 0, 0, 0.6);
+    transform: translateZ(30px);
   }
   50% {
     box-shadow: 
-      0 0 60px rgba(0, 229, 255, 0.7),
-      inset 0 0 80px rgba(0, 229, 255, 0.3),
-      inset -10px -10px 40px rgba(0, 0, 0, 0.5);
+      0 0 80px rgba(0, 229, 255, 0.9),
+      0 0 120px rgba(0, 229, 255, 0.5),
+      inset 0 0 100px rgba(0, 229, 255, 0.4),
+      inset -15px -15px 50px rgba(0, 0, 0, 0.6);
+    transform: translateZ(35px);
   }
 }
 
@@ -124,32 +144,36 @@
   position: absolute;
   border: 2px solid;
   border-radius: 50%;
-  opacity: 0.4;
+  opacity: 0.5;
   animation: rotate 20s linear infinite;
 }
 
 .planet-ring-1 {
-  width: 180px;
-  height: 180px;
+  width: 220px;
+  height: 220px;
   border-color: var(--accent-cyan);
   animation-duration: 18s;
+  border-width: 3px;
+  transform: translateZ(10px);
 }
 
 .planet-ring-2 {
-  width: 200px;
-  height: 200px;
+  width: 250px;
+  height: 250px;
   border-color: var(--accent-purple);
   animation-duration: 24s;
   animation-direction: reverse;
-  opacity: 0.3;
+  opacity: 0.4;
+  transform: translateZ(5px);
 }
 
 .planet-ring-3 {
-  width: 220px;
-  height: 220px;
+  width: 280px;
+  height: 280px;
   border-color: var(--accent-magenta);
   animation-duration: 30s;
-  opacity: 0.25;
+  opacity: 0.3;
+  transform: translateZ(2px);
 }
 
 @keyframes rotate {
@@ -159,23 +183,23 @@
 
 .planet-glow {
   position: absolute;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle, rgba(0, 229, 255, 0.3), transparent 65%);
+  width: 120%;
+  height: 120%;
+  background: radial-gradient(circle, rgba(0, 229, 255, 0.4), transparent 65%);
   border-radius: 50%;
-  filter: blur(25px);
+  filter: blur(40px);
   animation: glowPulse 3s ease-in-out infinite;
   z-index: 1;
 }
 
 @keyframes glowPulse {
   0%, 100% {
-    opacity: 0.6;
+    opacity: 0.7;
     transform: scale(1);
   }
   50% {
-    opacity: 0.9;
-    transform: scale(1.15);
+    opacity: 1;
+    transform: scale(1.2);
   }
 }
 
@@ -209,42 +233,48 @@
 }
 
 .orbital-node:hover {
-  transform: scale(1.06);
-  filter: brightness(1.15);
+  transform: scale(1.08);
+  filter: brightness(1.2);
+  z-index: 10;
 }
 
 /* Position nodes dynamically around the planet - not in straight line */
 .orbital-node.node-1 {
-  top: 28%;
-  left: 15%;
+  top: 20%;
+  left: 12%;
   animation: float 6s ease-in-out infinite;
+  z-index: 4;
 }
 
 .orbital-node.node-2 {
-  top: 18%;
-  right: 15%;
+  top: 15%;
+  right: 10%;
   animation: float 5.5s ease-in-out infinite 0.5s;
+  z-index: 5;
 }
 
 .orbital-node.node-3 {
-  bottom: 12%;
+  bottom: 8%;
   left: 50%;
   transform: translateX(-50%);
   animation: float 6.5s ease-in-out infinite 1s;
+  z-index: 4;
 }
 
 .orbital-node.node-3:hover {
-  transform: translateX(-50%) scale(1.06);
+  transform: translateX(-50%) scale(1.08);
+  z-index: 10;
 }
 
 /* Node Card Design */
 .node-hexagon {
   position: relative;
-  width: 240px;
-  height: 260px;
+  width: 260px;
+  height: 280px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transform-style: preserve-3d;
 }
 
 .hexagon-shape {
@@ -253,12 +283,13 @@
   left: 0;
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 10px 40px rgba(0, 0, 0, 0.5));
   transition: all 0.3s ease;
 }
 
 .orbital-node:hover .hexagon-shape {
-  filter: drop-shadow(0 12px 48px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 40px var(--node-color));
+  filter: drop-shadow(0 15px 60px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 50px var(--node-color));
+  transform: translateZ(20px);
 }
 
 .hexagon-shape polygon {
@@ -281,22 +312,24 @@
 }
 
 .node-icon {
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.5);
   border: 2px solid var(--node-color);
   border-radius: 50%;
-  padding: 0.75rem;
+  padding: 0.85rem;
   transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
 .orbital-node:hover .node-icon {
-  background: rgba(0, 0, 0, 0.6);
-  transform: scale(1.15) rotate(8deg);
-  box-shadow: 0 0 25px var(--node-color);
+  background: rgba(0, 0, 0, 0.7);
+  transform: scale(1.2) rotate(12deg) translateZ(10px);
+  box-shadow: 0 0 30px var(--node-color);
+  border-width: 3px;
 }
 
 .node-icon svg {
@@ -333,18 +366,19 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 150%;
-  height: 150%;
-  opacity: 0.25;
-  filter: blur(50px);
+  width: 160%;
+  height: 160%;
+  opacity: 0.3;
+  filter: blur(60px);
   border-radius: 50%;
   z-index: -1;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.3s ease, filter 0.3s ease;
   pointer-events: none;
 }
 
 .orbital-node:hover .node-glow {
-  opacity: 0.6;
+  opacity: 0.7;
+  filter: blur(70px);
 }
 
 /* Animations */
@@ -353,6 +387,6 @@
     transform: translateY(0px);
   }
   50% {
-    transform: translateY(-15px);
+    transform: translateY(-20px);
   }
 }
