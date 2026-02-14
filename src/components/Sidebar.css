@@ -1,17 +1,18 @@
 .sidebar {
-  width: 320px;
-  height: 100vh;
+  width: clamp(260px, 28vw, 340px);
+  min-height: 100vh;
   background: var(--panel-bg);
   backdrop-filter: blur(10px);
   border-right: 1px solid rgba(0, 229, 255, 0.1);
   display: flex;
   flex-direction: column;
-  padding: 2rem;
+  padding: 1.5rem 1.25rem;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .sidebar-header {
-  margin-bottom: 3rem;
+  margin-bottom: 1.5rem;
   text-align: center;
   transition: transform 0.3s ease;
 }
@@ -22,16 +23,16 @@
 
 .logo {
   width: auto;
-  height: 325px;
+  height: 180px;
   object-fit: contain;
-  margin-bottom: 1.25rem;
-  filter: drop-shadow(0 0 25px rgba(0, 229, 255, 0.4));
+  margin-bottom: 0.75rem;
+  filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.4));
   transition: transform 0.3s ease, filter 0.3s ease;
 }
 
 .sidebar-header:hover .logo {
-  transform: scale(1.06) translateY(-3px);
-  filter: drop-shadow(0 0 45px rgba(0, 229, 255, 0.7));
+  transform: scale(1.05) translateY(-2px);
+  filter: drop-shadow(0 0 35px rgba(0, 229, 255, 0.6));
 }
 
 .sidebar-title {
@@ -95,7 +96,7 @@
   background: rgba(15, 23, 42, 0.8);
   border-color: var(--accent-cyan);
   transform: translateX(5px);
-  box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
 }
 
 .nav-card:hover::before {
@@ -105,7 +106,7 @@
 .nav-card.active {
   background: rgba(0, 229, 255, 0.1);
   border-color: var(--accent-cyan);
-  box-shadow: 0 0 30px rgba(0, 229, 255, 0.3);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.25);
 }
 
 .nav-card.active::before {
