@@ -14,8 +14,8 @@ function Sidebar() {
     },
     {
       id: 1,
-      title: 'Telemetría avanzadas centros',
-      path: '/telemetria',
+      title: 'Telemetría avanzada',
+      path: '/centros',
       icon: '📊'
     },
     {
@@ -42,7 +42,7 @@ function Sidebar() {
           className="logo"
         />
         <h1 className="sidebar-title">FP Robotic Interface</h1>
-        <p className="sidebar-subtitle">Colaboración Salesianos Urnieta × Repelega</p>
+        <p className="sidebar-subtitle">Colaboración Salesianos Urnieta × CIFP Repélega</p>
       </div>
 
       <nav className="sidebar-nav">
