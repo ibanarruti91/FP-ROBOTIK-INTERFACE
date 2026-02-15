@@ -41,10 +41,23 @@ function Home() {
 
   return (
     <div className="home-space">
+      {/* Header */}
+      <div className="home-header">
+        <h1 className="home-title">FP ROBOTIC INTERFACE</h1>
+        <p className="home-subtitle">Sistema de centralización de telemetría y programación low-code intercentros</p>
+      </div>
+
       {/* Particles background */}
       <div className="particles">
-        {[...Array(20)].map((_, i) => (
+        {[...Array(30)].map((_, i) => (
           <div key={i} className={`particle particle-${i % 3}`}></div>
+        ))}
+      </div>
+
+      {/* Traveling particles on orbits */}
+      <div className="orbit-particles">
+        {[...Array(12)].map((_, i) => (
+          <div key={i} className={`orbit-particle orbit-particle-${i % 3}`}></div>
         ))}
       </div>
 
