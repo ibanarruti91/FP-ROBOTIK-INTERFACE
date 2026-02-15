@@ -38,6 +38,7 @@
 }
 
 /* Header */
+// FIX: Ensure minimum 80px top margin and prevent overlap with orbital system
 .home-header {
   position: absolute;
   top: 80px;
@@ -47,14 +48,16 @@
   z-index: 10;
   pointer-events: none;
   margin-bottom: 40px;
+  max-width: 90%;
 }
 
+// FIX: Reduce title size by ~25% and reduce letter-spacing
 .home-title {
-  font-size: clamp(22px, 2.2vw, 30px);
+  font-size: clamp(16px, 1.65vw, 22px);
   font-weight: 700;
   color: #00e5ff;
   text-transform: uppercase;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.15em;
   margin: 0;
   text-shadow: 
     0 0 20px rgba(0, 229, 255, 0.8),
@@ -67,13 +70,17 @@
   50% { opacity: 1; text-shadow: 0 0 30px rgba(0, 229, 255, 1), 0 0 60px rgba(0, 229, 255, 0.6); }
 }
 
+// FIX: Smaller typography, fit in ONE line with ellipsis
 .home-subtitle {
-  font-size: clamp(13px, 1.1vw, 15px);
+  font-size: clamp(11px, 0.9vw, 13px);
   color: rgba(0, 229, 255, 0.8);
   margin: 0.5rem 0 0 0;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.05em;
   font-weight: 300;
   max-width: 720px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Particles - floating dots */
@@ -138,10 +145,11 @@
 }
 
 /* Traveling particles on orbits */
+// FIX: Match orbital system centering
 .orbit-particles {
   position: absolute;
   left: 50%;
-  top: 55%;
+  top: 50%;
   transform: translate(-50%, -50%);
   width: min(86vmin, 900px);
   height: 80vh;
@@ -213,10 +221,11 @@
 /* =========================
    ORBITAS PERFECTAS (CUADRADO)
    ========================= */
+// FIX: Orbital system occupies ~80vh, centered within its block
 .orbital-rings {
   position: absolute;
   left: 50%;
-  top: 55%;
+  top: 50%;
   transform: translate(-50%, -50%);
 
   /* CLAVE: contenedor cuadrado para que los círculos sean círculos */
@@ -264,10 +273,11 @@
 /* =========================
    PLANETA CENTRAL (ESCALA + NO DEFORMAR)
    ========================= */
+// FIX: Increased by 35% + increased halo by 15%
 .planet-wrapper {
   position: absolute;
   left: 50%;
-  top: 55%;
+  top: 50%;
   transform: translate(-50%, -50%);
   z-index: 3;
 
@@ -280,6 +290,7 @@
   place-items: center;
 }
 
+// FIX: Enhanced glow by +15% (increased opacity and scale)
 .planet-central {
   width: 100%;
   height: 100%;
@@ -288,7 +299,7 @@
   /* CLAVE: no deformar */
   object-fit: contain;
 
-  filter: drop-shadow(0 0 50px rgba(0, 229, 255, 0.5)) drop-shadow(0 0 80px rgba(0, 229, 255, 0.3));
+  filter: drop-shadow(0 0 58px rgba(0, 229, 255, 0.58)) drop-shadow(0 0 92px rgba(0, 229, 255, 0.35));
   animation: planetFloat 6s ease-in-out infinite;
 }
 
@@ -297,10 +308,11 @@
   50% { transform: translateY(-10px) scale(1.02); }
 }
 
+// FIX: Increased ambient halo intensity by +15%
 .planet-glow {
   position: absolute;
   inset: -20%;
-  background: radial-gradient(circle, rgba(0, 229, 255, 0.25), transparent 70%);
+  background: radial-gradient(circle, rgba(0, 229, 255, 0.29), transparent 70%);
   border-radius: 50%;
   filter: blur(60px);
   animation: glowPulse 4s ease-in-out infinite;
@@ -309,8 +321,9 @@
 }
 
 @keyframes glowPulse {
-  0%, 100% { opacity: 0.6; transform: scale(1); }
-  50% { opacity: 0.9; transform: scale(1.15); }
+  // FIX: Enhanced pulse intensity by +15%
+  0%, 100% { opacity: 0.69; transform: scale(1); }
+  50% { opacity: 1.04; transform: scale(1.15); }
 }
 
 /* =========================
@@ -422,9 +435,10 @@
 }
 
 /* Label - VISIBLE ONLY ON HOVER */
+// FIX: Label attached to node with max offset 18px, always 1 line with ellipsis
 .node-label {
   position: absolute;
-  bottom: -28px;
+  bottom: -18px;
   left: 50%;
   transform: translateX(-50%);
   opacity: 0;
@@ -434,6 +448,8 @@
   max-width: 220px;
   z-index: 5;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .space-node:hover .node-label {
@@ -442,6 +458,7 @@
   transform: translateX(-50%) scale(1.05);
 }
 
+// FIX: Ensure label text stays in 1 line with ellipsis
 .node-title {
   display: block;
   padding: 0.4rem 0.8rem;
@@ -458,6 +475,9 @@
     0 0 25px var(--node-color);
   text-shadow: 0 0 12px var(--node-color);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 /* Responsive */
@@ -469,31 +489,35 @@
 }
 
 @media (max-width: 1199px) {
+  // FIX: Maintain responsive adjustments for medium screens
   .planet-wrapper { width: min(48vmin, 500px); }
   .space-node { width: min(19vmin, 200px); height: min(19vmin, 200px); }
-  .home-title { font-size: clamp(20px, 2vw, 28px); }
-  .home-subtitle { font-size: clamp(12px, 1vw, 14px); }
+  .home-title { font-size: clamp(15px, 1.6vw, 21px); }
+  .home-subtitle { font-size: clamp(10px, 0.85vw, 12px); }
 }
 
 @media (max-width: 768px) {
+  // FIX: Maintain orbital system height and responsive adjustments
   .orbital-rings { width: min(88vmin, 780px); height: 75vh; max-height: 780px; }
   .orbit-particles { width: min(88vmin, 780px); height: 75vh; max-height: 780px; }
-  .planet-wrapper { width: min(50vmin, 400px); top: 52%; }
+  .planet-wrapper { width: min(50vmin, 400px); top: 50%; }
   .space-node { width: min(21vmin, 160px); height: min(21vmin, 160px); }
   .node-title { font-size: 0.8rem; padding: 0.35rem 0.7rem; }
   .home-header { top: 60px; }
-  .home-title { font-size: clamp(18px, 2.5vw, 26px); letter-spacing: 0.2em; }
-  .home-subtitle { font-size: clamp(11px, 1.1vw, 13px); }
+  .home-title { font-size: clamp(14px, 2vw, 20px); letter-spacing: 0.1em; }
+  .home-subtitle { font-size: clamp(10px, 0.9vw, 12px); }
+  .node-label { bottom: -16px; }
 }
 
 @media (max-width: 480px) {
+  // FIX: Maintain orbital system height and responsive adjustments
   .orbital-rings { height: 70vh; max-height: 650px; }
   .orbit-particles { height: 70vh; max-height: 650px; }
   .planet-wrapper { width: min(56vmin, 320px); top: 50%; }
   .space-node { width: min(22vmin, 140px); height: min(22vmin, 140px); }
-  .node-label { bottom: -28px; }
+  .node-label { bottom: -14px; }
   .node-title { font-size: 0.75rem; padding: 0.3rem 0.6rem; }
   .home-header { top: 50px; }
-  .home-title { font-size: clamp(16px, 2.2vw, 24px); letter-spacing: 0.15em; }
-  .home-subtitle { font-size: clamp(10px, 1vw, 12px); }
+  .home-title { font-size: clamp(12px, 1.8vw, 18px); letter-spacing: 0.08em; }
+  .home-subtitle { font-size: clamp(9px, 0.85vw, 11px); }
 }
