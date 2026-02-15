@@ -40,16 +40,17 @@
 /* Header */
 .home-header {
   position: absolute;
-  top: 3rem;
+  top: 80px;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
   z-index: 10;
   pointer-events: none;
+  margin-bottom: 40px;
 }
 
 .home-title {
-  font-size: clamp(1.8rem, 4vw, 3.5rem);
+  font-size: clamp(22px, 2.2vw, 30px);
   font-weight: 700;
   color: #00e5ff;
   text-transform: uppercase;
@@ -67,11 +68,12 @@
 }
 
 .home-subtitle {
-  font-size: clamp(0.8rem, 1.5vw, 1.1rem);
+  font-size: clamp(13px, 1.1vw, 15px);
   color: rgba(0, 229, 255, 0.8);
   margin: 0.5rem 0 0 0;
   letter-spacing: 0.1em;
   font-weight: 300;
+  max-width: 720px;
 }
 
 /* Particles - floating dots */
@@ -139,9 +141,11 @@
 .orbit-particles {
   position: absolute;
   left: 50%;
-  top: 50%;
+  top: 55%;
   transform: translate(-50%, -50%);
   width: min(86vmin, 900px);
+  height: 80vh;
+  max-height: 900px;
   aspect-ratio: 1 / 1;
   pointer-events: none;
   z-index: 2;
@@ -212,13 +216,14 @@
 .orbital-rings {
   position: absolute;
   left: 50%;
-  top: 50%;
+  top: 55%;
   transform: translate(-50%, -50%);
 
   /* CLAVE: contenedor cuadrado para que los círculos sean círculos */
   width: min(86vmin, 900px);
+  height: 80vh;
+  max-height: 900px;
   aspect-ratio: 1 / 1;
-  height: auto;
 
   pointer-events: none;
   z-index: 2;
@@ -262,12 +267,12 @@
 .planet-wrapper {
   position: absolute;
   left: 50%;
-  top: 50%;
+  top: 55%;
   transform: translate(-50%, -50%);
   z-index: 3;
 
-  /* SCALED UP per requirements: min(46vmin, 560px) */
-  width: min(46vmin, 560px);
+  /* SCALED UP per requirements: +35% = min(52vmin, 560px) */
+  width: min(52vmin, 560px);
   aspect-ratio: 1 / 1;
   height: auto;
 
@@ -317,10 +322,10 @@
   z-index: 4;
   user-select: none;
 
-  /* SCALED UP per requirements: min(20vmin, 220px) */
-  width: min(20vmin, 220px);
+  /* Desktop minimum size: 220px x 220px */
+  width: 220px;
+  height: 220px;
   aspect-ratio: 1 / 1;
-  height: auto;
 
   transition: transform 0.35s ease, filter 0.25s ease;
   --node-color: rgba(0, 229, 255, 1);
@@ -341,26 +346,26 @@
 
 /* Posicionamiento (ajustable) */
 .space-node.node-1 { 
-  top: 18%; 
-  left: 18%; 
+  top: 16%; 
+  left: 16%; 
   animation: floatNode 7s ease-in-out infinite; 
 }
 
 .space-node.node-2 { 
-  top: 14%; 
-  right: 16%; 
+  top: 13%; 
+  right: 14%; 
   animation: floatNode 6.5s ease-in-out infinite 1s; 
 }
 
 .space-node.node-3 { 
-  bottom: 16%; 
-  left: 22%; 
+  bottom: 15%; 
+  left: 20%; 
   animation: floatNode 7.5s ease-in-out infinite 2s; 
 }
 
 .space-node.node-4 { 
-  bottom: 14%; 
-  right: 18%; 
+  bottom: 13%; 
+  right: 16%; 
   animation: floatNode 6.8s ease-in-out infinite 3s; 
 }
 
@@ -416,13 +421,14 @@
   filter: drop-shadow(0 8px 40px var(--node-color));
 }
 
-/* Label - NOW ALWAYS VISIBLE */
+/* Label - VISIBLE ONLY ON HOVER */
 .node-label {
   position: absolute;
+  bottom: -28px;
   left: 50%;
   transform: translateX(-50%);
-  opacity: 1;
-  visibility: visible;
+  opacity: 0;
+  visibility: hidden;
   transition: opacity 0.25s ease, transform 0.25s ease;
   pointer-events: none;
   max-width: 220px;
@@ -430,41 +436,21 @@
   white-space: nowrap;
 }
 
-/* Position labels to avoid overlap */
-.space-node.node-1 .node-label {
-  bottom: auto;
-  top: -56px;
-}
-
-.space-node.node-2 .node-label {
-  bottom: auto;
-  top: -56px;
-}
-
-.space-node.node-3 .node-label {
-  bottom: -56px;
-  top: auto;
-}
-
-.space-node.node-4 .node-label {
-  bottom: -56px;
-  top: auto;
-}
-
 .space-node:hover .node-label {
   opacity: 1;
+  visibility: visible;
   transform: translateX(-50%) scale(1.05);
 }
 
 .node-title {
   display: block;
-  padding: 0.6rem 1.2rem;
+  padding: 0.4rem 0.8rem;
   background: rgba(15, 25, 45, 0.92);
   backdrop-filter: blur(12px);
   border: 1.5px solid var(--node-color);
   border-radius: 12px;
   color: var(--node-color);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 600;
   letter-spacing: 0.5px;
   box-shadow:
@@ -475,29 +461,39 @@
 }
 
 /* Responsive */
-@media (max-width: 1200px) {
-  .planet-wrapper { width: min(42vmin, 480px); }
-  .space-node { width: min(19vmin, 190px); }
-  .home-title { font-size: clamp(1.6rem, 3.5vw, 3rem); }
-  .home-subtitle { font-size: clamp(0.75rem, 1.3vw, 1rem); }
+@media (min-width: 1200px) {
+  .space-node { 
+    width: 220px; 
+    height: 220px; 
+  }
+}
+
+@media (max-width: 1199px) {
+  .planet-wrapper { width: min(48vmin, 500px); }
+  .space-node { width: min(19vmin, 200px); height: min(19vmin, 200px); }
+  .home-title { font-size: clamp(20px, 2vw, 28px); }
+  .home-subtitle { font-size: clamp(12px, 1vw, 14px); }
 }
 
 @media (max-width: 768px) {
-  .orbital-rings { width: min(88vmin, 780px); }
-  .planet-wrapper { width: min(50vmin, 400px); }
-  .space-node { width: min(21vmin, 160px); }
-  .node-title { font-size: 0.8rem; padding: 0.5rem 1rem; }
-  .home-header { top: 2rem; }
-  .home-title { font-size: clamp(1.4rem, 3vw, 2.5rem); letter-spacing: 0.2em; }
-  .home-subtitle { font-size: clamp(0.7rem, 1.2vw, 0.9rem); }
+  .orbital-rings { width: min(88vmin, 780px); height: 75vh; max-height: 780px; }
+  .orbit-particles { width: min(88vmin, 780px); height: 75vh; max-height: 780px; }
+  .planet-wrapper { width: min(50vmin, 400px); top: 52%; }
+  .space-node { width: min(21vmin, 160px); height: min(21vmin, 160px); }
+  .node-title { font-size: 0.8rem; padding: 0.35rem 0.7rem; }
+  .home-header { top: 60px; }
+  .home-title { font-size: clamp(18px, 2.5vw, 26px); letter-spacing: 0.2em; }
+  .home-subtitle { font-size: clamp(11px, 1.1vw, 13px); }
 }
 
 @media (max-width: 480px) {
-  .planet-wrapper { width: min(56vmin, 320px); }
-  .space-node { width: min(22vmin, 140px); }
-  .node-label { bottom: -48px; }
-  .node-title { font-size: 0.75rem; padding: 0.45rem 0.9rem; }
-  .home-header { top: 1.5rem; }
-  .home-title { font-size: clamp(1.2rem, 2.5vw, 2rem); letter-spacing: 0.15em; }
-  .home-subtitle { font-size: clamp(0.65rem, 1vw, 0.8rem); }
+  .orbital-rings { height: 70vh; max-height: 650px; }
+  .orbit-particles { height: 70vh; max-height: 650px; }
+  .planet-wrapper { width: min(56vmin, 320px); top: 50%; }
+  .space-node { width: min(22vmin, 140px); height: min(22vmin, 140px); }
+  .node-label { bottom: -28px; }
+  .node-title { font-size: 0.75rem; padding: 0.3rem 0.6rem; }
+  .home-header { top: 50px; }
+  .home-title { font-size: clamp(16px, 2.2vw, 24px); letter-spacing: 0.15em; }
+  .home-subtitle { font-size: clamp(10px, 1vw, 12px); }
 }
