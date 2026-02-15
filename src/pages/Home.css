@@ -273,7 +273,7 @@
 /* =========================
    PLANETA CENTRAL (ESCALA + NO DEFORMAR)
    ========================= */
-/* FIX: Increased by 35% + increased halo by 15% */
+/* FIX: Increased by 60% to min(55vmin, 620px) per requirements */
 .planet-wrapper {
   position: absolute;
   left: 50%;
@@ -281,8 +281,8 @@
   transform: translate(-50%, -50%);
   z-index: 3;
 
-  /* SCALED UP per requirements: +35% = min(52vmin, 560px) */
-  width: min(52vmin, 560px);
+  /* SCALED UP per requirements: +60% = min(55vmin, 620px) */
+  width: min(55vmin, 620px);
   aspect-ratio: 1 / 1;
   height: auto;
 
@@ -308,22 +308,22 @@
   50% { transform: translateY(-10px) scale(1.02); }
 }
 
-/* FIX: Increased ambient halo intensity by +15% */
+/* FIX: Enhanced ambient halo - larger inset and softer blur */
 .planet-glow {
   position: absolute;
-  inset: -20%;
-  background: radial-gradient(circle, rgba(0, 229, 255, 0.29), transparent 70%);
+  inset: -30%;
+  background: radial-gradient(circle, rgba(0, 229, 255, 0.35), transparent 70%);
   border-radius: 50%;
-  filter: blur(60px);
+  filter: blur(80px);
   animation: glowPulse 4s ease-in-out infinite;
   z-index: -1;
   pointer-events: none;
 }
 
 @keyframes glowPulse {
-  /* FIX: Enhanced pulse intensity by +15% */
-  0%, 100% { opacity: 0.69; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.15); }
+  /* FIX: Enhanced pulse intensity */
+  0%, 100% { opacity: 0.75; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
 }
 
 /* =========================
@@ -335,10 +335,10 @@
   z-index: 4;
   user-select: none;
 
-  /* Desktop minimum size: 220px x 220px */
-  width: 220px;
-  height: 220px;
+  /* Desktop minimum size: 260px x 260px per requirements */
+  width: min(22vmin, 260px);
   aspect-ratio: 1 / 1;
+  height: auto;
 
   transition: transform 0.35s ease, filter 0.25s ease;
   --node-color: rgba(0, 229, 255, 1);
@@ -387,13 +387,13 @@
   50% { transform: translateY(-16px); }
 }
 
-/* Halo */
+/* Halo - increased proportionally */
 .node-halo {
   position: absolute;
-  inset: -20%;
+  inset: -25%;
   background: radial-gradient(circle, var(--node-color), transparent 60%);
-  opacity: 0.25;
-  filter: blur(35px);
+  opacity: 0.3;
+  filter: blur(45px);
   border-radius: 50%;
   z-index: -1;
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -401,8 +401,8 @@
 }
 
 .space-node:hover .node-halo {
-  opacity: 0.55;
-  transform: scale(1.25);
+  opacity: 0.6;
+  transform: scale(1.3);
 }
 
 /* Imagen */
@@ -483,15 +483,14 @@
 /* Responsive */
 @media (min-width: 1200px) {
   .space-node { 
-    width: 220px; 
-    height: 220px; 
+    width: min(22vmin, 260px);
   }
 }
 
 @media (max-width: 1199px) {
   /* FIX: Maintain responsive adjustments for medium screens */
-  .planet-wrapper { width: min(48vmin, 500px); }
-  .space-node { width: min(19vmin, 200px); height: min(19vmin, 200px); }
+  .planet-wrapper { width: min(52vmin, 540px); }
+  .space-node { width: min(20vmin, 230px); }
   .home-title { font-size: clamp(15px, 1.6vw, 21px); }
   .home-subtitle { font-size: clamp(10px, 0.85vw, 12px); }
 }
@@ -500,8 +499,8 @@
   /* FIX: Maintain orbital system height and responsive adjustments */
   .orbital-rings { width: min(88vmin, 780px); height: 75vh; max-height: 780px; }
   .orbit-particles { width: min(88vmin, 780px); height: 75vh; max-height: 780px; }
-  .planet-wrapper { width: min(50vmin, 400px); top: 50%; }
-  .space-node { width: min(21vmin, 160px); height: min(21vmin, 160px); }
+  .planet-wrapper { width: min(54vmin, 440px); top: 50%; }
+  .space-node { width: min(22vmin, 180px); }
   .node-title { font-size: 0.8rem; padding: 0.35rem 0.7rem; }
   .home-header { top: 60px; }
   .home-title { font-size: clamp(14px, 2vw, 20px); letter-spacing: 0.1em; }
@@ -513,11 +512,90 @@
   /* FIX: Maintain orbital system height and responsive adjustments */
   .orbital-rings { height: 70vh; max-height: 650px; }
   .orbit-particles { height: 70vh; max-height: 650px; }
-  .planet-wrapper { width: min(56vmin, 320px); top: 50%; }
-  .space-node { width: min(22vmin, 140px); height: min(22vmin, 140px); }
+  .planet-wrapper { width: min(58vmin, 350px); top: 50%; }
+  .space-node { width: min(23vmin, 150px); }
   .node-label { bottom: -14px; }
   .node-title { font-size: 0.75rem; padding: 0.3rem 0.6rem; }
   .home-header { top: 50px; }
   .home-title { font-size: clamp(12px, 1.8vw, 18px); letter-spacing: 0.08em; }
   .home-subtitle { font-size: clamp(9px, 0.85vw, 11px); }
+}
+
+/* =========================
+   CONNECTION LINES (DATA LINKS)
+   ========================= */
+.connection-lines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.data-link {
+  opacity: 0.7;
+  filter: drop-shadow(0 0 4px currentColor);
+}
+
+.data-link-1 {
+  stroke: #00e5ff;
+  animation: dataPulse1 3s ease-in-out infinite;
+}
+
+.data-link-2 {
+  stroke: #a855f7;
+  animation: dataPulse2 3.5s ease-in-out infinite;
+}
+
+.data-link-3 {
+  stroke: #ff33bb;
+  animation: dataPulse3 4s ease-in-out infinite;
+}
+
+.data-link-4 {
+  stroke: #10b981;
+  animation: dataPulse4 4.5s ease-in-out infinite;
+}
+
+@keyframes dataPulse1 {
+  0%, 100% { 
+    opacity: 0.5; 
+    stroke-dashoffset: 0;
+  }
+  50% { 
+    opacity: 0.9; 
+    stroke-dashoffset: 24;
+  }
+}
+
+@keyframes dataPulse2 {
+  0%, 100% { 
+    opacity: 0.5; 
+    stroke-dashoffset: 0;
+  }
+  50% { 
+    opacity: 0.9; 
+    stroke-dashoffset: -24;
+  }
+}
+
+@keyframes dataPulse3 {
+  0%, 100% { 
+    opacity: 0.5; 
+    stroke-dashoffset: 0;
+  }
+  50% { 
+    opacity: 0.9; 
+    stroke-dashoffset: 24;
+  }
+}
+
+@keyframes dataPulse4 {
+  0%, 100% { 
+    opacity: 0.5; 
+    stroke-dashoffset: 0;
+  }
+  50% { 
+    opacity: 0.9; 
+    stroke-dashoffset: -24;
+  }
 }
