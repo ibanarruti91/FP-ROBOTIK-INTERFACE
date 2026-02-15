@@ -68,15 +68,15 @@
 }
 
 .launcher-icon svg {
-  width: 1900px;
-  height: 1900px;
+  width: 60px;
+  height: 60px;
 }
 
 .launcher-title {
   font-family: var(--font-display);
   font-size: 1.8rem;
   font-weight: 700;
-  margin-bottom: 1.5rem;
+  margin-bottom: 10.5rem;
   color: var(--text-primary);
   text-transform: uppercase;
   letter-spacing: 2px;
