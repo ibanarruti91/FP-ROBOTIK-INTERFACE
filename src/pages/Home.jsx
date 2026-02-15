@@ -63,13 +63,29 @@ function Home() {
         const nodeCenterX = nodeRect.left + nodeRect.width / 2 - rootRect.left;
         const nodeCenterY = nodeRect.top + nodeRect.height / 2 - rootRect.top;
 
+        // Calculate control points for curved path
+        const dx = nodeCenterX - planetCenterX;
+        const dy = nodeCenterY - planetCenterY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        
+        // Control point offset perpendicular to the line (creates curve)
+        const curvature = dist * 0.15; // 15% of distance for subtle curve
+        const perpX = -dy / dist * curvature;
+        const perpY = dx / dist * curvature;
+        
+        const controlX = planetCenterX + dx / 2 + perpX;
+        const controlY = planetCenterY + dy / 2 + perpY;
+
         return {
           id: node.id,
           x1: planetCenterX,
           y1: planetCenterY,
           x2: nodeCenterX,
           y2: nodeCenterY,
-          color: node.color
+          controlX,
+          controlY,
+          color: node.color,
+          pathLength: dist
         };
       }).filter(Boolean);
 
@@ -120,9 +136,10 @@ function Home() {
         />
       </div>
 
-      {/* SVG connection lines */}
+      {/* SVG connection lines with particles and data stream */}
       <svg className="connection-lines" style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 2 }}>
         <defs>
+          {/* Gradients for lines */}
           <linearGradient id="data-gradient-1" x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="rgba(0, 229, 255, 0.6)" />
             <stop offset="100%" stopColor="rgba(0, 229, 255, 0.2)" />
@@ -139,22 +156,139 @@ function Home() {
             <stop offset="0%" stopColor="rgba(16, 185, 129, 0.6)" />
             <stop offset="100%" stopColor="rgba(16, 185, 129, 0.2)" />
           </linearGradient>
+          
+          {/* Glow filters for enhanced effects */}
+          <filter id="glow-1" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+          <filter id="glow-2" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+          <filter id="glow-3" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+          <filter id="glow-4" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
         </defs>
-        {connections.map((conn) => (
-          <g key={conn.id}>
-            <line
-              x1={conn.x1}
-              y1={conn.y1}
-              x2={conn.x2}
-              y2={conn.y2}
-              stroke={`url(#data-gradient-${conn.id})`}
-              strokeWidth="2"
-              strokeDasharray="8 4"
-              className={`data-link data-link-${conn.id}`}
-              style={{ opacity: 0.7 }}
-            />
-          </g>
-        ))}
+        
+        {connections.map((conn) => {
+          const pathData = `M ${conn.x1} ${conn.y1} Q ${conn.controlX} ${conn.controlY} ${conn.x2} ${conn.y2}`;
+          const pathId = `path-${conn.id}`;
+          
+          return (
+            <g key={conn.id}>
+              {/* Define the path for particles to follow */}
+              <path
+                id={pathId}
+                d={pathData}
+                fill="none"
+                stroke="none"
+              />
+              
+              {/* Main curved data line */}
+              <path
+                d={pathData}
+                stroke={`url(#data-gradient-${conn.id})`}
+                strokeWidth="2"
+                fill="none"
+                className={`data-link data-link-${conn.id}`}
+                filter={`url(#glow-${conn.id})`}
+              />
+              
+              {/* Animated particles traveling along the line */}
+              <circle r="3" fill={conn.color} className={`particle-travel particle-travel-${conn.id}`} filter={`url(#glow-${conn.id})`}>
+                <animateMotion
+                  dur={`${3 + conn.id * 0.5}s`}
+                  repeatCount="indefinite"
+                >
+                  <mpath href={`#${pathId}`} />
+                </animateMotion>
+              </circle>
+              
+              {/* Second particle with delay */}
+              <circle r="2.5" fill={conn.color} opacity="0.7" className={`particle-travel particle-travel-${conn.id}`} filter={`url(#glow-${conn.id})`}>
+                <animateMotion
+                  dur={`${3 + conn.id * 0.5}s`}
+                  repeatCount="indefinite"
+                  begin={`${(3 + conn.id * 0.5) / 2}s`}
+                >
+                  <mpath href={`#${pathId}`} />
+                </animateMotion>
+              </circle>
+              
+              {/* Data stream: "0" and "1" characters */}
+              <text 
+                fontSize="10" 
+                fill={conn.color} 
+                opacity="0.8"
+                fontFamily="monospace"
+                fontWeight="bold"
+                className={`data-stream data-stream-${conn.id}`}
+              >
+                0
+                <animateMotion
+                  dur={`${4 + conn.id * 0.3}s`}
+                  repeatCount="indefinite"
+                >
+                  <mpath href={`#${pathId}`} />
+                </animateMotion>
+              </text>
+              
+              <text 
+                fontSize="10" 
+                fill={conn.color} 
+                opacity="0.8"
+                fontFamily="monospace"
+                fontWeight="bold"
+                className={`data-stream data-stream-${conn.id}`}
+              >
+                1
+                <animateMotion
+                  dur={`${4 + conn.id * 0.3}s`}
+                  repeatCount="indefinite"
+                  begin={`${(4 + conn.id * 0.3) / 3}s`}
+                >
+                  <mpath href={`#${pathId}`} />
+                </animateMotion>
+              </text>
+              
+              <text 
+                fontSize="10" 
+                fill={conn.color} 
+                opacity="0.8"
+                fontFamily="monospace"
+                fontWeight="bold"
+                className={`data-stream data-stream-${conn.id}`}
+              >
+                0
+                <animateMotion
+                  dur={`${4 + conn.id * 0.3}s`}
+                  repeatCount="indefinite"
+                  begin={`${(4 + conn.id * 0.3) * 2 / 3}s`}
+                >
+                  <mpath href={`#${pathId}`} />
+                </animateMotion>
+              </text>
+            </g>
+          );
+        })}
       </svg>
 
       {/* Orbiting nodes */}

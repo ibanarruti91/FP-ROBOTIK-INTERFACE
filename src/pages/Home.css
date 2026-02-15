@@ -535,71 +535,139 @@
   z-index: 2;
 }
 
+/* Enhanced data link styling with pulsing animation */
 .data-link {
   opacity: 0.7;
-  filter: drop-shadow(0 0 4px currentColor);
+  transition: opacity 0.3s ease, stroke-width 0.3s ease;
+  stroke-dasharray: 10 5;
+  animation: dashFlow 2s linear infinite;
+}
+
+@keyframes dashFlow {
+  0% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 15; }
 }
 
 .data-link-1 {
   stroke: #00e5ff;
-  animation: dataPulse1 3s ease-in-out infinite;
+  animation: dataPulse1 3s ease-in-out infinite, dashFlow 2s linear infinite;
 }
 
 .data-link-2 {
   stroke: #a855f7;
-  animation: dataPulse2 3.5s ease-in-out infinite;
+  animation: dataPulse2 3.5s ease-in-out infinite, dashFlow 2.2s linear infinite;
 }
 
 .data-link-3 {
   stroke: #ff33bb;
-  animation: dataPulse3 4s ease-in-out infinite;
+  animation: dataPulse3 4s ease-in-out infinite, dashFlow 2.4s linear infinite;
 }
 
 .data-link-4 {
   stroke: #10b981;
-  animation: dataPulse4 4.5s ease-in-out infinite;
+  animation: dataPulse4 4.5s ease-in-out infinite, dashFlow 2.6s linear infinite;
 }
 
+/* Pulse animations for data links */
 @keyframes dataPulse1 {
   0%, 100% { 
     opacity: 0.5; 
-    stroke-dashoffset: 0;
+    stroke-width: 2;
   }
   50% { 
     opacity: 0.9; 
-    stroke-dashoffset: 24;
+    stroke-width: 2.5;
   }
 }
 
 @keyframes dataPulse2 {
   0%, 100% { 
     opacity: 0.5; 
-    stroke-dashoffset: 0;
+    stroke-width: 2;
   }
   50% { 
     opacity: 0.9; 
-    stroke-dashoffset: -24;
+    stroke-width: 2.5;
   }
 }
 
 @keyframes dataPulse3 {
   0%, 100% { 
     opacity: 0.5; 
-    stroke-dashoffset: 0;
+    stroke-width: 2;
   }
   50% { 
     opacity: 0.9; 
-    stroke-dashoffset: 24;
+    stroke-width: 2.5;
   }
 }
 
 @keyframes dataPulse4 {
   0%, 100% { 
     opacity: 0.5; 
-    stroke-dashoffset: 0;
+    stroke-width: 2;
   }
   50% { 
     opacity: 0.9; 
-    stroke-dashoffset: -24;
+    stroke-width: 2.5;
   }
+}
+
+/* Traveling particles styling */
+.particle-travel {
+  opacity: 0.9;
+}
+
+.particle-travel-1 {
+  filter: drop-shadow(0 0 6px #00e5ff);
+}
+
+.particle-travel-2 {
+  filter: drop-shadow(0 0 6px #a855f7);
+}
+
+.particle-travel-3 {
+  filter: drop-shadow(0 0 6px #ff33bb);
+}
+
+.particle-travel-4 {
+  filter: drop-shadow(0 0 6px #10b981);
+}
+
+/* Data stream (0/1 characters) styling */
+.data-stream {
+  opacity: 0.7;
+  text-shadow: 0 0 8px currentColor;
+  animation: dataStreamFade 2s ease-in-out infinite;
+}
+
+@keyframes dataStreamFade {
+  0%, 100% { 
+    opacity: 0.5; 
+    transform: scale(0.9);
+  }
+  50% { 
+    opacity: 0.9; 
+    transform: scale(1.1);
+  }
+}
+
+.data-stream-1 {
+  fill: #00e5ff;
+  text-shadow: 0 0 10px #00e5ff;
+}
+
+.data-stream-2 {
+  fill: #a855f7;
+  text-shadow: 0 0 10px #a855f7;
+}
+
+.data-stream-3 {
+  fill: #ff33bb;
+  text-shadow: 0 0 10px #ff33bb;
+}
+
+.data-stream-4 {
+  fill: #10b981;
+  text-shadow: 0 0 10px #10b981;
 }
