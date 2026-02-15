@@ -38,16 +38,16 @@
 }
 
 /* Header */
-/* FIX: Ensure minimum 80px top margin and prevent overlap with orbital system */
+/* FIX: Ensure minimum 24-32px top padding as required */
 .home-header {
   position: absolute;
-  top: 80px;
+  top: 28px;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
   z-index: 10;
   pointer-events: none;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
   max-width: 90%;
 }
 
@@ -151,9 +151,9 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: min(86vmin, 900px);
-  height: 80vh;
-  max-height: 900px;
+  width: min(95vmin, 1100px);
+  height: 85vh;
+  max-height: 1100px;
   aspect-ratio: 1 / 1;
   pointer-events: none;
   z-index: 2;
@@ -221,7 +221,7 @@
 /* =========================
    ORBITAS PERFECTAS (CUADRADO)
    ========================= */
-/* FIX: Orbital system occupies ~80vh, centered within its block */
+/* FIX: Orbital system scaled to match larger planet and closer nodes */
 .orbital-rings {
   position: absolute;
   left: 50%;
@@ -229,9 +229,10 @@
   transform: translate(-50%, -50%);
 
   /* CLAVE: contenedor cuadrado para que los círculos sean círculos */
-  width: min(86vmin, 900px);
-  height: 80vh;
-  max-height: 900px;
+  /* Scaled up to match larger planet system */
+  width: min(95vmin, 1100px);
+  height: 85vh;
+  max-height: 1100px;
   aspect-ratio: 1 / 1;
 
   pointer-events: none;
@@ -273,7 +274,7 @@
 /* =========================
    PLANETA CENTRAL (ESCALA + NO DEFORMAR)
    ========================= */
-/* FIX: Increased by 60% to min(55vmin, 620px) per requirements */
+/* FIX: Increased by 70% to min(70vmin, ~800px) per requirements */
 .planet-wrapper {
   position: absolute;
   left: 50%;
@@ -281,8 +282,8 @@
   transform: translate(-50%, -50%);
   z-index: 3;
 
-  /* SCALED UP per requirements: +60% = min(55vmin, 620px) */
-  width: min(55vmin, 620px);
+  /* SCALED UP per requirements: +70% = min(70vmin, ~800px) */
+  width: min(70vmin, 800px);
   aspect-ratio: 1 / 1;
   height: auto;
 
@@ -336,7 +337,7 @@
   user-select: none;
 
   /* Desktop minimum size: 260px x 260px per requirements */
-  width: min(22vmin, 260px);
+  width: min(24vmin, 280px);
   aspect-ratio: 1 / 1;
 
   transition: transform 0.35s ease, filter 0.25s ease;
@@ -356,28 +357,28 @@
   75% { transform: scale(1.12) translate(1px, 1px); }
 }
 
-/* Posicionamiento (ajustable) */
+/* Posicionamiento (ajustable) - nodes closer to planet (30-40% reduced orbit) */
 .space-node.node-1 { 
-  top: 16%; 
-  left: 16%; 
+  top: 24%; 
+  left: 24%; 
   animation: floatNode 7s ease-in-out infinite; 
 }
 
 .space-node.node-2 { 
-  top: 13%; 
-  right: 14%; 
+  top: 22%; 
+  right: 22%; 
   animation: floatNode 6.5s ease-in-out infinite 1s; 
 }
 
 .space-node.node-3 { 
-  bottom: 15%; 
-  left: 20%; 
+  bottom: 22%; 
+  left: 28%; 
   animation: floatNode 7.5s ease-in-out infinite 2s; 
 }
 
 .space-node.node-4 { 
-  bottom: 13%; 
-  right: 16%; 
+  bottom: 20%; 
+  right: 24%; 
   animation: floatNode 6.8s ease-in-out infinite 3s; 
 }
 
@@ -482,26 +483,28 @@
 /* Responsive */
 @media (min-width: 1200px) {
   .space-node { 
-    width: min(22vmin, 260px);
+    width: min(24vmin, 280px);
   }
 }
 
 @media (max-width: 1199px) {
   /* FIX: Maintain responsive adjustments for medium screens */
-  .planet-wrapper { width: min(52vmin, 540px); }
-  .space-node { width: min(20vmin, 230px); }
+  .planet-wrapper { width: min(65vmin, 700px); }
+  .space-node { width: min(22vmin, 250px); }
   .home-title { font-size: clamp(15px, 1.6vw, 21px); }
   .home-subtitle { font-size: clamp(10px, 0.85vw, 12px); }
+  .orbital-rings { width: min(92vmin, 1000px); height: 82vh; max-height: 1000px; }
+  .orbit-particles { width: min(92vmin, 1000px); height: 82vh; max-height: 1000px; }
 }
 
 @media (max-width: 768px) {
   /* FIX: Maintain orbital system height and responsive adjustments */
-  .orbital-rings { width: min(88vmin, 780px); height: 75vh; max-height: 780px; }
-  .orbit-particles { width: min(88vmin, 780px); height: 75vh; max-height: 780px; }
-  .planet-wrapper { width: min(54vmin, 440px); top: 50%; }
-  .space-node { width: min(22vmin, 180px); }
+  .orbital-rings { width: min(90vmin, 850px); height: 78vh; max-height: 850px; }
+  .orbit-particles { width: min(90vmin, 850px); height: 78vh; max-height: 850px; }
+  .planet-wrapper { width: min(62vmin, 520px); top: 50%; }
+  .space-node { width: min(24vmin, 200px); }
   .node-title { font-size: 0.8rem; padding: 0.35rem 0.7rem; }
-  .home-header { top: 60px; }
+  .home-header { top: 24px; }
   .home-title { font-size: clamp(14px, 2vw, 20px); letter-spacing: 0.1em; }
   .home-subtitle { font-size: clamp(10px, 0.9vw, 12px); }
   .node-label { bottom: -16px; }
@@ -509,13 +512,13 @@
 
 @media (max-width: 480px) {
   /* FIX: Maintain orbital system height and responsive adjustments */
-  .orbital-rings { height: 70vh; max-height: 650px; }
-  .orbit-particles { height: 70vh; max-height: 650px; }
-  .planet-wrapper { width: min(58vmin, 350px); top: 50%; }
-  .space-node { width: min(23vmin, 150px); }
+  .orbital-rings { height: 72vh; max-height: 700px; }
+  .orbit-particles { height: 72vh; max-height: 700px; }
+  .planet-wrapper { width: min(64vmin, 400px); top: 50%; }
+  .space-node { width: min(25vmin, 170px); }
   .node-label { bottom: -14px; }
   .node-title { font-size: 0.75rem; padding: 0.3rem 0.6rem; }
-  .home-header { top: 50px; }
+  .home-header { top: 20px; }
   .home-title { font-size: clamp(12px, 1.8vw, 18px); letter-spacing: 0.08em; }
   .home-subtitle { font-size: clamp(9px, 0.85vw, 11px); }
 }
