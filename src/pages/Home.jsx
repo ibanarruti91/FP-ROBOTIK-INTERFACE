@@ -191,6 +191,8 @@ function Home() {
         {connections.map((conn) => {
           const pathData = `M ${conn.x1} ${conn.y1} Q ${conn.controlX} ${conn.controlY} ${conn.x2} ${conn.y2}`;
           const pathId = `path-${conn.id}`;
+          const particleDuration = 3 + conn.id * 0.5;
+          const dataDuration = 4 + conn.id * 0.3;
           
           return (
             <g key={conn.id}>
@@ -213,9 +215,9 @@ function Home() {
               />
               
               {/* Animated particles traveling along the line */}
-              <circle r="3" fill={conn.color} className={`particle-travel particle-travel-${conn.id}`} filter={`url(#glow-${conn.id})`}>
+              <circle r="3" fill={conn.color} className={`particle-travel particle-travel-${conn.id}`}>
                 <animateMotion
-                  dur={`${3 + conn.id * 0.5}s`}
+                  dur={`${particleDuration}s`}
                   repeatCount="indefinite"
                 >
                   <mpath href={`#${pathId}`} />
@@ -223,11 +225,11 @@ function Home() {
               </circle>
               
               {/* Second particle with delay */}
-              <circle r="2.5" fill={conn.color} opacity="0.7" className={`particle-travel particle-travel-${conn.id}`} filter={`url(#glow-${conn.id})`}>
+              <circle r="2.5" fill={conn.color} opacity="0.7" className={`particle-travel particle-travel-${conn.id}`}>
                 <animateMotion
-                  dur={`${3 + conn.id * 0.5}s`}
+                  dur={`${particleDuration}s`}
                   repeatCount="indefinite"
-                  begin={`${(3 + conn.id * 0.5) / 2}s`}
+                  begin={`${particleDuration / 2}s`}
                 >
                   <mpath href={`#${pathId}`} />
                 </animateMotion>
@@ -244,7 +246,7 @@ function Home() {
               >
                 0
                 <animateMotion
-                  dur={`${4 + conn.id * 0.3}s`}
+                  dur={`${dataDuration}s`}
                   repeatCount="indefinite"
                 >
                   <mpath href={`#${pathId}`} />
@@ -261,9 +263,9 @@ function Home() {
               >
                 1
                 <animateMotion
-                  dur={`${4 + conn.id * 0.3}s`}
+                  dur={`${dataDuration}s`}
                   repeatCount="indefinite"
-                  begin={`${(4 + conn.id * 0.3) / 3}s`}
+                  begin={`${dataDuration / 3}s`}
                 >
                   <mpath href={`#${pathId}`} />
                 </animateMotion>
@@ -279,9 +281,9 @@ function Home() {
               >
                 0
                 <animateMotion
-                  dur={`${4 + conn.id * 0.3}s`}
+                  dur={`${dataDuration}s`}
                   repeatCount="indefinite"
-                  begin={`${(4 + conn.id * 0.3) * 2 / 3}s`}
+                  begin={`${dataDuration * 2 / 3}s`}
                 >
                   <mpath href={`#${pathId}`} />
                 </animateMotion>

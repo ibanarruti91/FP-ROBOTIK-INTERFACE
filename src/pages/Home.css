@@ -643,12 +643,10 @@
 
 @keyframes dataStreamFade {
   0%, 100% { 
-    opacity: 0.5; 
-    transform: scale(0.9);
+    opacity: 0.5;
   }
   50% { 
-    opacity: 0.9; 
-    transform: scale(1.1);
+    opacity: 0.9;
   }
 }
 
