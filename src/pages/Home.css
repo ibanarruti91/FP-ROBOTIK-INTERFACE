@@ -338,7 +338,6 @@
   /* Desktop minimum size: 260px x 260px per requirements */
   width: min(22vmin, 260px);
   aspect-ratio: 1 / 1;
-  height: auto;
 
   transition: transform 0.35s ease, filter 0.25s ease;
   --node-color: rgba(0, 229, 255, 1);
