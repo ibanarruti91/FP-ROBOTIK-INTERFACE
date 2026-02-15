@@ -41,7 +41,7 @@
 /* FIX: Ensure minimum 24-32px top padding as required */
 .home-header {
   position: absolute;
-  top: 28px;
+  top: 28px; /* 28px provides tight spacing while avoiding orbital ring overlap */
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
@@ -358,6 +358,8 @@
 }
 
 /* Posicionamiento (ajustable) - nodes closer to planet (30-40% reduced orbit) */
+/* Positions calculated to create a closer orbit around the enlarged planet */
+/* while maintaining balanced visual distribution in all quadrants */
 .space-node.node-1 { 
   top: 24%; 
   left: 24%; 
