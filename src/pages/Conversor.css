@@ -76,7 +76,7 @@
   font-family: var(--font-display);
   font-size: 1.8rem;
   font-weight: 700;
-  margin-bottom: 10.5rem;
+  margin-bottom: 1.5rem;
   color: var(--text-primary);
   text-transform: uppercase;
   letter-spacing: 2px;
@@ -173,7 +173,7 @@
   }
 
   .launcher-title {
-    font-size: 1.5rem;
+    font-size: -1.5rem;
   }
 
   .launcher-description {
