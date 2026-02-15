@@ -38,7 +38,7 @@
 }
 
 /* Header */
-// FIX: Ensure minimum 80px top margin and prevent overlap with orbital system
+/* FIX: Ensure minimum 80px top margin and prevent overlap with orbital system */
 .home-header {
   position: absolute;
   top: 80px;
@@ -51,7 +51,7 @@
   max-width: 90%;
 }
 
-// FIX: Reduce title size by ~25% and reduce letter-spacing
+/* FIX: Reduce title size by ~25% and reduce letter-spacing */
 .home-title {
   font-size: clamp(16px, 1.65vw, 22px);
   font-weight: 700;
@@ -70,7 +70,7 @@
   50% { opacity: 1; text-shadow: 0 0 30px rgba(0, 229, 255, 1), 0 0 60px rgba(0, 229, 255, 0.6); }
 }
 
-// FIX: Smaller typography, fit in ONE line with ellipsis
+/* FIX: Smaller typography, fit in ONE line with ellipsis */
 .home-subtitle {
   font-size: clamp(11px, 0.9vw, 13px);
   color: rgba(0, 229, 255, 0.8);
@@ -145,7 +145,7 @@
 }
 
 /* Traveling particles on orbits */
-// FIX: Match orbital system centering
+/* FIX: Match orbital system centering */
 .orbit-particles {
   position: absolute;
   left: 50%;
@@ -221,7 +221,7 @@
 /* =========================
    ORBITAS PERFECTAS (CUADRADO)
    ========================= */
-// FIX: Orbital system occupies ~80vh, centered within its block
+/* FIX: Orbital system occupies ~80vh, centered within its block */
 .orbital-rings {
   position: absolute;
   left: 50%;
@@ -273,7 +273,7 @@
 /* =========================
    PLANETA CENTRAL (ESCALA + NO DEFORMAR)
    ========================= */
-// FIX: Increased by 35% + increased halo by 15%
+/* FIX: Increased by 35% + increased halo by 15% */
 .planet-wrapper {
   position: absolute;
   left: 50%;
@@ -290,7 +290,7 @@
   place-items: center;
 }
 
-// FIX: Enhanced glow by +15% (increased opacity and scale)
+/* FIX: Enhanced glow by +15% (increased opacity and scale) */
 .planet-central {
   width: 100%;
   height: 100%;
@@ -308,7 +308,7 @@
   50% { transform: translateY(-10px) scale(1.02); }
 }
 
-// FIX: Increased ambient halo intensity by +15%
+/* FIX: Increased ambient halo intensity by +15% */
 .planet-glow {
   position: absolute;
   inset: -20%;
@@ -321,9 +321,9 @@
 }
 
 @keyframes glowPulse {
-  // FIX: Enhanced pulse intensity by +15%
+  /* FIX: Enhanced pulse intensity by +15% */
   0%, 100% { opacity: 0.69; transform: scale(1); }
-  50% { opacity: 1.04; transform: scale(1.15); }
+  50% { opacity: 1; transform: scale(1.15); }
 }
 
 /* =========================
@@ -435,7 +435,7 @@
 }
 
 /* Label - VISIBLE ONLY ON HOVER */
-// FIX: Label attached to node with max offset 18px, always 1 line with ellipsis
+/* FIX: Label attached to node with max offset 18px, always 1 line with ellipsis */
 .node-label {
   position: absolute;
   bottom: -18px;
@@ -458,7 +458,7 @@
   transform: translateX(-50%) scale(1.05);
 }
 
-// FIX: Ensure label text stays in 1 line with ellipsis
+/* FIX: Ensure label text stays in 1 line with ellipsis */
 .node-title {
   display: block;
   padding: 0.4rem 0.8rem;
@@ -489,7 +489,7 @@
 }
 
 @media (max-width: 1199px) {
-  // FIX: Maintain responsive adjustments for medium screens
+  /* FIX: Maintain responsive adjustments for medium screens */
   .planet-wrapper { width: min(48vmin, 500px); }
   .space-node { width: min(19vmin, 200px); height: min(19vmin, 200px); }
   .home-title { font-size: clamp(15px, 1.6vw, 21px); }
@@ -497,7 +497,7 @@
 }
 
 @media (max-width: 768px) {
-  // FIX: Maintain orbital system height and responsive adjustments
+  /* FIX: Maintain orbital system height and responsive adjustments */
   .orbital-rings { width: min(88vmin, 780px); height: 75vh; max-height: 780px; }
   .orbit-particles { width: min(88vmin, 780px); height: 75vh; max-height: 780px; }
   .planet-wrapper { width: min(50vmin, 400px); top: 50%; }
@@ -510,7 +510,7 @@
 }
 
 @media (max-width: 480px) {
-  // FIX: Maintain orbital system height and responsive adjustments
+  /* FIX: Maintain orbital system height and responsive adjustments */
   .orbital-rings { height: 70vh; max-height: 650px; }
   .orbit-particles { height: 70vh; max-height: 650px; }
   .planet-wrapper { width: min(56vmin, 320px); top: 50%; }
