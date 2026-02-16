@@ -3,12 +3,10 @@ import './Monitor.css';
 function Monitor() {
   return (
     <div className="monitor-page">
-      <header className="monitor-header">
-        <h1>Monitor del Sistema</h1>
-        <p className="monitor-description">
-          Panel de monitorización en tiempo real de los sistemas robóticos
-        </p>
-      </header>
+      <div className="universal-header">
+        <h1 className="universal-title">Monitor del Sistema</h1>
+        <p className="universal-description">Panel de monitorización en tiempo real de los sistemas robóticos</p>
+      </div>
       
       <div className="monitor-content">
         <div className="monitor-placeholder">

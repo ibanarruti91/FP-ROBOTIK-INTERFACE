@@ -13,13 +13,9 @@ function Conversor() {
     /* Zoom intermedio y padding superior equilibrado */
     <div className="page-container" style={{ paddingTop: '1.2rem', zoom: '0.85' }}>
       
-      {/* Encabezado con margen moderado para que respire */}
-      <div className="page-header" style={{ display: 'flex', alignItems: 'center', gap: '1.2rem', marginBottom: '1.8rem' }}>
-        <h1 className="page-title" style={{ margin: 0 }}>Interfaz Conversor Blocky</h1>
-        <div className="status-badge online" style={{ margin: 0 }}>
-          <span className="status-dot"></span>
-          Sistema Online
-        </div>
+      <div className="universal-header">
+        <h1 className="universal-title">Interfaz Conversor Blocky</h1>
+        <p className="universal-description">Herramienta de generación de código URScript y JSON para validación multi-centro</p>
       </div>
       
       <div className="page-content" style={{ marginTop: '0' }}>

@@ -29,60 +29,7 @@
   transform: translateX(-3px);
 }
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  margin-top: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(0, 229, 255, 0.2);
-}
 
-.page-title {
-  font-family: var(--font-display);
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.status-badge {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: rgba(12, 18, 30, 0.6);
-  border: 1px solid var(--accent-online);
-  border-radius: 20px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--accent-online);
-}
-
-.status-dot {
-  width: 8px;
-  height: 8px;
-  background: var(--accent-online);
-  border-radius: 50%;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-    box-shadow: 0 0 10px var(--accent-online);
-  }
-  50% {
-    opacity: 0.6;
-    box-shadow: 0 0 5px var(--accent-online);
-  }
-}
 
 .page-content {
   display: flex;

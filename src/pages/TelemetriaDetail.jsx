@@ -106,29 +106,9 @@ function TelemetriaDetail() {
         ← Volver
       </button>
       
-      <div className="page-header">
-        <div>
-          <h1 className="page-title">{centro.nombre}</h1>
-          <p className="page-subtitle">Telemetría en tiempo real</p>
-        </div>
-        <div className="status-badges">
-          {error ? (
-            <div className="status-badge error">
-              <span className="status-dot"></span>
-              {error}
-            </div>
-          ) : usingMockData ? (
-            <div className="status-badge warning">
-              <span className="status-dot"></span>
-              Datos simulados
-            </div>
-          ) : (
-            <div className="status-badge online">
-              <span className="status-dot"></span>
-              Conectado
-            </div>
-          )}
-        </div>
+      <div className="universal-header">
+        <h1 className="universal-title">{centro.nombre}</h1>
+        <p className="universal-description">Telemetría en tiempo real</p>
       </div>
       
       {/* Tab Navigation */}

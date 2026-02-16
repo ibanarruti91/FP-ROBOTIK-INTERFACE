@@ -12,45 +12,7 @@
 
 
 
-.informacion-header {
 
-  margin-bottom: 2rem;
-
-}
-
-
-
-.informacion-header h1 {
-
-  font-family: var(--font-display);
-
-  font-size: 2rem;
-
-  font-weight: 700;
-
-  color: var(--text-primary);
-
-  margin-bottom: 0.5rem;
-
-  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-
-  -webkit-background-clip: text;
-
-  -webkit-text-fill-color: transparent;
-
-}
-
-
-
-.informacion-description {
-
-  color: var(--text-secondary);
-
-  font-size: 1.1rem;
-
-  margin-top: 0.5rem;
-
-}
 
 
 
@@ -285,22 +247,6 @@
   .informacion-page {
 
     padding: 1.5rem;
-
-  }
-
-
-
-  .informacion-header h1 {
-
-    font-size: 2rem;
-
-  }
-
-
-
-  .informacion-description {
-
-    font-size: 1rem;
 
   }
 
