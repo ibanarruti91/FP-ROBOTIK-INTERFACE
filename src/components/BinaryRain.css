@@ -1,4 +1,4 @@
-/* Binary Data Grid Effect - Static processing display */
+/* Binary Data Grid Effect - Matrix-style digital rain */
 
 .binary-data-grid {
   position: absolute;
@@ -13,19 +13,52 @@
 
 .data-bit {
   position: absolute;
-  color: var(--accent-cyan);
+  color: #00ff41; /* Matrix green */
   font-family: 'Courier New', monospace;
   font-size: 0.75rem;
   font-weight: bold;
   pointer-events: none;
   user-select: none;
   opacity: 0;
-  /* GLOW EFFECT: */
-  text-shadow: 0 0 10px var(--accent-cyan), 0 0 20px var(--accent-cyan);
+  /* Base glow effect for all bits */
+  text-shadow: 0 0 8px #00ff41, 0 0 15px rgba(0, 255, 65, 0.6);
   animation: digitalPulse ease-in-out infinite;
+}
+
+/* Enhanced neon glow specifically for '1' digits */
+.data-bit-one {
+  /* Much brighter and more noticeable neon glow for ones */
+  text-shadow: 
+    0 0 15px #00ff41,
+    0 0 30px #00ff41,
+    0 0 45px rgba(0, 255, 65, 0.9),
+    0 0 60px rgba(0, 255, 65, 0.7);
+  font-weight: bolder;
+}
+
+/* Dimmer appearance for '0' digits */
+.data-bit-zero {
+  opacity: 0.7; /* Slightly less visible */
+  text-shadow: 0 0 5px #00ff41, 0 0 10px rgba(0, 255, 65, 0.4);
 }
 
 @keyframes digitalPulse {
   0%, 100% { opacity: 0; transform: scale(0.7); }
   50% { opacity: 0.35; transform: scale(1.2); } /* Sufficient opacity to be visible */
+}
+
+/* Enhanced pulse for '1' digits - more prominent */
+.data-bit-one {
+  animation: digitalPulseOne ease-in-out infinite;
+}
+
+@keyframes digitalPulseOne {
+  0%, 100% { 
+    opacity: 0.2; 
+    transform: scale(0.8); 
+  }
+  50% { 
+    opacity: 0.7; /* Much brighter at peak */
+    transform: scale(1.3); 
+  }
 }
