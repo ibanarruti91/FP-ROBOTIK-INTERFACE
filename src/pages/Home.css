@@ -3,14 +3,24 @@
    Refined: Large icons with clear labels
    =========================== */
 
+/* Reset html and body to eliminate scroll */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100%;
+}
+
 /* Main container */
 .home-space {
   position: relative;
-  width: 100%;
+  width: 100vw;
   height: 100vh;
-  min-height: 100vh;
   overflow: hidden;
   background-color: #000;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
 }
 
 /* ===========================
