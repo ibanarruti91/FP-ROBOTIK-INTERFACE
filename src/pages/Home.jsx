@@ -23,7 +23,7 @@ function Home() {
       id: 'validacion',
       label: 'Control Validación',
       path: '/validacion',
-      position: { left: '20%', bottom: '-10%' },
+      position: { left: '16%', bottom: '-6%' },
       icon: 'nodo-validacion.png'
     },
     {
