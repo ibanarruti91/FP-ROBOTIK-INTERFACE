@@ -76,6 +76,19 @@ function Sidebar() {
           );
         })}
       </nav>
+
+      <div className="sidebar-logos">
+        <img 
+          src={`${import.meta.env.BASE_URL}assets/logo salesianos.jpg`}
+          alt="Logo Salesianos" 
+          className="footer-logo"
+        />
+        <img 
+          src={`${import.meta.env.BASE_URL}assets/logo repelaga.png`}
+          alt="Logo Repelaga" 
+          className="footer-logo"
+        />
+      </div>
     </aside>
   );
 }
