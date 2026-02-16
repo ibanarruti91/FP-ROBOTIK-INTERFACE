@@ -24,17 +24,9 @@
 
 @keyframes fall {
   0% {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  90% {
-    opacity: 1;
+    transform: translateY(0);
   }
   100% {
-    transform: translateY(100vh);
-    opacity: 0;
+    transform: translateY(calc(100vh + 20px));
   }
 }
