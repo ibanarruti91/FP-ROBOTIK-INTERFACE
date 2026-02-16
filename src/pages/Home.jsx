@@ -5,6 +5,7 @@ import './Home.css';
 function Home() {
   const navigate = useNavigate();
   const [glitchActive, setGlitchActive] = useState(false);
+  // Duration matches the glitchFlash animation in Home.css (0.6s = 600ms)
   const GLITCH_DURATION = 600;
 
   const handleTitleClick = () => {
