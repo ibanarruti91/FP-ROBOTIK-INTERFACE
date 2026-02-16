@@ -354,49 +354,26 @@
   --node-color: rgba(0, 229, 255, 1);
   /* Enable pointer events on nodes */
   pointer-events: auto;
+  /* Animation for floating effect */
+  animation: floatNode 7s ease-in-out infinite;
 }
 
 .space-node:hover {
-  transform: scale(1.12);
+  transform: scale(1.12) translate(-50%, -50%);
   filter: brightness(1.15);
   animation: microVibrate 0.15s ease-in-out infinite, floatNode 7s ease-in-out infinite;
 }
 
 @keyframes microVibrate {
-  0%, 100% { transform: scale(1.12) translate(0, 0); }
-  25% { transform: scale(1.12) translate(1px, -1px); }
-  50% { transform: scale(1.12) translate(-1px, 1px); }
-  75% { transform: scale(1.12) translate(1px, 1px); }
-}
-
-/* Posicionamiento (ajustable) - nodes closer to planet */
-.space-node.node-1 { 
-  top: 24%; 
-  left: 24%; 
-  animation: floatNode 7s ease-in-out infinite; 
-}
-
-.space-node.node-2 { 
-  top: 22%; 
-  right: 22%; 
-  animation: floatNode 6.5s ease-in-out infinite 1s; 
-}
-
-.space-node.node-3 { 
-  bottom: 22%; 
-  left: 28%; 
-  animation: floatNode 7.5s ease-in-out infinite 2s; 
-}
-
-.space-node.node-4 { 
-  bottom: 20%; 
-  right: 24%; 
-  animation: floatNode 6.8s ease-in-out infinite 3s; 
+  0%, 100% { transform: scale(1.12) translate(-50%, -50%); }
+  25% { transform: scale(1.12) translate(calc(-50% + 1px), calc(-50% - 1px)); }
+  50% { transform: scale(1.12) translate(calc(-50% - 1px), calc(-50% + 1px)); }
+  75% { transform: scale(1.12) translate(calc(-50% + 1px), calc(-50% + 1px)); }
 }
 
 @keyframes floatNode {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-16px); }
+  0%, 100% { transform: translate(-50%, -50%); }
+  50% { transform: translate(-50%, calc(-50% - 16px)); }
 }
 
 /* Halo effect for nodes */
