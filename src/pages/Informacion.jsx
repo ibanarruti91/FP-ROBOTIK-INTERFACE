@@ -4,7 +4,7 @@ function Informacion() {
   return (
     <div className="informacion-page">
       <header className="informacion-header">
-        <h1>Información del Proyecto</h1>
+        <h1>INFORMACIÓN DEL PROYECTO</h1>
         <p className="informacion-description">
           Detalles sobre FP Robotic Interface y la colaboración educativa
         </p>
