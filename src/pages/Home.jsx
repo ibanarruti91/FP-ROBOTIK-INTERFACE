@@ -32,14 +32,14 @@ function Home() {
       id: 'validacion',
       label: 'Control Validación',
       path: '/validacion',
-      position: { left: '16%', bottom: '0%' },
+      position: { left: '16%', bottom: '-5%' },
       icon: 'nodo-validacion.png'
     },
     {
       id: 'monitor',
       label: 'Sistema de Monitoreo',
       path: '/monitor',
-      position: { right: '-11%', bottom: '0%' },
+      position: { right: '-13%', bottom: '-4%' },
       icon: 'nodo-monitor.png'
     }
   ];
