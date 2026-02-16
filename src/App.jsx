@@ -7,6 +7,7 @@ import Telemetria from './pages/Telemetria';
 import Validacion from './pages/Validacion';
 import Conversor from './pages/Conversor';
 import Monitor from './pages/Monitor';
+import Informacion from './pages/Informacion';
 import './App.css';
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
           <Route path="/validacion" element={<Validacion />} />
           <Route path="/conversor" element={<Conversor />} />
           <Route path="/monitor" element={<Monitor />} />
+          <Route path="/informacion" element={<Informacion />} />
         </Routes>
       </Layout>
     </Router>
