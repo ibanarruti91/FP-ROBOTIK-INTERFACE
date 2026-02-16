@@ -1,8 +1,8 @@
-/* Binary Data Grid Effect - Static processing display */
-
+/* EFECTO BINARIO FINAL: MÁXIMA COBERTURA Y BRILLO */
 .digital-universe-overlay {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
   width: 100vw;
   height: 100vh;
   z-index: 0;
@@ -12,16 +12,25 @@
 
 .bit-flash {
   position: absolute;
-  color: #00e5ff;
-  font-family: monospace;
+  color: #00e5ff; /* Cian neón puro */
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
   font-weight: bold;
   opacity: 0;
-  text-shadow: 0 0 12px #00e5ff;
-  animation: lightningBlink 3s ease-in-out infinite;
+  user-select: none;
   pointer-events: none;
+  /* Doble resplandor para que se note mucho más */
+  text-shadow: 0 0 10px #00e5ff, 0 0 20px rgba(0, 229, 255, 0.8);
+  animation: lightningBlink 1.2s ease-in-out infinite;
 }
 
 @keyframes lightningBlink {
-  0%, 100% { opacity: 0; transform: scale(0.5); }
-  50% { opacity: 0.5; transform: scale(1.2); }
+  0%, 100% { 
+    opacity: 0; 
+    transform: scale(0.6); 
+  }
+  50% { 
+    opacity: 0.45; /* Opacidad subida para que el parpadeo destaque */
+    transform: scale(1.1); 
+  }
 }

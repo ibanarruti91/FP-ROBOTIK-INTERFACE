@@ -1,21 +1,21 @@
 import { useState, useEffect } from 'react';
 import './BinaryRain.css';
 
-// Helper function to generate static positioned data bits
+// Generamos 300 bits para una cobertura total del mapa
 const generateDataBits = () => 
   Array.from({ length: 300 }, (_, i) => ({
     id: i,
     digit: Math.random() > 0.5 ? '1' : '0',
     left: `${Math.random() * 100}%`,
     top: `${Math.random() * 100}%`,
-    animationDelay: `${Math.random() * 4}s`
+    animationDelay: `${Math.random() * 4}s`,
+    animationDuration: `${0.8 + Math.random() * 1.2}s` // Parpadeo rápido y variado
   }));
 
 function BinaryRain() {
-  // Generate array of binary digits with fixed random positions
   const [dataBits, setDataBits] = useState(() => generateDataBits());
 
-  // Change digit values intermittently
+  // Este efecto cambia los números (0 a 1) cada cierto tiempo para dar dinamismo
   useEffect(() => {
     const interval = setInterval(() => {
       setDataBits(prevBits => 
@@ -24,7 +24,7 @@ function BinaryRain() {
           digit: Math.random() > 0.5 ? '1' : '0'
         }))
       );
-    }, 3000); // Change digits every 3 seconds
+    }, 2000); // Cambia el valor cada 2 segundos
 
     return () => clearInterval(interval);
   }, []);
@@ -38,7 +38,8 @@ function BinaryRain() {
           style={{
             left: bit.left,
             top: bit.top,
-            animationDelay: bit.animationDelay
+            animationDelay: bit.animationDelay,
+            animationDuration: bit.animationDuration
           }}
         >
           {bit.digit}
