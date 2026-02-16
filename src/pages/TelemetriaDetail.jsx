@@ -71,10 +71,6 @@ function TelemetriaDetail() {
   if (centro.estado === 'PROXIMAMENTE') {
     return (
       <div className="page-container">
-        <button className="back-button" onClick={() => navigate('/centros')} aria-label="Volver a centros">
-          ← Volver
-        </button>
-        
         <div className="proximamente-container">
           <div className="proximamente-icon">🚧</div>
           <h1 className="proximamente-title">{centro.nombre}</h1>
@@ -89,9 +85,6 @@ function TelemetriaDetail() {
   if (loading) {
     return (
       <div className="page-container">
-        <button className="back-button" onClick={() => navigate('/centros')} aria-label="Volver a centros">
-          ← Volver
-        </button>
         <div className="loading-container">
           <div className="loading-spinner"></div>
           <p>Conectando con {centro.nombre}...</p>
@@ -102,10 +95,6 @@ function TelemetriaDetail() {
 
   return (
     <div className="page-container">
-      <button className="back-button" onClick={() => navigate('/centros')} aria-label="Volver a centros">
-        ← Volver
-      </button>
-      
       <div className="page-header">
         <div>
           <h1 className="page-title">{centro.nombre}</h1>

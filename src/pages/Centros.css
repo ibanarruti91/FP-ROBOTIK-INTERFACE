@@ -5,11 +5,23 @@
   margin-top: 2rem;
 }
 
+.page-header-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+}
+
+.page-title {
+  white-space: nowrap;
+}
+
 .page-description {
   color: var(--text-secondary);
   font-size: 1rem;
-  margin-top: 0.5rem;
+  margin-top: 0;
   line-height: 1.6;
+  white-space: nowrap;
 }
 
 .centro-card {

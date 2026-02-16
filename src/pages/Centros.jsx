@@ -13,15 +13,13 @@ function Centros() {
 
   return (
     <div className="page-container">
-      <button className="back-button" onClick={() => navigate('/')} aria-label="Volver al inicio">
-        ← Volver
-      </button>
-      
       <div className="page-header">
-        <h1 className="page-title">Centros con telemetría avanzada</h1>
-        <p className="page-description">
-          Selecciona un centro para visualizar su telemetría en tiempo real
-        </p>
+        <div className="page-header-content">
+          <h1 className="page-title">Centros con telemetría avanzada</h1>
+          <p className="page-description">
+            Selecciona un centro para visualizar su telemetría en tiempo real
+          </p>
+        </div>
       </div>
       
       <div className="centros-grid">

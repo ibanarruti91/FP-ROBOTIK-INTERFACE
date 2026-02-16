@@ -120,37 +120,6 @@
 
 /* Back button and page container styles */
 .page-container {
-  width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
-  position: relative;
-}
-
-.back-button {
-  position: absolute;
-  top: -0.5rem;
-  left: 0;
-  background: transparent;
-  border: none;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  font-family: var(--font-body);
-  cursor: pointer;
-  padding: 0.5rem 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.3s ease;
-  border-radius: 8px;
-}
-
-.back-button:hover {
-  color: var(--accent-cyan);
-  background: rgba(0, 229, 255, 0.1);
-  transform: translateX(-3px);
-}
-
-.page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;

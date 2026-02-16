@@ -6,9 +6,6 @@ function Telemetria() {
 
   return (
     <div className="page-container">
-      <button className="back-button" onClick={() => navigate('/')} aria-label="Volver al inicio">
-        ← Volver
-      </button>
       <div className="page-header">
         <h1 className="page-title">Telemetría avanzada</h1>
         <div className="status-badge online">
