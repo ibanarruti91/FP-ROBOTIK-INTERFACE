@@ -35,7 +35,7 @@ function BinaryRain() {
       {dataBits.map((bit) => (
         <span
           key={bit.id}
-          className="data-bit"
+          className={`data-bit ${bit.digit === '1' ? 'data-bit-one' : 'data-bit-zero'}`}
           style={{
             left: bit.left,
             top: bit.top,

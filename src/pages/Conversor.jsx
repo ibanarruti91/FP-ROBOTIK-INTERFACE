@@ -1,5 +1,4 @@
 import './Conversor.css';
-import BinaryBackground from '../components/BinaryBackground';
 
 function Conversor() {
 
@@ -20,7 +19,6 @@ function Conversor() {
         <div className="conversor-launcher">
           {/* Panel con padding intermedio: ni muy apretado (0.8) ni muy ancho (1.5) */}
           <div className="launcher-panel" style={{ padding: '1.2rem', maxWidth: '550px' }}>
-            <BinaryBackground />
             <div className="launcher-content">
               <div className="launcher-icon" style={{ marginBottom: '0.8rem' }}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '45px' }}>
