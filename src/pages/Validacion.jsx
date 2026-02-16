@@ -1,8 +1,6 @@
-import { useNavigate } from 'react-router-dom';
 import './Validacion.css';
 
 function Validacion() {
-  const navigate = useNavigate();
 
   return (
     <div className="page-container">

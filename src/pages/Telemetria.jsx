@@ -1,8 +1,6 @@
-import { useNavigate } from 'react-router-dom';
 import './Telemetria.css';
 
 function Telemetria() {
-  const navigate = useNavigate();
 
   return (
     <div className="page-container">
