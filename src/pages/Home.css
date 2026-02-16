@@ -63,7 +63,7 @@
 
 /* Glitch effect animation */
 .home-space.glitch-effect {
-  animation: glitchFlash 0.6s ease-in-out;
+  animation: glitchFlash 0.6s ease-in-out; /* Duration synced with GLITCH_DURATION in Home.jsx */
 }
 
 @keyframes glitchFlash {
