@@ -53,5 +53,3 @@ function Conversor() {
 }
 
 export default Conversor;
-
-export default Conversor;
