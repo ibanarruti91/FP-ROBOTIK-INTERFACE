@@ -103,24 +103,39 @@ function Home() {
         <defs>
           {nodes.map((node) => (
             <linearGradient key={`gradient-${node.id}`} id={`gradient-${node.id}`} x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor={node.color} stopOpacity="0.6" />
-              <stop offset="100%" stopColor={node.color} stopOpacity="0.2" />
+              <stop offset="0%" stopColor={node.color} stopOpacity="0.8" />
+              <stop offset="100%" stopColor={node.color} stopOpacity="0.4" />
             </linearGradient>
           ))}
         </defs>
-        {connections.map((conn) => (
-          <line
-            key={conn.id}
-            x1={conn.x1}
-            y1={conn.y1}
-            x2={conn.x2}
-            y2={conn.y2}
-            stroke={`url(#gradient-${conn.id})`}
-            strokeWidth="2"
-            strokeDasharray="8 4"
-            className={`nexus-line ${hoveredNode === conn.id ? 'nexus-line-active' : ''}`}
-          />
-        ))}
+        {connections.map((conn) => {
+          // Calculate control points for curved path
+          const dx = conn.x2 - conn.x1;
+          const dy = conn.y2 - conn.y1;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          const curvature = 0.3; // Adjust this for more/less curve
+          
+          // Control point offset perpendicular to the line
+          const offsetX = -dy * curvature;
+          const offsetY = dx * curvature;
+          
+          const cx = (conn.x1 + conn.x2) / 2 + offsetX;
+          const cy = (conn.y1 + conn.y2) / 2 + offsetY;
+          
+          const pathD = `M ${conn.x1},${conn.y1} Q ${cx},${cy} ${conn.x2},${conn.y2}`;
+          
+          return (
+            <path
+              key={conn.id}
+              d={pathD}
+              stroke={`url(#gradient-${conn.id})`}
+              strokeWidth="3"
+              fill="none"
+              strokeDasharray="12 6"
+              className={`nexus-line ${hoveredNode === conn.id ? 'nexus-line-active' : ''}`}
+            />
+          );
+        })}
       </svg>
 
       {/* Nodes */}
