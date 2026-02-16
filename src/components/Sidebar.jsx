@@ -70,7 +70,7 @@ function Sidebar() {
           }
         >
           <span className="nav-icon">ℹ️</span>
-          <span className="nav-title">Sobre el proyecto</span>
+          <span className="nav-title">Acerca del proyecto</span>
         </NavLink>
       </div>
     </aside>
