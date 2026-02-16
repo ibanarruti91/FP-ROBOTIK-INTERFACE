@@ -1,45 +1,49 @@
-import { useState } from 'react';
-import './BinaryBackground.css';
+import { useState, useEffect } from 'react';
+import './BinaryRain.css';
 
-// Animation timing constants
-const MIN_DURATION = 3; // seconds
-const MAX_DURATION = 7; // seconds
-const MAX_DELAY = 2; // seconds
+const generateDataBits = () => 
+  Array.from({ length: 300 }, (_, i) => ({
+    id: i,
+    digit: Math.random() > 0.5 ? '1' : '0',
+    left: `${Math.random() * 100}%`,
+    top: `${Math.random() * 100}%`,
+    animationDelay: `${Math.random() * 4}s`,
+    animationDuration: `${0.8 + Math.random() * 1.2}s`
+  }));
 
-function BinaryBackground() {
-  // Generate 40 random bits with random positions and animation durations
-  // Using useState to ensure values are only generated once
-  const [bits] = useState(() => {
-    return Array.from({ length: 40 }, (_, index) => ({
-      id: index,
-      value: Math.random() > 0.5 ? '1' : '0',
-      top: `${Math.random() * 100}%`,
-      left: `${Math.random() * 100}%`,
-      duration: `${MIN_DURATION + Math.random() * (MAX_DURATION - MIN_DURATION)}s`,
-      delay: `${Math.random() * MAX_DELAY}s`,
-      fontSize: '0.8rem'
-    }));
-  });
+function BinaryRain() {
+  const [dataBits, setDataBits] = useState(() => generateDataBits());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDataBits(prevBits => 
+        prevBits.map(bit => ({
+          ...bit,
+          digit: Math.random() > 0.5 ? '1' : '0'
+        }))
+      );
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <div className="binary-background-clean">
-      {bits.map((bit) => (
+    <div className="digital-universe-overlay">
+      {dataBits.map((bit) => (
         <span
           key={bit.id}
-          className="bit-soft"
+          className="bit-flash"
           style={{
-            top: bit.top,
             left: bit.left,
-            animationDuration: bit.duration,
-            animationDelay: bit.delay,
-            fontSize: bit.fontSize
+            top: bit.top,
+            animationDelay: bit.animationDelay,
+            animationDuration: bit.animationDuration
           }}
         >
-          {bit.value}
+          {bit.digit}
         </span>
       ))}
     </div>
   );
 }
 
-export default BinaryBackground;
+export default BinaryRain;
