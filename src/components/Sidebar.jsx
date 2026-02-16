@@ -39,6 +39,6 @@
   </h1>
   
   <p style={{ margin: '0', fontSize: '0.7rem', opacity: 0.7 }}>
-    Colaboración Salesianos Urnieta × CIFP Repélega
+    Colaboración Salesianos Urnieta × CIFP Repélegaaaaaaa
   </p>
 </div>
