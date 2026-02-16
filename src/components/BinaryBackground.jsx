@@ -8,7 +8,7 @@ const generateDataBits = () =>
     left: `${Math.random() * 100}%`,
     top: `${Math.random() * 100}%`,
     animationDelay: `${Math.random() * 3}s`,
-    animationDuration: `${0.7 + Math.random() * 1.3}s`
+    animationDuration: `${0.6 + Math.random() * 1.2}s`
   }));
 
 function BinaryRain() {
@@ -22,7 +22,7 @@ function BinaryRain() {
           digit: Math.random() > 0.5 ? '1' : '0'
         }))
       );
-    }, 1500);
+    }, 1000); // Cambio rápido para efecto Matrix
     return () => clearInterval(interval);
   }, []);
 
@@ -31,8 +31,7 @@ function BinaryRain() {
       {dataBits.map((bit) => (
         <span
           key={bit.id}
-          /* Si el dígito es '1', añade la clase 'is-one' para más brillo */
-          className={`bit-flash ${bit.digit === '1' ? 'is-one' : ''}`}
+          className={`bit-flash ${bit.digit === '1' ? 'matrix-glow' : ''}`}
           style={{
             left: bit.left,
             top: bit.top,
