@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import BinaryRain from '../components/BinaryRain';
 import './Home.css';
 
 function Home() {
@@ -54,6 +55,7 @@ function Home() {
         backgroundRepeat: 'no-repeat'
       }}
     >
+      <BinaryRain />
       <div className="home-header">
         <h1 className={`home-title ${textPulseActive ? 'text-pulse-animation' : ''}`} onClick={handleTitleClick}>
           FP ROBOTIK INTERFACE
