@@ -9,7 +9,7 @@ function Home() {
       id: 'centros',
       label: 'Centros de Telemetría',
       path: '/centros',
-      position: { left: '40%', top: '15%' },
+      position: { left: '30%', top: '15%' },
       icon: 'nodo-centros.png'
     },
     {
