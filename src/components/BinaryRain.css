@@ -14,21 +14,17 @@
 .data-bit {
   position: absolute;
   color: var(--accent-cyan);
-  font-family: var(--font-display);
-  font-size: 0.9rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
   font-weight: bold;
   opacity: 0;
-  animation: dataPulse 4s infinite ease-in-out;
+  /* Añadimos un micro-brillo para que destaque el parpadeo */
+  text-shadow: 0 0 5px rgba(0, 229, 255, 0.5);
+  animation: fastDataPulse ease-in-out infinite;
   pointer-events: none;
 }
 
-@keyframes dataPulse {
-  0%, 100% { 
-    opacity: 0; 
-    transform: scale(0.8); 
-  }
-  50% { 
-    opacity: 0.25; 
-    transform: scale(1); 
-  }
+@keyframes fastDataPulse {
+  0%, 100% { opacity: 0; transform: scale(0.9); }
+  50% { opacity: 0.25; transform: scale(1.1); } /* Opacidad subida al 25% para que se note */
 }

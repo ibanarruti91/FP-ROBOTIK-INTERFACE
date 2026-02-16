@@ -3,7 +3,7 @@ import './BinaryRain.css';
 
 // Helper function to generate static positioned data bits
 const generateDataBits = () => 
-  Array.from({ length: 30 }, (_, i) => ({
+  Array.from({ length: 100 }, (_, i) => ({
     id: i,
     digit: Math.random() > 0.5 ? '1' : '0',
     left: `${Math.random() * 95}%`,
