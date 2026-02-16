@@ -4,17 +4,21 @@
 
 .sidebar {
   width: clamp(260px, 28vw, 340px);
-  height: 100vh;
+  height: 100vh !important;
+  max-height: 100vh !important;
   background: var(--panel-bg);
   backdrop-filter: blur(10px);
   border-right: 1px solid rgba(0, 229, 255, 0.1);
 
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
 
   padding: 0.6rem 1rem 1rem;
 
-  overflow: hidden;
+  overflow: hidden !important;
+  position: sticky;
+  top: 0;
 }
 
 /* =========================
@@ -27,16 +31,16 @@
   align-items: center;
   text-align: center;
 
-  margin-bottom: 1rem;
+  margin-bottom: 10px;
 }
 
-/* LOGO — NO SE TOCA POSICIÓN ACTUAL */
+/* LOGO */
 .logo {
   width: auto;
   height: 180px;
   object-fit: contain;
   object-position: center;
-  margin-bottom: 0.15rem;
+  margin-bottom: 10px;
 
   filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.4));
   position: relative;
@@ -52,6 +56,7 @@
   font-size: 1.3rem;
   font-weight: 800;
   margin: 0;
+  padding: 0;
 
   background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
   -webkit-background-clip: text;
@@ -66,22 +71,22 @@
   font-size: 0.68rem;
   color: var(--text-secondary);
 
-  margin-top: 0.15rem;
+  margin-top: 10px;
+  padding: 0;
   letter-spacing: 1px;
   font-weight: 300;
   opacity: 0.8;
-
 }
 
 /* =========================
-   NAVEGACIÓN (NO SE MUEVE)
+   NAVEGACIÓN
    ========================= */
 
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
-  margin-top: 0.75rem;
+  gap: 0.3rem;
+  margin-top: 10px;
 
   width: 100%;
 }
