@@ -120,6 +120,13 @@
 
 /* Back button and page container styles */
 .page-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;

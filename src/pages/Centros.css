@@ -1,3 +1,20 @@
+.page-container {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  margin-top: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+}
+
 .centros-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
