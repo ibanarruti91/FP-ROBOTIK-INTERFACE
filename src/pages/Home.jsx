@@ -5,6 +5,7 @@ import './Home.css';
 function Home() {
   const navigate = useNavigate();
   const [textPulseActive, setTextPulseActive] = useState(false);
+  // Duration matches the textPulse animation in Home.css (0.6s = 600ms)
   const TEXT_PULSE_DURATION = 600;
 
   const handleTitleClick = () => {
