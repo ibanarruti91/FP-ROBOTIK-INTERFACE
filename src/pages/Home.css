@@ -1,5 +1,6 @@
 /* ===========================
    HOME PAGE - FP ROBOTIC INTERFACE
+   Simplified: Icons only, no visual noise
    =========================== */
 
 /* Main container */
@@ -8,94 +9,12 @@
   width: 100%;
   height: 100vh;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
   overflow: hidden;
   background-color: #000;
-  filter: saturate(1.5) brightness(1.1);
-}
-
-/* Header */
-.home-header {
-  position: absolute;
-  top: 60px;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-  z-index: 10;
-  pointer-events: none;
-  max-width: 90%;
-}
-
-.home-title {
-  font-size: clamp(18px, 2vw, 28px);
-  font-weight: 700;
-  color: #00f2ff;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  margin: 0;
-  text-shadow: 
-    0 0 20px rgba(0, 242, 255, 0.8),
-    0 0 40px rgba(0, 242, 255, 0.4);
-  animation: titleGlow 3s ease-in-out infinite;
-  white-space: nowrap;
-}
-
-@keyframes titleGlow {
-  0%, 100% { 
-    opacity: 0.95; 
-    text-shadow: 0 0 20px rgba(0, 242, 255, 0.8), 0 0 40px rgba(0, 242, 255, 0.4); 
-  }
-  50% { 
-    opacity: 1; 
-    text-shadow: 0 0 30px rgba(0, 242, 255, 1), 0 0 60px rgba(0, 242, 255, 0.6); 
-  }
-}
-
-.home-subtitle {
-  font-size: clamp(11px, 1vw, 14px);
-  color: rgba(0, 242, 255, 0.8);
-  margin: 0.5rem 0 0 0;
-  letter-spacing: 0.05em;
-  font-weight: 300;
-  white-space: nowrap;
 }
 
 /* ===========================
-   SVG NEXUS - CONNECTION LINES
-   =========================== */
-.svg-nexus {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 5;
-  width: 100%;
-  height: 100%;
-}
-
-.nexus-line {
-  opacity: 0.8;
-  filter: drop-shadow(0 0 12px #00f2ff);
-  transition: opacity 0.3s ease, filter 0.3s ease;
-  animation: dataFlow 2s linear infinite;
-}
-
-.nexus-line-active {
-  opacity: 1;
-  filter: drop-shadow(0 0 18px #00f2ff);
-}
-
-@keyframes dataFlow {
-  0% { 
-    stroke-dashoffset: 0;
-  }
-  100% { 
-    stroke-dashoffset: -40;
-  }
-}
-
-/* ===========================
-   SPACE NODES
+   SPACE NODES - Interactive Icons
    =========================== */
 .space-node {
   position: absolute;
@@ -103,148 +22,36 @@
   cursor: pointer;
   z-index: 10;
   user-select: none;
-  pointer-events: auto;
-  --node-color: #00f2ff;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  opacity: 0.9;
 }
 
 .space-node:hover {
   transform: translate(-50%, -50%) scale(1.1);
-}
-
-/* Circular container with backdrop blur */
-.node-circle {
-  width: 140px;
-  height: 140px;
-  border-radius: 50%;
-  background: rgba(0, 242, 255, 0.08);
-  backdrop-filter: blur(15px) saturate(180%);
-  -webkit-backdrop-filter: blur(15px) saturate(180%);
-  border: 2px solid #00f2ff;
-  box-shadow: 0 0 20px rgba(0, 242, 255, 0.6), inset 0 0 15px rgba(0, 242, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.space-node:hover .node-circle {
-  box-shadow: 0 0 30px rgba(0, 242, 255, 0.8), inset 0 0 20px rgba(0, 242, 255, 0.3);
-  border-color: #00f2ff;
+  opacity: 1;
 }
 
 /* Node icon */
 .node-icon {
-  width: 70%;
-  height: 70%;
+  width: 140px;
+  height: 140px;
   object-fit: contain;
-  transition: transform 0.3s ease;
-}
-
-.space-node:hover .node-icon {
-  transform: scale(1.05);
-}
-
-/* Node label - appears on hover with fade-in */
-.node-label {
-  position: absolute;
-  bottom: -45px;
-  left: 50%;
-  transform: translateX(-50%);
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
-  pointer-events: none;
-  white-space: nowrap;
-  z-index: 20;
-}
-
-.space-node:hover .node-label {
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(-5px);
-}
-
-.node-text {
   display: block;
-  padding: 0.5rem 1rem;
-  background: rgba(0, 20, 40, 0.95);
-  backdrop-filter: blur(12px);
-  border: 2px solid var(--node-color);
-  border-radius: 12px;
-  color: var(--node-color);
-  font-size: 1.1rem;
-  font-weight: bold;
-  letter-spacing: 0.5px;
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.4),
-    0 0 25px var(--node-color);
-  text-shadow: 0 0 10px #00f2ff;
-  pointer-events: none;
 }
 
 /* ===========================
    RESPONSIVE DESIGN
    =========================== */
 @media (max-width: 768px) {
-  .home-header {
-    top: 40px;
-  }
-  
-  .home-title {
-    font-size: clamp(16px, 3vw, 24px);
-    letter-spacing: 0.1em;
-  }
-  
-  .home-subtitle {
-    font-size: clamp(10px, 1.2vw, 13px);
-  }
-  
-  .node-circle {
+  .node-icon {
     width: 120px;
     height: 120px;
-  }
-  
-  .node-label {
-    bottom: -40px;
-  }
-  
-  .node-text {
-    font-size: clamp(0.7rem, 1.2vw, 0.85rem);
-    padding: 0.4rem 0.8rem;
   }
 }
 
 @media (max-width: 480px) {
-  .home-header {
-    top: 30px;
-  }
-  
-  .home-title {
-    font-size: clamp(14px, 3.5vw, 20px);
-    letter-spacing: 0.08em;
-  }
-  
-  .home-subtitle {
-    font-size: clamp(9px, 1.3vw, 12px);
-  }
-  
-  .node-circle {
-    width: 110px;
-    height: 110px;
-  }
-  
-  .node-text {
-    font-size: 0.95rem;
-  }
-  
-  .node-label {
-    bottom: -35px;
-  }
-  
-  .node-text {
-    font-size: clamp(0.65rem, 1.3vw, 0.8rem);
-    padding: 0.35rem 0.7rem;
+  .node-icon {
+    width: 100px;
+    height: 100px;
   }
 }
