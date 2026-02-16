@@ -3,12 +3,13 @@ import './BinaryRain.css';
 
 // Helper function to generate static positioned data bits
 const generateDataBits = () => 
-  Array.from({ length: 100 }, (_, i) => ({
+  Array.from({ length: 180 }, (_, i) => ({
     id: i,
     digit: Math.random() > 0.5 ? '1' : '0',
-    left: `${Math.random() * 95}%`,
-    top: `${Math.random() * 95}%`,
-    animationDelay: `${Math.random() * 4}s`
+    left: `${Math.random() * 100}%`,
+    top: `${Math.random() * 100}%`,
+    animationDelay: `${Math.random() * 5}s`,
+    animationDuration: `${2 + Math.random() * 2}s`
   }));
 
 function BinaryRain() {
@@ -38,7 +39,8 @@ function BinaryRain() {
           style={{
             left: bit.left,
             top: bit.top,
-            animationDelay: bit.animationDelay
+            animationDelay: bit.animationDelay,
+            animationDuration: bit.animationDuration
           }}
         >
           {bit.digit}

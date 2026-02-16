@@ -15,16 +15,17 @@
   position: absolute;
   color: var(--accent-cyan);
   font-family: 'Courier New', monospace;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: bold;
-  opacity: 0;
-  /* Add a micro-glow to make the pulsing stand out */
-  text-shadow: 0 0 5px rgba(0, 229, 255, 0.5);
-  animation: fastDataPulse 2s ease-in-out infinite;
   pointer-events: none;
+  user-select: none;
+  opacity: 0;
+  /* EFECTO LUMINOSO: */
+  text-shadow: 0 0 10px var(--accent-cyan), 0 0 20px var(--accent-cyan);
+  animation: digitalPulse ease-in-out infinite;
 }
 
-@keyframes fastDataPulse {
-  0%, 100% { opacity: 0; transform: scale(0.9); }
-  50% { opacity: 0.25; transform: scale(1.1); } /* Opacity increased to 25% to make it noticeable */
+@keyframes digitalPulse {
+  0%, 100% { opacity: 0; transform: scale(0.7); }
+  50% { opacity: 0.35; transform: scale(1.2); } /* Opacidad suficiente para verse */
 }
