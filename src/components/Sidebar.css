@@ -32,11 +32,11 @@
 
 /* LOGO — NO SE TOCA POSICIÓN ACTUAL */
 .logo {
-  width: auto;
-  height: 180px;
+  width: 280;
+  height: 280px;
   object-fit: contain;
   object-position: center;
-  margin-bottom: 0.15rem;
+  margin-bottom: -10rem;
 
   filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.4));
   position: relative;
