@@ -63,10 +63,15 @@
   margin-bottom: 1.5rem;
 }
 
+/* =========================
+   CAMBIO APLICADO AL TÍTULO
+   ========================= */
 .centro-header h2 {
   font-family: var(--font-display);
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.4rem;             /* Tamaño ajustado para ser proporcional */
+  font-weight: 800;                /* Más peso visual */
+  text-transform: uppercase;       /* TODO EN MAYÚSCULAS */
+  letter-spacing: 1px;             /* Espaciado para legibilidad */
   color: var(--text-primary);
   margin: 0;
 }
