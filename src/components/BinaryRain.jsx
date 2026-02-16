@@ -1,35 +1,47 @@
-import { useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import './BinaryRain.css';
 
-// Helper function to generate rain elements (outside component to avoid purity issues)
-const generateRainElements = () => 
+// Helper function to generate static positioned data bits
+const generateDataBits = () => 
   Array.from({ length: 30 }, (_, i) => ({
     id: i,
     digit: Math.random() > 0.5 ? '1' : '0',
-    left: `${Math.random() * 100}%`,
-    animationDelay: `${Math.random() * 5}s`,
-    animationDuration: `${3 + Math.random() * 4}s`,
-    opacity: 0.1 + Math.random() * 0.3
+    left: `${Math.random() * 95}%`,
+    top: `${Math.random() * 95}%`,
+    animationDelay: `${Math.random() * 4}s`
   }));
 
 function BinaryRain() {
-  // Generate array of binary digits with random properties (memoized to prevent re-renders)
-  const rainElements = useMemo(() => generateRainElements(), []);
+  // Generate array of binary digits with fixed random positions
+  const [dataBits, setDataBits] = useState(() => generateDataBits());
+
+  // Change digit values intermittently
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDataBits(prevBits => 
+        prevBits.map(bit => ({
+          ...bit,
+          digit: Math.random() > 0.5 ? '1' : '0'
+        }))
+      );
+    }, 3000); // Change digits every 3 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <div className="binary-rain">
-      {rainElements.map((element) => (
+    <div className="binary-data-grid">
+      {dataBits.map((bit) => (
         <span
-          key={element.id}
-          className="binary-digit"
+          key={bit.id}
+          className="data-bit"
           style={{
-            left: element.left,
-            animationDelay: element.animationDelay,
-            animationDuration: element.animationDuration,
-            opacity: element.opacity
+            left: bit.left,
+            top: bit.top,
+            animationDelay: bit.animationDelay
           }}
         >
-          {element.digit}
+          {bit.digit}
         </span>
       ))}
     </div>
