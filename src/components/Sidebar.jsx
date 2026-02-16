@@ -4,7 +4,7 @@ import './Sidebar.css';
 function Sidebar() {
   const navigate = useNavigate();
 
-  // Dejamos solo los botones de navegación superior
+  // Botones que se quedan en la parte superior
   const menuItems = [
     {
       id: 0,
@@ -45,7 +45,7 @@ function Sidebar() {
         <p className="sidebar-subtitle">Colaboración Salesianos Urnieta × CIFP Repélega</p>
       </div>
 
-      {/* NAVEGACIÓN PRINCIPAL (BLOQUE SUPERIOR) */}
+      {/* NAVEGACIÓN PRINCIPAL */}
       <nav className="sidebar-nav">
         {menuItems.map((item) => (
           <NavLink
@@ -61,7 +61,7 @@ function Sidebar() {
         ))}
       </nav>
 
-      {/* FOOTER: Botón de Información separado al fondo */}
+      {/* FOOTER: Botón de Información (Separado abajo) */}
       <div className="sidebar-footer">
         <NavLink
           to="/informacion"
