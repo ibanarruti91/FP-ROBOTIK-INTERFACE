@@ -17,7 +17,7 @@
   font-weight: bold;
   opacity: 0;
   text-shadow: 0 0 12px #00e5ff;
-  animation: lightningBlink ease-in-out infinite;
+  animation: lightningBlink 3s ease-in-out infinite;
   pointer-events: none;
 }
 
