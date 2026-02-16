@@ -9,28 +9,28 @@ function Home() {
       id: 'centros',
       label: 'Centros de Telemetría',
       path: '/centros',
-      position: { left: '10%', top: '15%' },
+      position: { left: '8%', top: '15%' },
       icon: 'nodo-centros.png'
     },
     {
       id: 'conversor',
       label: 'Interfaz Blockly',
       path: '/conversor',
-      position: { right: '10%', top: '15%' },
+      position: { right: '8%', top: '15%' },
       icon: 'nodo-blockly.png'
     },
     {
       id: 'validacion',
       label: 'Control Validación',
       path: '/validacion',
-      position: { left: '10%', bottom: '15%' },
+      position: { left: '8%', bottom: '15%' },
       icon: 'nodo-validacion.png'
     },
     {
       id: 'monitor',
       label: 'Sistema de Monitoreo',
       path: '/monitor',
-      position: { right: '10%', bottom: '15%' },
+      position: { right: '8%', bottom: '15%' },
       icon: 'nodo-monitor.png'
     }
   ];

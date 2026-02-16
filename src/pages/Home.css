@@ -30,7 +30,7 @@
 }
 
 .space-node:hover {
-  transform: translate(-50%, -50%) scale(1.2);
+  transform: translate(-50%, -50%) scale(1.15);
 }
 
 /* Node icon */
@@ -39,12 +39,12 @@
   height: 180px;
   object-fit: contain;
   display: block;
-  filter: drop-shadow(0 0 10px rgba(0, 242, 255, 0.4));
+  filter: drop-shadow(0 0 12px rgba(0, 242, 255, 0.6));
   transition: filter 0.3s ease;
 }
 
 .space-node:hover .node-icon {
-  filter: brightness(1.4) drop-shadow(0 0 25px #00f2ff);
+  filter: brightness(1.5) drop-shadow(0 0 30px #00f2ff);
 }
 
 /* Node label */
@@ -62,8 +62,8 @@
    =========================== */
 @media (max-width: 768px) {
   .node-icon {
-    width: 100px;
-    height: 100px;
+    width: 110px;
+    height: 110px;
   }
   
   .node-label {
@@ -73,8 +73,8 @@
 
 @media (max-width: 480px) {
   .node-icon {
-    width: 100px;
-    height: 100px;
+    width: 110px;
+    height: 110px;
   }
   
   .node-label {
