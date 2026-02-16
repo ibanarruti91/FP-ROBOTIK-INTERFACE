@@ -97,7 +97,7 @@
 .nexus-line-active {
   opacity: 1;
   filter: drop-shadow(0 0 12px #00f2ff) drop-shadow(0 0 20px #00f2ff);
-  stroke-width: 3;
+  stroke-width: 3px;
 }
 
 @keyframes dataFlow {
