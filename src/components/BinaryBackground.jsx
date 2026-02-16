@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import './BinaryBackground.css';
 
+// Animation timing constants
+const MIN_DURATION = 3; // seconds
+const MAX_DURATION = 7; // seconds
+const MAX_DELAY = 2; // seconds
+
 function BinaryBackground() {
   // Generate 40 random bits with random positions and animation durations
   // Using useState to ensure values are only generated once
@@ -10,8 +15,8 @@ function BinaryBackground() {
       value: Math.random() > 0.5 ? '1' : '0',
       top: `${Math.random() * 100}%`,
       left: `${Math.random() * 100}%`,
-      duration: `${3 + Math.random() * 4}s`, // Between 3-7 seconds
-      delay: `${Math.random() * 2}s`, // Random delay up to 2 seconds
+      duration: `${MIN_DURATION + Math.random() * (MAX_DURATION - MIN_DURATION)}s`,
+      delay: `${Math.random() * MAX_DELAY}s`,
       fontSize: '0.8rem'
     }));
   });
