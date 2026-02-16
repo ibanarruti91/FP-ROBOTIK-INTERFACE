@@ -3,11 +3,11 @@ import './BinaryRain.css';
 
 // Helper function to generate static positioned data bits
 const generateDataBits = () => 
-  Array.from({ length: 100 }, (_, i) => ({
+  Array.from({ length: 300 }, (_, i) => ({
     id: i,
     digit: Math.random() > 0.5 ? '1' : '0',
-    left: `${Math.random() * 95}%`,
-    top: `${Math.random() * 95}%`,
+    left: `${Math.random() * 100}%`,
+    top: `${Math.random() * 100}%`,
     animationDelay: `${Math.random() * 4}s`
   }));
 
@@ -30,11 +30,11 @@ function BinaryRain() {
   }, []);
 
   return (
-    <div className="binary-data-grid">
+    <div className="digital-universe-overlay">
       {dataBits.map((bit) => (
         <span
           key={bit.id}
-          className="data-bit"
+          className="bit-flash"
           style={{
             left: bit.left,
             top: bit.top,
