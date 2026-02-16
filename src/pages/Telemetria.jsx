@@ -9,12 +9,9 @@ function Telemetria() {
       <button className="back-button" onClick={() => navigate('/')} aria-label="Volver al inicio">
         ← Volver
       </button>
-      <div className="page-header">
-        <h1 className="page-title">Telemetría avanzada</h1>
-        <div className="status-badge online">
-          <span className="status-dot"></span>
-          Sistema Online
-        </div>
+      <div className="universal-header">
+        <h1 className="universal-title">Telemetría avanzada</h1>
+        <p className="universal-description">Módulo de monitoreo en tiempo real para centros de control robótico. Sistema de métricas avanzadas y análisis de rendimiento.</p>
       </div>
       
       <div className="page-content">

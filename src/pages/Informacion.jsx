@@ -3,12 +3,10 @@ import './Informacion.css';
 function Informacion() {
   return (
     <div className="informacion-page">
-      <header className="informacion-header">
-        <h1>INFORMACIÓN DEL PROYECTO</h1>
-        <p className="informacion-description">
-          Detalles sobre FP Robotic Interface y la colaboración educativa
-        </p>
-      </header>
+      <div className="universal-header">
+        <h1 className="universal-title">INFORMACIÓN DEL PROYECTO</h1>
+        <p className="universal-description">Detalles sobre FP Robotic Interface y la colaboración educativa</p>
+      </div>
       
       <div className="informacion-content">
         <div className="info-card">

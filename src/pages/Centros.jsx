@@ -13,11 +13,9 @@ function Centros() {
 
   return (
     <div className="page-container">
-      <div className="page-header">
-        <h1 className="page-title">Centros con telemetría avanzada</h1>
-        <p className="page-description">
-          Selecciona un centro para visualizar su telemetría en tiempo real
-        </p>
+      <div className="universal-header">
+        <h1 className="universal-title">Centros con telemetría avanzada</h1>
+        <p className="universal-description">Selecciona un centro para visualizar su telemetría en tiempo real</p>
       </div>
       
       <div className="centros-grid">

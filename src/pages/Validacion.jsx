@@ -6,12 +6,9 @@ function Validacion() {
 
   return (
     <div className="page-container">
-      <div className="page-header">
-        <h1 className="page-title">Control de validación código</h1>
-        <div className="status-badge online">
-          <span className="status-dot"></span>
-          Sistema Online
-        </div>
+      <div className="universal-header">
+        <h1 className="universal-title">Control de validación código</h1>
+        <p className="universal-description">Módulo de control y validación de código robótico. Verificación automática de sintaxis y análisis de seguridad.</p>
       </div>
       
       <div className="page-content">
