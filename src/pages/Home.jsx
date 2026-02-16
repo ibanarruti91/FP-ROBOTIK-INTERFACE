@@ -11,35 +11,39 @@ function Home() {
 
   const nodes = useMemo(() => [
     {
-      id: 1,
-      title: 'Centros de Telemetría',
-      image: `${import.meta.env.BASE_URL}assets/nodo-centros.png`,
-      position: 'node-1',
+      id: 'centros',
+      label: 'Centros de Telemetría',
       path: '/centros',
+      x: 22,
+      y: 30,
+      icon: 'nodo-centros.png',
       color: '#00e5ff'
     },
     {
-      id: 2,
-      title: 'Conversor Blockly',
-      image: `${import.meta.env.BASE_URL}assets/nodo-blockly.png`,
-      position: 'node-2',
+      id: 'conversor',
+      label: 'Interfaz Blockly',
       path: '/conversor',
+      x: 78,
+      y: 30,
+      icon: 'nodo-blockly.png',
       color: '#a855f7'
     },
     {
-      id: 3,
-      title: 'Validación de Código',
-      image: `${import.meta.env.BASE_URL}assets/nodo-validacion.png`,
-      position: 'node-3',
+      id: 'validacion',
+      label: 'Control Validación',
       path: '/validacion',
+      x: 22,
+      y: 70,
+      icon: 'nodo-validacion.png',
       color: '#ff33bb'
     },
     {
-      id: 4,
-      title: 'Monitor del Sistema',
-      image: `${import.meta.env.BASE_URL}assets/nodo-monitor.png`,
-      position: 'node-4',
+      id: 'monitor',
+      label: 'Sistema de Monitoreo',
       path: '/monitor',
+      x: 78,
+      y: 70,
+      icon: 'nodo-monitor.png',
       color: '#10b981'
     }
   ], []);
@@ -86,7 +90,7 @@ function Home() {
       className="home-space" 
       ref={rootRef}
       style={{
-        backgroundImage: `url(${import.meta.env.BASE_URL}assets/mockups/home-reference.png)`,
+        backgroundImage: `url(${import.meta.env.BASE_URL}assets/mockups/home-reference1.png)`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
@@ -173,16 +177,25 @@ function Home() {
           <div
             key={node.id}
             ref={(el) => (nodeRefs.current[node.id] = el)}
-            className={`space-node ${node.position}`}
+            className="space-node"
             onClick={() => navigate(node.path)}
-            style={{ '--node-color': node.color }}
+            style={{ 
+              '--node-color': node.color,
+              left: `${node.x}%`,
+              top: `${node.y}%`,
+              transform: 'translate(-50%, -50%)'
+            }}
           >
             <div className="node-halo"></div>
             <div className="node-image-wrapper">
-              <img src={node.image} alt={node.title} className="node-image" />
+              <img 
+                src={`${import.meta.env.BASE_URL}assets/${node.icon}`} 
+                alt={node.label} 
+                className="node-image" 
+              />
             </div>
             <div className="node-label">
-              <span className="node-title">{node.title}</span>
+              <span className="node-title">{node.label}</span>
             </div>
           </div>
         ))}
