@@ -16,7 +16,7 @@ function Home() {
       id: 'conversor',
       label: 'Interfaz Blockly',
       path: '/conversor',
-      position: { right: '-5%', top: '25%' },
+      position: { right: '-5%', top: '28%' },
       icon: 'nodo-blockly.png'
     },
     {
