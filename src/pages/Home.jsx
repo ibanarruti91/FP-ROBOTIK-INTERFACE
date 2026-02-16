@@ -63,6 +63,34 @@ function Home() {
         </p>
       </div>
 
+      <div className="project-info-section">
+        <div className="info-container">
+          <h2 className="info-title">Acerca del Proyecto</h2>
+          <p className="info-text">
+            FP Robotik Interface es una plataforma integral diseñada para facilitar la programación 
+            de robots mediante un entorno visual intuitivo y la gestión de telemetría en tiempo real.
+          </p>
+          <div className="info-features">
+            <div className="feature-item">
+              <span className="feature-highlight">Programación Visual:</span>
+              <span> Interfaz Blockly para crear código sin necesidad de escribirlo manualmente</span>
+            </div>
+            <div className="feature-item">
+              <span className="feature-highlight">Telemetría Avanzada:</span>
+              <span> Monitorización en tiempo real de múltiples centros de operación</span>
+            </div>
+            <div className="feature-item">
+              <span className="feature-highlight">Control de Validación:</span>
+              <span> Sistema integrado para verificar y validar código generado</span>
+            </div>
+            <div className="feature-item">
+              <span className="feature-highlight">Sistema de Monitoreo:</span>
+              <span> Dashboard completo para supervisar el estado de los robots</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {nodes.map((node) => (
         <div
           key={node.id}
