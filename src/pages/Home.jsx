@@ -9,28 +9,28 @@ function Home() {
       id: 'centros',
       label: 'Centros de Telemetría',
       path: '/centros',
-      position: { left: '20%', top: '25%' },
+      position: { left: '10%', top: '15%' },
       icon: 'nodo-centros.png'
     },
     {
       id: 'conversor',
       label: 'Interfaz Blockly',
       path: '/conversor',
-      position: { right: '20%', top: '25%' },
+      position: { right: '10%', top: '15%' },
       icon: 'nodo-blockly.png'
     },
     {
       id: 'validacion',
       label: 'Control Validación',
       path: '/validacion',
-      position: { left: '20%', bottom: '25%' },
+      position: { left: '10%', bottom: '15%' },
       icon: 'nodo-validacion.png'
     },
     {
       id: 'monitor',
       label: 'Sistema de Monitoreo',
       path: '/monitor',
-      position: { right: '20%', bottom: '25%' },
+      position: { right: '10%', bottom: '15%' },
       icon: 'nodo-monitor.png'
     }
   ];
@@ -57,6 +57,7 @@ function Home() {
             alt={node.label} 
             className="node-icon" 
           />
+          <span className="node-label">{node.label}</span>
         </div>
       ))}
     </div>
