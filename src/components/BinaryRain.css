@@ -20,12 +20,12 @@
   pointer-events: none;
   user-select: none;
   opacity: 0;
-  /* EFECTO LUMINOSO: */
+  /* GLOW EFFECT: */
   text-shadow: 0 0 10px var(--accent-cyan), 0 0 20px var(--accent-cyan);
   animation: digitalPulse ease-in-out infinite;
 }
 
 @keyframes digitalPulse {
   0%, 100% { opacity: 0; transform: scale(0.7); }
-  50% { opacity: 0.35; transform: scale(1.2); } /* Opacidad suficiente para verse */
+  50% { opacity: 0.35; transform: scale(1.2); } /* Sufficient opacity to be visible */
 }
