@@ -1,8 +1,15 @@
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import './Home.css';
 
 function Home() {
   const navigate = useNavigate();
+  const [glitchActive, setGlitchActive] = useState(false);
+
+  const handleTitleClick = () => {
+    setGlitchActive(true);
+    setTimeout(() => setGlitchActive(false), 600);
+  };
 
   const nodes = [
     {
@@ -37,7 +44,7 @@ function Home() {
 
   return (
     <div 
-      className="home-space" 
+      className={`home-space ${glitchActive ? 'glitch-effect' : ''}`}
       style={{
         backgroundImage: `url(${import.meta.env.BASE_URL}assets/mockups/home-reference1.png)`,
         backgroundSize: 'cover',
@@ -45,6 +52,15 @@ function Home() {
         backgroundRepeat: 'no-repeat'
       }}
     >
+      <div className="home-header">
+        <h1 className="home-title" onClick={handleTitleClick}>
+          FP ROBOTIK INTERFACE
+        </h1>
+        <p className="home-description">
+          Plataforma de programación low-code y telemetría avanzada intercentros
+        </p>
+      </div>
+
       {nodes.map((node) => (
         <div
           key={node.id}
