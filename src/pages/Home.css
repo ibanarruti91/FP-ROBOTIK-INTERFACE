@@ -26,7 +26,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 0;
 }
 
 .space-node:hover {
@@ -35,8 +35,8 @@
 
 /* Node icon */
 .node-icon {
-  width: 180px;
-  height: 180px;
+  width: 200px;
+  height: 200px;
   object-fit: contain;
   display: block;
   filter: drop-shadow(0 0 12px rgba(0, 242, 255, 0.6));
@@ -49,14 +49,15 @@
 
 /* Node label */
 .node-label {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: bold;
   color: #00f2ff;
   text-align: center;
   white-space: nowrap;
   text-shadow: 0 0 15px #00f2ff;
+  margin-top: -5px;
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(5px);
   pointer-events: none;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
