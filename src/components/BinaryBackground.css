@@ -1,44 +1,37 @@
+
+/* EFECTO BINARIO FINAL: MÁXIMA COBERTURA Y BRILLO */
 .digital-universe-overlay {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  background: transparent;
 }
 
-/* Estilo base verde Matrix para los '0' */
 .bit-flash {
   position: absolute;
-  color: #008f11; /* Verde oscuro de fondo */
+  color: #00e5ff; /* Cian neón puro */
   font-family: 'Courier New', monospace;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   font-weight: bold;
   opacity: 0;
-  text-shadow: 0 0 5px rgba(0, 143, 17, 0.5);
-  animation: matrixBlink ease-in-out infinite;
+  user-select: none;
+  pointer-events: none;
+  /* Doble resplandor para que se note mucho más */
+  text-shadow: 0 0 10px #00e5ff, 0 0 20px rgba(0, 229, 255, 0.8);
+  animation: lightningBlink 1.2s ease-in-out infinite;
 }
 
-/* Brillo intenso para los '1' */
-.bit-flash.matrix-glow {
-  color: #00ff41; /* Verde Matrix brillante */
-  font-size: 1.1rem;
-  z-index: 1;
-  text-shadow: 
-    0 0 8px #00ff41, 
-    0 0 20px rgba(0, 255, 65, 0.8),
-    0 0 30px rgba(0, 255, 65, 0.4);
-}
-
-@keyframes matrixBlink {
+@keyframes lightningBlink {
   0%, 100% { 
     opacity: 0; 
-    transform: scale(0.8);
-    filter: blur(1px);
+    transform: scale(0.6); 
   }
   50% { 
-    opacity: 0.8; 
-    transform: scale(1.1);
-    filter: blur(0px);
+    opacity: 0.45; /* Opacidad subida para que el parpadeo destaque */
+    transform: scale(1.1); 
   }
 }
