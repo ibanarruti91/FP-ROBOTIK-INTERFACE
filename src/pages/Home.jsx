@@ -5,10 +5,11 @@ import './Home.css';
 function Home() {
   const navigate = useNavigate();
   const [glitchActive, setGlitchActive] = useState(false);
+  const GLITCH_DURATION = 600;
 
   const handleTitleClick = () => {
     setGlitchActive(true);
-    setTimeout(() => setGlitchActive(false), 600);
+    setTimeout(() => setGlitchActive(false), GLITCH_DURATION);
   };
 
   const nodes = [
