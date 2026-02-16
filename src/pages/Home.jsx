@@ -4,13 +4,13 @@ import './Home.css';
 
 function Home() {
   const navigate = useNavigate();
-  const [glitchActive, setGlitchActive] = useState(false);
-  // Duration matches the glitchFlash animation in Home.css (0.6s = 600ms)
-  const GLITCH_DURATION = 600;
+  const [textPulseActive, setTextPulseActive] = useState(false);
+  // Duration matches the textPulse animation in Home.css (0.6s = 600ms)
+  const TEXT_PULSE_DURATION = 600;
 
   const handleTitleClick = () => {
-    setGlitchActive(true);
-    setTimeout(() => setGlitchActive(false), GLITCH_DURATION);
+    setTextPulseActive(true);
+    setTimeout(() => setTextPulseActive(false), TEXT_PULSE_DURATION);
   };
 
   const nodes = [
@@ -46,7 +46,7 @@ function Home() {
 
   return (
     <div 
-      className={`home-space ${glitchActive ? 'glitch-effect' : ''}`}
+      className="home-space"
       style={{
         backgroundImage: `url(${import.meta.env.BASE_URL}assets/mockups/home-reference1.png)`,
         backgroundSize: 'cover',
@@ -55,7 +55,7 @@ function Home() {
       }}
     >
       <div className="home-header">
-        <h1 className="home-title" onClick={handleTitleClick}>
+        <h1 className={`home-title ${textPulseActive ? 'text-pulse-animation' : ''}`} onClick={handleTitleClick}>
           FP ROBOTIK INTERFACE
         </h1>
         <p className="home-description">

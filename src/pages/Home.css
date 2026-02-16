@@ -55,33 +55,40 @@
   color: #ffffff;
   text-align: center;
   margin: 10px 0 0 0;
-  font-family: 'Arial', sans-serif;
+  font-family: var(--font-body);
   font-weight: 300;
   letter-spacing: 0.05em;
   opacity: 0.9;
 }
 
-/* Glitch effect animation */
-.home-space.glitch-effect {
-  animation: glitchFlash 0.6s ease-in-out; /* Duration synced with GLITCH_DURATION in Home.jsx */
+/* Text pulse animation */
+.text-pulse-animation {
+  animation: textPulse 0.6s ease-in-out;
 }
 
-@keyframes glitchFlash {
+@keyframes textPulse {
   0%, 100% {
     filter: brightness(1);
+    text-shadow: 0 0 20px #00f2ff;
   }
-  25% {
-    filter: brightness(1.5) hue-rotate(10deg);
+  20% {
+    filter: brightness(1.9);
+    text-shadow: 0 0 32px #00f2ff, 0 0 50px rgba(0, 242, 255, 0.9);
   }
-  50% {
-    filter: brightness(2) saturate(2) drop-shadow(0 0 20px #00f2ff);
+  40% {
+    filter: brightness(1.15);
+    text-shadow: 0 0 24px #00f2ff;
   }
-  75% {
-    filter: brightness(1.5) hue-rotate(-10deg);
+  60% {
+    filter: brightness(2.1);
+    text-shadow: 0 0 38px #00f2ff, 0 0 58px rgba(0, 242, 255, 0.95);
+  }
+  80% {
+    filter: brightness(1.2);
+    text-shadow: 0 0 22px #00f2ff;
   }
 }
 
-/* Entry animation */
 @keyframes fadeInDown {
   0% {
     opacity: 0;
