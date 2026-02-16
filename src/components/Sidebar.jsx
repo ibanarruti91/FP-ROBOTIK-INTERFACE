@@ -4,6 +4,7 @@ import './Sidebar.css';
 function Sidebar() {
   const navigate = useNavigate();
 
+  // Dejamos solo los botones de navegación superior
   const menuItems = [
     {
       id: 0,
@@ -28,17 +29,12 @@ function Sidebar() {
       title: 'Control de validación código',
       path: '/validacion',
       icon: '✓'
-    },
-    {
-      id: 4,
-      title: 'Información',
-      path: '/informacion',
-      icon: 'ℹ️'
     }
   ];
 
   return (
     <aside className="sidebar">
+      {/* HEADER: Logo y Títulos */}
       <div className="sidebar-header" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
         <img 
           src={`${import.meta.env.BASE_URL}assets/logo.png`}
@@ -49,38 +45,34 @@ function Sidebar() {
         <p className="sidebar-subtitle">Colaboración Salesianos Urnieta × CIFP Repélega</p>
       </div>
 
+      {/* NAVEGACIÓN PRINCIPAL (BLOQUE SUPERIOR) */}
       <nav className="sidebar-nav">
-        {menuItems.map((item) => {
-          if (item.external) {
-            return (
-              <a
-                key={item.id}
-                href={item.path}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="nav-card"
-              >
-                <span className="nav-icon">{item.icon}</span>
-                <span className="nav-title">{item.title}</span>
-                <span className="external-indicator">↗</span>
-              </a>
-            );
-          }
-          
-          return (
-            <NavLink
-              key={item.id}
-              to={item.path}
-              className={({ isActive }) => 
-                `nav-card ${isActive ? 'active' : ''}`
-              }
-            >
-              <span className="nav-icon">{item.icon}</span>
-              <span className="nav-title">{item.title}</span>
-            </NavLink>
-          );
-        })}
+        {menuItems.map((item) => (
+          <NavLink
+            key={item.id}
+            to={item.path}
+            className={({ isActive }) => 
+              `nav-card ${isActive ? 'active' : ''}`
+            }
+          >
+            <span className="nav-icon">{item.icon}</span>
+            <span className="nav-title">{item.title}</span>
+          </NavLink>
+        ))}
       </nav>
+
+      {/* FOOTER: Botón de Información separado al fondo */}
+      <div className="sidebar-footer">
+        <NavLink
+          to="/informacion"
+          className={({ isActive }) => 
+            `nav-card ${isActive ? 'active' : ''}`
+          }
+        >
+          <span className="nav-icon">ℹ️</span>
+          <span className="nav-title">Sobre el proyecto</span>
+        </NavLink>
+      </div>
     </aside>
   );
 }
