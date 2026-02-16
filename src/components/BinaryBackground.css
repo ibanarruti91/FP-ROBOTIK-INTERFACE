@@ -1,0 +1,28 @@
+.binary-background-clean {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.bit-soft {
+  position: absolute;
+  color: var(--accent-cyan);
+  font-family: 'Courier New', monospace;
+  font-weight: 500;
+  opacity: 0;
+  /* Clean font without aggressive glow effects */
+  animation: softPulse ease-in-out infinite;
+}
+
+@keyframes softPulse {
+  0%, 100% { 
+    opacity: 0; 
+  }
+  50% { 
+    opacity: 0.15; /* Very subtle, almost like a watermark */
+  }
+}
