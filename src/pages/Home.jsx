@@ -25,7 +25,7 @@ function Home() {
       id: 'conversor',
       label: 'Interfaz Blockly',
       path: '/conversor',
-      position: { right: '-50%', top: '28%' },
+      position: { right: '-10%', top: '28%' },
       icon: 'nodo-blockly.png'
     },
     {
@@ -39,7 +39,7 @@ function Home() {
       id: 'monitor',
       label: 'Sistema de Monitoreo',
       path: '/monitor',
-      position: { right: '-3%', bottom: '6%' },
+      position: { right: '-10%', bottom: '6%' },
       icon: 'nodo-monitor.png'
     }
   ];
