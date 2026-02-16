@@ -3,7 +3,6 @@ import './Sidebar.css';
 
 function Sidebar() {
   const navigate = useNavigate();
-  const intercentrosPath = '/centros';
 
   const menuItems = [
     {
@@ -15,7 +14,7 @@ function Sidebar() {
     {
       id: 1,
       title: 'Telemetría multicentros',
-      path: intercentrosPath,
+      path: '/centros',
       icon: '📊'
     },
     {
