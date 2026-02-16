@@ -20,9 +20,8 @@ function Sidebar() {
     {
       id: 2,
       title: 'Interfaz conversor Blocky',
-      path: 'https://yunamuno.github.io/FP_Robotik_Interface_v2/',
-      icon: '🔷',
-      external: true
+      path: '/conversor',
+      icon: '🔷'
     },
     {
       id: 3,
