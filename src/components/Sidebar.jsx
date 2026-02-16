@@ -14,7 +14,7 @@ function Sidebar() {
     {
       id: 1,
       title: 'Telemetría multicentros',
-      path: '/centros',
+      path: '/centros', // Unificado con el panel principal
       icon: '📊'
     },
     {
@@ -34,17 +34,55 @@ function Sidebar() {
 
   return (
     <aside className="sidebar">
-      <div className="sidebar-header" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+      {/* HEADER: Ajustado para que no tenga huecos entre elementos */}
+      <div 
+        className="sidebar-header" 
+        onClick={() => navigate('/')} 
+        style={{ 
+          cursor: 'pointer', 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center',
+          gap: '0px' // Elimina el espacio automático de flex
+        }}
+      >
         <img 
           src={`${import.meta.env.BASE_URL}assets/logo.png`}
           alt="FP Robotic Interface Logo" 
           className="logo"
+          style={{ 
+            height: '240px',      // Logo mucho más grande
+            width: 'auto', 
+            marginBottom: '-25px', // "Succiona" el texto hacia arriba
+            objectFit: 'contain',
+            filter: 'drop-shadow(0 0 20px rgba(0, 229, 255, 0.4))'
+          }}
         />
-        <h1 className="sidebar-title">FP Robotic Interface</h1>
-        <p className="sidebar-subtitle">Colaboración Salesianos Urnieta × CIFP Repélega</p>
+        <h1 
+          className="sidebar-title" 
+          style={{ 
+            marginTop: '0px', 
+            paddingTop: '0px', 
+            lineHeight: '1',      // Quita el espacio extra del texto
+            zIndex: '2' 
+          }}
+        >
+          FP Robotic Interface
+        </h1>
+        <p 
+          className="sidebar-subtitle" 
+          style={{ 
+            marginTop: '5px', 
+            opacity: '0.7', 
+            fontSize: '0.7rem' 
+          }}
+        >
+          Colaboración Salesianos Urnieta × CIFP Repélega
+        </p>
       </div>
 
-      <nav className="sidebar-nav">
+      {/* NAVEGACIÓN: Se mantiene funcional */}
+      <nav className="sidebar-nav" style={{ marginTop: '10px' }}>
         {menuItems.map((item) => {
           if (item.external) {
             return (
