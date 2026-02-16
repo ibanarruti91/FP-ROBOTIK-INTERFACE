@@ -124,8 +124,8 @@
 
 /* Node icon */
 .node-icon {
-  width: 280px;
-  height: 280px;
+  width: 320px;
+  height: 320px;
   object-fit: contain;
   display: block;
   filter: drop-shadow(0 0 12px rgba(0, 242, 255, 0.6));
