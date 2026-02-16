@@ -36,7 +36,7 @@
   color: #00f2ff;
   text-align: center;
   letter-spacing: 0.2em;
-  font-family: 'Courier New', monospace;
+  font-family: var(--font-display);
   text-transform: uppercase;
   margin: 0;
   text-shadow: 0 0 20px #00f2ff;
