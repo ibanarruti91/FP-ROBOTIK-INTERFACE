@@ -1,4 +1,3 @@
-
 /* ========================= 
    SIDEBAR AJUSTE FINAL DEFINITIVO 
    ========================= */
@@ -9,13 +8,9 @@
   background: var(--panel-bg);
   backdrop-filter: blur(10px);
   border-right: 1px solid rgba(0, 229, 255, 0.1);
-
   display: flex;
   flex-direction: column;
-
-  /* SUBIMOS TODO: Padding superior a 0 */
-  padding: 0rem 1rem 1rem; 
-
+  padding: 0rem 1rem 1rem; /* Subimos todo al techo */
   overflow: hidden;
 }
 
@@ -28,30 +23,20 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-
-  /* REDUCIDO para que los botones suban más */
   margin-bottom: 0rem; 
 }
 
-/* LOGO */
 .logo {
-  width: 280px; /* Corregido 'px' */
+  width: 280px; 
   height: 280px;
   object-fit: contain;
   object-position: center;
-
-  /* SUBIMOS LOGO: margen negativo superior */
-  margin-top: -2rem; 
-  margin-bottom: -5rem;
-
+  margin-top: -2rem; /* Sube el logo */
+  margin-bottom: -5rem; /* Acerca el texto al logo */
   filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.4));
   position: relative;
   z-index: 1;
 }
-
-/* =========================
-   TEXTO
-   ========================= */
 
 .sidebar-title {
   font-family: var(--font-display);
@@ -76,33 +61,31 @@
 }
 
 /* =========================
-   NAVEGACIÓN (BLOQUE SUPERIOR)
+   NAVEGACIÓN
    ========================= */
 
 .sidebar-nav {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
-  
-  /* AJUSTADO para que los pulsadores sigan al texto arriba */
   margin-top: 1rem; 
   width: 100%;
+  flex: 1; /* HACE QUE ESTE BLOQUE SEA FLEXIBLE */
 }
 
 /* =========================
-   FOOTER (PARA EL PULSADOR DE AYUDA ABAJO)
+   FOOTER (BOTÓN ABAJO)
    ========================= */
 
 .sidebar-footer {
-  /* EL TRUCO MÁGICO: Empuja todo hacia abajo */
-  margin-top: auto; 
+  margin-top: auto; /* EMPUJA EL BOTÓN AL FONDO */
   padding-top: 2rem;
   padding-bottom: 1rem;
   width: 100%;
 }
 
 /* =========================
-   TARJETAS (COMÚN PARA TODOS LOS BOTONES)
+   TARJETAS
    ========================= */
 
 .nav-card {
@@ -121,7 +104,16 @@
   cursor: pointer;
 }
 
-/* ... (El resto de estilos .nav-card:hover, active, etc., se mantienen igual) ... */
+.nav-card:hover {
+  background: rgba(15, 23, 42, 0.8);
+  border-color: var(--accent-cyan);
+  transform: translateX(5px);
+}
+
+.nav-card.active {
+  background: rgba(0, 229, 255, 0.1);
+  border-color: var(--accent-cyan);
+}
 
 .nav-icon {
   font-size: 1.4rem;
