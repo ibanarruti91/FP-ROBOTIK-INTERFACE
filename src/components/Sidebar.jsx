@@ -29,6 +29,12 @@ function Sidebar() {
       title: 'Control de validación código',
       path: '/validacion',
       icon: '✓'
+    },
+    {
+      id: 4,
+      title: 'Información',
+      path: '/informacion',
+      icon: 'ℹ️'
     }
   ];
 
