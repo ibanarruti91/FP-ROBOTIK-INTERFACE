@@ -7,8 +7,9 @@ const generateDataBits = () =>
     digit: Math.random() > 0.5 ? '1' : '0',
     left: `${Math.random() * 100}%`,
     top: `${Math.random() * 100}%`,
-    animationDelay: `${Math.random() * 4}s`,
-    animationDuration: `${0.8 + Math.random() * 1.2}s`
+    // Tiempos más cortos para que el parpadeo sea constante
+    animationDelay: `${Math.random() * 3}s`,
+    animationDuration: `${0.6 + Math.random() * 1.0}s` 
   }));
 
 function BinaryRain() {
@@ -19,10 +20,11 @@ function BinaryRain() {
       setDataBits(prevBits => 
         prevBits.map(bit => ({
           ...bit,
+          // Cambiamos el dígito aleatoriamente para simular procesamiento
           digit: Math.random() > 0.5 ? '1' : '0'
         }))
       );
-    }, 2000);
+    }, 1500); // Cambio de datos más rápido
     return () => clearInterval(interval);
   }, []);
 
