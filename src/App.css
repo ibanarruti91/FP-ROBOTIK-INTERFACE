@@ -17,6 +17,7 @@
   font-weight: 700 !important;
   text-transform: uppercase !important;
   letter-spacing: 2px !important;
+  color: var(--accent-cyan);
   background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
