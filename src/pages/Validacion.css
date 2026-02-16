@@ -118,7 +118,7 @@
   font-size: 0.95rem;
 }
 
-/* Back button and page container styles */
+/* --- Estilos de Contenedor y Header --- */
 .page-container {
   width: 100%;
   max-width: 1400px;
@@ -160,9 +160,10 @@
   border-bottom: 1px solid rgba(0, 229, 255, 0.2);
 }
 
-.page-title {
+/* CAMBIO BLINDADO: Solo afecta a la página de Validación */
+.page-container .page-title {
   font-family: var(--font-display);
-  font-size: 2rem;
+  font-size: 2.5rem; /* Tamaño aumentado */
   font-weight: 700;
   color: var(--text-primary);
   text-transform: uppercase;
@@ -207,12 +208,6 @@
   border-radius: 16px;
   padding: 2rem;
   text-align: center;
-}
-
-.card-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-  animation: iconFloat 3s ease-in-out infinite;
 }
 
 .info-card h2 {
