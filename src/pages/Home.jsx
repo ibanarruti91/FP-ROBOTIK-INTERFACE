@@ -30,7 +30,7 @@ function Home() {
       id: 'monitor',
       label: 'Sistema de Monitoreo',
       path: '/monitor',
-      position: { right: '-3', bottom: '-3%' },
+      position: { right: '-3%', bottom: '-3%' },
       icon: 'nodo-monitor.png'
     }
   ];
