@@ -70,11 +70,7 @@ function TelemetriaDetail() {
 
   if (centro.estado === 'PROXIMAMENTE') {
     return (
-      <div className="page-container">
-        <button className="back-button" onClick={() => navigate('/centros')} aria-label="Volver a centros">
-          ← Volver
-        </button>
-        
+      <div className="page-container">   
         <div className="proximamente-container">
           <div className="proximamente-icon">🚧</div>
           <h1 className="proximamente-title">{centro.nombre}</h1>
