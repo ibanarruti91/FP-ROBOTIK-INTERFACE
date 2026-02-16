@@ -18,7 +18,7 @@ function Home() {
       id: 'centros',
       label: 'Centros de Telemetría',
       path: '/centros',
-      position: { left: '25%', top: '25%' },
+      position: { left: '15%', top: '25%' },
       icon: 'nodo-centros.png'
     },
     {
@@ -32,14 +32,14 @@ function Home() {
       id: 'validacion',
       label: 'Control Validación',
       path: '/validacion',
-      position: { left: '16%', bottom: '-4%' },
+      position: { left: '16%', bottom: '0%' },
       icon: 'nodo-validacion.png'
     },
     {
       id: 'monitor',
       label: 'Sistema de Monitoreo',
       path: '/monitor',
-      position: { right: '-3%', bottom: '-3%' },
+      position: { right: '-3%', bottom: '6%' },
       icon: 'nodo-monitor.png'
     }
   ];
