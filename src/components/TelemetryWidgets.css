@@ -279,3 +279,366 @@
     font-size: 1rem;
   }
 }
+
+/* ============================================
+   NEW WIDGETS: Safety Panel, Digital IO, TCP Pose, Joints Grid
+   ============================================ */
+
+/* Safety Panel - High priority visual component */
+.safety-panel {
+  min-height: 140px;
+  border-width: 3px;
+  position: relative;
+  overflow: hidden;
+}
+
+.safety-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
+.safety-icon {
+  font-size: 4rem;
+  line-height: 1;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.safety-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.safety-label {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.safety-value {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.safety-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  animation: pulse-bar 2s ease-in-out infinite;
+}
+
+@keyframes pulse-bar {
+  0%, 100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 20px currentColor;
+  }
+}
+
+/* Digital IO - 32 LED Matrix */
+.digital-io {
+  min-height: 300px;
+}
+
+.io-section {
+  margin-bottom: 2rem;
+}
+
+.io-section:last-child {
+  margin-bottom: 0;
+}
+
+.io-section-title {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.io-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 0.75rem;
+}
+
+.io-led {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0.5rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.io-led:hover {
+  background: rgba(0, 229, 255, 0.05);
+  border-color: var(--accent-cyan);
+}
+
+.io-led-label {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.io-led-indicator {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(148, 163, 184, 0.2);
+  border: 2px solid rgba(148, 163, 184, 0.3);
+  transition: all 0.3s ease;
+}
+
+.io-led-indicator.active {
+  background: var(--accent-cyan);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 15px var(--accent-cyan), 0 0 30px rgba(0, 229, 255, 0.5);
+  animation: led-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes led-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* TCP Pose - 6-value card for position and orientation */
+.tcp-pose {
+  min-height: 250px;
+}
+
+.tcp-pose-title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid rgba(0, 123, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tcp-pose-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.tcp-pose-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tcp-pose-section-label {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.tcp-pose-values {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tcp-pose-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 123, 255, 0.05);
+  border: 1px solid rgba(0, 123, 255, 0.2);
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.tcp-pose-item:hover {
+  background: rgba(0, 123, 255, 0.1);
+  border-color: rgba(0, 123, 255, 0.4);
+  transform: translateX(5px);
+}
+
+.tcp-pose-axis {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  min-width: 30px;
+}
+
+.tcp-pose-value {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.tcp-pose-unit {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Joints Grid - 6 blocks with temperature bars */
+.joints-grid {
+  min-height: 400px;
+}
+
+.joints-grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.joint-block {
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(0, 123, 255, 0.2);
+  border-radius: 10px;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.joint-block:hover {
+  background: rgba(0, 123, 255, 0.05);
+  border-color: rgba(0, 123, 255, 0.5);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 123, 255, 0.2);
+}
+
+.joint-header {
+  text-align: center;
+}
+
+.joint-label {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+}
+
+.joint-data {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.joint-metric {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+}
+
+.joint-metric-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.joint-metric-value {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  flex: 1;
+  text-align: center;
+}
+
+.joint-metric-unit {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.joint-temp-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.joint-temp-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-align: center;
+  font-weight: 500;
+}
+
+.joint-temp-bar-container {
+  height: 12px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.joint-temp-bar {
+  height: 100%;
+  border-radius: 6px;
+  transition: all 0.5s ease;
+  box-shadow: 0 0 10px currentColor;
+}
+
+/* Responsive adjustments for new widgets */
+@media (max-width: 1024px) {
+  .tcp-pose-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .joints-grid-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .io-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .joints-grid-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .io-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
