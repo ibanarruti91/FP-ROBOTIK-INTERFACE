@@ -25,7 +25,7 @@ function Conversor() {
               </div>
               
               <p className="launcher-description">
-                Haz clic en el botón para abrir la interfaz de conversión de bloques visuales a código URScript.
+                Herramienta de generación de código URScript y JSON para validación multi-centro. Haz clic en el botón para abrir la interfaz de conversión de bloques visuales.
               </p>
               
               <button className="launcher-button" onClick={handleOpenConverter}>
