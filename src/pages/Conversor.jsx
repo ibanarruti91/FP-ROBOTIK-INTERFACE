@@ -7,8 +7,7 @@ function Conversor() {
   };
 
   return (
-    /* Zoom intermedio y padding superior equilibrado */
-    <div className="page-container" style={{ paddingTop: '1.2rem', zoom: '0.85' }}>
+    <div className="page-container" style={{ paddingTop: '1.2rem' }}>
       
       <div className="universal-header">
         <h1 className="universal-title">Interfaz Conversor Blocky</h1>
