@@ -110,27 +110,48 @@ El proyecto incluye un workflow de GitHub Actions que despliega automáticamente
 
 ### Configuración de Cámaras
 
-Las cámaras se configuran en el archivo `src/config/centros.js`. Cada centro puede tener su propia URL de stream MJPEG.
+Las URLs de las cámaras se configuran mediante **variables de entorno** para facilitar el despliegue en diferentes entornos (desarrollo, producción, red local).
 
-**IMPORTANTE**: No usar `localhost` o `127.0.0.1` en producción, ya que solo funcionará si el Web Server corre en el mismo PC.
+**IMPORTANTE**: No usar `localhost` o `127.0.0.1` en producción, ya que solo funcionará si el Web Server corre en el mismo PC. Si el Web Server corre en otro equipo, la URL debe usar la IP o hostname del servidor que ejecuta el stream MJPEG.
 
-```javascript
-export const CENTROS = {
-  "salesianos-urnieta": {
-    nombre: "Salesianos Urnieta",
-    baseUrl: "http://192.168.1.100:3000", // URL del servidor IoT
-    cameraStreamUrl: "http://192.168.1.100:8081/video.mjpg", // URL del stream MJPEG
-    estado: "ONLINE"
-  }
-};
-```
+#### Configuración paso a paso:
 
-**Formato de la URL de cámara:**
-- Para uso local (desarrollo): `http://localhost:8081/video.mjpg`
-- Para uso en red local: `http://<IP_DEL_SERVIDOR>:8081/video.mjpg`
-- Para uso remoto: `http://<HOSTNAME_O_IP_PUBLICA>:8081/video.mjpg`
+1. **Copiar el archivo de ejemplo:**
+   ```bash
+   cp .env.example .env
+   ```
 
-Donde `<IP_DEL_SERVIDOR>` es la dirección IP del equipo que ejecuta el servidor de streaming de la cámara.
+2. **Editar `.env` con tus URLs:**
+   ```bash
+   # Salesianos Urnieta - Camera Stream URL
+   VITE_CAMERA_SALESIANOS_URNIETA=http://192.168.1.100:8081/video.mjpg
+   
+   # CIFP Repélega - Camera Stream URL
+   VITE_CAMERA_REPELEGA=http://192.168.1.200:8081/video.mjpg
+   
+   # IoT Server URLs (opcional)
+   VITE_IOT_SALESIANOS_URNIETA=http://192.168.1.100:3000
+   VITE_IOT_REPELEGA=http://192.168.1.200:3000
+   ```
+
+3. **Reiniciar el servidor de desarrollo:**
+   ```bash
+   npm run dev
+   ```
+
+#### Ejemplos de URLs según el entorno:
+
+| Entorno | Ejemplo de URL | Cuándo usar |
+|---------|---------------|-------------|
+| **Desarrollo local** | `http://localhost:8081/video.mjpg` | Cuando el servidor de cámara corre en tu mismo PC |
+| **Red local** | `http://192.168.1.100:8081/video.mjpg` | Cuando el servidor está en tu red local |
+| **Remoto/Producción** | `http://miservidor.com:8081/video.mjpg` | Cuando el servidor es accesible por Internet |
+
+#### Notas adicionales:
+
+- Si dejas las variables vacías, se mostrará un placeholder en lugar del stream de la cámara
+- Las variables de entorno se leen en tiempo de build, por lo que necesitas reconstruir (`npm run build`) si cambias los valores en producción
+- Para desarrollo, el servidor de Vite recargará automáticamente al detectar cambios en `.env`
 
 ## 📝 Licencia
 
