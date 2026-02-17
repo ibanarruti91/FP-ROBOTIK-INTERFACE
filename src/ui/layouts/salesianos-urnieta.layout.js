@@ -36,7 +36,7 @@ export const SALESIANOS_LAYOUT = {
         {
           title: "Sistema de Vigilancia",
           widgets: [
-            { type: "camera", label: "CAM_01_SALESIANOS - LIVE FEED", path: "camera.stream" }
+            { type: "camera", label: "CAM_01_SALESIANOS", path: "camera.stream" }
           ]
         }
       ]
