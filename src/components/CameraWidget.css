@@ -1,0 +1,173 @@
+/**
+ * Estilos para CameraWidget con efectos de escaneo
+ */
+
+/* Contenedor principal con estilo nexus-card */
+.camera-widget.nexus-card {
+  background: rgba(12, 18, 30, 0.95);
+  border: 2px solid #00e5ff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 
+    0 0 20px rgba(0, 229, 255, 0.3),
+    inset 0 0 30px rgba(0, 229, 255, 0.05);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.camera-widget.nexus-card:hover {
+  box-shadow: 
+    0 0 30px rgba(0, 229, 255, 0.5),
+    inset 0 0 40px rgba(0, 229, 255, 0.08);
+  border-color: rgba(0, 229, 255, 0.9);
+}
+
+/* Label superior */
+.camera-label {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #00e5ff;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+}
+
+/* Contenedor de la cámara */
+.camera-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Feed de cámara */
+.camera-feed {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Overlay de texto sobre la cámara */
+.camera-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.overlay-text {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #00e5ff;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.8);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.overlay-text::before {
+  content: '●';
+  color: #10b981;
+  font-size: 0.5rem;
+  animation: blink 2s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0.3; }
+}
+
+/* Línea de escaneo con efecto glow */
+.glow-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 229, 255, 0.3) 20%,
+    rgba(0, 229, 255, 0.8) 50%,
+    rgba(0, 229, 255, 0.3) 80%,
+    transparent 100%
+  );
+  box-shadow: 
+    0 0 10px rgba(0, 229, 255, 0.8),
+    0 0 20px rgba(0, 229, 255, 0.6),
+    0 0 30px rgba(0, 229, 255, 0.4);
+  animation: scan 3s linear infinite;
+  pointer-events: none;
+}
+
+/* Animación de escaneo */
+@keyframes scan {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(calc(100vh));
+    opacity: 0;
+  }
+}
+
+/* Efecto de esquinas para el visor */
+.camera-container::before,
+.camera-container::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #00e5ff;
+  pointer-events: none;
+}
+
+.camera-container::before {
+  top: 8px;
+  left: 8px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.camera-container::after {
+  bottom: 8px;
+  right: 8px;
+  border-left: none;
+  border-top: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .camera-widget.nexus-card {
+    padding: 1rem;
+  }
+  
+  .camera-label {
+    font-size: 0.8rem;
+  }
+  
+  .overlay-text {
+    font-size: 0.65rem;
+  }
+}

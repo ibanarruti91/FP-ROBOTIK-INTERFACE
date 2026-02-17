@@ -1,17 +1,27 @@
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import BinaryRain from '../components/BinaryRain';
+import { CameraModal } from '../components/CameraModal';
 import './Home.css';
 
 function Home() {
   const navigate = useNavigate();
   const [textPulseActive, setTextPulseActive] = useState(false);
+  const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
   // Duration matches the textPulse animation in Home.css (0.6s = 600ms)
   const TEXT_PULSE_DURATION = 600;
 
   const handleTitleClick = () => {
     setTextPulseActive(true);
     setTimeout(() => setTextPulseActive(false), TEXT_PULSE_DURATION);
+  };
+
+  const handleNodeClick = (node) => {
+    if (node.id === 'monitor') {
+      setIsCameraModalOpen(true);
+    } else {
+      navigate(node.path);
+    }
   };
 
   const nodes = [
@@ -69,7 +79,7 @@ function Home() {
         <div
           key={node.id}
           className="space-node"
-          onClick={() => navigate(node.path)}
+          onClick={() => handleNodeClick(node)}
           style={node.position}
         >
           <img 
@@ -80,6 +90,12 @@ function Home() {
           <span className="node-label">{node.label}</span>
         </div>
       ))}
+
+      <CameraModal 
+        isOpen={isCameraModalOpen} 
+        onClose={() => setIsCameraModalOpen(false)}
+        cameraLabel="CAM_01_SALESIANOS - LIVE FEED"
+      />
     </div>
   );
 }
