@@ -20,12 +20,12 @@ function SelectorCentros() {
     },
     {
       id: 'centro-3',
-      nombre: 'Centro 3',
+      nombre: 'Centro [Próximamente]',
       estado: 'offline'
     },
     {
       id: 'centro-4',
-      nombre: 'Centro 4',
+      nombre: 'Centro [Próximamente]',
       estado: 'offline'
     }
   ];
