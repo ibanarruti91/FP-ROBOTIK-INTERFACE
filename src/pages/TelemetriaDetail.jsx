@@ -85,9 +85,6 @@ function TelemetriaDetail() {
   if (loading) {
     return (
       <div className="page-container">
-        <button className="back-button" onClick={() => navigate('/centros')} aria-label="Volver a centros">
-          ← Volver
-        </button>
         <div className="loading-container">
           <div className="loading-spinner"></div>
           <p>Conectando con {centro.nombre}...</p>
@@ -98,10 +95,6 @@ function TelemetriaDetail() {
 
   return (
     <div className="page-container">
-      <button className="back-button" onClick={() => navigate('/centros')} aria-label="Volver a centros">
-        ← Volver
-      </button>
-      
       <div className="universal-header">
         <h1 className="universal-title">{centro.nombre}</h1>
         <p className="universal-description">Telemetría en tiempo real</p>
