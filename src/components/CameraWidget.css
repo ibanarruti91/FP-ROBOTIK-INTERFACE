@@ -1,8 +1,13 @@
 /**
- * Estilos para CameraWidget con efectos de escaneo
+ * Estilos para CameraWidget - Monitor Industrial Limpio
+ * Estructura externa personalizable, interior estandarizado
  */
 
-/* Contenedor principal con estilo nexus-card */
+/* ========================================
+   EXTERIOR - Contenedor principal (tarjeta)
+   Puede personalizarse según diseño del Web Server
+   ======================================== */
+
 .camera-widget.nexus-card {
   background: rgba(12, 18, 30, 0.95);
   border: 2px solid #00e5ff;
@@ -23,181 +28,55 @@
   border-color: rgba(0, 229, 255, 0.9);
 }
 
-/* Contenedor de la cámara */
-.camera-container {
+/* ========================================
+   INTERIOR - Estructura obligatoria
+   Común para TODAS las cámaras del sistema
+   ======================================== */
+
+.camera-inner {
+  background: #000;
+  overflow: hidden;
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 3;
-  background: rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(0, 229, 255, 0.3);
-  border-radius: 8px;
-  overflow: hidden;
+  height: 100%;
 }
 
-/* Feed de cámara */
-.camera-feed {
+.camera-inner--ratio {
+  aspect-ratio: 16 / 9;
+}
+
+.camera-inner img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
   display: block;
+  object-fit: cover;
 }
 
-/* Overlay de texto sobre la cámara */
-.camera-overlay {
+.camera-inner .no-signal {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  padding: 0.75rem;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8) 0%, transparent 100%);
-  pointer-events: none;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #b0b0b0;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
 }
 
-.overlay-text {
-  font-family: var(--font-display);
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #00e5ff;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  text-shadow: 0 0 10px rgba(0, 229, 255, 0.8);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+/* Ocultar cualquier overlay interno no deseado */
+.camera-inner > :not(img):not(.no-signal) {
+  display: none !important;
 }
 
-.overlay-text::before {
-  content: '●';
-  color: #10b981;
-  font-size: 0.5rem;
-  animation: blink 2s ease-in-out infinite;
-}
+/* ========================================
+   RESPONSIVE
+   ======================================== */
 
-@keyframes blink {
-  0%, 50%, 100% { opacity: 1; }
-  25%, 75% { opacity: 0.3; }
-}
-
-/* Línea de escaneo con efecto glow */
-.glow-line {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 3px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(0, 229, 255, 0.3) 20%,
-    rgba(0, 229, 255, 0.8) 50%,
-    rgba(0, 229, 255, 0.3) 80%,
-    transparent 100%
-  );
-  box-shadow: 
-    0 0 10px rgba(0, 229, 255, 0.8),
-    0 0 20px rgba(0, 229, 255, 0.6),
-    0 0 30px rgba(0, 229, 255, 0.4);
-  animation: scan 3s linear infinite;
-  pointer-events: none;
-}
-
-/* Animación de escaneo */
-@keyframes scan {
-  0% {
-    transform: translateY(0);
-    opacity: 0;
-  }
-  5% {
-    opacity: 1;
-  }
-  95% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-}
-
-/* Efecto de esquinas para el visor - 4 esquinas con destellos tipo estrella */
-.camera-container::before,
-.camera-container::after {
-  content: '';
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border: 2px solid #00e5ff;
-  pointer-events: none;
-  z-index: 2;
-}
-
-.camera-container::before {
-  top: 8px;
-  left: 8px;
-  border-right: none;
-  border-bottom: none;
-  box-shadow: -2px -2px 8px rgba(0, 229, 255, 0.6);
-  animation: cornerFlash 2s ease-in-out infinite;
-}
-
-.camera-container::after {
-  bottom: 8px;
-  right: 8px;
-  border-left: none;
-  border-top: none;
-  box-shadow: 2px 2px 8px rgba(0, 229, 255, 0.6);
-  animation: cornerFlash 2s ease-in-out infinite 1s;
-}
-
-/* Añadir esquinas adicionales usando elementos pseudo adicionales */
-.camera-overlay::before,
-.camera-overlay::after {
-  content: '';
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border: 2px solid #00e5ff;
-  pointer-events: none;
-  z-index: 3;
-}
-
-.camera-overlay::before {
-  top: 8px;
-  right: 8px;
-  border-left: none;
-  border-bottom: none;
-  box-shadow: 2px -2px 8px rgba(0, 229, 255, 0.6);
-  animation: cornerFlash 2s ease-in-out infinite 0.5s;
-}
-
-.camera-overlay::after {
-  bottom: 8px;
-  left: 8px;
-  border-right: none;
-  border-top: none;
-  box-shadow: -2px 2px 8px rgba(0, 229, 255, 0.6);
-  animation: cornerFlash 2s ease-in-out infinite 1.5s;
-}
-
-/* Animación de destello en las esquinas */
-@keyframes cornerFlash {
-  0%, 100% {
-    opacity: 0.5;
-    box-shadow: 0 0 4px rgba(0, 229, 255, 0.4);
-  }
-  50% {
-    opacity: 1;
-    box-shadow: 0 0 15px rgba(0, 229, 255, 0.9), 0 0 25px rgba(0, 229, 255, 0.6);
-  }
-}
-
-/* Responsive */
 @media (max-width: 768px) {
   .camera-widget.nexus-card {
     padding: 1rem;
   }
   
-  .overlay-text {
-    font-size: 0.65rem;
+  .camera-inner .no-signal {
+    font-size: 0.85rem;
   }
 }
