@@ -1,22 +1,26 @@
 import { useState } from 'react';
 import { CameraModal } from '../components/CameraModal';
+import { CENTROS } from '../config/centros';
 import './SelectorCentros.css';
 
 function SelectorCentros() {
   const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
   const [selectedCamera, setSelectedCamera] = useState(null);
+  const [selectedCameraUrl, setSelectedCameraUrl] = useState('');
 
   const centros = [
     {
       id: 'salesianos-urnieta',
       nombre: 'Salesianos Urnieta',
       estado: 'online',
-      cameraLabel: 'CAM_01_SALESIANOS - LIVE FEED'
+      cameraLabel: 'CAM_01_SALESIANOS - LIVE FEED',
+      cameraStreamUrl: CENTROS['salesianos-urnieta'].cameraStreamUrl
     },
     {
       id: 'cifp-repelega',
       nombre: 'CIFP Repélega',
-      estado: 'offline'
+      estado: 'offline',
+      cameraStreamUrl: CENTROS['repelega'].cameraStreamUrl
     },
     {
       id: 'centro-3',
@@ -33,6 +37,7 @@ function SelectorCentros() {
   const handleCentroClick = (centro) => {
     if (centro.estado === 'online') {
       setSelectedCamera(centro.cameraLabel);
+      setSelectedCameraUrl(centro.cameraStreamUrl || '');
       setIsCameraModalOpen(true);
     }
   };
@@ -84,6 +89,7 @@ function SelectorCentros() {
         isOpen={isCameraModalOpen} 
         onClose={() => setIsCameraModalOpen(false)}
         cameraLabel={selectedCamera || 'CAM_01_SALESIANOS - LIVE FEED'}
+        streamUrl={selectedCameraUrl}
       />
     </div>
   );

@@ -33,7 +33,7 @@ function TelemetriaDetail() {
         let data;
         if (!centro.baseUrl || centro.baseUrl === "") {
           // Usar datos mock si no hay URL configurada
-          data = getMockTelemetryData();
+          data = getMockTelemetryData(centro);
         } else {
           // Intentar obtener datos reales
           data = await getTelemetryLatest(centro.baseUrl);
@@ -42,7 +42,7 @@ function TelemetriaDetail() {
       } catch (err) {
         console.error('Error al obtener telemetría:', err);
         // Usar datos mock como fallback
-        setTelemetry(getMockTelemetryData());
+        setTelemetry(getMockTelemetryData(centro));
       } finally {
         setLoading(false);
       }
