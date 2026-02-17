@@ -25,7 +25,7 @@
   animation: digitalPulse ease-in-out infinite;
 }
 
-/* Enhanced neon glow specifically for '1' digits */
+/* Enhanced neon glow and animation specifically for '1' digits */
 .data-bit-one {
   /* Much brighter and more noticeable neon glow for ones */
   text-shadow: 
@@ -34,24 +34,20 @@
     0 0 45px rgba(0, 255, 65, 0.9),
     0 0 60px rgba(0, 255, 65, 0.7);
   font-weight: bolder;
+  animation: digitalPulseOne ease-in-out infinite;
 }
 
 /* Dimmer appearance for '0' digits */
 .data-bit-zero {
-  opacity: 0.7; /* Slightly less visible */
   text-shadow: 0 0 5px #00ff41, 0 0 10px rgba(0, 255, 65, 0.4);
 }
 
 @keyframes digitalPulse {
   0%, 100% { opacity: 0; transform: scale(0.7); }
-  50% { opacity: 0.35; transform: scale(1.2); } /* Sufficient opacity to be visible */
+  50% { opacity: 0.35; transform: scale(1.2); }
 }
 
-/* Enhanced pulse for '1' digits - more prominent */
-.data-bit-one {
-  animation: digitalPulseOne ease-in-out infinite;
-}
-
+/* Enhanced pulse animation for '1' digits - more prominent */
 @keyframes digitalPulseOne {
   0%, 100% { 
     opacity: 0.2; 
