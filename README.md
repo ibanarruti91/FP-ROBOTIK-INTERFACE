@@ -106,6 +106,32 @@ El proyecto incluye un workflow de GitHub Actions que despliega automáticamente
 - **Magenta**: #ff33bb
 - **Online**: #10b981
 
+## ⚙️ Configuración
+
+### Configuración de Cámaras
+
+Las cámaras se configuran en el archivo `src/config/centros.js`. Cada centro puede tener su propia URL de stream MJPEG.
+
+**IMPORTANTE**: No usar `localhost` o `127.0.0.1` en producción, ya que solo funcionará si el Web Server corre en el mismo PC.
+
+```javascript
+export const CENTROS = {
+  "salesianos-urnieta": {
+    nombre: "Salesianos Urnieta",
+    baseUrl: "http://192.168.1.100:3000", // URL del servidor IoT
+    cameraStreamUrl: "http://192.168.1.100:8081/video.mjpg", // URL del stream MJPEG
+    estado: "ONLINE"
+  }
+};
+```
+
+**Formato de la URL de cámara:**
+- Para uso local (desarrollo): `http://localhost:8081/video.mjpg`
+- Para uso en red local: `http://<IP_DEL_SERVIDOR>:8081/video.mjpg`
+- Para uso remoto: `http://<HOSTNAME_O_IP_PUBLICA>:8081/video.mjpg`
+
+Donde `<IP_DEL_SERVIDOR>` es la dirección IP del equipo que ejecuta el servidor de streaming de la cámara.
+
 ## 📝 Licencia
 
 MIT
