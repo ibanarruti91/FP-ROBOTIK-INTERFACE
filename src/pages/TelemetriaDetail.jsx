@@ -10,9 +10,7 @@ function TelemetriaDetail() {
   const { centroId } = useParams();
   const navigate = useNavigate();
   const [telemetry, setTelemetry] = useState(null);
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [usingMockData, setUsingMockData] = useState(false);
   const [activeTab, setActiveTab] = useState('principal');
 
   const centro = CENTROS[centroId];
@@ -36,20 +34,15 @@ function TelemetriaDetail() {
         if (!centro.baseUrl || centro.baseUrl === "") {
           // Usar datos mock si no hay URL configurada
           data = getMockTelemetryData();
-          setUsingMockData(true);
         } else {
           // Intentar obtener datos reales
           data = await getTelemetryLatest(centro.baseUrl);
-          setUsingMockData(false);
         }
         setTelemetry(data);
-        setError(null);
       } catch (err) {
         console.error('Error al obtener telemetría:', err);
-        setError('Sin conexión con IoT - Mostrando datos simulados');
         // Usar datos mock como fallback
         setTelemetry(getMockTelemetryData());
-        setUsingMockData(true);
       } finally {
         setLoading(false);
       }

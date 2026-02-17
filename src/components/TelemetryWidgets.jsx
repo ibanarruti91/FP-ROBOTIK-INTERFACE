@@ -11,10 +11,11 @@ import './TelemetryWidgets.css';
 function useCountingAnimation(targetValue, duration = 500) {
   const [displayValue, setDisplayValue] = useState(targetValue);
   const previousValueRef = useRef(targetValue);
+  const isNonNumeric = typeof targetValue !== 'number' || isNaN(targetValue);
   
   useEffect(() => {
-    if (typeof targetValue !== 'number' || isNaN(targetValue)) {
-      setDisplayValue(targetValue);
+    // Handle non-numeric values
+    if (isNonNumeric) {
       return;
     }
     
@@ -23,7 +24,6 @@ function useCountingAnimation(targetValue, duration = 500) {
     
     // Only animate if the change is significant
     if (Math.abs(diff) < 0.01) {
-      setDisplayValue(targetValue);
       previousValueRef.current = targetValue;
       return;
     }
@@ -48,9 +48,10 @@ function useCountingAnimation(targetValue, duration = 500) {
     };
     
     requestAnimationFrame(animate);
-  }, [targetValue, duration]);
+  }, [targetValue, duration, isNonNumeric]);
   
-  return displayValue;
+  // Return the actual target value for non-numeric values
+  return isNonNumeric ? targetValue : displayValue;
 }
 
 /**
@@ -222,7 +223,7 @@ export function SafetyPanel({ value, className = '' }) {
 /**
  * Digital IO - Matriz de 32 LEDs para entradas/salidas digitales
  */
-export function DigitalIO({ data, ioCount = 32, className = '' }) {
+export function DigitalIO({ data, className = '' }) {
   const inputs = data?.inputs || Array(16).fill(false);
   const outputs = data?.outputs || Array(16).fill(false);
   
