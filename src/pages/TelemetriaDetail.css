@@ -35,23 +35,86 @@
   cursor: pointer;
   transition: all 0.3s ease;
   white-space: nowrap;
+  position: relative;
 }
 
 .tab-button:hover {
   color: var(--accent-cyan);
   border-color: rgba(0, 229, 255, 0.3);
   background: rgba(0, 229, 255, 0.05);
+  transform: translateY(-2px);
 }
 
 .tab-button.active {
-  color: var(--accent-cyan);
+  color: var(--text-primary);
   background: rgba(0, 229, 255, 0.15);
   border-color: var(--accent-cyan);
   box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
 }
 
+/* Section-specific tab colors */
+.tab-button[data-section="principal"].active {
+  border-color: #00e5ff;
+  background: rgba(0, 229, 255, 0.15);
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+}
+
+.tab-button[data-section="estado-io"].active {
+  border-color: #ffbf00;
+  background: rgba(255, 191, 0, 0.15);
+  box-shadow: 0 0 15px rgba(255, 191, 0, 0.3);
+  color: #ffbf00;
+}
+
+.tab-button[data-section="cinematica"].active {
+  border-color: #007bff;
+  background: rgba(0, 123, 255, 0.15);
+  box-shadow: 0 0 15px rgba(0, 123, 255, 0.3);
+  color: #007bff;
+}
+
+.tab-button[data-section="diagnostico"].active {
+  border-color: #8a2be2;
+  background: rgba(138, 43, 226, 0.15);
+  box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
+  color: #8a2be2;
+}
+
 .tab-content {
   margin-top: 1.5rem;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Section-specific color theming */
+.tab-content[data-section="principal"] .card-glass:hover {
+  border-color: #00e5ff;
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+}
+
+.tab-content[data-section="estado-io"] .card-glass:hover {
+  border-color: #ffbf00;
+  box-shadow: 0 0 20px rgba(255, 191, 0, 0.2);
+}
+
+.tab-content[data-section="cinematica"] .card-glass:hover {
+  border-color: #007bff;
+  box-shadow: 0 0 20px rgba(0, 123, 255, 0.2);
+}
+
+.tab-content[data-section="diagnostico"] .card-glass:hover {
+  border-color: #8a2be2;
+  box-shadow: 0 0 20px rgba(138, 43, 226, 0.2);
 }
 
 .telemetry-card {

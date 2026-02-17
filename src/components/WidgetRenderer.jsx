@@ -2,7 +2,7 @@
  * WidgetRenderer - Renderiza widgets basándose en su tipo y configuración
  */
 
-import { KpiCard, StatusPill, DataTable, LogPanel } from './TelemetryWidgets';
+import { KpiCard, StatusPill, DataTable, LogPanel, SafetyPanel, DigitalIO, TcpPose, JointsGrid } from './TelemetryWidgets';
 import { CameraWidget } from './CameraWidget';
 import './WidgetRenderer.css';
 
@@ -95,6 +95,43 @@ function renderWidget(widget, data, key) {
           label={widget.label}
           streamUrl={value}
           className={widget.columns ? `span-${widget.columns}` : 'full-width'}
+        />
+      );
+    
+    case 'safety-panel':
+      return (
+        <SafetyPanel
+          key={key}
+          value={value}
+          className="full-width"
+        />
+      );
+    
+    case 'digital-io':
+      return (
+        <DigitalIO
+          key={key}
+          data={value}
+          ioCount={widget.ioCount || 32}
+          className="full-width"
+        />
+      );
+    
+    case 'tcp-pose':
+      return (
+        <TcpPose
+          key={key}
+          data={value}
+          className="full-width"
+        />
+      );
+    
+    case 'joints-grid':
+      return (
+        <JointsGrid
+          key={key}
+          data={value}
+          className="full-width"
         />
       );
     

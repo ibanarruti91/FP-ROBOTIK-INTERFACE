@@ -119,6 +119,10 @@ export function getMockTelemetryData() {
       { time: new Date(Date.now() - 12000).toISOString(), txt: "Programa cargado: PICK_AND_PLACE_01" },
       { time: new Date(Date.now() - 25000).toISOString(), txt: "Conexión establecida con controlador" },
       { time: new Date(Date.now() - 45000).toISOString(), txt: "Modo AUTO activado" }
-    ]
+    ],
+    digital_io: {
+      inputs: Array.from({ length: 16 }, () => Math.random() > 0.5),
+      outputs: Array.from({ length: 16 }, () => Math.random() > 0.5)
+    }
   };
 }

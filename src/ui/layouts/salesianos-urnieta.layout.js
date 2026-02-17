@@ -1,13 +1,14 @@
 /**
- * Layout declarativo para Salesianos Urnieta
- * Define la estructura de tabs, grupos y widgets para la telemetría
+ * Layout declarativo para Salesianos Urnieta (SMS)
+ * Define la estructura de tabs, grupos y widgets para la telemetría del robot UR3e
  */
 
 export const SALESIANOS_LAYOUT = {
   tabs: [
     {
-      id: "menu-principal",
-      label: "MENU PRINCIPAL",
+      id: "principal",
+      label: "Principal",
+      color: "#00e5ff", // Cyan
       groups: [
         {
           title: "Estado del Sistema",
@@ -41,9 +42,23 @@ export const SALESIANOS_LAYOUT = {
       ]
     },
     {
-      id: "estado-robot",
-      label: "ESTADO ROBOT Y MAPEADO E/S",
+      id: "estado-io",
+      label: "Estado+IO",
+      color: "#ffbf00", // Amber
       groups: [
+        {
+          title: "Panel de Seguridad",
+          priority: "high",
+          widgets: [
+            { type: "safety-panel", label: "Estado de Seguridad", path: "estado.safety" }
+          ]
+        },
+        {
+          title: "Entradas/Salidas Digitales",
+          widgets: [
+            { type: "digital-io", label: "Matriz IO Digital", path: "digital_io", ioCount: 32 }
+          ]
+        },
         {
           title: "Estado General",
           widgets: [
@@ -78,8 +93,21 @@ export const SALESIANOS_LAYOUT = {
     },
     {
       id: "cinematica",
-      label: "CINEMÁTICA Y DINÁMICA DE EJES",
+      label: "Cinemática",
+      color: "#007bff", // Electric Blue
       groups: [
+        {
+          title: "TCP Pose - Posición y Orientación",
+          widgets: [
+            { type: "tcp-pose", label: "TCP Pose", path: "tcp" }
+          ]
+        },
+        {
+          title: "Ejes del Robot (J1-J6)",
+          widgets: [
+            { type: "joints-grid", label: "Articulaciones", path: "joints" }
+          ]
+        },
         {
           title: "Posiciones de Ejes (rad)",
           widgets: [
@@ -102,7 +130,8 @@ export const SALESIANOS_LAYOUT = {
     },
     {
       id: "diagnostico",
-      label: "DIAGNÓSTICO DE CONTROL",
+      label: "Diagnóstico",
+      color: "#8a2be2", // Violet
       groups: [
         {
           title: "Parámetros de Control",

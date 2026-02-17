@@ -13,7 +13,7 @@ function TelemetriaDetail() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [usingMockData, setUsingMockData] = useState(false);
-  const [activeTab, setActiveTab] = useState('menu-principal');
+  const [activeTab, setActiveTab] = useState('principal');
 
   const centro = CENTROS[centroId];
   const layout = SALESIANOS_LAYOUT; // En el futuro, se podría cargar dinámicamente según el centro
@@ -106,6 +106,7 @@ function TelemetriaDetail() {
           <button
             key={tab.id}
             className={`tab-button ${activeTab === tab.id ? 'active' : ''}`}
+            data-section={tab.id}
             onClick={() => setActiveTab(tab.id)}
           >
             {tab.label}
@@ -114,7 +115,7 @@ function TelemetriaDetail() {
       </div>
       
       {/* Tab Content */}
-      <div className="tab-content">
+      <div className="tab-content" data-section={activeTab}>
         {layout.tabs
           .filter(tab => tab.id === activeTab)
           .map(tab => (
@@ -122,6 +123,8 @@ function TelemetriaDetail() {
               key={tab.id}
               groups={tab.groups}
               data={telemetry}
+              sectionColor={tab.color}
+              sectionId={tab.id}
             />
           ))
         }
