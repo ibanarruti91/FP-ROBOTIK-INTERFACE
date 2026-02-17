@@ -92,7 +92,6 @@ function renderWidget(widget, data, key) {
       return (
         <CameraWidget
           key={key}
-          label={widget.label}
           streamUrl={value}
           className={widget.columns ? `span-${widget.columns}` : 'full-width'}
         />

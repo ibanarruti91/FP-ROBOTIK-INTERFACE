@@ -6,7 +6,7 @@
 import { useState } from 'react';
 import './CameraWidget.css';
 
-export function CameraWidget({ label = 'CAM_01_SALESIANOS', streamUrl = '', className = '' }) {
+export function CameraWidget({ streamUrl = '', className = '' }) {
   const [hasError, setHasError] = useState(false);
 
   const handleError = () => {
