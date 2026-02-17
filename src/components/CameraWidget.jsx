@@ -11,7 +11,6 @@ export function CameraWidget({ label = 'CAM_01_SALESIANOS - LIVE FEED', streamUr
 
   return (
     <div className={`camera-widget nexus-card ${className}`}>
-      {label && <div className="camera-label">{label}</div>}
       <div className="camera-container">
         <img 
           src={actualStreamUrl} 
