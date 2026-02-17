@@ -21,7 +21,7 @@ export function CameraModal({ isOpen, onClose, cameraLabel = 'CAM_01_SALESIANOS 
           ✕
         </button>
         <div className="camera-modal-header">
-          <h2 className="camera-modal-title">Sistema de Monitoreo</h2>
+          <h2 className="camera-modal-title">Cámara en Directo Multicentros</h2>
           <p className="camera-modal-subtitle">Vigilancia en tiempo real</p>
         </div>
         <div className="camera-modal-body">
