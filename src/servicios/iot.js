@@ -51,8 +51,9 @@ export async function getTelemetryLatest(baseUrl) {
 
 /**
  * Genera datos mock para telemetría cuando no hay conexión real
+ * @param {Object} centroConfig - Configuración del centro (opcional)
  */
-export function getMockTelemetryData() {
+export function getMockTelemetryData(centroConfig = null) {
   const modes = ["AUTO", "MANUAL", "T1", "T2"];
   const safetyStates = ["NORMAL", "REDUCED", "PROTECTIVE_STOP"];
   const errors = ["", "E-STOP activado", "Límite articulación J3", "Temperatura alta J2", "Pérdida señal TCP"];
@@ -123,6 +124,9 @@ export function getMockTelemetryData() {
     digital_io: {
       inputs: Array.from({ length: 16 }, () => Math.random() > 0.5),
       outputs: Array.from({ length: 16 }, () => Math.random() > 0.5)
+    },
+    camera: {
+      stream: centroConfig?.cameraStreamUrl || ''
     }
   };
 }
