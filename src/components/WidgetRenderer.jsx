@@ -3,6 +3,7 @@
  */
 
 import { KpiCard, StatusPill, DataTable, LogPanel } from './TelemetryWidgets';
+import { CameraWidget } from './CameraWidget';
 import './WidgetRenderer.css';
 
 /**
@@ -84,6 +85,16 @@ function renderWidget(widget, data, key) {
           key={key}
           messages={value}
           className="full-width"
+        />
+      );
+    
+    case 'camera':
+      return (
+        <CameraWidget
+          key={key}
+          label={widget.label}
+          streamUrl={value}
+          className={widget.columns ? `span-${widget.columns}` : 'full-width'}
         />
       );
     
