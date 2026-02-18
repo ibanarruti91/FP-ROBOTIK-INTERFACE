@@ -124,6 +124,43 @@ export function StatusPill({ label, value, statusType, className = '' }) {
 }
 
 /**
+ * Dynamic Status Widget with custom colors for estado_maquina and modo_operacion
+ */
+export function StatusDynamic({ label, value, statusType, className = '', compact = false }) {
+  const displayValue = value ?? '--';
+  
+  let statusClass = '';
+  let shouldBlink = false;
+  
+  if (statusType === 'estado_maquina') {
+    if (value === 'POWER_ON') {
+      statusClass = 'status-power-on';
+    } else if (value === 'POWER_OFF') {
+      statusClass = 'status-power-off';
+    } else if (value === 'EMERGENCY_STOP') {
+      statusClass = 'status-emergency';
+      shouldBlink = true;
+    }
+  } else if (statusType === 'modo_operacion') {
+    if (value === 'REMOTE' || value === 'AUTO') {
+      statusClass = 'status-remote-auto';
+    } else if (value === 'MANUAL') {
+      statusClass = 'status-manual';
+    }
+  }
+  
+  return (
+    <CardGlass className={`status-dynamic ${compact ? 'status-compact' : ''} ${className}`}>
+      <div className="status-label">{label}</div>
+      <div className={`status-value ${statusClass} ${shouldBlink ? 'blink' : ''}`}>
+        <span className="status-dot"></span>
+        {displayValue}
+      </div>
+    </CardGlass>
+  );
+}
+
+/**
  * Tabla de datos para ejes (Joint 1..6)
  */
 export function DataTable({ label, data, unit, format }) {

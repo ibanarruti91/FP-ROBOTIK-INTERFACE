@@ -2,7 +2,7 @@
  * WidgetRenderer - Renderiza widgets basándose en su tipo y configuración
  */
 
-import { KpiCard, StatusPill, DataTable, LogPanel, SafetyPanel, DigitalIO, TcpPose, JointsGrid } from './TelemetryWidgets';
+import { KpiCard, StatusPill, StatusDynamic, DataTable, LogPanel, SafetyPanel, DigitalIO, TcpPose, JointsGrid } from './TelemetryWidgets';
 import { CameraWidget } from './CameraWidget';
 import './WidgetRenderer.css';
 
@@ -67,6 +67,18 @@ function renderWidget(widget, data, key) {
           value={value}
           statusType={widget.statusType}
           className={`${widget.columns ? `span-${widget.columns}` : ''} ${compactClass}`}
+        />
+      );
+    
+    case 'status-dynamic':
+      return (
+        <StatusDynamic
+          key={key}
+          label={widget.label}
+          value={value}
+          statusType={widget.statusType}
+          className={`${widget.columns ? `span-${widget.columns}` : ''} ${compactClass}`}
+          compact={widget.compact}
         />
       );
     

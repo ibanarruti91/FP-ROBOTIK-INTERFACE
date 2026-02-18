@@ -21,6 +21,12 @@
   overflow: hidden;
 }
 
+/* Compact camera for principal tab */
+.camera-widget.camera-compact {
+  padding: 1rem;
+  min-height: 250px;
+}
+
 .camera-widget.nexus-card:hover {
   box-shadow: 
     0 0 30px rgba(0, 229, 255, 0.5),
@@ -74,6 +80,10 @@
 @media (max-width: 768px) {
   .camera-widget.nexus-card {
     padding: 1rem;
+  }
+  
+  .camera-widget.camera-compact {
+    min-height: 200px;
   }
   
   .camera-inner .no-signal {
