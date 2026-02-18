@@ -21,26 +21,6 @@ function getNestedValue(obj, path) {
 }
 
 /**
- * Formatea un valor según el formato especificado
- */
-function formatValue(value, format) {
-  // Let widgets handle null/undefined values themselves
-  if (value === null || value === undefined) return value;
-  
-  if (format === 'text') {
-    return value || null;
-  }
-  
-  if (typeof value === 'number') {
-    const decimals = parseInt(format, 10);
-    const validDecimals = isNaN(decimals) ? 0 : Math.max(0, decimals);
-    return value.toFixed(validDecimals);
-  }
-  
-  return String(value);
-}
-
-/**
  * Renderiza un widget individual
  */
 function renderWidget(widget, data, key) {
