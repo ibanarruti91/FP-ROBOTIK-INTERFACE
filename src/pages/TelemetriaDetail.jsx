@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CENTROS } from '../config/centros';
 import { getTelemetryLatest, getMockTelemetryData } from '../servicios/iot';
@@ -6,6 +6,12 @@ import { SALESIANOS_LAYOUT } from '../ui/layouts/salesianos-urnieta.layout';
 import { IBAN_LAYOUT } from '../ui/layouts/iban.layout';
 import WidgetRenderer from '../components/WidgetRenderer';
 import './TelemetriaDetail.css';
+
+// Layout registry for dynamic layout loading
+const LAYOUT_REGISTRY = {
+  'iban': IBAN_LAYOUT,
+  'default': SALESIANOS_LAYOUT
+};
 
 function TelemetriaDetail() {
   const { centroId, robotId } = useParams();
@@ -16,20 +22,18 @@ function TelemetriaDetail() {
 
   const centro = CENTROS[centroId];
   
-  // Load layout based on robot configuration
-  const getLayout = () => {
+  // Memoized layout selection based on robot configuration
+  const layout = useMemo(() => {
     // If robotId is provided, find the robot and use its layout
     if (robotId && centro?.robots) {
       const robot = centro.robots.find(r => r.id === robotId);
-      if (robot?.layout === 'iban') {
-        return IBAN_LAYOUT;
+      if (robot?.layout) {
+        return LAYOUT_REGISTRY[robot.layout] || LAYOUT_REGISTRY['default'];
       }
     }
     // Default to SALESIANOS_LAYOUT
-    return SALESIANOS_LAYOUT;
-  };
-  
-  const layout = getLayout();
+    return LAYOUT_REGISTRY['default'];
+  }, [robotId, centro]);
 
   useEffect(() => {
     if (!centro) {
