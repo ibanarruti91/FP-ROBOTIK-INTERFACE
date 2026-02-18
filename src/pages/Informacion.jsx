@@ -126,6 +126,9 @@ function Informacion() {
               Este proyecto se distribuye bajo la <strong>Licencia MIT</strong>, permitiendo su uso, 
               modificación y distribución con fines educativos y comerciales.
             </p>
+            <p>
+              Este proyecto se distribuye bajo la Licencia MIT, fomentando el software libre y la colaboración educativa.
+            </p>
             <p className="version-info">
               <strong>Versión:</strong> 0.0.0 (En desarrollo)
             </p>
