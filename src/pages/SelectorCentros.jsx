@@ -14,7 +14,7 @@ function SelectorCentros() {
     {
       id: 'salesianos-urnieta',
       nombre: 'Salesianos Urnieta',
-      estado: status.toLowerCase(), // Use dynamic status from MQTT watchdog
+      estado: status, // Use dynamic status from MQTT watchdog (uppercase ONLINE/OFFLINE)
       cameraLabel: 'CAM_01_SALESIANOS - LIVE FEED',
       cameraStreamUrl: CENTROS['salesianos-urnieta'].cameraStreamUrl
     },
@@ -37,7 +37,7 @@ function SelectorCentros() {
   ];
 
   const handleCentroClick = (centro) => {
-    if (centro.estado === 'online') {
+    if (centro.estado === 'ONLINE') {
       setSelectedCamera(centro.cameraLabel);
       setSelectedCameraUrl(centro.cameraStreamUrl || '');
       setIsCameraModalOpen(true);
@@ -55,7 +55,7 @@ function SelectorCentros() {
         {centros.map((centro) => (
           <div
             key={centro.id}
-            className={`centro-card-selector ${centro.estado === 'online' ? 'online' : 'offline'}`}
+            className={`centro-card-selector ${centro.estado === 'ONLINE' ? 'online' : 'offline'}`}
             onClick={() => handleCentroClick(centro)}
           >
             <div className="card-corner top-left"></div>
@@ -64,8 +64,8 @@ function SelectorCentros() {
             <div className="card-corner bottom-right"></div>
             
             <div className="centro-status">
-              <span className={`status-indicator ${centro.estado}`}></span>
-              <span className="status-text">{centro.estado === 'online' ? 'ONLINE' : 'OFFLINE'}</span>
+              <span className={`status-indicator ${centro.estado.toLowerCase()}`}></span>
+              <span className="status-text">{centro.estado === 'ONLINE' ? 'ONLINE' : 'OFFLINE'}</span>
             </div>
 
             <div className="centro-icon-selector">
@@ -77,7 +77,7 @@ function SelectorCentros() {
 
             <h2 className="centro-nombre">{centro.nombre}</h2>
 
-            {centro.estado === 'online' && (
+            {centro.estado === 'ONLINE' && (
               <div className="access-indicator">
                 <span>ACCESO DISPONIBLE</span>
                 <div className="access-arrow">→</div>
