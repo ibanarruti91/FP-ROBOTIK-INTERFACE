@@ -18,6 +18,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/centros" element={<Centros />} />
+          <Route path="/telemetria/:centroId/:robotId" element={<TelemetriaDetail />} />
           <Route path="/telemetria/:centroId" element={<TelemetriaDetail />} />
           <Route path="/telemetria" element={<Telemetria />} />
           <Route path="/validacion" element={<Validacion />} />

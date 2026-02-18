@@ -22,12 +22,21 @@ export const CENTROS = {
     nombre: "Salesianos Urnieta",
     baseUrl: import.meta.env.VITE_IOT_SALESIANOS_URNIETA || "",
     cameraStreamUrl: import.meta.env.VITE_CAMERA_SALESIANOS_URNIETA || "",
-    estado: "ONLINE"
+    estado: "ONLINE",
+    robots: [
+      {
+        id: "iban",
+        nombre: "Robot IBAN",
+        modelo: "UR3e",
+        layout: "iban"
+      }
+    ]
   },
   "repelega": {
     nombre: "CIFP Repélega",
     baseUrl: import.meta.env.VITE_IOT_REPELEGA || "",
     cameraStreamUrl: import.meta.env.VITE_CAMERA_REPELEGA || "",
-    estado: "PROXIMAMENTE"
+    estado: "PROXIMAMENTE",
+    robots: []
   }
 };

@@ -3,18 +3,28 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { CENTROS } from '../config/centros';
 import { getTelemetryLatest, getMockTelemetryData } from '../servicios/iot';
 import { SALESIANOS_LAYOUT } from '../ui/layouts/salesianos-urnieta.layout';
+import { IBAN_LAYOUT } from '../ui/layouts/iban.layout';
 import WidgetRenderer from '../components/WidgetRenderer';
 import './TelemetriaDetail.css';
 
 function TelemetriaDetail() {
-  const { centroId } = useParams();
+  const { centroId, robotId } = useParams();
   const navigate = useNavigate();
   const [telemetry, setTelemetry] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('principal');
 
   const centro = CENTROS[centroId];
-  const layout = SALESIANOS_LAYOUT; // En el futuro, se podría cargar dinámicamente según el centro
+  
+  // Load layout based on robotId if provided, otherwise use default
+  const getLayout = () => {
+    if (robotId === 'iban') {
+      return IBAN_LAYOUT;
+    }
+    return SALESIANOS_LAYOUT;
+  };
+  
+  const layout = getLayout();
 
   useEffect(() => {
     if (!centro) {
@@ -55,7 +65,7 @@ function TelemetriaDetail() {
     const interval = setInterval(fetchData, 1000);
 
     return () => clearInterval(interval);
-  }, [centroId, centro, navigate]);
+  }, [centroId, robotId, centro, navigate]);
 
   if (!centro) {
     return null;

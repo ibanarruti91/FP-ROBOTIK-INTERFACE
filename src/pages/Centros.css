@@ -165,3 +165,32 @@
   opacity: 1;
   transform: translateX(0);
 }
+
+.centro-robots {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.15);
+  text-align: center;
+}
+
+.robots-label {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.robot-badge {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  margin: 0.25rem;
+  background: rgba(0, 229, 255, 0.15);
+  border: 1px solid var(--accent-cyan);
+  border-radius: 6px;
+  color: var(--accent-cyan);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}

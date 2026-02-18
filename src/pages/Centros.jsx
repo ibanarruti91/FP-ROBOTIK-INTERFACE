@@ -5,9 +5,15 @@ import './Centros.css';
 function Centros() {
   const navigate = useNavigate();
 
-  const handleCentroClick = (centroId, estado) => {
+  const handleCentroClick = (centroId, estado, robots) => {
     if (estado === 'ONLINE') {
-      navigate(`/telemetria/${centroId}`);
+      // If center has robots defined, navigate to first robot
+      if (robots && robots.length > 0) {
+        navigate(`/telemetria/${centroId}/${robots[0].id}`);
+      } else {
+        // Fallback to old behavior for backward compatibility
+        navigate(`/telemetria/${centroId}`);
+      }
     }
   };
 
@@ -23,7 +29,7 @@ function Centros() {
           <div
             key={id}
             className={`centro-card ${centro.estado === 'ONLINE' ? 'enabled' : 'disabled'}`}
-            onClick={() => handleCentroClick(id, centro.estado)}
+            onClick={() => handleCentroClick(id, centro.estado, centro.robots)}
           >
             <div className="centro-header">
               <h2>{centro.nombre}</h2>
@@ -54,6 +60,17 @@ function Centros() {
                 ? 'Haz clic para acceder a los datos de telemetría en tiempo real'
                 : 'Este centro estará disponible próximamente'}
             </p>
+            
+            {centro.estado === 'ONLINE' && centro.robots && centro.robots.length > 0 && (
+              <div className="centro-robots">
+                <p className="robots-label">Robots disponibles:</p>
+                {centro.robots.map((robot) => (
+                  <span key={robot.id} className="robot-badge">
+                    {robot.nombre} ({robot.modelo})
+                  </span>
+                ))}
+              </div>
+            )}
             
             {centro.estado === 'ONLINE' && (
               <div className="centro-arrow">→</div>
