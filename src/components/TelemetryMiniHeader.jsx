@@ -57,7 +57,9 @@ function TelemetryMiniHeader({ telemetry }) {
   const programStatusId = telemetry?.programa?.status_id;
   let programStatus = 'N/A';
   if (isOnline && programStatusId !== null && programStatusId !== undefined) {
-    // Check if it's a simple status (0, 1, 2) or a complex status code
+    // Status code interpretation:
+    // 0 = Stopped, 1 = Running, 2 = Paused
+    // Large numbers (>100) are typically robot-specific running state codes
     if (programStatusId === 1) {
       programStatus = 'Running';
     } else if (programStatusId === 2) {
@@ -65,9 +67,10 @@ function TelemetryMiniHeader({ telemetry }) {
     } else if (programStatusId === 0) {
       programStatus = 'Stopped';
     } else if (programStatusId > 100) {
-      // Complex status code - interpret as running if it's a large positive number
+      // Robot is running with a specific state code
       programStatus = 'Running';
     } else {
+      // Unknown status code - display as-is
       programStatus = `Status ${programStatusId}`;
     }
   }
