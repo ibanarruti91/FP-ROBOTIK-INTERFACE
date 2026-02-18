@@ -11,43 +11,41 @@ export const SALESIANOS_LAYOUT = {
       color: "#00e5ff", // Cyan
       groups: [
         {
-          title: "Programa",
+          title: "Resumen Operativo",
+          className: "principal-header",
           compact: true,
           widgets: [
             { type: "kpi", label: "Nombre del Programa", path: "programa.nombre", unit: "", format: "text", columns: 2, compact: true },
+            { type: "status-dynamic", label: "Modo Operación", path: "sistema.modo_operacion", statusType: "modo_operacion", columns: 2, compact: true },
+            { type: "status-dynamic", label: "Estado Máquina", path: "sistema.estado_maquina", statusType: "estado_maquina", columns: 2, compact: true },
             { type: "kpi", label: "ID Estado", path: "programa.status_id", unit: "", format: "0", columns: 1, compact: true }
           ]
         },
         {
-          title: "Sistema",
+          title: "Vista en Vivo",
+          className: "principal-camera",
           compact: true,
           widgets: [
-            { type: "status-dynamic", label: "Modo Operación", path: "sistema.modo_operacion", statusType: "modo_operacion", columns: 2, compact: true },
-            { type: "status-dynamic", label: "Estado Máquina", path: "sistema.estado_maquina", statusType: "estado_maquina", columns: 2, compact: true },
-            { type: "kpi", label: "Potencia", path: "sistema.potencia_total", unit: "W", format: "0", columns: 1, compact: true },
-            { type: "kpi", label: "Temp.", path: "sistema.temperatura_control", unit: "°C", format: "1", columns: 1, compact: true }
+            { type: "camera", label: "Cámara", path: "camera.stream_url", compact: true, columns: 2 }
           ]
         },
         {
-          title: "Estadísticas",
+          title: "Datos Técnicos",
+          className: "principal-metrics",
           compact: true,
           widgets: [
+            { type: "kpi", label: "Potencia", path: "sistema.potencia_total", unit: "W", format: "0", columns: 1, compact: true },
+            { type: "kpi", label: "Temp.", path: "sistema.temperatura_control", unit: "°C", format: "1", columns: 1, compact: true },
             { type: "kpi", label: "Tiempo Ciclo", path: "estadisticas.tiempo_ciclo", unit: "s", format: "2", columns: 1, compact: true },
             { type: "kpi", label: "Horas Operación", path: "estadisticas.horas_operacion", unit: "h", format: "1", columns: 1, compact: true }
           ]
         },
         {
-          title: "Vista en Vivo",
-          compact: true,
-          widgets: [
-            { type: "camera", label: "Cámara", path: "camera.stream_url", compact: true }
-          ]
-        },
-        {
           title: "Eventos",
+          className: "principal-events",
           compact: true,
           widgets: [
-            { type: "log", label: "Mensajes del Sistema", path: "eventos", compact: true }
+            { type: "log", label: "Mensajes del Sistema", path: "eventos", compact: true, columns: 2 }
           ]
         }
       ]
