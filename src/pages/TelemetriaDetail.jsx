@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import mqtt from 'mqtt';
 import { CENTROS } from '../config/centros';
-import { getTelemetryLatest, getMockTelemetryData } from '../servicios/iot';
+import { getMockTelemetryData } from '../servicios/iot';
 import { SALESIANOS_LAYOUT } from '../ui/layouts/salesianos-urnieta.layout';
 import { IBAN_LAYOUT } from '../ui/layouts/iban.layout';
 import WidgetRenderer from '../components/WidgetRenderer';
@@ -16,8 +17,6 @@ const LAYOUT_REGISTRY = {
 function TelemetriaDetail() {
   const { centroId, robotId } = useParams();
   const navigate = useNavigate();
-  const [telemetry, setTelemetry] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('principal');
 
   const centro = CENTROS[centroId];
@@ -35,43 +34,91 @@ function TelemetriaDetail() {
     return LAYOUT_REGISTRY['default'];
   }, [robotId, centro]);
 
+  // Initialize telemetry with zero/null values
+  const initialTelemetry = useMemo(() => 
+    centro ? getMockTelemetryData(centro) : null, 
+    [centro]
+  );
+  const [telemetry, setTelemetry] = useState(initialTelemetry);
+
+  // Calculate loading state based on centro and telemetry
+  const loading = !centro || centro.estado === 'PROXIMAMENTE' ? false : !telemetry;
+
   useEffect(() => {
     if (!centro) {
       navigate('/centros');
       return;
     }
+  }, [centroId, centro, navigate]);
 
-    if (centro.estado === 'PROXIMAMENTE') {
-      setLoading(false);
+  // MQTT Connection Effect
+  useEffect(() => {
+    if (!centro) {
       return;
     }
 
-    // Función para obtener datos
-    const fetchData = async () => {
-      try {
-        let data;
-        if (!centro.baseUrl || centro.baseUrl === "") {
-          // Usar datos mock si no hay URL configurada
-          data = getMockTelemetryData(centro);
+    // Connect to MQTT broker (as specified in requirements)
+    // Note: broker URL and topic are configured per the project requirements
+    const client = mqtt.connect('wss://broker.emqx.io:8084/mqtt');
+
+    client.on('connect', () => {
+      console.log('Conectado al broker MQTT');
+      // Subscribe to the topic (iban is the user identifier, not a bank account)
+      client.subscribe('salesianos/robot/iban/principal', (err) => {
+        if (err) {
+          console.error('Error al suscribirse al topic:', err);
         } else {
-          // Intentar obtener datos reales
-          data = await getTelemetryLatest(centro.baseUrl);
+          console.log('Suscrito al topic: salesianos/robot/iban/principal');
         }
-        setTelemetry(data);
-      } catch (err) {
-        console.error('Error al obtener telemetría:', err);
-        // Usar datos mock como fallback
-        setTelemetry(getMockTelemetryData(centro));
-      } finally {
-        setLoading(false);
+      });
+    });
+
+    client.on('message', (topic, message) => {
+      try {
+        // Parse the JSON message
+        const data = JSON.parse(message.toString());
+        console.log('Mensaje MQTT recibido:', data);
+
+        // Update telemetry state with incoming data
+        setTelemetry((prevTelemetry) => {
+          // Create a new telemetry object based on previous state or mock data
+          const baseTelemetry = prevTelemetry || getMockTelemetryData(centro);
+          
+          // Map incoming MQTT data to telemetry structure
+          return {
+            ...baseTelemetry,
+            timestamp: new Date().toISOString(),
+            // Map programa data
+            programa: {
+              nombre: data.programa?.nombre ?? baseTelemetry.programa?.nombre ?? '',
+              status_id: data.programa?.status_id ?? baseTelemetry.programa?.status_id ?? 0
+            },
+            // Map sistema data
+            sistema: {
+              modo_operacion: data.sistema?.modo_operacion ?? baseTelemetry.sistema?.modo_operacion ?? '',
+              estado_maquina: data.sistema?.estado_maquina ?? baseTelemetry.sistema?.estado_maquina ?? '',
+              potencia_total: data.sistema?.potencia_total ?? baseTelemetry.sistema?.potencia_total ?? 0,
+              temperatura_control: data.sistema?.temperatura_control ?? baseTelemetry.sistema?.temperatura_control ?? 0
+            },
+            // Map estadisticas data
+            estadisticas: {
+              tiempo_ciclo: data.estadisticas?.tiempo_ciclo ?? baseTelemetry.estadisticas?.tiempo_ciclo ?? 0,
+              horas_operacion: data.estadisticas?.horas_operacion ?? baseTelemetry.estadisticas?.horas_operacion ?? 0
+            },
+            // Map eventos array
+            eventos: data.eventos ?? baseTelemetry.eventos ?? [],
+            // Keep existing data for other tabs
+            estado: baseTelemetry.estado,
+            tcp: baseTelemetry.tcp,
+            joints: baseTelemetry.joints,
+            digital_io: baseTelemetry.digital_io,
+            camera: baseTelemetry.camera
+          };
+        });
+      } catch (error) {
+        console.error('Error al parsear mensaje MQTT:', error);
       }
-    };
-
-    // Fetch inicial
-    fetchData();
-
-    // Actualizar cada 1 segundo
-    const interval = setInterval(fetchData, 1000);
+    });
 
     return () => clearInterval(interval);
   }, [centroId, robotId, centro, navigate]);

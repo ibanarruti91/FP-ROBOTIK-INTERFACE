@@ -180,9 +180,10 @@ export function LogPanel({ messages, className = '' }) {
         {messages.map((msg, index) => (
           <div key={index} className="log-message">
             <span className="log-time">
-              {msg.time ? new Date(msg.time).toLocaleTimeString('es-ES') : '--:--:--'}
+              {msg.hora ? new Date(msg.hora).toLocaleTimeString('es-ES') : 
+               msg.time ? new Date(msg.time).toLocaleTimeString('es-ES') : '--:--:--'}
             </span>
-            <span className="log-text">{msg.txt || msg.message || '--'}</span>
+            <span className="log-text">{msg.mensaje || msg.txt || msg.message || '--'}</span>
           </div>
         ))}
       </div>
