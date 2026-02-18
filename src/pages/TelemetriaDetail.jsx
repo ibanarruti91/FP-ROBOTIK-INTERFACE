@@ -5,6 +5,7 @@ import { CENTROS } from '../config/centros';
 import { getMockTelemetryData } from '../servicios/iot';
 import { SALESIANOS_LAYOUT } from '../ui/layouts/salesianos-urnieta.layout';
 import WidgetRenderer from '../components/WidgetRenderer';
+import TelemetryMiniHeader from '../components/TelemetryMiniHeader';
 import './TelemetriaDetail.css';
 
 function TelemetriaDetail() {
@@ -79,7 +80,8 @@ function TelemetriaDetail() {
               modo_operacion: data.sistema?.modo_operacion ?? baseTelemetry.sistema?.modo_operacion ?? '',
               estado_maquina: data.sistema?.estado_maquina ?? baseTelemetry.sistema?.estado_maquina ?? '',
               potencia_total: data.sistema?.potencia_total ?? baseTelemetry.sistema?.potencia_total ?? 0,
-              temperatura_control: data.sistema?.temperatura_control ?? baseTelemetry.sistema?.temperatura_control ?? 0
+              temperatura_control: data.sistema?.temperatura_control ?? baseTelemetry.sistema?.temperatura_control ?? 0,
+              velocidad_general: data.sistema?.velocidad_general ?? baseTelemetry.sistema?.velocidad_general ?? null
             },
             // Map estadisticas data
             estadisticas: {
@@ -147,6 +149,9 @@ function TelemetriaDetail() {
         <h1 className="universal-title">{centro.nombre}</h1>
         <p className="universal-description">Telemetría en tiempo real</p>
       </div>
+      
+      {/* Mini-Header de Telemetría */}
+      <TelemetryMiniHeader telemetry={telemetry} />
       
       {/* Tab Navigation */}
       <div className="tab-bar">

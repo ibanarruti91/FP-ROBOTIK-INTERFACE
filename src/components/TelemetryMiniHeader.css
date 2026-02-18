@@ -1,0 +1,254 @@
+/**
+ * Styles for TelemetryMiniHeader - Compact dark telemetry header
+ */
+
+.telemetry-mini-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.telemetry-mini-header.offline {
+  background: rgba(30, 30, 35, 0.95);
+  border-color: rgba(100, 100, 110, 0.3);
+}
+
+/* Section Containers */
+.mini-header-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.safety-section {
+  flex: 0 0 auto;
+}
+
+.process-section {
+  flex: 1;
+  justify-content: flex-start;
+}
+
+.robot-section {
+  flex: 1;
+  justify-content: center;
+}
+
+.diagnostics-section {
+  flex: 0 0 auto;
+  gap: 1rem;
+}
+
+/* Safety Badges */
+.safety-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+}
+
+.safety-badge-label {
+  opacity: 0.9;
+}
+
+.safety-badge-value {
+  font-weight: 800;
+}
+
+/* Safety Badge States */
+.safety-badge.ok {
+  background: rgba(34, 197, 94, 0.2);
+  border: 2px solid rgba(34, 197, 94, 0.6);
+  color: #22c55e;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+}
+
+.safety-badge.protective-stop {
+  background: rgba(251, 146, 60, 0.2);
+  border: 2px solid rgba(251, 146, 60, 0.6);
+  color: #fb923c;
+  box-shadow: 0 0 10px rgba(251, 146, 60, 0.3);
+  animation: pulse-warning 2s ease-in-out infinite;
+}
+
+.safety-badge.emergency-stop {
+  background: rgba(239, 68, 68, 0.3);
+  border: 2px solid rgba(239, 68, 68, 0.8);
+  color: #ffffff;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+  animation: pulse-emergency 1s ease-in-out infinite;
+}
+
+.safety-badge.offline {
+  background: rgba(100, 100, 110, 0.2);
+  border: 2px solid rgba(100, 100, 110, 0.4);
+  color: rgba(150, 150, 160, 0.9);
+}
+
+/* Pulse Animations */
+@keyframes pulse-warning {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(251, 146, 60, 0.3);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(251, 146, 60, 0.6);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes pulse-emergency {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+    background: rgba(239, 68, 68, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.8);
+    background: rgba(239, 68, 68, 0.5);
+  }
+}
+
+/* Info Items */
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.info-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(148, 163, 184, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.info-value {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Offline State */
+.telemetry-mini-header.offline .info-value {
+  color: rgba(150, 150, 160, 0.7);
+}
+
+.telemetry-mini-header.offline .info-label {
+  color: rgba(120, 120, 130, 0.6);
+}
+
+/* Program Status Colors */
+.status-running {
+  color: #22c55e !important;
+}
+
+.status-paused {
+  color: #fb923c !important;
+}
+
+.status-stopped {
+  color: rgba(148, 163, 184, 0.8) !important;
+}
+
+/* Link Status */
+.link-status {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700 !important;
+}
+
+.status-circle {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.link-status.online {
+  color: #22c55e !important;
+}
+
+.link-status.online .status-circle {
+  animation: pulse-circle 2s ease-in-out infinite;
+}
+
+.link-status.offline {
+  color: rgba(150, 150, 160, 0.7) !important;
+}
+
+@keyframes pulse-circle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .telemetry-mini-header {
+    flex-wrap: wrap;
+  }
+  
+  .process-section,
+  .robot-section {
+    flex: 1 1 45%;
+  }
+  
+  .diagnostics-section {
+    flex: 1 1 100%;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 768px) {
+  .telemetry-mini-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+  
+  .mini-header-section {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+  
+  .safety-section,
+  .process-section,
+  .robot-section,
+  .diagnostics-section {
+    width: 100%;
+  }
+  
+  .diagnostics-section {
+    justify-content: flex-start;
+  }
+  
+  .info-item {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
