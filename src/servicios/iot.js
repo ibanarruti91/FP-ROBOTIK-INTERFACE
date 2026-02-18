@@ -54,76 +54,45 @@ export async function getTelemetryLatest(baseUrl) {
  * @param {Object} centroConfig - Configuración del centro (opcional)
  */
 export function getMockTelemetryData(centroConfig = null) {
-  const modes = ["AUTO", "MANUAL", "T1", "T2"];
-  const safetyStates = ["NORMAL", "REDUCED", "PROTECTIVE_STOP"];
-  const errors = ["", "E-STOP activado", "Límite articulación J3", "Temperatura alta J2", "Pérdida señal TCP"];
-  
   return {
     timestamp: new Date().toISOString(),
     estado: {
-      online: Math.random() > 0.1, // 90% online
-      mode: modes[Math.floor(Math.random() * modes.length)],
-      safety: safetyStates[Math.floor(Math.random() * safetyStates.length)]
+      online: false,
+      mode: "MANUAL",
+      safety: "NORMAL"
     },
-    robot_power: 1200 + Math.random() * 300, // W
-    cycle_time: 45 + Math.random() * 15, // s
-    uptime_hours: 1234.5 + Math.random() * 100, // h
-    ctrl_temp: 35 + Math.random() * 10, // °C
-    last_error: errors[Math.floor(Math.random() * errors.length)],
+    robot_power: 0, // W
+    cycle_time: 0, // s
+    uptime_hours: 0, // h
+    ctrl_temp: 0, // °C
+    last_error: "",
     tcp: {
       position: {
-        x: Math.random() * 500 - 250,
-        y: Math.random() * 500 - 250,
-        z: Math.random() * 500 - 250
+        x: 0,
+        y: 0,
+        z: 0
       },
       orientation: {
-        rx: Math.random() * Math.PI - Math.PI / 2,
-        ry: Math.random() * Math.PI - Math.PI / 2,
-        rz: Math.random() * Math.PI - Math.PI / 2
+        rx: 0,
+        ry: 0,
+        rz: 0
       },
-      speed: Math.random() * 2, // m/s
+      speed: 0, // m/s
       velocity: {
-        x: Math.random() * 10 - 5,
-        y: Math.random() * 10 - 5,
-        z: Math.random() * 10 - 5
+        x: 0,
+        y: 0,
+        z: 0
       }
     },
     joints: {
-      positions: [
-        Math.random() * 2 * Math.PI - Math.PI, // rad
-        Math.random() * 2 * Math.PI - Math.PI,
-        Math.random() * 2 * Math.PI - Math.PI,
-        Math.random() * 2 * Math.PI - Math.PI,
-        Math.random() * 2 * Math.PI - Math.PI,
-        Math.random() * 2 * Math.PI - Math.PI
-      ],
-      temperatures: [
-        25 + Math.random() * 10,
-        25 + Math.random() * 10,
-        25 + Math.random() * 10,
-        25 + Math.random() * 10,
-        25 + Math.random() * 10,
-        25 + Math.random() * 10
-      ],
-      currents: [
-        Math.random() * 2,
-        Math.random() * 2,
-        Math.random() * 2,
-        Math.random() * 2,
-        Math.random() * 2,
-        Math.random() * 2
-      ]
+      positions: [0, 0, 0, 0, 0, 0],
+      temperatures: [0, 0, 0, 0, 0, 0],
+      currents: [0, 0, 0, 0, 0, 0]
     },
-    messages: [
-      { time: new Date(Date.now() - 1000).toISOString(), txt: "Sistema iniciado correctamente" },
-      { time: new Date(Date.now() - 5000).toISOString(), txt: "Calibración de ejes completada" },
-      { time: new Date(Date.now() - 12000).toISOString(), txt: "Programa cargado: PICK_AND_PLACE_01" },
-      { time: new Date(Date.now() - 25000).toISOString(), txt: "Conexión establecida con controlador" },
-      { time: new Date(Date.now() - 45000).toISOString(), txt: "Modo AUTO activado" }
-    ],
+    messages: [],
     digital_io: {
-      inputs: Array.from({ length: 16 }, () => Math.random() > 0.5),
-      outputs: Array.from({ length: 16 }, () => Math.random() > 0.5)
+      inputs: Array.from({ length: 16 }, () => false),
+      outputs: Array.from({ length: 16 }, () => false)
     },
     camera: {
       stream: centroConfig?.cameraStreamUrl || ''
