@@ -133,10 +133,10 @@ function Informacion() {
         </div>
 
         <div className="logos-container">
-          <img src="assets/logo gobierno vasco.png" alt="Gobierno Vasco" className="partner-logo" />
-          <img src="assets/tknika_logo.jfif" alt="Tknika" className="partner-logo" />
-          <img src="assets/logo repelaga.png" alt="CIFP Repélega" className="partner-logo" />
-          <img src="assets/logo salesianos.jpg" alt="Salesianos Urnieta" className="partner-logo" />
+          <img src={`${import.meta.env.BASE_URL}assets/logo gobierno vasco.png`} alt="Gobierno Vasco" className="partner-logo" />
+          <img src={`${import.meta.env.BASE_URL}assets/tknika_logo.jfif`} alt="Tknika" className="partner-logo" />
+          <img src={`${import.meta.env.BASE_URL}assets/logo repelaga.png`} alt="CIFP Repélega" className="partner-logo" />
+          <img src={`${import.meta.env.BASE_URL}assets/logo salesianos.jpg`} alt="Salesianos Urnieta" className="partner-logo" />
         </div>
       </div>
     </div>
