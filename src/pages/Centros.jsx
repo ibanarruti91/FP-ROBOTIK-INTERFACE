@@ -1,9 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { CENTROS } from '../config/centros';
+import { useMqttStatus } from '../hooks/useMqttStatus';
 import './Centros.css';
 
 function Centros() {
   const navigate = useNavigate();
+  const { status } = useMqttStatus();
 
   const handleCentroClick = (centroId, estado) => {
     if (estado === 'ONLINE') {
@@ -19,47 +21,60 @@ function Centros() {
       </div>
       
       <div className="centros-grid">
-        {Object.entries(CENTROS).map(([id, centro]) => (
-          <div
-            key={id}
-            className={`centro-card ${centro.estado === 'ONLINE' ? 'enabled' : 'disabled'}`}
-            onClick={() => handleCentroClick(id, centro.estado)}
-          >
-            <div className="centro-header">
-              <h2>{centro.nombre}</h2>
-              {centro.estado === 'PROXIMAMENTE' && (
-                <span className="badge-proximamente">Próximamente</span>
-              )}
-              {centro.estado === 'ONLINE' && (
-                <span className="badge-online">
-                  <span className="status-dot"></span>
-                  Online
-                </span>
+        {Object.entries(CENTROS).map(([id, centro]) => {
+          // Use dynamic status from MQTT watchdog for Salesianos Urnieta
+          const dynamicEstado = id === 'salesianos-urnieta' ? status : centro.estado;
+          
+          return (
+            <div
+              key={id}
+              className={`centro-card ${dynamicEstado === 'ONLINE' ? 'enabled' : 'disabled'}`}
+              onClick={() => handleCentroClick(id, dynamicEstado)}
+            >
+              <div className="centro-header">
+                <h2>{centro.nombre}</h2>
+                {dynamicEstado === 'PROXIMAMENTE' && (
+                  <span className="badge-proximamente">Próximamente</span>
+                )}
+                {dynamicEstado === 'ONLINE' && (
+                  <span className="badge-online">
+                    <span className="status-dot"></span>
+                    Online
+                  </span>
+                )}
+                {dynamicEstado === 'OFFLINE' && (
+                  <span className="badge-offline">
+                    <span className="status-dot-offline"></span>
+                    Offline
+                  </span>
+                )}
+              </div>
+              
+              <div className="centro-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="2" y="2" width="20" height="8" rx="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <rect x="2" y="14" width="20" height="8" rx="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <circle cx="6" cy="6" r="1" fill="currentColor"/>
+                  <circle cx="6" cy="18" r="1" fill="currentColor"/>
+                  <line x1="10" y1="6" x2="18" y2="6" strokeLinecap="round"/>
+                  <line x1="10" y1="18" x2="18" y2="18" strokeLinecap="round"/>
+                </svg>
+              </div>
+              
+              <p className="centro-description">
+                {dynamicEstado === 'ONLINE' 
+                  ? 'Haz clic para acceder a los datos de telemetría en tiempo real'
+                  : dynamicEstado === 'PROXIMAMENTE'
+                  ? 'Este centro estará disponible próximamente'
+                  : 'Centro sin conexión - Esperando datos'}
+              </p>
+              
+              {dynamicEstado === 'ONLINE' && (
+                <div className="centro-arrow">→</div>
               )}
             </div>
-            
-            <div className="centro-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="2" y="2" width="20" height="8" rx="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <rect x="2" y="14" width="20" height="8" rx="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <circle cx="6" cy="6" r="1" fill="currentColor"/>
-                <circle cx="6" cy="18" r="1" fill="currentColor"/>
-                <line x1="10" y1="6" x2="18" y2="6" strokeLinecap="round"/>
-                <line x1="10" y1="18" x2="18" y2="18" strokeLinecap="round"/>
-              </svg>
-            </div>
-            
-            <p className="centro-description">
-              {centro.estado === 'ONLINE' 
-                ? 'Haz clic para acceder a los datos de telemetría en tiempo real'
-                : 'Este centro estará disponible próximamente'}
-            </p>
-            
-            {centro.estado === 'ONLINE' && (
-              <div className="centro-arrow">→</div>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

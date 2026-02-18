@@ -1,18 +1,20 @@
 import { useState } from 'react';
 import { CameraModal } from '../components/CameraModal';
 import { CENTROS } from '../config/centros';
+import { useMqttStatus } from '../hooks/useMqttStatus';
 import './SelectorCentros.css';
 
 function SelectorCentros() {
   const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
   const [selectedCamera, setSelectedCamera] = useState(null);
   const [selectedCameraUrl, setSelectedCameraUrl] = useState('');
+  const { status } = useMqttStatus();
 
   const centros = [
     {
       id: 'salesianos-urnieta',
       nombre: 'Salesianos Urnieta',
-      estado: 'online',
+      estado: status.toLowerCase(), // Use dynamic status from MQTT watchdog
       cameraLabel: 'CAM_01_SALESIANOS - LIVE FEED',
       cameraStreamUrl: CENTROS['salesianos-urnieta'].cameraStreamUrl
     },
