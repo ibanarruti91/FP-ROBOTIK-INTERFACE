@@ -12,41 +12,52 @@ function Informacion() {
         <div className="info-card">
           <div className="info-card-header">
             <span className="info-icon">🎓</span>
-            <h2>Sobre el Proyecto</h2>
+            <h2>FP-Robotik Interface: Ecosistema Abierto de Robótica</h2>
           </div>
           <div className="info-card-body">
+            <h3>Propósito y Visión</h3>
             <p>
-              <strong>FP Robotic Interface</strong> es una plataforma profesional de gestión de interfaces robóticas 
-              desarrollada como parte de un proyecto de colaboración educativa entre instituciones líderes en formación técnica.
-            </p>
-            <p>
-              Esta Single Page Application (SPA) proporciona herramientas avanzadas para telemetría multicentros, 
-              validación de código y conversión de programas Blocky, diseñada específicamente para entornos educativos 
-              y profesionales en el campo de la robótica.
+              Esta plataforma es una interfaz HMI (Human-Machine Interface) de código abierto diseñada para la red de Formación Profesional de Euskadi. 
+              Permite centralizar la telemetría, el control remoto y la programación colaborativa, conectando diferentes celdas robóticas 
+              bajo un estándar común de monitorización.
             </p>
           </div>
         </div>
 
         <div className="info-card">
           <div className="info-card-header">
+            <span className="info-icon">🌐</span>
+            <h2>Arquitectura de Red (Flujo de Datos)</h2>
+          </div>
+          <div className="info-card-body">
+            <ul className="architecture-list">
+              <li>
+                <strong>Captura en Planta:</strong> Los datos se extraen de controladores industriales (como la serie e-Series de Universal Robots).
+              </li>
+              <li>
+                <strong>Procesamiento Edge:</strong> Dispositivos Siemens IOT2040 con Node-RED actúan como nodos de comunicación en cada centro.
+              </li>
+              <li>
+                <strong>Protocolo:</strong> La información se transmite vía MQTT (broker emqx.io) en formato JSON, garantizando baja latencia.
+              </li>
+              <li>
+                <strong>Frontend:</strong> Aplicación SPA en React con un sistema de Watchdog que valida la conectividad real de cada nodo de la red.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="info-card">
+          <div className="info-card-header">
             <span className="info-icon">🤝</span>
-            <h2>Colaboración</h2>
+            <h2>Innovación y Colaboración</h2>
           </div>
           <div className="info-card-body">
             <p>
-              Este proyecto es el resultado de la colaboración entre:
-            </p>
-            <ul className="collaboration-list">
-              <li>
-                <strong>Salesianos Urnieta</strong> - Centro de formación profesional con amplia experiencia en tecnología educativa
-              </li>
-              <li>
-                <strong>CIFP Repélega</strong> - Centro Integrado de Formación Profesional especializado en automatización y robótica
-              </li>
-            </ul>
-            <p>
-              Juntos, trabajamos para proporcionar a los estudiantes herramientas modernas y profesionales 
-              que faciliten su aprendizaje en programación y control de sistemas robóticos.
+              Proyecto impulsado por <strong>Tknika</strong> para fomentar la digitalización y la Industria 4.0. 
+              Desarrollado mediante la colaboración estratégica entre los departamentos de robótica de 
+              <strong> CIFP Repélega LHII</strong> y <strong>Salesianos Urnieta</strong>, con una arquitectura preparada 
+              para la futura integración de nuevos centros y tecnologías.
             </p>
           </div>
         </div>
@@ -119,6 +130,13 @@ function Informacion() {
               <strong>Versión:</strong> 0.0.0 (En desarrollo)
             </p>
           </div>
+        </div>
+
+        <div className="logos-container">
+          <img src="assets/logo gobierno vasco.png" alt="Gobierno Vasco" className="partner-logo" />
+          <img src="assets/tknika_logo.jfif" alt="Tknika" className="partner-logo" />
+          <img src="assets/logo repelaga.png" alt="CIFP Repélega" className="partner-logo" />
+          <img src="assets/logo salesianos.jpg" alt="Salesianos Urnieta" className="partner-logo" />
         </div>
       </div>
     </div>
