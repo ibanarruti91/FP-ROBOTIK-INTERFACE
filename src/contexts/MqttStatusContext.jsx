@@ -66,6 +66,7 @@ export const MqttStatusProvider = ({ children }) => {
 
   const value = {
     status,
+    isOnline: status === 'ONLINE',
     lastMessageTime,
     telemetryData
   };
