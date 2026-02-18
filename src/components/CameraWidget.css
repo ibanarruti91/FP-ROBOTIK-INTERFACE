@@ -24,7 +24,12 @@
 /* Compact camera for principal tab */
 .camera-widget.camera-compact {
   padding: 1rem;
-  min-height: 250px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.camera-widget.camera-compact .camera-inner {
+  max-height: 300px;
 }
 
 .camera-widget.nexus-card:hover {

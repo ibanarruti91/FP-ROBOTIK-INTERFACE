@@ -103,14 +103,18 @@ function renderWidget(widget, data, key) {
         />
       );
     
-    case 'camera':
+    case 'camera': {
+      const cameraClassName = [widget.columns ? `span-${widget.columns}` : 'full-width', compactClass]
+        .filter(Boolean)
+        .join(' ');
       return (
         <CameraWidget
           key={key}
           streamUrl={value}
-          className={widget.columns ? `span-${widget.columns}` : 'full-width'}
+          className={cameraClassName}
         />
       );
+    }
     
     case 'safety-panel':
       return (
