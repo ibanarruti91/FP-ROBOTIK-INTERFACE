@@ -16,11 +16,16 @@ function TelemetriaDetail() {
 
   const centro = CENTROS[centroId];
   
-  // Load layout based on robotId if provided, otherwise use default
+  // Load layout based on robot configuration
   const getLayout = () => {
-    if (robotId === 'iban') {
-      return IBAN_LAYOUT;
+    // If robotId is provided, find the robot and use its layout
+    if (robotId && centro?.robots) {
+      const robot = centro.robots.find(r => r.id === robotId);
+      if (robot?.layout === 'iban') {
+        return IBAN_LAYOUT;
+      }
     }
+    // Default to SALESIANOS_LAYOUT
     return SALESIANOS_LAYOUT;
   };
   
