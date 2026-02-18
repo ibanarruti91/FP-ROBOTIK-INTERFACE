@@ -54,7 +54,7 @@ export const MqttStatusProvider = ({ children }) => {
         const timeSinceLastMessage = currentTime - lastMessageTime;
         
         // If more than 6 seconds (6000ms) have passed without a message
-        if (timeSinceLastMessage > 6000) {
+        if (timeSinceLastMessage > 6000 && status === 'ONLINE') {
           setStatus('OFFLINE');
           console.log('Watchdog: Sin mensajes durante 6 segundos - Estado: OFFLINE');
         }
@@ -62,7 +62,7 @@ export const MqttStatusProvider = ({ children }) => {
     }, 1000); // Check every second
 
     return () => clearInterval(interval);
-  }, [lastMessageTime]);
+  }, [lastMessageTime, status]);
 
   const value = {
     status,

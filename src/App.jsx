@@ -9,7 +9,7 @@ import Conversor from './pages/Conversor';
 import Monitor from './pages/Monitor';
 import SelectorCentros from './pages/SelectorCentros';
 import Informacion from './pages/Informacion';
-import { MqttStatusProvider } from './contexts/MqttStatusContext';
+import { MqttStatusProvider } from './contexts/MqttStatusContext.jsx';
 import './App.css';
 
 function App() {
