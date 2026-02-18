@@ -46,20 +46,20 @@ export const MqttStatusProvider = ({ children }) => {
     };
   }, []);
 
-  // Watchdog Effect - Check for timeout every second
+  // Watchdog Effect - High-speed check for timeout every 500ms
   useEffect(() => {
     const interval = setInterval(() => {
       if (lastMessageTime) {
         const currentTime = Date.now();
         const timeSinceLastMessage = currentTime - lastMessageTime;
         
-        // If more than 6 seconds (6000ms) have passed without a message
-        if (timeSinceLastMessage > 6000 && status === 'ONLINE') {
+        // If more than 3 seconds (3000ms) have passed without a message
+        if (timeSinceLastMessage > 3000 && status === 'ONLINE') {
           setStatus('OFFLINE');
-          console.log('Watchdog: Sin mensajes durante 6 segundos - Estado: OFFLINE');
+          console.log('Watchdog: Sin mensajes durante 3 segundos - Estado: OFFLINE');
         }
       }
-    }, 1000); // Check every second
+    }, 500); // Check every 500ms for high-speed monitoring
 
     return () => clearInterval(interval);
   }, [lastMessageTime, status]);

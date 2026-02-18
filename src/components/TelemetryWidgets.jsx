@@ -3,6 +3,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
+import { useMqttStatus } from '../hooks/useMqttStatus';
 import './TelemetryWidgets.css';
 
 /**
@@ -69,6 +70,9 @@ export function CardGlass({ children, className = '' }) {
  * Tarjeta KPI - muestra label, valor grande y unidad
  */
 export function KpiCard({ label, value, unit, className = '', compact = false, format = '0' }) {
+  const { status } = useMqttStatus();
+  const isOffline = status === 'OFFLINE';
+  
   const isValueAvailable = value !== null && value !== undefined && value !== '';
   const numericValue = typeof value === 'number' ? value : null;
   const animatedValue = useCountingAnimation(numericValue || 0, 400);
@@ -76,7 +80,8 @@ export function KpiCard({ label, value, unit, className = '', compact = false, f
   let displayValue;
   let isNA = false;
   
-  if (!isValueAvailable) {
+  // If offline, always show N/A
+  if (isOffline || !isValueAvailable) {
     displayValue = 'N/A';
     isNA = true;
   } else if (numericValue !== null) {
@@ -138,9 +143,12 @@ export function StatusPill({ label, value, statusType, className = '' }) {
  * Dynamic Status Widget with custom colors for estado_maquina and modo_operacion
  */
 export function StatusDynamic({ label, value, statusType, className = '', compact = false }) {
+  const { status } = useMqttStatus();
+  const isOffline = status === 'OFFLINE';
+  
   const isValueAvailable = value !== null && value !== undefined && value !== '';
   const displayValue = isValueAvailable ? value : 'N/A';
-  const isNA = !isValueAvailable;
+  const isNA = isOffline || !isValueAvailable;
   
   let statusClass = '';
   let shouldBlink = false;
@@ -169,7 +177,7 @@ export function StatusDynamic({ label, value, statusType, className = '', compac
       <div className="status-label">{label}</div>
       <div className={`status-value ${statusClass} ${shouldBlink ? 'blink' : ''} ${isNA ? 'value-na' : ''}`}>
         {!isNA && <span className="status-dot"></span>}
-        {displayValue}
+        {isNA ? 'N/A' : displayValue}
       </div>
     </CardGlass>
   );
@@ -179,6 +187,9 @@ export function StatusDynamic({ label, value, statusType, className = '', compac
  * Tabla de datos para ejes (Joint 1..6)
  */
 export function DataTable({ label, data, unit, format }) {
+  const { status } = useMqttStatus();
+  const isOffline = status === 'OFFLINE';
+  
   if (!data || !Array.isArray(data)) {
     return (
       <CardGlass className="data-table">
@@ -189,7 +200,7 @@ export function DataTable({ label, data, unit, format }) {
   }
   
   const formatValue = (val) => {
-    if (val === null || val === undefined) return 'N/A';
+    if (isOffline || val === null || val === undefined) return 'N/A';
     const decimals = parseInt(format, 10);
     const validDecimals = isNaN(decimals) ? 2 : Math.max(0, decimals);
     return typeof val === 'number' ? val.toFixed(validDecimals) : val;
@@ -261,6 +272,9 @@ export function LogPanel({ messages, className = '', compact = false }) {
  * Safety Panel - Panel de seguridad con máxima prioridad visual
  */
 export function SafetyPanel({ value, className = '' }) {
+  const { status } = useMqttStatus();
+  const isOffline = status === 'OFFLINE';
+  
   const safetyStates = {
     'NORMAL': { label: 'NORMAL', color: '#10b981', icon: '✓' },
     'REDUCED': { label: 'REDUCIDO', color: '#ffbf00', icon: '⚠' },
@@ -268,10 +282,10 @@ export function SafetyPanel({ value, className = '' }) {
   };
   
   const isValueAvailable = value !== null && value !== undefined && value !== '';
-  const state = isValueAvailable && safetyStates[value] 
+  const state = (!isOffline && isValueAvailable && safetyStates[value])
     ? safetyStates[value] 
     : { label: 'N/A', color: '#6b7280', icon: '?' };
-  const isNA = !isValueAvailable;
+  const isNA = isOffline || !isValueAvailable;
   
   return (
     <CardGlass className={`safety-panel ${className}`}>
@@ -295,6 +309,9 @@ export function SafetyPanel({ value, className = '' }) {
  * Digital IO - Matriz de 32 LEDs para entradas/salidas digitales
  */
 export function DigitalIO({ data, className = '' }) {
+  const { status } = useMqttStatus();
+  const isOffline = status === 'OFFLINE';
+  
   const inputs = data?.inputs || Array(16).fill(null);
   const outputs = data?.outputs || Array(16).fill(null);
   
@@ -306,7 +323,7 @@ export function DigitalIO({ data, className = '' }) {
           {inputs.map((active, index) => (
             <div key={`in-${index}`} className="io-led">
               <div className="io-led-label">DI{index}</div>
-              <div className={`io-led-indicator ${active === true ? 'active' : ''} ${active === null ? 'value-na' : ''}`}></div>
+              <div className={`io-led-indicator ${!isOffline && active === true ? 'active' : ''} ${isOffline || active === null ? 'value-na' : ''}`}></div>
             </div>
           ))}
         </div>
@@ -317,7 +334,7 @@ export function DigitalIO({ data, className = '' }) {
           {outputs.map((active, index) => (
             <div key={`out-${index}`} className="io-led">
               <div className="io-led-label">DO{index}</div>
-              <div className={`io-led-indicator ${active === true ? 'active' : ''} ${active === null ? 'value-na' : ''}`}></div>
+              <div className={`io-led-indicator ${!isOffline && active === true ? 'active' : ''} ${isOffline || active === null ? 'value-na' : ''}`}></div>
             </div>
           ))}
         </div>
@@ -330,11 +347,14 @@ export function DigitalIO({ data, className = '' }) {
  * TCP Pose - Tarjeta específica para mostrar posición y orientación TCP
  */
 export function TcpPose({ data, className = '' }) {
+  const { status } = useMqttStatus();
+  const isOffline = status === 'OFFLINE';
+  
   const pos = data?.position || {};
   const orient = data?.orientation || {};
   
   const formatValue = (val, decimals = 2) => {
-    if (val === null || val === undefined) return 'N/A';
+    if (isOffline || val === null || val === undefined) return 'N/A';
     return typeof val === 'number' ? val.toFixed(decimals) : val;
   };
   
@@ -399,18 +419,21 @@ export function TcpPose({ data, className = '' }) {
  * Joints Grid - Rejilla de 6 bloques para articulaciones con barras de temperatura
  */
 export function JointsGrid({ data, className = '' }) {
+  const { status } = useMqttStatus();
+  const isOffline = status === 'OFFLINE';
+  
   const positions = data?.positions || Array(6).fill(null);
   const temperatures = data?.temperatures || Array(6).fill(null);
   const currents = data?.currents || Array(6).fill(null);
   
   const formatValue = (val, decimals = 2) => {
-    if (val === null || val === undefined) return 'N/A';
+    if (isOffline || val === null || val === undefined) return 'N/A';
     return typeof val === 'number' ? val.toFixed(decimals) : val;
   };
   
   // Normalizar temperatura para la barra (0-100%)
   const getTempPercentage = (temp) => {
-    if (temp === null || temp === undefined || typeof temp !== 'number') return 0;
+    if (isOffline || temp === null || temp === undefined || typeof temp !== 'number') return 0;
     const min = 20;
     const max = 50;
     const normalized = ((temp - min) / (max - min)) * 100;
@@ -419,7 +442,7 @@ export function JointsGrid({ data, className = '' }) {
   
   // Color de la barra según temperatura
   const getTempColor = (temp) => {
-    if (temp === null || temp === undefined || typeof temp !== 'number') return '#6b7280'; // Gray for N/A
+    if (isOffline || temp === null || temp === undefined || typeof temp !== 'number') return '#6b7280'; // Gray for N/A
     if (temp < 30) return '#10b981'; // Verde
     if (temp < 40) return '#ffbf00'; // Ámbar
     return '#ff33bb'; // Rojo
