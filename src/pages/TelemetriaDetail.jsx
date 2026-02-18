@@ -45,11 +45,11 @@ function TelemetriaDetail() {
     client.on('connect', () => {
       console.log('Conectado al broker MQTT');
       // Subscribe to the topic (iban is the user identifier, not a bank account)
-      client.subscribe('salesianos/robot/iban', (err) => {
+      client.subscribe('salesianos/robot/iban/principal', (err) => {
         if (err) {
           console.error('Error al suscribirse al topic:', err);
         } else {
-          console.log('Suscrito al topic: salesianos/robot/iban');
+          console.log('Suscrito al topic: salesianos/robot/iban/principal');
         }
       });
     });
@@ -65,36 +65,35 @@ function TelemetriaDetail() {
           // Create a new telemetry object based on previous state or mock data
           const baseTelemetry = prevTelemetry || getMockTelemetryData(centro);
           
-          // Extract j1_temp with fallback to 'temperatura' field
-          const j1Temp = data.j1_temp !== undefined ? data.j1_temp : 
-                        (data.temperatura !== undefined ? data.temperatura : baseTelemetry.joints.temperatures[0]);
-          
-          // Extract j1_ang with fallback
-          const j1Ang = data.j1_ang !== undefined ? data.j1_ang : baseTelemetry.joints.positions[0];
-          
-          // Update the data structure to match the expected format
+          // Map incoming MQTT data to telemetry structure
           return {
             ...baseTelemetry,
             timestamp: new Date().toISOString(),
-            // Update j1_temp in joints.temperatures[0]
-            joints: {
-              ...baseTelemetry.joints,
-              temperatures: [
-                j1Temp,
-                ...baseTelemetry.joints.temperatures.slice(1)
-              ],
-              positions: [
-                j1Ang,
-                ...baseTelemetry.joints.positions.slice(1)
-              ]
+            // Map programa data
+            programa: {
+              nombre: data.programa?.nombre ?? baseTelemetry.programa?.nombre ?? '',
+              status_id: data.programa?.status_id ?? baseTelemetry.programa?.status_id ?? 0
             },
-            // Update estado if provided
-            estado: {
-              ...baseTelemetry.estado,
-              ...(data.estado !== undefined && { mode: data.estado })
+            // Map sistema data
+            sistema: {
+              modo_operacion: data.sistema?.modo_operacion ?? baseTelemetry.sistema?.modo_operacion ?? '',
+              estado_maquina: data.sistema?.estado_maquina ?? baseTelemetry.sistema?.estado_maquina ?? '',
+              potencia_total: data.sistema?.potencia_total ?? baseTelemetry.sistema?.potencia_total ?? 0,
+              temperatura_control: data.sistema?.temperatura_control ?? baseTelemetry.sistema?.temperatura_control ?? 0
             },
-            // Add test_id to the data structure
-            test_id: data.test_id !== undefined ? data.test_id : baseTelemetry.test_id
+            // Map estadisticas data
+            estadisticas: {
+              tiempo_ciclo: data.estadisticas?.tiempo_ciclo ?? baseTelemetry.estadisticas?.tiempo_ciclo ?? 0,
+              horas_operacion: data.estadisticas?.horas_operacion ?? baseTelemetry.estadisticas?.horas_operacion ?? 0
+            },
+            // Map eventos array
+            eventos: data.eventos ?? baseTelemetry.eventos ?? [],
+            // Keep existing data for other tabs
+            estado: baseTelemetry.estado,
+            tcp: baseTelemetry.tcp,
+            joints: baseTelemetry.joints,
+            digital_io: baseTelemetry.digital_io,
+            camera: baseTelemetry.camera
           };
         });
       } catch (error) {
