@@ -342,8 +342,7 @@
 
 /* Compact Log Panel for Principal Tab */
 .log-panel.log-compact {
-  min-height: 180px;
-  max-height: 200px;
+  height: 200px;
 }
 
 .log-panel.log-compact .log-title {
@@ -354,6 +353,7 @@
 
 .log-panel.log-compact .log-messages {
   max-height: 140px;
+  overflow-y: auto;
   font-size: 0.8rem;
 }
 

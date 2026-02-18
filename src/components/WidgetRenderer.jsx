@@ -167,8 +167,9 @@ function renderWidget(widget, data, key) {
  */
 function renderGroup(group, data, groupIndex) {
   const compactClass = group.compact ? 'compact' : '';
+  const groupClass = group.className || '';
   return (
-    <div key={groupIndex} className={`widget-group ${compactClass}`}>
+    <div key={groupIndex} className={`widget-group ${compactClass} ${groupClass}`.trim()}>
       {group.title && <h3 className="group-title">{group.title}</h3>}
       <div className={`widget-grid ${compactClass}`}>
         {group.widgets.map((widget, widgetIndex) => 
@@ -182,7 +183,7 @@ function renderGroup(group, data, groupIndex) {
 /**
  * Componente principal WidgetRenderer
  */
-export default function WidgetRenderer({ groups, data }) {
+export default function WidgetRenderer({ groups, data, sectionId }) {
   if (!groups || groups.length === 0) {
     return (
       <div className="renderer-empty">
@@ -200,7 +201,7 @@ export default function WidgetRenderer({ groups, data }) {
   }
   
   return (
-    <div className="widget-renderer">
+    <div className={`widget-renderer ${sectionId === 'principal' ? 'principal-layout' : ''}`}>
       {groups.map((group, index) => renderGroup(group, data, index))}
     </div>
   );
