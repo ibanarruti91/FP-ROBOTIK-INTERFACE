@@ -55,64 +55,64 @@ export async function getTelemetryLatest(baseUrl) {
  */
 export function getMockTelemetryData(centroConfig = null) {
   return {
-    timestamp: new Date().toISOString(),
+    timestamp: null,
     // Program Data
     programa: {
-      nombre: "Programa Demo",
-      status_id: 0
+      nombre: null,
+      status_id: null
     },
     // System Status
     sistema: {
-      modo_operacion: "MANUAL",
-      estado_maquina: "DETENIDO",
-      potencia_total: 0,
-      temperatura_control: 0
+      modo_operacion: null,
+      estado_maquina: null,
+      potencia_total: null,
+      temperatura_control: null
     },
     // Performance and Statistics
     estadisticas: {
-      tiempo_ciclo: 0,
-      horas_operacion: 0
+      tiempo_ciclo: null,
+      horas_operacion: null
     },
     // Event Log
     eventos: [],
     // Legacy fields for other tabs
     estado: {
-      online: false,
-      mode: "MANUAL",
-      safety: "NORMAL"
+      online: null,
+      mode: null,
+      safety: null
     },
-    robot_power: 0, // W
-    cycle_time: 0, // s
-    uptime_hours: 0, // h
-    ctrl_temp: 0, // °C
-    last_error: "",
+    robot_power: null, // W
+    cycle_time: null, // s
+    uptime_hours: null, // h
+    ctrl_temp: null, // °C
+    last_error: null,
     tcp: {
       position: {
-        x: 0,
-        y: 0,
-        z: 0
+        x: null,
+        y: null,
+        z: null
       },
       orientation: {
-        rx: 0,
-        ry: 0,
-        rz: 0
+        rx: null,
+        ry: null,
+        rz: null
       },
-      speed: 0, // m/s
+      speed: null, // m/s
       velocity: {
-        x: 0,
-        y: 0,
-        z: 0
+        x: null,
+        y: null,
+        z: null
       }
     },
     joints: {
-      positions: [0, 0, 0, 0, 0, 0],
-      temperatures: [0, 0, 0, 0, 0, 0],
-      currents: [0, 0, 0, 0, 0, 0]
+      positions: [null, null, null, null, null, null],
+      temperatures: [null, null, null, null, null, null],
+      currents: [null, null, null, null, null, null]
     },
     messages: [],
     digital_io: {
-      inputs: Array.from({ length: 16 }, () => false),
-      outputs: Array.from({ length: 16 }, () => false)
+      inputs: Array.from({ length: 16 }, () => null),
+      outputs: Array.from({ length: 16 }, () => null)
     },
     camera: {
       stream: centroConfig?.cameraStreamUrl || ''
