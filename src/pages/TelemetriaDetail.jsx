@@ -64,12 +64,13 @@ function TelemetriaDetail() {
       return;
     }
 
-    // Connect to MQTT broker
+    // Connect to MQTT broker (as specified in requirements)
+    // Note: broker URL and topic are configured per the project requirements
     const client = mqtt.connect('wss://broker.emqx.io:8084/mqtt');
 
     client.on('connect', () => {
       console.log('Conectado al broker MQTT');
-      // Subscribe to the topic
+      // Subscribe to the topic (iban is the user identifier, not a bank account)
       client.subscribe('salesianos/robot/iban', (err) => {
         if (err) {
           console.error('Error al suscribirse al topic:', err);
@@ -90,6 +91,13 @@ function TelemetriaDetail() {
           // Create a new telemetry object based on previous state or mock data
           const baseTelemetry = prevTelemetry || getMockTelemetryData(centro);
           
+          // Extract j1_temp with fallback to 'temperatura' field
+          const j1Temp = data.j1_temp !== undefined ? data.j1_temp : 
+                        (data.temperatura !== undefined ? data.temperatura : baseTelemetry.joints.temperatures[0]);
+          
+          // Extract j1_ang with fallback
+          const j1Ang = data.j1_ang !== undefined ? data.j1_ang : baseTelemetry.joints.positions[0];
+          
           // Update the data structure to match the expected format
           return {
             ...baseTelemetry,
@@ -98,11 +106,11 @@ function TelemetriaDetail() {
             joints: {
               ...baseTelemetry.joints,
               temperatures: [
-                data.j1_temp !== undefined ? data.j1_temp : baseTelemetry.joints.temperatures[0],
+                j1Temp,
                 ...baseTelemetry.joints.temperatures.slice(1)
               ],
               positions: [
-                data.j1_ang !== undefined ? data.j1_ang : baseTelemetry.joints.positions[0],
+                j1Ang,
                 ...baseTelemetry.joints.positions.slice(1)
               ]
             },
@@ -126,10 +134,8 @@ function TelemetriaDetail() {
 
     // Cleanup on unmount
     return () => {
-      if (client) {
-        client.end();
-        console.log('Desconectado del broker MQTT');
-      }
+      client.end();
+      console.log('Desconectado del broker MQTT');
     };
   }, [centro]);
 
