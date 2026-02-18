@@ -44,6 +44,7 @@ function formatValue(value, format) {
  */
 function renderWidget(widget, data, key) {
   const value = getNestedValue(data, widget.path);
+  const compactClass = widget.compact ? 'compact' : '';
   
   switch (widget.type) {
     case 'kpi':
@@ -53,7 +54,8 @@ function renderWidget(widget, data, key) {
           label={widget.label}
           value={formatValue(value, widget.format)}
           unit={widget.unit}
-          className={widget.columns ? `span-${widget.columns}` : ''}
+          className={`${widget.columns ? `span-${widget.columns}` : ''} ${compactClass}`}
+          compact={widget.compact}
         />
       );
     
@@ -64,7 +66,7 @@ function renderWidget(widget, data, key) {
           label={widget.label}
           value={value}
           statusType={widget.statusType}
-          className={widget.columns ? `span-${widget.columns}` : ''}
+          className={`${widget.columns ? `span-${widget.columns}` : ''} ${compactClass}`}
         />
       );
     
@@ -84,7 +86,8 @@ function renderWidget(widget, data, key) {
         <LogPanel
           key={key}
           messages={value}
-          className="full-width"
+          className={`full-width ${compactClass}`}
+          compact={widget.compact}
         />
       );
     
@@ -147,10 +150,11 @@ function renderWidget(widget, data, key) {
  * Renderiza un grupo de widgets
  */
 function renderGroup(group, data, groupIndex) {
+  const compactClass = group.compact ? 'compact' : '';
   return (
-    <div key={groupIndex} className="widget-group">
+    <div key={groupIndex} className={`widget-group ${compactClass}`}>
       {group.title && <h3 className="group-title">{group.title}</h3>}
-      <div className="widget-grid">
+      <div className={`widget-grid ${compactClass}`}>
         {group.widgets.map((widget, widgetIndex) => 
           renderWidget(widget, data, `${groupIndex}-${widgetIndex}`)
         )}

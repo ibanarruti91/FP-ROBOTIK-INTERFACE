@@ -68,7 +68,7 @@ export function CardGlass({ children, className = '' }) {
 /**
  * Tarjeta KPI - muestra label, valor grande y unidad
  */
-export function KpiCard({ label, value, unit, className = '' }) {
+export function KpiCard({ label, value, unit, className = '', compact = false }) {
   const numericValue = typeof value === 'number' ? value : null;
   const animatedValue = useCountingAnimation(numericValue || 0, 400);
   
@@ -83,7 +83,7 @@ export function KpiCard({ label, value, unit, className = '' }) {
   }
   
   return (
-    <CardGlass className={`kpi-card ${className}`}>
+    <CardGlass className={`kpi-card ${compact ? 'kpi-compact' : ''} ${className}`}>
       <div className="kpi-label">{label}</div>
       <div className="kpi-value-container">
         <span className="kpi-value">{displayValue}</span>
@@ -163,10 +163,10 @@ export function DataTable({ label, data, unit, format }) {
 /**
  * Panel de logs/mensajes
  */
-export function LogPanel({ messages, className = '' }) {
+export function LogPanel({ messages, className = '', compact = false }) {
   if (!messages || !Array.isArray(messages) || messages.length === 0) {
     return (
-      <CardGlass className={`log-panel ${className}`}>
+      <CardGlass className={`log-panel ${compact ? 'log-compact' : ''} ${className}`}>
         <div className="log-title">Registro de Eventos</div>
         <div className="log-empty">No hay mensajes</div>
       </CardGlass>
@@ -174,16 +174,15 @@ export function LogPanel({ messages, className = '' }) {
   }
   
   return (
-    <CardGlass className={`log-panel ${className}`}>
+    <CardGlass className={`log-panel ${compact ? 'log-compact' : ''} ${className}`}>
       <div className="log-title">Registro de Eventos</div>
       <div className="log-messages">
         {messages.map((msg, index) => (
           <div key={index} className="log-message">
             <span className="log-time">
-              {msg.hora ? new Date(msg.hora).toLocaleTimeString('es-ES') : 
-               msg.time ? new Date(msg.time).toLocaleTimeString('es-ES') : '--:--:--'}
+              {msg.hora || msg.time || '--:--:--'}
             </span>
-            <span className="log-text">{msg.mensaje || msg.txt || msg.message || '--'}</span>
+            <span className="log-text">{msg.msg || msg.mensaje || msg.txt || msg.message || '--'}</span>
           </div>
         ))}
       </div>

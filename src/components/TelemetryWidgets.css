@@ -22,6 +22,25 @@
   justify-content: center;
 }
 
+/* Compact KPI Card for Principal Tab */
+.kpi-card.kpi-compact {
+  min-height: 80px;
+  padding: 1rem;
+  gap: 0.5rem;
+}
+
+.kpi-card.kpi-compact .kpi-label {
+  font-size: 0.75rem;
+}
+
+.kpi-card.kpi-compact .kpi-value {
+  font-size: 1.5rem;
+}
+
+.kpi-card.kpi-compact .kpi-unit {
+  font-size: 0.85rem;
+}
+
 .kpi-label {
   font-size: 0.85rem;
   color: var(--text-secondary);
@@ -208,6 +227,37 @@
   min-height: 250px;
   display: flex;
   flex-direction: column;
+}
+
+/* Compact Log Panel for Principal Tab */
+.log-panel.log-compact {
+  min-height: 180px;
+  max-height: 200px;
+}
+
+.log-panel.log-compact .log-title {
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+}
+
+.log-panel.log-compact .log-messages {
+  max-height: 140px;
+  font-size: 0.8rem;
+}
+
+.log-panel.log-compact .log-message {
+  padding: 0.5rem;
+  gap: 0.75rem;
+}
+
+.log-panel.log-compact .log-time {
+  font-size: 0.7rem;
+  min-width: 60px;
+}
+
+.log-panel.log-compact .log-text {
+  font-size: 0.8rem;
 }
 
 .log-title {
