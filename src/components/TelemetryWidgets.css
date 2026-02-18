@@ -5,6 +5,40 @@
   opacity: 0.7;
 }
 
+/* OFFLINE State - Dimmed effect for all values */
+.offline-mode .kpi-value,
+.offline-mode .status-value,
+.offline-mode .cell-value,
+.offline-mode .tcp-pose-value,
+.offline-mode .joint-metric-value {
+  color: #4b5563 !important;
+  text-shadow: none !important;
+  opacity: 0.5;
+}
+
+.offline-mode .status-dot {
+  animation: none !important;
+  box-shadow: none !important;
+  opacity: 0.3;
+}
+
+/* Value update animation - glow effect */
+@keyframes value-update-glow {
+  0% {
+    text-shadow: 0 0 5px currentColor;
+  }
+  50% {
+    text-shadow: 0 0 20px currentColor, 0 0 30px currentColor;
+  }
+  100% {
+    text-shadow: 0 0 5px currentColor;
+  }
+}
+
+.value-updated {
+  animation: value-update-glow 0.6s ease-out;
+}
+
 /* CardGlass - Contenedor con glassmorphism */
 .card-glass {
   background: var(--panel-bg);
@@ -31,26 +65,26 @@
 
 /* Compact KPI Card for Principal Tab */
 .kpi-card.kpi-compact {
-  min-height: 80px;
-  padding: 1rem;
-  gap: 0.5rem;
+  min-height: 70px;
+  padding: 0.75rem;
+  gap: 0.4rem;
 }
 
 .kpi-card.kpi-compact .kpi-label {
-  font-size: 0.75rem;
+  font-size: 0.65rem;
 }
 
 .kpi-card.kpi-compact .kpi-value {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
 }
 
 .kpi-card.kpi-compact .kpi-unit {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
 }
 
 .kpi-label {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
+  font-size: 0.75rem;
+  color: #888;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-weight: 500;
@@ -63,11 +97,13 @@
 }
 
 .kpi-value {
-  font-family: var(--font-display);
-  font-size: 2rem;
+  font-family: 'Courier New', 'Consolas', monospace;
+  font-size: 2.5rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #00ff00;
   line-height: 1;
+  text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+  transition: all 0.3s ease;
 }
 
 .kpi-unit {
@@ -86,8 +122,8 @@
 }
 
 .status-label {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
+  font-size: 0.75rem;
+  color: #888;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-weight: 500;
@@ -319,18 +355,20 @@
 
 .cell-label {
   font-family: var(--font-display);
-  font-size: 0.8rem;
-  color: var(--accent-cyan);
+  font-size: 0.7rem;
+  color: #888;
   font-weight: 700;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
 }
 
 .cell-value {
-  font-family: var(--font-display);
-  font-size: 1.1rem;
+  font-family: 'Courier New', 'Consolas', monospace;
+  font-size: 1.3rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #00ff00;
+  text-shadow: 0 0 8px rgba(0, 255, 0, 0.4);
+  transition: all 0.3s ease;
 }
 
 .table-empty {
@@ -666,18 +704,20 @@
 
 .tcp-pose-axis {
   font-family: var(--font-display);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  color: var(--accent-cyan);
+  color: #888;
   min-width: 30px;
 }
 
 .tcp-pose-value {
-  font-family: var(--font-display);
-  font-size: 1.3rem;
+  font-family: 'Courier New', 'Consolas', monospace;
+  font-size: 1.4rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #00ff00;
   flex: 1;
+  text-shadow: 0 0 8px rgba(0, 255, 0, 0.4);
+  transition: all 0.3s ease;
 }
 
 .tcp-pose-unit {
@@ -693,8 +733,8 @@
 
 .joints-grid-container {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
 }
 
 .joint-block {
@@ -743,19 +783,21 @@
 }
 
 .joint-metric-label {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
+  font-size: 0.7rem;
+  color: #888;
   font-weight: 600;
   text-transform: uppercase;
 }
 
 .joint-metric-value {
-  font-family: var(--font-display);
-  font-size: 1rem;
+  font-family: 'Courier New', 'Consolas', monospace;
+  font-size: 1.1rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #00ff00;
   flex: 1;
   text-align: center;
+  text-shadow: 0 0 8px rgba(0, 255, 0, 0.4);
+  transition: all 0.3s ease;
 }
 
 .joint-metric-unit {

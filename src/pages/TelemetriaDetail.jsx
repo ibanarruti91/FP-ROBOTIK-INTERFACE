@@ -5,12 +5,14 @@ import { CENTROS } from '../config/centros';
 import { getMockTelemetryData } from '../servicios/iot';
 import { SALESIANOS_LAYOUT } from '../ui/layouts/salesianos-urnieta.layout';
 import WidgetRenderer from '../components/WidgetRenderer';
+import { useMqttStatus } from '../hooks/useMqttStatus';
 import './TelemetriaDetail.css';
 
 function TelemetriaDetail() {
   const { centroId } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('principal');
+  const { status } = useMqttStatus();
 
   const centro = CENTROS[centroId];
   const layout = SALESIANOS_LAYOUT; // En el futuro, se podría cargar dinámicamente según el centro
@@ -163,7 +165,7 @@ function TelemetriaDetail() {
       </div>
       
       {/* Tab Content */}
-      <div className="tab-content" data-section={activeTab}>
+      <div className={`tab-content ${status === 'OFFLINE' ? 'offline-mode' : ''}`} data-section={activeTab}>
         {layout.tabs
           .filter(tab => tab.id === activeTab)
           .map(tab => (
