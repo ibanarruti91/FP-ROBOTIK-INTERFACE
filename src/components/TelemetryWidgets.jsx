@@ -338,6 +338,14 @@ export function TcpPose({ data, className = '' }) {
     return typeof val === 'number' ? val.toFixed(decimals) : val;
   };
   
+  // Pre-compute formatted values to avoid redundant calls
+  const posX = formatValue(pos.x, 2);
+  const posY = formatValue(pos.y, 2);
+  const posZ = formatValue(pos.z, 2);
+  const orientRx = formatValue(orient.rx, 3);
+  const orientRy = formatValue(orient.ry, 3);
+  const orientRz = formatValue(orient.rz, 3);
+  
   return (
     <CardGlass className={`tcp-pose ${className}`}>
       <div className="tcp-pose-title">TCP Pose</div>
@@ -347,18 +355,18 @@ export function TcpPose({ data, className = '' }) {
           <div className="tcp-pose-values">
             <div className="tcp-pose-item">
               <span className="tcp-pose-axis">X</span>
-              <span className={`tcp-pose-value ${formatValue(pos.x, 2) === 'N/A' ? 'value-na' : ''}`}>{formatValue(pos.x, 2)}</span>
-              {formatValue(pos.x, 2) !== 'N/A' && <span className="tcp-pose-unit">mm</span>}
+              <span className={`tcp-pose-value ${posX === 'N/A' ? 'value-na' : ''}`}>{posX}</span>
+              {posX !== 'N/A' && <span className="tcp-pose-unit">mm</span>}
             </div>
             <div className="tcp-pose-item">
               <span className="tcp-pose-axis">Y</span>
-              <span className={`tcp-pose-value ${formatValue(pos.y, 2) === 'N/A' ? 'value-na' : ''}`}>{formatValue(pos.y, 2)}</span>
-              {formatValue(pos.y, 2) !== 'N/A' && <span className="tcp-pose-unit">mm</span>}
+              <span className={`tcp-pose-value ${posY === 'N/A' ? 'value-na' : ''}`}>{posY}</span>
+              {posY !== 'N/A' && <span className="tcp-pose-unit">mm</span>}
             </div>
             <div className="tcp-pose-item">
               <span className="tcp-pose-axis">Z</span>
-              <span className={`tcp-pose-value ${formatValue(pos.z, 2) === 'N/A' ? 'value-na' : ''}`}>{formatValue(pos.z, 2)}</span>
-              {formatValue(pos.z, 2) !== 'N/A' && <span className="tcp-pose-unit">mm</span>}
+              <span className={`tcp-pose-value ${posZ === 'N/A' ? 'value-na' : ''}`}>{posZ}</span>
+              {posZ !== 'N/A' && <span className="tcp-pose-unit">mm</span>}
             </div>
           </div>
         </div>
@@ -367,18 +375,18 @@ export function TcpPose({ data, className = '' }) {
           <div className="tcp-pose-values">
             <div className="tcp-pose-item">
               <span className="tcp-pose-axis">RX</span>
-              <span className={`tcp-pose-value ${formatValue(orient.rx, 3) === 'N/A' ? 'value-na' : ''}`}>{formatValue(orient.rx, 3)}</span>
-              {formatValue(orient.rx, 3) !== 'N/A' && <span className="tcp-pose-unit">rad</span>}
+              <span className={`tcp-pose-value ${orientRx === 'N/A' ? 'value-na' : ''}`}>{orientRx}</span>
+              {orientRx !== 'N/A' && <span className="tcp-pose-unit">rad</span>}
             </div>
             <div className="tcp-pose-item">
               <span className="tcp-pose-axis">RY</span>
-              <span className={`tcp-pose-value ${formatValue(orient.ry, 3) === 'N/A' ? 'value-na' : ''}`}>{formatValue(orient.ry, 3)}</span>
-              {formatValue(orient.ry, 3) !== 'N/A' && <span className="tcp-pose-unit">rad</span>}
+              <span className={`tcp-pose-value ${orientRy === 'N/A' ? 'value-na' : ''}`}>{orientRy}</span>
+              {orientRy !== 'N/A' && <span className="tcp-pose-unit">rad</span>}
             </div>
             <div className="tcp-pose-item">
               <span className="tcp-pose-axis">RZ</span>
-              <span className={`tcp-pose-value ${formatValue(orient.rz, 3) === 'N/A' ? 'value-na' : ''}`}>{formatValue(orient.rz, 3)}</span>
-              {formatValue(orient.rz, 3) !== 'N/A' && <span className="tcp-pose-unit">rad</span>}
+              <span className={`tcp-pose-value ${orientRz === 'N/A' ? 'value-na' : ''}`}>{orientRz}</span>
+              {orientRz !== 'N/A' && <span className="tcp-pose-unit">rad</span>}
             </div>
           </div>
         </div>
