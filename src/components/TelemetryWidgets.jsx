@@ -68,7 +68,7 @@ export function CardGlass({ children, className = '' }) {
 /**
  * Tarjeta KPI - muestra label, valor grande y unidad
  */
-export function KpiCard({ label, value, unit, className = '', compact = false }) {
+export function KpiCard({ label, value, unit, className = '', compact = false, format = '0' }) {
   const isValueAvailable = value !== null && value !== undefined && value !== '';
   const numericValue = typeof value === 'number' ? value : null;
   const animatedValue = useCountingAnimation(numericValue || 0, 400);
@@ -80,11 +80,12 @@ export function KpiCard({ label, value, unit, className = '', compact = false })
     displayValue = 'N/A';
     isNA = true;
   } else if (numericValue !== null) {
-    // Format the animated value with the same precision as the original
-    const valueStr = value.toString();
-    const decimals = valueStr.includes('.') ? valueStr.split('.')[1].length : 0;
-    displayValue = animatedValue.toFixed(decimals);
+    // Format the animated value with the specified format
+    const decimals = parseInt(format, 10);
+    const validDecimals = isNaN(decimals) ? 0 : Math.max(0, decimals);
+    displayValue = animatedValue.toFixed(validDecimals);
   } else {
+    // For text values, display as-is
     displayValue = value;
   }
   
