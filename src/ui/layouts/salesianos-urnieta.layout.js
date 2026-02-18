@@ -11,13 +11,6 @@ export const SALESIANOS_LAYOUT = {
       color: "#00e5ff", // Cyan
       groups: [
         {
-          title: "Vista en Vivo",
-          compact: true,
-          widgets: [
-            { type: "camera", label: "Cámara", path: "camera.stream_url", columns: 2 }
-          ]
-        },
-        {
           title: "Programa",
           compact: true,
           widgets: [
@@ -41,6 +34,13 @@ export const SALESIANOS_LAYOUT = {
           widgets: [
             { type: "kpi", label: "Tiempo Ciclo", path: "estadisticas.tiempo_ciclo", unit: "s", format: "2", columns: 1, compact: true },
             { type: "kpi", label: "Horas Operación", path: "estadisticas.horas_operacion", unit: "h", format: "1", columns: 1, compact: true }
+          ]
+        },
+        {
+          title: "Vista en Vivo",
+          compact: true,
+          widgets: [
+            { type: "camera", label: "Cámara", path: "camera.stream_url", compact: true }
           ]
         },
         {
