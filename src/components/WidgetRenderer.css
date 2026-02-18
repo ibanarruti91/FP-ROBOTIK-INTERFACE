@@ -12,6 +12,11 @@
   gap: 1rem;
 }
 
+/* Compact group styling for principal tab */
+.widget-group.compact {
+  gap: 0.75rem;
+}
+
 .group-title {
   font-family: var(--font-display);
   font-size: 1.2rem;
@@ -24,10 +29,23 @@
   letter-spacing: 0.05em;
 }
 
+/* Compact group title */
+.widget-group.compact .group-title {
+  font-size: 0.95rem;
+  padding-bottom: 0.4rem;
+  border-bottom-width: 1px;
+}
+
 .widget-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
+}
+
+/* Compact grid for principal tab */
+.widget-grid.compact {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
 }
 
 /* Column spanning classes */

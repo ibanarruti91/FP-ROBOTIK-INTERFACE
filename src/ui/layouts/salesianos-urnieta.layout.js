@@ -11,38 +11,36 @@ export const SALESIANOS_LAYOUT = {
       color: "#00e5ff", // Cyan
       groups: [
         {
-          title: "Datos del Programa",
+          title: "Programa",
+          compact: true,
           widgets: [
-            { type: "kpi", label: "Nombre del Programa", path: "programa.nombre", unit: "", format: "text", columns: 2 },
-            { type: "kpi", label: "ID Estado Programa", path: "programa.status_id", unit: "", format: "0", columns: 2 }
+            { type: "kpi", label: "Nombre del Programa", path: "programa.nombre", unit: "", format: "text", columns: 2, compact: true },
+            { type: "kpi", label: "ID Estado", path: "programa.status_id", unit: "", format: "0", columns: 1, compact: true }
           ]
         },
         {
-          title: "Estado del Sistema",
+          title: "Sistema",
+          compact: true,
           widgets: [
-            { type: "kpi", label: "Modo de Operación", path: "sistema.modo_operacion", unit: "", format: "text", columns: 3 },
-            { type: "kpi", label: "Estado Máquina", path: "sistema.estado_maquina", unit: "", format: "text", columns: 3 },
-            { type: "kpi", label: "Potencia Total", path: "sistema.potencia_total", unit: "W", format: "0", columns: 3 },
-            { type: "kpi", label: "Temp. Controladora", path: "sistema.temperatura_control", unit: "°C", format: "1", columns: 3 }
+            { type: "kpi", label: "Modo", path: "sistema.modo_operacion", unit: "", format: "text", columns: 2, compact: true },
+            { type: "kpi", label: "Estado", path: "sistema.estado_maquina", unit: "", format: "text", columns: 2, compact: true },
+            { type: "kpi", label: "Potencia", path: "sistema.potencia_total", unit: "W", format: "0", columns: 1, compact: true },
+            { type: "kpi", label: "Temp.", path: "sistema.temperatura_control", unit: "°C", format: "1", columns: 1, compact: true }
           ]
         },
         {
-          title: "Rendimiento y Estadísticas",
+          title: "Estadísticas",
+          compact: true,
           widgets: [
-            { type: "kpi", label: "Tiempo Último Ciclo", path: "estadisticas.tiempo_ciclo", unit: "s", format: "2", columns: 2 },
-            { type: "kpi", label: "Horas Totales Operación", path: "estadisticas.horas_operacion", unit: "h", format: "1", columns: 2 }
+            { type: "kpi", label: "Tiempo Ciclo", path: "estadisticas.tiempo_ciclo", unit: "s", format: "2", columns: 1, compact: true },
+            { type: "kpi", label: "Horas Operación", path: "estadisticas.horas_operacion", unit: "h", format: "1", columns: 1, compact: true }
           ]
         },
         {
-          title: "Registro de Eventos",
+          title: "Eventos",
+          compact: true,
           widgets: [
-            { type: "log", label: "Mensajes del Sistema", path: "eventos" }
-          ]
-        },
-        {
-          title: "Sistema de Vigilancia",
-          widgets: [
-            { type: "camera", label: "CAM_01_SALESIANOS", path: "camera.stream" }
+            { type: "log", label: "Mensajes del Sistema", path: "eventos", compact: true }
           ]
         }
       ]
