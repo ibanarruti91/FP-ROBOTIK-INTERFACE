@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import mqtt from 'mqtt';
 import { CENTROS } from '../config/centros';
-import { getTelemetryLatest, getMockTelemetryData } from '../servicios/iot';
+import { getMockTelemetryData } from '../servicios/iot';
 import { SALESIANOS_LAYOUT } from '../ui/layouts/salesianos-urnieta.layout';
 import WidgetRenderer from '../components/WidgetRenderer';
 import './TelemetriaDetail.css';
@@ -10,52 +10,26 @@ import './TelemetriaDetail.css';
 function TelemetriaDetail() {
   const { centroId } = useParams();
   const navigate = useNavigate();
-  const [telemetry, setTelemetry] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('principal');
 
   const centro = CENTROS[centroId];
   const layout = SALESIANOS_LAYOUT; // En el futuro, se podría cargar dinámicamente según el centro
+
+  // Initialize telemetry with zero/null values
+  const initialTelemetry = useMemo(() => 
+    centro ? getMockTelemetryData(centro) : null, 
+    [centro]
+  );
+  const [telemetry, setTelemetry] = useState(initialTelemetry);
+
+  // Calculate loading state based on centro and telemetry
+  const loading = !centro || centro.estado === 'PROXIMAMENTE' ? false : !telemetry;
 
   useEffect(() => {
     if (!centro) {
       navigate('/centros');
       return;
     }
-
-    if (centro.estado === 'PROXIMAMENTE') {
-      setLoading(false);
-      return;
-    }
-
-    // Función para obtener datos
-    const fetchData = async () => {
-      try {
-        let data;
-        if (!centro.baseUrl || centro.baseUrl === "") {
-          // Usar datos mock si no hay URL configurada
-          data = getMockTelemetryData(centro);
-        } else {
-          // Intentar obtener datos reales
-          data = await getTelemetryLatest(centro.baseUrl);
-        }
-        setTelemetry(data);
-      } catch (err) {
-        console.error('Error al obtener telemetría:', err);
-        // Usar datos mock como fallback
-        setTelemetry(getMockTelemetryData(centro));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // Fetch inicial
-    fetchData();
-
-    // Actualizar cada 1 segundo
-    const interval = setInterval(fetchData, 1000);
-
-    return () => clearInterval(interval);
   }, [centroId, centro, navigate]);
 
   // MQTT Connection Effect
