@@ -11,26 +11,32 @@ export const SALESIANOS_LAYOUT = {
       color: "#00e5ff", // Cyan
       groups: [
         {
-          title: "Estado del Sistema",
+          title: "Datos del Programa",
           widgets: [
-            { type: "status", label: "Estado", path: "estado.online", statusType: "online" },
-            { type: "status", label: "Modo", path: "estado.mode", statusType: "mode" },
-            { type: "status", label: "Seguridad", path: "estado.safety", statusType: "safety" }
+            { type: "kpi", label: "Nombre del Programa", path: "programa.nombre", unit: "", format: "text", columns: 2 },
+            { type: "kpi", label: "ID Estado Programa", path: "programa.status_id", unit: "", format: "0", columns: 2 }
           ]
         },
         {
-          title: "Indicadores Principales",
+          title: "Estado del Sistema",
           widgets: [
-            { type: "kpi", label: "Potencia", path: "robot_power", unit: "W", format: "0", columns: 3 },
-            { type: "kpi", label: "Tiempo Ciclo", path: "cycle_time", unit: "s", format: "1", columns: 3 },
-            { type: "kpi", label: "Horas Operación", path: "uptime_hours", unit: "h", format: "1", columns: 3 },
-            { type: "kpi", label: "Temp. Control", path: "ctrl_temp", unit: "°C", format: "1", columns: 3 }
+            { type: "kpi", label: "Modo de Operación", path: "sistema.modo_operacion", unit: "", format: "text", columns: 3 },
+            { type: "kpi", label: "Estado Máquina", path: "sistema.estado_maquina", unit: "", format: "text", columns: 3 },
+            { type: "kpi", label: "Potencia Total", path: "sistema.potencia_total", unit: "W", format: "0", columns: 3 },
+            { type: "kpi", label: "Temp. Controladora", path: "sistema.temperatura_control", unit: "°C", format: "1", columns: 3 }
+          ]
+        },
+        {
+          title: "Rendimiento y Estadísticas",
+          widgets: [
+            { type: "kpi", label: "Tiempo Último Ciclo", path: "estadisticas.tiempo_ciclo", unit: "s", format: "2", columns: 2 },
+            { type: "kpi", label: "Horas Totales Operación", path: "estadisticas.horas_operacion", unit: "h", format: "1", columns: 2 }
           ]
         },
         {
           title: "Registro de Eventos",
           widgets: [
-            { type: "log", label: "Mensajes del Sistema", path: "messages" }
+            { type: "log", label: "Mensajes del Sistema", path: "eventos" }
           ]
         },
         {

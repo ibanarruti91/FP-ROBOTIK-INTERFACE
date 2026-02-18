@@ -56,6 +56,26 @@ export async function getTelemetryLatest(baseUrl) {
 export function getMockTelemetryData(centroConfig = null) {
   return {
     timestamp: new Date().toISOString(),
+    // Program Data
+    programa: {
+      nombre: "Programa Demo",
+      status_id: 0
+    },
+    // System Status
+    sistema: {
+      modo_operacion: "MANUAL",
+      estado_maquina: "DETENIDO",
+      potencia_total: 0,
+      temperatura_control: 0
+    },
+    // Performance and Statistics
+    estadisticas: {
+      tiempo_ciclo: 0,
+      horas_operacion: 0
+    },
+    // Event Log
+    eventos: [],
+    // Legacy fields for other tabs
     estado: {
       online: false,
       mode: "MANUAL",
