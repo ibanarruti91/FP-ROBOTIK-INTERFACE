@@ -9,25 +9,28 @@ import Conversor from './pages/Conversor';
 import Monitor from './pages/Monitor';
 import SelectorCentros from './pages/SelectorCentros';
 import Informacion from './pages/Informacion';
+import { MqttStatusProvider } from './contexts/MqttStatusContext';
 import './App.css';
 
 function App() {
   return (
-    <Router>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/centros" element={<Centros />} />
-          <Route path="/telemetria/:centroId" element={<TelemetriaDetail />} />
-          <Route path="/telemetria" element={<Telemetria />} />
-          <Route path="/validacion" element={<Validacion />} />
-          <Route path="/conversor" element={<Conversor />} />
-          <Route path="/monitor" element={<Monitor />} />
-          <Route path="/selector-centros" element={<SelectorCentros />} />
-          <Route path="/informacion" element={<Informacion />} />
-        </Routes>
-      </Layout>
-    </Router>
+    <MqttStatusProvider>
+      <Router>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/centros" element={<Centros />} />
+            <Route path="/telemetria/:centroId" element={<TelemetriaDetail />} />
+            <Route path="/telemetria" element={<Telemetria />} />
+            <Route path="/validacion" element={<Validacion />} />
+            <Route path="/conversor" element={<Conversor />} />
+            <Route path="/monitor" element={<Monitor />} />
+            <Route path="/selector-centros" element={<SelectorCentros />} />
+            <Route path="/informacion" element={<Informacion />} />
+          </Routes>
+        </Layout>
+      </Router>
+    </MqttStatusProvider>
   );
 }
 
