@@ -11,6 +11,13 @@ export const SALESIANOS_LAYOUT = {
       color: "#00e5ff", // Cyan
       groups: [
         {
+          title: "Vista en Vivo",
+          compact: true,
+          widgets: [
+            { type: "camera", label: "Cámara", path: "camera.stream_url", columns: 2 }
+          ]
+        },
+        {
           title: "Programa",
           compact: true,
           widgets: [
@@ -22,8 +29,8 @@ export const SALESIANOS_LAYOUT = {
           title: "Sistema",
           compact: true,
           widgets: [
-            { type: "kpi", label: "Modo", path: "sistema.modo_operacion", unit: "", format: "text", columns: 2, compact: true },
-            { type: "kpi", label: "Estado", path: "sistema.estado_maquina", unit: "", format: "text", columns: 2, compact: true },
+            { type: "status-dynamic", label: "Modo Operación", path: "sistema.modo_operacion", statusType: "modo_operacion", columns: 2, compact: true },
+            { type: "status-dynamic", label: "Estado Máquina", path: "sistema.estado_maquina", statusType: "estado_maquina", columns: 2, compact: true },
             { type: "kpi", label: "Potencia", path: "sistema.potencia_total", unit: "W", format: "0", columns: 1, compact: true },
             { type: "kpi", label: "Temp.", path: "sistema.temperatura_control", unit: "°C", format: "1", columns: 1, compact: true }
           ]

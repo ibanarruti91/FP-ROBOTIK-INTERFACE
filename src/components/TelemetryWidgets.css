@@ -164,6 +164,117 @@
   box-shadow: 0 0 10px var(--accent-purple);
 }
 
+/* StatusDynamic - Dynamic Status Widget */
+.status-dynamic {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 120px;
+  justify-content: center;
+}
+
+.status-dynamic.status-compact {
+  min-height: 80px;
+  padding: 1rem;
+  gap: 0.5rem;
+}
+
+.status-dynamic.status-compact .status-label {
+  font-size: 0.75rem;
+}
+
+.status-dynamic.status-compact .status-value {
+  font-size: 1rem;
+  padding: 0.5rem 0.75rem;
+}
+
+/* Estado Máquina Colors */
+.status-power-on {
+  color: #10b981;
+  border: 1px solid #10b981;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.status-power-on .status-dot {
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981;
+}
+
+.status-power-off {
+  color: #6b7280;
+  border: 1px solid #6b7280;
+  background: rgba(107, 114, 128, 0.1);
+}
+
+.status-power-off .status-dot {
+  background: #6b7280;
+  box-shadow: 0 0 10px #6b7280;
+}
+
+.status-emergency {
+  color: #ef4444;
+  border: 1px solid #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.status-emergency .status-dot {
+  background: #ef4444;
+  box-shadow: 0 0 10px #ef4444;
+}
+
+.status-emergency.blink {
+  animation: blink-status 1s ease-in-out infinite;
+}
+
+.status-emergency.blink .status-dot {
+  animation: blink-dot 1s ease-in-out infinite;
+}
+
+@keyframes blink-status {
+  0%, 100% {
+    opacity: 1;
+    border-color: #ef4444;
+  }
+  50% {
+    opacity: 0.6;
+    border-color: rgba(239, 68, 68, 0.5);
+  }
+}
+
+@keyframes blink-dot {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 20px #ef4444;
+  }
+  50% {
+    opacity: 0.4;
+    box-shadow: 0 0 5px #ef4444;
+  }
+}
+
+/* Modo Operación Colors */
+.status-remote-auto {
+  color: #3b82f6;
+  border: 1px solid #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.status-remote-auto .status-dot {
+  background: #3b82f6;
+  box-shadow: 0 0 10px #3b82f6;
+}
+
+.status-manual {
+  color: #f59e0b;
+  border: 1px solid #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.status-manual .status-dot {
+  background: #f59e0b;
+  box-shadow: 0 0 10px #f59e0b;
+}
+
 /* DataTable */
 .data-table {
   min-height: 200px;
