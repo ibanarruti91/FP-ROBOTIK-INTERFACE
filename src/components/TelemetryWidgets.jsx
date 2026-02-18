@@ -177,14 +177,25 @@ export function LogPanel({ messages, className = '', compact = false }) {
     <CardGlass className={`log-panel ${compact ? 'log-compact' : ''} ${className}`}>
       <div className="log-title">Registro de Eventos</div>
       <div className="log-messages">
-        {messages.map((msg, index) => (
-          <div key={index} className="log-message">
-            <span className="log-time">
-              {msg.hora || msg.time || '--:--:--'}
-            </span>
-            <span className="log-text">{msg.msg || msg.mensaje || msg.txt || msg.message || '--'}</span>
-          </div>
-        ))}
+        {messages.map((msg, index) => {
+          // Handle different time formats from MQTT
+          let timeDisplay = '--:--:--';
+          if (msg.hora) {
+            timeDisplay = msg.hora;
+          } else if (msg.time) {
+            timeDisplay = msg.time;
+          }
+          
+          // Handle different message field names
+          const messageText = msg.msg || msg.mensaje || msg.txt || msg.message || '--';
+          
+          return (
+            <div key={index} className="log-message">
+              <span className="log-time">{timeDisplay}</span>
+              <span className="log-text">{messageText}</span>
+            </div>
+          );
+        })}
       </div>
     </CardGlass>
   );
