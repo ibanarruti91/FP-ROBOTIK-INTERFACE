@@ -24,10 +24,11 @@ function getNestedValue(obj, path) {
  * Formatea un valor según el formato especificado
  */
 function formatValue(value, format) {
-  if (value === null || value === undefined) return '--';
+  // Let widgets handle null/undefined values themselves
+  if (value === null || value === undefined) return value;
   
   if (format === 'text') {
-    return value || '--';
+    return value || null;
   }
   
   if (typeof value === 'number') {
@@ -48,14 +49,16 @@ function renderWidget(widget, data, key) {
   
   switch (widget.type) {
     case 'kpi':
+      // For KPI cards, pass raw value and let the component handle formatting
       return (
         <KpiCard
           key={key}
           label={widget.label}
-          value={formatValue(value, widget.format)}
+          value={value}
           unit={widget.unit}
           className={`${widget.columns ? `span-${widget.columns}` : ''} ${compactClass}`}
           compact={widget.compact}
+          format={widget.format}
         />
       );
     
