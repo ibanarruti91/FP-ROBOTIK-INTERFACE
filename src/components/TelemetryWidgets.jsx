@@ -126,7 +126,7 @@ export function KpiCard({ label, value, unit, className = '', compact = false, f
   return (
     <CardGlass className={`kpi-card ${compact ? 'kpi-compact' : ''} ${className}`}>
       <div className="kpi-label">
-        {IconComponent && <span style={{ display: 'inline-flex', marginRight: '0.4rem', verticalAlign: 'middle', color: '#888' }}>{IconComponent}</span>}
+        {IconComponent && <span className="widget-icon">{IconComponent}</span>}
         {label}
       </div>
       <div className="kpi-value-container">
@@ -259,7 +259,7 @@ export function DataTable({ label, data, unit, format }) {
   return (
     <CardGlass className="data-table">
       <div className="table-title">
-        <Settings size={16} style={{ display: 'inline-flex', marginRight: '0.5rem', verticalAlign: 'middle' }} />
+        <Settings size={16} className="widget-icon" />
         {label}
       </div>
       <div className="table-grid">
@@ -525,7 +525,7 @@ export function JointsGrid({ data, className = '' }) {
             <div key={index} className="joint-block">
               <div className="joint-header">
                 <span className="joint-label">
-                  <Settings size={18} style={{ display: 'inline-flex', marginRight: '0.3rem', verticalAlign: 'middle' }} />
+                  <Settings size={18} className="widget-icon" />
                   J{index + 1}
                 </span>
               </div>
@@ -543,7 +543,7 @@ export function JointsGrid({ data, className = '' }) {
               </div>
               <div className="joint-temp-section">
                 <div className={`joint-temp-label ${isTempNA ? 'value-na' : ''}`}>
-                  <Thermometer size={12} style={{ display: 'inline-flex', marginRight: '0.3rem', verticalAlign: 'middle' }} />
+                  <Thermometer size={12} className="widget-icon" />
                   Temperatura: {tempValue}{!isTempNA && '°C'}
                 </div>
                 <div className="joint-temp-bar-container">

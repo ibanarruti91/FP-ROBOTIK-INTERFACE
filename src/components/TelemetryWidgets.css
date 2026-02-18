@@ -106,6 +106,23 @@
   transition: all 0.3s ease;
 }
 
+/* Icon styling for widget labels */
+.widget-icon {
+  display: inline-flex;
+  margin-right: 0.4rem;
+  vertical-align: middle;
+  color: #888;
+}
+
+.table-title .widget-icon {
+  margin-right: 0.5rem;
+}
+
+.joint-temp-label .widget-icon,
+.joint-label .widget-icon {
+  margin-right: 0.3rem;
+}
+
 .kpi-unit {
   font-size: 1rem;
   color: var(--accent-cyan);
@@ -856,5 +873,12 @@
   
   .io-grid {
     grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Wide screen: maintain 3 columns for joints on large displays */
+@media (min-width: 1400px) {
+  .joints-grid-container {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
