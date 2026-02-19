@@ -13,7 +13,10 @@ export function CameraWidget({ streamUrl = '', className = '' }) {
           <iframe
             src={streamUrl}
             title="Camera Feed"
+            allow="autoplay; camera; microphone; fullscreen; picture-in-picture"
             allowFullScreen
+            style={{ width: '100%', height: '100%', border: 'none', overflow: 'hidden' }}
+            loading="lazy"
           />
         ) : (
           <div className="no-signal">NO SIGNAL</div>
