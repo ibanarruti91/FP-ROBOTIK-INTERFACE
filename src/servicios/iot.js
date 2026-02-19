@@ -59,7 +59,8 @@ export function getMockTelemetryData(centroConfig = null) {
     // Program Data
     programa: {
       nombre: null,
-      status_id: null
+      status_id: null,
+      estado: null
     },
     // System Status
     sistema: {

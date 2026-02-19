@@ -7,33 +7,44 @@
 import { useState, useEffect, useRef } from 'react';
 import './TelemetryMiniHeader.css';
 
+/** Highlight the .urp (or any) file extension inside a program name */
+function ProgramName({ name }) {
+  if (!name || name === 'N/A') return <span>{name || 'N/A'}</span>;
+  const dotIdx = name.lastIndexOf('.');
+  if (dotIdx < 0) return <span>{name}</span>;
+  return (
+    <>
+      <span>{name.slice(0, dotIdx)}</span>
+      <span className="urp-highlight">{name.slice(dotIdx)}</span>
+    </>
+  );
+}
+
 export function TelemetryMiniHeader({ data }) {
-  const [updatedFields, setUpdatedFields] = useState(new Set());
+  const [heartbeat, setHeartbeat] = useState(false);
   const previousData = useRef({});
 
-  // Track which fields have been updated for heartbeat effect
+  // Global heartbeat: any field change → all badges flash simultaneously
   useEffect(() => {
     if (!data) return;
 
-    const currentData = {
+    const snapshot = {
       estadoRobot: data?.sistema?.estado_maquina,
       modo: data?.sistema?.modo_operacion,
       seguridad: data?.estado?.safety,
       programa: data?.programa?.nombre,
+      programaEstado: data?.programa?.estado,
       numeroPrograma: data?.programa?.status_id,
     };
 
-    const updated = new Set();
-    Object.keys(currentData).forEach(key => {
-      if (previousData.current[key] !== currentData[key]) {
-        updated.add(key);
-      }
-    });
+    const hasChanged = Object.keys(snapshot).some(
+      (k) => previousData.current[k] !== snapshot[k]
+    );
 
-    if (updated.size > 0) {
-      setUpdatedFields(updated);
-      const timer = setTimeout(() => setUpdatedFields(new Set()), 800);
-      previousData.current = currentData;
+    if (hasChanged) {
+      previousData.current = snapshot;
+      setHeartbeat(true);
+      const timer = setTimeout(() => setHeartbeat(false), 800);
       return () => clearTimeout(timer);
     }
   }, [data]);
@@ -43,58 +54,91 @@ export function TelemetryMiniHeader({ data }) {
   const modo = data?.sistema?.modo_operacion || 'N/A';
   const seguridad = data?.estado?.safety || 'N/A';
   const programa = data?.programa?.nombre || 'N/A';
-  const numeroProg = data?.programa?.status_id !== null && data?.programa?.status_id !== undefined
-    ? data.programa.status_id
-    : 'N/A';
+  const numeroProg =
+    data?.programa?.status_id !== null && data?.programa?.status_id !== undefined
+      ? data.programa.status_id
+      : 'N/A';
+  const programaEstado = data?.programa?.estado || null;
+
+  // ── Badge colour helpers ──────────────────────────────────────────────────
+
   const getEstadoBadge = (estado) => {
-    if (estado === 'POWER_ON') return 'ok';
+    if (estado === 'POWER_ON') return 'estado-on';
     if (estado === 'POWER_OFF') return 'stop';
     if (estado === 'EMERGENCY_STOP') return 'error';
     return '';
   };
 
-  const getModoBadge = (modOp) => {
-    if (modOp === 'REMOTE' || modOp === 'AUTO') return 'ok';
-    if (modOp === 'MANUAL') return 'stop';
+  // All mode values share the same dark-blue "modo" capsule
+  const getModoBadge = () => 'modo';
+
+  const getSeguridadBadge = (seg) => {
+    if (seg === 'NOMINAL' || seg === 'NORMAL') return 'safety-ok';
+    if (seg === 'REDUCED') return 'stop';
+    if (seg === 'PROTECTIVE_STOP' || seg === 'EMERGENCY_STOP') return 'error';
     return '';
   };
 
-  const getSeguridadBadge = (seg) => {
-    if (seg === 'NORMAL') return 'ok';
-    if (seg === 'REDUCED') return 'stop';
-    if (seg === 'PROTECTIVE_STOP') return 'error';
-    return '';
+  // ── Program execution status helpers (single source of truth) ───────────
+
+  const PROGRAM_STATUS_MAP = {
+    PLAYING:  { badge: 'running', label: 'EN EJECUCIÓN' },
+    RUNNING:  { badge: 'running', label: 'EN EJECUCIÓN' },
+    STOPPED:  { badge: 'stopped', label: 'DETENIDO' },
+    PAUSED:   { badge: 'stopped', label: 'EN PAUSA' },
   };
+
+  const getProgramBadge = (estado) => {
+    if (!estado) return '';
+    return PROGRAM_STATUS_MAP[estado.toUpperCase()]?.badge ?? '';
+  };
+
+  const getProgramStatusLabel = (estado) => {
+    if (!estado) return 'N/A';
+    return PROGRAM_STATUS_MAP[estado.toUpperCase()]?.label ?? estado;
+  };
+
+  const hb = heartbeat ? 'heartbeat' : '';
 
   return (
     <div className="telemetry-mini-header">
       {/* Left: Status Badges */}
       <div className="header-badges">
-        <div className={`status-badge badge-${getEstadoBadge(estadoRobot)} ${updatedFields.has('estadoRobot') ? 'heartbeat' : ''}`}>
+        <div className={`status-badge badge-${getEstadoBadge(estadoRobot)} ${hb}`}>
           <span className="badge-label">Estado Robot</span>
           <span className="badge-value">{estadoRobot}</span>
         </div>
 
-        <div className={`status-badge badge-${getModoBadge(modo)} ${updatedFields.has('modo') ? 'heartbeat' : ''}`}>
+        <div className={`status-badge badge-${getModoBadge()} ${hb}`}>
           <span className="badge-label">Modo Operación</span>
           <span className="badge-value">{modo}</span>
         </div>
 
-        <div className={`status-badge badge-${getSeguridadBadge(seguridad)} ${updatedFields.has('seguridad') ? 'heartbeat' : ''}`}>
+        <div className={`status-badge badge-${getSeguridadBadge(seguridad)} ${hb}`}>
           <span className="badge-label">Seguridad</span>
           <span className="badge-value">{seguridad}</span>
+        </div>
+
+        {/* Program execution status badge */}
+        <div className={`status-badge badge-${getProgramBadge(programaEstado)} ${hb}`}>
+          <span className="badge-label">Estado Ejecución</span>
+          <span className="badge-value">{getProgramStatusLabel(programaEstado)}</span>
         </div>
       </div>
 
       {/* Right: Program Identification */}
       <div className="header-identification">
-        <div className={`header-id-item ${updatedFields.has('programa') ? 'heartbeat' : ''}`}>
+        {/* Wider badge: program file name with extension highlighted */}
+        <div className={`header-id-item badge-programa ${hb}`}>
           <span className="id-label">Nombre Programa</span>
-          <span className="id-value">{programa}</span>
+          <span className="id-value">
+            <ProgramName name={programa} />
+          </span>
         </div>
 
-        <div className={`header-id-item ${updatedFields.has('numeroPrograma') ? 'heartbeat' : ''}`}>
-          <span className="id-label">N° Programa</span>
+        {/* Small badge: numeric status ID */}
+        <div className={`header-id-item badge-id-small ${hb}`}>
+          <span className="id-label">ID Status</span>
           <span className="id-value">{numeroProg}</span>
         </div>
       </div>

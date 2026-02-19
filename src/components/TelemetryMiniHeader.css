@@ -5,6 +5,9 @@
 /* Local cyan token – matches the design's Technological Cyan */
 :root {
   --hmi-cyan: #00d1ff;
+  --hmi-emerald: #10b981;
+  --hmi-blue-dark: #0d1f3c;
+  --hmi-green: #16a34a;
 }
 
 .telemetry-mini-header {
@@ -40,11 +43,59 @@
   transition: all 0.3s ease;
 }
 
-/* OK / RUN / NORMAL → Cyan */
-.status-badge.badge-ok {
-  background: rgba(0, 209, 255, 0.15);
+/* ESTADO ROBOT – POWER_ON: soft cyan background, white text with cyan glow */
+.status-badge.badge-estado-on {
+  background: rgba(0, 209, 255, 0.12);
   border-color: var(--hmi-cyan);
   box-shadow: 0 0 10px rgba(0, 209, 255, 0.25);
+}
+.badge-estado-on .badge-value {
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(0, 209, 255, 0.8);
+}
+
+/* MODO OPERACIÓN – dark blue background, cyan text */
+.status-badge.badge-modo {
+  background: rgba(13, 31, 60, 0.9);
+  border-color: rgba(0, 209, 255, 0.4);
+  box-shadow: 0 0 8px rgba(0, 209, 255, 0.15);
+}
+.badge-modo .badge-value {
+  color: var(--hmi-cyan);
+  text-shadow: 0 0 8px rgba(0, 209, 255, 0.5);
+}
+
+/* SEGURIDAD – NOMINAL/NORMAL: emerald green */
+.status-badge.badge-safety-ok {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: var(--hmi-emerald);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.25);
+}
+.badge-safety-ok .badge-value {
+  color: var(--hmi-emerald);
+  text-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+}
+
+/* ESTADO EJECUCIÓN – PLAYING/RUNNING: green */
+.status-badge.badge-running {
+  background: rgba(22, 163, 74, 0.15);
+  border-color: #22c55e;
+  box-shadow: 0 0 10px rgba(22, 197, 94, 0.25);
+}
+.badge-running .badge-value {
+  color: #22c55e;
+  text-shadow: 0 0 8px rgba(22, 197, 94, 0.6);
+}
+
+/* ESTADO EJECUCIÓN – STOPPED: dark grey */
+.status-badge.badge-stopped {
+  background: rgba(30, 36, 48, 0.85);
+  border-color: rgba(100, 116, 139, 0.5);
+  box-shadow: none;
+}
+.badge-stopped .badge-value {
+  color: #64748b;
+  text-shadow: none;
 }
 
 /* STOP / MANUAL → Amber */
@@ -53,18 +104,26 @@
   border-color: #f59e0b;
   box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
 }
+.badge-stop .badge-value {
+  color: #f59e0b;
+  text-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+}
 
-/* ERROR / EMERGENCY → Red */
+/* ERROR / EMERGENCY → Red with pulse */
 .status-badge.badge-error {
-  background: rgba(239, 68, 68, 0.15);
+  background: rgba(239, 68, 68, 0.2);
   border-color: #ef4444;
-  box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.4);
   animation: blink-badge 1.2s ease-in-out infinite;
+}
+.badge-error .badge-value {
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(239, 68, 68, 0.8);
 }
 
 @keyframes blink-badge {
   0%, 100% { opacity: 1; }
-  50%       { opacity: 0.65; }
+  50%       { opacity: 0.6; }
 }
 
 .badge-label {
@@ -87,10 +146,6 @@
   text-overflow: ellipsis;
 }
 
-.badge-ok   .badge-value { color: var(--hmi-cyan); text-shadow: 0 0 8px rgba(0, 209, 255, 0.6); }
-.badge-stop .badge-value { color: #f59e0b; text-shadow: 0 0 8px rgba(245, 158, 11, 0.5); }
-.badge-error .badge-value { color: #ef4444; text-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
-
 /* ── RIGHT: Program Identification ───────────── */
 .header-identification {
   display: flex;
@@ -112,6 +167,25 @@
   transition: all 0.3s ease;
 }
 
+/* Wider badge for program name */
+.header-id-item.badge-programa {
+  min-width: 180px;
+  max-width: 260px;
+}
+
+/* Small badge for numeric ID status */
+.header-id-item.badge-id-small {
+  min-width: 72px;
+  max-width: 90px;
+  align-items: center;
+  text-align: center;
+}
+.badge-id-small .id-value {
+  font-size: 1.05rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
 .id-label {
   font-size: 0.6rem;
   font-weight: 600;
@@ -131,6 +205,14 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Highlight the file extension (e.g. .urp) inside a program name */
+.urp-highlight {
+  color: var(--hmi-cyan);
+  font-weight: 900;
+  text-shadow: 0 0 10px rgba(0, 209, 255, 0.8);
+  letter-spacing: 0.02em;
 }
 
 /* ── Heartbeat animation on MQTT update ──────── */
