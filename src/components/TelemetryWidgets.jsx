@@ -3,6 +3,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
+import { Zap, Thermometer, Settings, Gauge, Activity, AlertTriangle } from 'lucide-react';
 import './TelemetryWidgets.css';
 
 /**
@@ -68,10 +69,22 @@ export function CardGlass({ children, className = '' }) {
 /**
  * Tarjeta KPI - muestra label, valor grande y unidad
  */
-export function KpiCard({ label, value, unit, className = '', compact = false, format = '0' }) {
+export function KpiCard({ label, value, unit, className = '', compact = false, format = '0', icon }) {
   const isValueAvailable = value !== null && value !== undefined && value !== '';
   const numericValue = typeof value === 'number' ? value : null;
   const animatedValue = useCountingAnimation(numericValue || 0, 400);
+  const [isUpdated, setIsUpdated] = useState(false);
+  const previousValue = useRef(value);
+  
+  // Trigger update animation when value changes
+  useEffect(() => {
+    if (previousValue.current !== value && isValueAvailable) {
+      setIsUpdated(true);
+      previousValue.current = value;
+      const timer = setTimeout(() => setIsUpdated(false), 600);
+      return () => clearTimeout(timer);
+    }
+  }, [value, isValueAvailable]);
   
   let displayValue;
   let isNA = false;
@@ -89,11 +102,35 @@ export function KpiCard({ label, value, unit, className = '', compact = false, f
     displayValue = value;
   }
   
+  // Determine icon based on label if not provided
+  const getIcon = () => {
+    if (icon) return icon;
+    const labelLower = label.toLowerCase();
+    if (labelLower.includes('potencia') || labelLower.includes('power')) {
+      return <Zap size={compact ? 14 : 16} />;
+    }
+    if (labelLower.includes('temp')) {
+      return <Thermometer size={compact ? 14 : 16} />;
+    }
+    if (labelLower.includes('ciclo') || labelLower.includes('tiempo')) {
+      return <Activity size={compact ? 14 : 16} />;
+    }
+    if (labelLower.includes('operación') || labelLower.includes('horas')) {
+      return <Gauge size={compact ? 14 : 16} />;
+    }
+    return null;
+  };
+  
+  const IconComponent = getIcon();
+  
   return (
     <CardGlass className={`kpi-card ${compact ? 'kpi-compact' : ''} ${className}`}>
-      <div className="kpi-label">{label}</div>
+      <div className="kpi-label">
+        {IconComponent && <span className="widget-icon">{IconComponent}</span>}
+        {label}
+      </div>
       <div className="kpi-value-container">
-        <span className={`kpi-value ${isNA ? 'value-na' : ''}`}>{displayValue}</span>
+        <span className={`kpi-value ${isNA ? 'value-na' : ''} ${isUpdated ? 'value-updated' : ''}`}>{displayValue}</span>
         {unit && !isNA && <span className="kpi-unit">{unit}</span>}
       </div>
     </CardGlass>
@@ -179,10 +216,34 @@ export function StatusDynamic({ label, value, statusType, className = '', compac
  * Tabla de datos para ejes (Joint 1..6)
  */
 export function DataTable({ label, data, unit, format }) {
+  const [updatedIndices, setUpdatedIndices] = useState(new Set());
+  const previousData = useRef(data);
+  
+  useEffect(() => {
+    if (data && previousData.current) {
+      const updated = new Set();
+      data.forEach((val, idx) => {
+        if (previousData.current[idx] !== val) {
+          updated.add(idx);
+        }
+      });
+      
+      if (updated.size > 0) {
+        setUpdatedIndices(updated);
+        const timer = setTimeout(() => setUpdatedIndices(new Set()), 600);
+        return () => clearTimeout(timer);
+      }
+    }
+    previousData.current = data;
+  }, [data]);
+  
   if (!data || !Array.isArray(data)) {
     return (
       <CardGlass className="data-table">
-        <div className="table-title">{label}</div>
+        <div className="table-title">
+          <Settings size={16} style={{ display: 'inline-flex', marginRight: '0.5rem', verticalAlign: 'middle' }} />
+          {label}
+        </div>
         <div className="table-empty">No hay datos disponibles</div>
       </CardGlass>
     );
@@ -197,15 +258,19 @@ export function DataTable({ label, data, unit, format }) {
   
   return (
     <CardGlass className="data-table">
-      <div className="table-title">{label}</div>
+      <div className="table-title">
+        <Settings size={16} className="widget-icon" />
+        {label}
+      </div>
       <div className="table-grid">
         {data.map((value, index) => {
           const formattedValue = formatValue(value);
           const isNA = formattedValue === 'N/A';
+          const isUpdated = updatedIndices.has(index);
           return (
             <div key={index} className="table-cell">
               <div className="cell-label">J{index + 1}</div>
-              <div className={`cell-value ${isNA ? 'value-na' : ''}`}>
+              <div className={`cell-value ${isNA ? 'value-na' : ''} ${isUpdated ? 'value-updated' : ''}`}>
                 {formattedValue} {!isNA && unit}
               </div>
             </div>
@@ -403,6 +468,25 @@ export function JointsGrid({ data, className = '' }) {
   const temperatures = data?.temperatures || Array(6).fill(null);
   const currents = data?.currents || Array(6).fill(null);
   
+  const [updatedPositions, setUpdatedPositions] = useState(new Set());
+  const previousPositions = useRef(positions);
+  
+  useEffect(() => {
+    const updated = new Set();
+    positions.forEach((val, idx) => {
+      if (previousPositions.current[idx] !== val) {
+        updated.add(idx);
+      }
+    });
+    
+    if (updated.size > 0) {
+      setUpdatedPositions(updated);
+      const timer = setTimeout(() => setUpdatedPositions(new Set()), 600);
+      return () => clearTimeout(timer);
+    }
+    previousPositions.current = positions;
+  }, [positions]);
+  
   const formatValue = (val, decimals = 2) => {
     if (val === null || val === undefined) return 'N/A';
     return typeof val === 'number' ? val.toFixed(decimals) : val;
@@ -435,16 +519,20 @@ export function JointsGrid({ data, className = '' }) {
           const isPosNA = posValue === 'N/A';
           const isCurrentNA = currentValue === 'N/A';
           const isTempNA = tempValue === 'N/A';
+          const isPosUpdated = updatedPositions.has(index);
           
           return (
             <div key={index} className="joint-block">
               <div className="joint-header">
-                <span className="joint-label">J{index + 1}</span>
+                <span className="joint-label">
+                  <Settings size={18} className="widget-icon" />
+                  J{index + 1}
+                </span>
               </div>
               <div className="joint-data">
                 <div className="joint-metric">
                   <span className="joint-metric-label">Pos</span>
-                  <span className={`joint-metric-value ${isPosNA ? 'value-na' : ''}`}>{posValue}</span>
+                  <span className={`joint-metric-value ${isPosNA ? 'value-na' : ''} ${isPosUpdated ? 'value-updated' : ''}`}>{posValue}</span>
                   {!isPosNA && <span className="joint-metric-unit">rad</span>}
                 </div>
                 <div className="joint-metric">
@@ -455,6 +543,7 @@ export function JointsGrid({ data, className = '' }) {
               </div>
               <div className="joint-temp-section">
                 <div className={`joint-temp-label ${isTempNA ? 'value-na' : ''}`}>
+                  <Thermometer size={12} className="widget-icon" />
                   Temperatura: {tempValue}{!isTempNA && '°C'}
                 </div>
                 <div className="joint-temp-bar-container">

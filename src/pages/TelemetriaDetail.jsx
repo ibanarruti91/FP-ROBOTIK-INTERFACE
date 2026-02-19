@@ -12,6 +12,7 @@ function TelemetriaDetail() {
   const { centroId } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('principal');
+  const { status } = useMqttStatus();
 
   const centro = CENTROS[centroId];
   const layout = SALESIANOS_LAYOUT; // En el futuro, se podría cargar dinámicamente según el centro
@@ -168,7 +169,7 @@ function TelemetriaDetail() {
       </div>
       
       {/* Tab Content */}
-      <div className="tab-content" data-section={activeTab}>
+      <div className={`tab-content ${status === 'OFFLINE' ? 'offline-mode' : ''}`} data-section={activeTab}>
         {layout.tabs
           .filter(tab => tab.id === activeTab)
           .map(tab => (
