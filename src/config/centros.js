@@ -21,7 +21,7 @@ export const CENTROS = {
   "salesianos-urnieta": {
     nombre: "Salesianos Urnieta",
     baseUrl: import.meta.env.VITE_IOT_SALESIANOS_URNIETA || "",
-    cameraStreamUrl: import.meta.env.VITE_CAMERA_SALESIANOS_URNIETA || "",
+    cameraStreamUrl: import.meta.env.VITE_CAMERA_SALESIANOS_URNIETA || "https://vdo.ninja/?view=Salesianos_Iban&autoplay=1&muted=1&style=1&base&cleanviewer=1",
     estado: "ONLINE"
   },
   "repelega": {
