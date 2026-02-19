@@ -7,6 +7,13 @@
 import { useState, useEffect, useRef } from 'react';
 import './RobotDashboard.css';
 
+// Heartbeat animation timing
+const HEARTBEAT_DELAY_MS    = 0;   // start flash immediately after setState scheduling
+const HEARTBEAT_DURATION_MS = 400; // flash visible for 400 ms
+
+// Default maximum voltage for analog progress bars (10 V full-scale)
+const DEFAULT_ANALOG_MAX_VOLTAGE = 10;
+
 // Program status labels
 const PROGRAM_STATUS_LABELS = {
   0: 'ESPERA',
@@ -264,7 +271,7 @@ function ProgramBlock({ programa, sistema, heartbeat }) {
 
 /* ─── Analog Bar ────────────────────────────────────────────────────── */
 
-function AnalogBar({ label, value, maxValue = 10, isInput, heartbeat }) {
+function AnalogBar({ label, value, maxValue = DEFAULT_ANALOG_MAX_VOLTAGE, isInput, heartbeat }) {
   const isNA       = value === null || value === undefined;
   const percentage = isNA ? 0 : Math.min(100, Math.max(0, (value / maxValue) * 100));
   const gradient   = isInput
@@ -354,8 +361,8 @@ export default function RobotDashboard({ data }) {
   useEffect(() => {
     if (data?.timestamp && data.timestamp !== prevTimestamp.current) {
       prevTimestamp.current = data.timestamp;
-      const onTimer  = setTimeout(() => setHeartbeat(true), 0);
-      const offTimer = setTimeout(() => setHeartbeat(false), 400);
+      const onTimer  = setTimeout(() => setHeartbeat(true), HEARTBEAT_DELAY_MS);
+      const offTimer = setTimeout(() => setHeartbeat(false), HEARTBEAT_DURATION_MS);
       return () => { clearTimeout(onTimer); clearTimeout(offTimer); };
     }
   }, [data?.timestamp]);
