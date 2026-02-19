@@ -11,11 +11,11 @@ export const SALESIANOS_LAYOUT = {
       color: "#00e5ff", // Cyan
       groups: [
         {
-          title: "Vista en Vivo",
+          title: "CÁMARA EN VIVO",
           className: "principal-camera",
           compact: true,
           widgets: [
-            { type: "camera", label: "Cámara", path: "camera.stream_url", compact: true, columns: 2 }
+            { type: "camera", label: "Cámara", path: "camera.stream", compact: true, columns: 2 }
           ]
         },
         {
