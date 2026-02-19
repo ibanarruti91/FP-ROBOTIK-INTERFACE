@@ -94,6 +94,7 @@ function renderWidget(widget, data, key) {
         <CameraWidget
           key={key}
           streamUrl={value}
+          cameraId={widget.label}
           className={cameraClassName}
         />
       );
