@@ -1,6 +1,6 @@
 /**
  * Mini-Header de Telemetría
- * Small, elegant header showing 5 key telemetry metrics
+ * small, elegant header showing 5 key telemetry metrics
  * Appears at the top of all telemetry tabs
  */
 
@@ -67,6 +67,13 @@ export function TelemetryMiniHeader({ data }) {
     return '';
   };
 
+  // Helper to get display text for Status Prog
+  const getStatusProgDisplay = (status) => {
+    if (status === 1 || status === '1') return 'Running';
+    if (status === 0 || status === '0') return 'Stopped';
+    return status;
+  };
+
   return (
     <div className="telemetry-mini-header">
       <div className={`mini-metric ${updatedFields.has('estadoRobot') ? 'metric-flash' : ''}`}>
@@ -92,7 +99,7 @@ export function TelemetryMiniHeader({ data }) {
       <div className={`mini-metric ${updatedFields.has('statusProg') ? 'metric-flash' : ''}`}>
         <div className="mini-label">Status Prog</div>
         <div className={`mini-value ${getStatusProgClass(statusProg)}`}>
-          {statusProg === 1 || statusProg === '1' ? 'Running' : statusProg === 0 || statusProg === '0' ? 'Stopped' : statusProg}
+          {getStatusProgDisplay(statusProg)}
         </div>
         <div className="mini-progress-bar">
           <div className={`mini-progress-fill ${getStatusProgClass(statusProg)}`} style={{ width: statusProg !== 'N/A' ? '100%' : '0%' }}></div>
