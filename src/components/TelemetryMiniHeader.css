@@ -45,8 +45,10 @@
 /* ── LEFT: Status Badges ─────────────────────── */
 .header-badges {
   display: flex;
-  gap: 0.4rem;
+  width: 100%;
+  gap: 10px;
   flex: 1;
+  justify-content: space-between;
   align-items: center;
   flex-wrap: nowrap;
   overflow: hidden;
@@ -62,6 +64,10 @@
   border: 1px solid rgba(148, 163, 184, 0.25);
   background: rgba(12, 18, 30, 0.8);
   min-width: 0;
+  flex: 1;
+  max-width: 25%;
+  text-align: center;
+  white-space: nowrap;
   flex-shrink: 1;
   transition: box-shadow 0.3s ease, border-color 0.3s ease;
   animation: ambient-heartbeat 1.8s ease-in-out infinite;
@@ -250,7 +256,7 @@
 /* ── Shared text styles ──────────────────────── */
 
 .badge-label {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Roboto Mono', 'Courier New', monospace;
   font-size: 0.6rem;
   font-weight: 600;
   color: #cbd5e1;
