@@ -1,12 +1,35 @@
 /* Mini Telemetry Header - Industrial Console Style
    Layout: [Left: Status Badges] [Right: Program Identification]
+
+   Badge colour map
+   ──────────────────────────────────────────────────────
+   Seguridad
+     NORMAL / OK          badge-normal          emerald  #10b981
+     REDUCED              badge-reduced         amber    #f59e0b
+     PROTECTIVE_STOP      badge-protective-stop orange   #f97316  (slow blink)
+     EMERGENCY_STOP       badge-emergency       red      #ef4444  (fast pulse)
+     RECOVERY             badge-recovery        yellow   #fbbf24
+   Robot state
+     POWER_ON             badge-power-on        cyan     #00d1ff
+     POWER_OFF            badge-power-off       gray     #374151
+     IDLE                 badge-idle            blue     #3b82f6
+     BOOTING              badge-booting         white/cyan fade
+     EMERGENCY_STOP       badge-emergency       (same as above)
+   Execution state
+     PLAYING / RUNNING    badge-running         green/cyan #22d3ee
+     PAUSED               badge-paused          amber    #fbbf24
+     STOPPED              badge-stopped         matte-red #ef4444 dim
+   Modo operacion
+     REMOTE / AUTO        badge-remote          purple   #a855f7
+     LOCAL / TEACH        badge-local           el.blue  #3b82f6
 */
 
-/* Local cyan token – matches the design's Technological Cyan */
+/* ── Root token ──────────────────────────────────────────────────────────── */
 :root {
   --hmi-cyan: #00d1ff;
 }
 
+/* ── Container ───────────────────────────────────────────────────────────── */
 .telemetry-mini-header {
   display: flex;
   align-items: stretch;
@@ -28,6 +51,7 @@
   flex-wrap: wrap;
 }
 
+/* Base badge – dark translucent capsule */
 .status-badge {
   display: flex;
   flex-direction: column;
@@ -37,35 +61,190 @@
   border: 1px solid rgba(148, 163, 184, 0.25);
   background: rgba(12, 18, 30, 0.8);
   min-width: 120px;
-  transition: all 0.3s ease;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
-/* OK / RUN / NORMAL → Cyan */
-.status-badge.badge-ok {
-  background: rgba(0, 209, 255, 0.15);
-  border-color: var(--hmi-cyan);
-  box-shadow: 0 0 10px rgba(0, 209, 255, 0.25);
+/* ── Seguridad ───────────────────────────────── */
+
+/* NORMAL / OK → emerald green */
+.badge-normal {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #10b981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.3), inset 0 0 6px rgba(16, 185, 129, 0.1);
+}
+.badge-normal .badge-value {
+  color: #10b981;
+  text-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
 }
 
-/* STOP / MANUAL → Amber */
-.status-badge.badge-stop {
+/* REDUCED → amber */
+.badge-reduced {
   background: rgba(245, 158, 11, 0.15);
   border-color: #f59e0b;
-  box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.25), inset 0 0 6px rgba(245, 158, 11, 0.08);
+}
+.badge-reduced .badge-value {
+  color: #f59e0b;
+  text-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
 }
 
-/* ERROR / EMERGENCY → Red */
-.status-badge.badge-error {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: #ef4444;
-  box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
-  animation: blink-badge 1.2s ease-in-out infinite;
+/* PROTECTIVE_STOP → orange, slow blink */
+.badge-protective-stop {
+  background: rgba(249, 115, 22, 0.15);
+  border-color: #f97316;
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.3), inset 0 0 6px rgba(249, 115, 22, 0.1);
+  animation: blink-slow 2s ease-in-out infinite;
+}
+.badge-protective-stop .badge-value {
+  color: #f97316;
+  text-shadow: 0 0 8px rgba(249, 115, 22, 0.7);
 }
 
-@keyframes blink-badge {
+@keyframes blink-slow {
   0%, 100% { opacity: 1; }
-  50%       { opacity: 0.65; }
+  50%       { opacity: 0.55; }
 }
+
+/* EMERGENCY_STOP → red, fast pulse */
+.badge-emergency {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.5), inset 0 0 8px rgba(239, 68, 68, 0.15);
+  animation: pulse-fast 0.8s ease-in-out infinite;
+}
+.badge-emergency .badge-value {
+  color: #ef4444;
+  text-shadow: 0 0 8px rgba(239, 68, 68, 0.8);
+}
+
+@keyframes pulse-fast {
+  0%, 100% { opacity: 1;    box-shadow: 0 0 14px rgba(239, 68, 68, 0.5); }
+  50%       { opacity: 0.6; box-shadow: 0 0 28px rgba(239, 68, 68, 0.9); }
+}
+
+/* RECOVERY → yellow, solid */
+.badge-recovery {
+  background: rgba(251, 191, 36, 0.15);
+  border-color: #fbbf24;
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.3), inset 0 0 6px rgba(251, 191, 36, 0.1);
+}
+.badge-recovery .badge-value {
+  color: #fbbf24;
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
+}
+
+/* ── Estado Robot ────────────────────────────── */
+
+/* POWER_ON → cyan */
+.badge-power-on {
+  background: rgba(0, 209, 255, 0.15);
+  border-color: var(--hmi-cyan);
+  box-shadow: 0 0 12px rgba(0, 209, 255, 0.35), inset 0 0 6px rgba(0, 209, 255, 0.1);
+}
+.badge-power-on .badge-value {
+  color: var(--hmi-cyan);
+  text-shadow: 0 0 8px rgba(0, 209, 255, 0.7);
+}
+
+/* POWER_OFF → dark matte gray */
+.badge-power-off {
+  background: rgba(55, 65, 81, 0.5);
+  border-color: #4b5563;
+  box-shadow: none;
+}
+.badge-power-off .badge-value {
+  color: #9ca3af;
+  text-shadow: none;
+}
+
+/* IDLE → pale blue */
+.badge-idle {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: #3b82f6;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.25), inset 0 0 6px rgba(59, 130, 246, 0.08);
+}
+.badge-idle .badge-value {
+  color: #60a5fa;
+  text-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+}
+
+/* BOOTING → white/cyan fade animation */
+.badge-booting {
+  background: rgba(0, 209, 255, 0.08);
+  border-color: rgba(0, 209, 255, 0.5);
+  box-shadow: 0 0 8px rgba(0, 209, 255, 0.2);
+  animation: fade-booting 1.5s ease-in-out infinite;
+}
+.badge-booting .badge-value {
+  color: #e0f7ff;
+  text-shadow: 0 0 6px rgba(0, 209, 255, 0.4);
+}
+
+@keyframes fade-booting {
+  0%, 100% { opacity: 1;    border-color: rgba(0, 209, 255, 0.5); }
+  50%       { opacity: 0.6; border-color: rgba(0, 209, 255, 0.2); }
+}
+
+/* ── Estado Ejecución ────────────────────────── */
+
+/* PLAYING / RUNNING → green-cyan */
+.badge-running {
+  background: rgba(34, 211, 238, 0.12);
+  border-color: #22d3ee;
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.3), inset 0 0 6px rgba(34, 211, 238, 0.08);
+}
+.badge-running .badge-value {
+  color: #22d3ee;
+  text-shadow: 0 0 8px rgba(34, 211, 238, 0.6);
+}
+
+/* PAUSED → yellow-amber */
+.badge-paused {
+  background: rgba(251, 191, 36, 0.15);
+  border-color: #fbbf24;
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.25), inset 0 0 6px rgba(251, 191, 36, 0.08);
+}
+.badge-paused .badge-value {
+  color: #fbbf24;
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
+}
+
+/* STOPPED → matte red/gray */
+.badge-stopped {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.4);
+  box-shadow: none;
+}
+.badge-stopped .badge-value {
+  color: #f87171;
+  text-shadow: none;
+}
+
+/* ── Modo Operación ──────────────────────────── */
+
+/* REMOTE / AUTO → purple-magenta */
+.badge-remote {
+  background: rgba(168, 85, 247, 0.15);
+  border-color: #a855f7;
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.35), inset 0 0 6px rgba(168, 85, 247, 0.1);
+}
+.badge-remote .badge-value {
+  color: #c084fc;
+  text-shadow: 0 0 8px rgba(168, 85, 247, 0.6);
+}
+
+/* LOCAL / TEACH → electric blue */
+.badge-local {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: #3b82f6;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.35), inset 0 0 6px rgba(59, 130, 246, 0.1);
+}
+.badge-local .badge-value {
+  color: #60a5fa;
+  text-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
+}
+
+/* ── Shared text styles ──────────────────────── */
 
 .badge-label {
   font-size: 0.6rem;
@@ -77,7 +256,7 @@
 }
 
 .badge-value {
-  font-family: 'Orbitron', 'Courier New', monospace;
+  font-family: 'Orbitron', 'Roboto Mono', 'Courier New', monospace;
   font-size: 0.85rem;
   font-weight: 700;
   color: #ffffff;
@@ -86,10 +265,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
-.badge-ok   .badge-value { color: var(--hmi-cyan); text-shadow: 0 0 8px rgba(0, 209, 255, 0.6); }
-.badge-stop .badge-value { color: #f59e0b; text-shadow: 0 0 8px rgba(245, 158, 11, 0.5); }
-.badge-error .badge-value { color: #ef4444; text-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
 
 /* ── RIGHT: Program Identification ───────────── */
 .header-identification {
@@ -109,7 +284,12 @@
   background: rgba(0, 209, 255, 0.06);
   border: 1px solid rgba(0, 209, 255, 0.15);
   min-width: 130px;
-  transition: all 0.3s ease;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+/* Compact numeric ID badge */
+.header-id-num {
+  min-width: 80px;
 }
 
 .id-label {
@@ -122,7 +302,7 @@
 }
 
 .id-value {
-  font-family: 'Orbitron', 'Courier New', monospace;
+  font-family: 'Orbitron', 'Roboto Mono', 'Courier New', monospace;
   font-size: 0.9rem;
   font-weight: 700;
   color: var(--hmi-cyan);
@@ -133,16 +313,22 @@
   text-overflow: ellipsis;
 }
 
+/* Highlight .urp filename */
+.id-program-name {
+  font-size: 0.8rem;
+  max-width: 200px;
+}
+
 /* ── Heartbeat animation on MQTT update ──────── */
 @keyframes heartbeat-glow {
-  0%   { box-shadow: 0 0 5px rgba(0, 209, 255, 0.2); }
-  30%  { box-shadow: 0 0 18px rgba(0, 209, 255, 0.8), 0 0 28px rgba(0, 209, 255, 0.5); border-color: rgba(0, 209, 255, 0.8); }
+  0%   { box-shadow: inherit; }
+  25%  { box-shadow: 0 0 20px rgba(0, 209, 255, 0.9), 0 0 35px rgba(0, 209, 255, 0.6); border-color: rgba(0, 209, 255, 0.9); }
   60%  { box-shadow: 0 0 10px rgba(0, 209, 255, 0.4); }
-  100% { box-shadow: 0 0 5px rgba(0, 209, 255, 0.2); }
+  100% { box-shadow: inherit; }
 }
 
 .heartbeat {
-  animation: heartbeat-glow 0.8s ease-out;
+  animation: heartbeat-glow 0.8s ease-out !important;
 }
 
 /* ── Responsive ───────────────────────────────── */

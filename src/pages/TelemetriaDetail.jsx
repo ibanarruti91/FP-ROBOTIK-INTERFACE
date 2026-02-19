@@ -75,7 +75,8 @@ function TelemetriaDetail() {
             // Map programa data
             programa: {
               nombre: data.programa?.nombre ?? baseTelemetry.programa?.nombre ?? '',
-              status_id: data.programa?.status_id ?? baseTelemetry.programa?.status_id ?? 0
+              status_id: data.programa?.status_id ?? baseTelemetry.programa?.status_id ?? 0,
+              estado: data.programa?.estado ?? baseTelemetry.programa?.estado ?? null
             },
             // Map sistema data
             sistema: {

@@ -2,10 +2,82 @@
  * Mini-Header de Telemetría
  * Two-zone header: left = status badges, right = program identification
  * Appears at the top of all telemetry tabs
+ *
+ * Color mapping:
+ *   Seguridad  – NORMAL→green, PROTECTIVE_STOP→amber-blink, EMERGENCY_STOP→red-pulse, RECOVERY→yellow
+ *   Robot      – POWER_ON→cyan, POWER_OFF→gray, IDLE→blue, BOOTING→cyan-fade
+ *   Ejecución  – PLAYING/RUNNING→green-cyan, PAUSED→amber, STOPPED→matte-red
+ *   Modo       – REMOTE/AUTO→purple, LOCAL/TEACH→electric-blue
  */
 
 import { useState, useEffect, useRef } from 'react';
 import './TelemetryMiniHeader.css';
+
+// ── Color-class resolvers ──────────────────────────────────────────────────
+
+function getSeguridadClass(seg) {
+  switch (seg) {
+    case 'NORMAL':
+    case 'OK':
+      return 'badge-normal';
+    case 'PROTECTIVE_STOP':
+      return 'badge-protective-stop';
+    case 'EMERGENCY_STOP':
+      return 'badge-emergency';
+    case 'RECOVERY':
+      return 'badge-recovery';
+    case 'REDUCED':
+      return 'badge-reduced';
+    default:
+      return '';
+  }
+}
+
+function getEstadoRobotClass(estado) {
+  switch (estado) {
+    case 'POWER_ON':
+      return 'badge-power-on';
+    case 'POWER_OFF':
+      return 'badge-power-off';
+    case 'IDLE':
+      return 'badge-idle';
+    case 'BOOTING':
+      return 'badge-booting';
+    case 'EMERGENCY_STOP':
+      return 'badge-emergency';
+    default:
+      return '';
+  }
+}
+
+function getEjecucionClass(est) {
+  switch (est) {
+    case 'PLAYING':
+    case 'RUNNING':
+      return 'badge-running';
+    case 'PAUSED':
+      return 'badge-paused';
+    case 'STOPPED':
+      return 'badge-stopped';
+    default:
+      return '';
+  }
+}
+
+function getModoClass(modOp) {
+  switch (modOp) {
+    case 'REMOTE':
+    case 'AUTO':
+      return 'badge-remote';
+    case 'LOCAL':
+    case 'TEACH':
+      return 'badge-local';
+    default:
+      return '';
+  }
+}
+
+// ── Component ──────────────────────────────────────────────────────────────
 
 export function TelemetryMiniHeader({ data }) {
   const [updatedFields, setUpdatedFields] = useState(new Set());
@@ -19,6 +91,7 @@ export function TelemetryMiniHeader({ data }) {
       estadoRobot: data?.sistema?.estado_maquina,
       modo: data?.sistema?.modo_operacion,
       seguridad: data?.estado?.safety,
+      ejecucion: data?.programa?.estado,
       programa: data?.programa?.nombre,
       numeroPrograma: data?.programa?.status_id,
     };
@@ -42,47 +115,46 @@ export function TelemetryMiniHeader({ data }) {
   const estadoRobot = data?.sistema?.estado_maquina || 'N/A';
   const modo = data?.sistema?.modo_operacion || 'N/A';
   const seguridad = data?.estado?.safety || 'N/A';
+  const ejecucion = data?.programa?.estado || 'N/A';
   const programa = data?.programa?.nombre || 'N/A';
   const numeroProg = data?.programa?.status_id !== null && data?.programa?.status_id !== undefined
     ? data.programa.status_id
     : 'N/A';
-  const getEstadoBadge = (estado) => {
-    if (estado === 'POWER_ON') return 'ok';
-    if (estado === 'POWER_OFF') return 'stop';
-    if (estado === 'EMERGENCY_STOP') return 'error';
-    return '';
-  };
 
-  const getModoBadge = (modOp) => {
-    if (modOp === 'REMOTE' || modOp === 'AUTO') return 'ok';
-    if (modOp === 'MANUAL') return 'stop';
-    return '';
-  };
-
-  const getSeguridadBadge = (seg) => {
-    if (seg === 'NORMAL') return 'ok';
-    if (seg === 'REDUCED') return 'stop';
-    if (seg === 'PROTECTIVE_STOP') return 'error';
-    return '';
-  };
+  // Human-readable labels for execution state
+  const ejecucionLabel = {
+    PLAYING: 'EN EJECUCIÓN',
+    RUNNING: 'EN EJECUCIÓN',
+    PAUSED: 'PAUSADO',
+    STOPPED: 'DETENIDO',
+  }[ejecucion] || ejecucion;
 
   return (
     <div className="telemetry-mini-header">
       {/* Left: Status Badges */}
       <div className="header-badges">
-        <div className={`status-badge badge-${getEstadoBadge(estadoRobot)} ${updatedFields.has('estadoRobot') ? 'heartbeat' : ''}`}>
+        {/* SEGURIDAD – máxima prioridad visual */}
+        <div className={`status-badge ${getSeguridadClass(seguridad)} ${updatedFields.has('seguridad') ? 'heartbeat' : ''}`}>
+          <span className="badge-label">Seguridad</span>
+          <span className="badge-value">{seguridad}</span>
+        </div>
+
+        {/* ESTADO ROBOT */}
+        <div className={`status-badge ${getEstadoRobotClass(estadoRobot)} ${updatedFields.has('estadoRobot') ? 'heartbeat' : ''}`}>
           <span className="badge-label">Estado Robot</span>
           <span className="badge-value">{estadoRobot}</span>
         </div>
 
-        <div className={`status-badge badge-${getModoBadge(modo)} ${updatedFields.has('modo') ? 'heartbeat' : ''}`}>
-          <span className="badge-label">Modo Operación</span>
-          <span className="badge-value">{modo}</span>
+        {/* ESTADO EJECUCIÓN */}
+        <div className={`status-badge ${getEjecucionClass(ejecucion)} ${updatedFields.has('ejecucion') ? 'heartbeat' : ''}`}>
+          <span className="badge-label">Ejecución</span>
+          <span className="badge-value">{ejecucionLabel}</span>
         </div>
 
-        <div className={`status-badge badge-${getSeguridadBadge(seguridad)} ${updatedFields.has('seguridad') ? 'heartbeat' : ''}`}>
-          <span className="badge-label">Seguridad</span>
-          <span className="badge-value">{seguridad}</span>
+        {/* MODO OPERACIÓN */}
+        <div className={`status-badge ${getModoClass(modo)} ${updatedFields.has('modo') ? 'heartbeat' : ''}`}>
+          <span className="badge-label">Modo Operación</span>
+          <span className="badge-value">{modo}</span>
         </div>
       </div>
 
@@ -90,11 +162,11 @@ export function TelemetryMiniHeader({ data }) {
       <div className="header-identification">
         <div className={`header-id-item ${updatedFields.has('programa') ? 'heartbeat' : ''}`}>
           <span className="id-label">Nombre Programa</span>
-          <span className="id-value">{programa}</span>
+          <span className="id-value id-program-name">{programa}</span>
         </div>
 
-        <div className={`header-id-item ${updatedFields.has('numeroPrograma') ? 'heartbeat' : ''}`}>
-          <span className="id-label">N° Programa</span>
+        <div className={`header-id-item header-id-num ${updatedFields.has('numeroPrograma') ? 'heartbeat' : ''}`}>
+          <span className="id-label">ID Estado</span>
           <span className="id-value">{numeroProg}</span>
         </div>
       </div>
