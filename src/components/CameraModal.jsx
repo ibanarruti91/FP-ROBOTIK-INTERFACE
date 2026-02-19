@@ -5,7 +5,7 @@
 import { CameraWidget } from './CameraWidget';
 import './CameraModal.css';
 
-export function CameraModal({ isOpen, onClose, streamUrl = '', cameraLabel = '' }) {
+export function CameraModal({ isOpen, onClose, streamUrl = '' }) {
   if (!isOpen) return null;
 
   const handleBackdropClick = (e) => {
@@ -25,7 +25,7 @@ export function CameraModal({ isOpen, onClose, streamUrl = '', cameraLabel = '' 
           <p className="camera-modal-subtitle">Vigilancia en tiempo real</p>
         </div>
         <div className="camera-modal-body">
-          <CameraWidget streamUrl={streamUrl} cameraId={cameraLabel} />
+          <CameraWidget streamUrl={streamUrl} />
         </div>
       </div>
     </div>
