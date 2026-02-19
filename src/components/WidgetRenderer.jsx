@@ -4,7 +4,6 @@
 
 import { KpiCard, StatusPill, StatusDynamic, DataTable, LogPanel, SafetyPanel, DigitalIO, TcpPose, JointsGrid } from './TelemetryWidgets';
 import { CameraWidget } from './CameraWidget';
-import RobotDashboard from './RobotDashboard';
 import './WidgetRenderer.css';
 
 /**
@@ -134,15 +133,6 @@ function renderWidget(widget, data, key) {
           key={key}
           data={value}
           className="full-width"
-        />
-      );
-    
-    case 'robot-dashboard':
-      // Receives full telemetry data (not a sub-path)
-      return (
-        <RobotDashboard
-          key={key}
-          data={data}
         />
       );
     

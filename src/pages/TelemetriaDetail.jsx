@@ -96,16 +96,6 @@ function TelemetriaDetail() {
             tcp: baseTelemetry.tcp,
             joints: baseTelemetry.joints,
             digital_io: baseTelemetry.digital_io,
-            // Map analog IO data
-            analog_io: {
-              inputs: data.analog_io?.inputs ?? baseTelemetry.analog_io?.inputs ?? Array(4).fill(null),
-              outputs: data.analog_io?.outputs ?? baseTelemetry.analog_io?.outputs ?? Array(4).fill(null)
-            },
-            // Map tool data
-            tool: {
-              voltage: data.tool?.voltage ?? baseTelemetry.tool?.voltage ?? null,
-              current: data.tool?.current ?? baseTelemetry.tool?.current ?? null
-            },
             camera: baseTelemetry.camera
           };
         });
@@ -155,14 +145,14 @@ function TelemetriaDetail() {
   }
 
   return (
-    <div className="page-container td-has-bottom-nav">
+    <div className="page-container">
       <div className="universal-header">
         <h1 className="universal-title">{centro.nombre}</h1>
         <p className="universal-description">Telemetría en tiempo real</p>
       </div>
       
-      {/* Tab Navigation (top - hidden when bottom nav is present) */}
-      <div className="tab-bar tab-bar-top">
+      {/* Tab Navigation */}
+      <div className="tab-bar">
         {layout.tabs.map(tab => (
           <button
             key={tab.id}
@@ -199,21 +189,6 @@ function TelemetriaDetail() {
           Última actualización: {new Date(telemetry.timestamp).toLocaleString('es-ES')}
         </div>
       )}
-
-      {/* Fixed Bottom Navigation - Neon round buttons */}
-      <nav className="bottom-nav">
-        {layout.tabs.map(tab => (
-          <button
-            key={tab.id}
-            className={`bottom-nav-btn ${activeTab === tab.id ? 'active' : ''}`}
-            onClick={() => setActiveTab(tab.id)}
-            style={{ '--tab-color': tab.color }}
-            aria-label={tab.label}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </nav>
     </div>
   );
 }
