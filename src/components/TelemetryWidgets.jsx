@@ -393,7 +393,7 @@ export function DigitalIO({ data, className = '' }) {
           {inputs.map((active, index) => (
             <div key={`in-${index}`} className="io-led">
               <div className="io-led-label">DI{index}</div>
-              <div className={`io-led-indicator ${active === true ? 'active' : ''} ${active === null ? 'value-na' : ''}`}></div>
+              <div className={`io-led-indicator input-led ${active === true ? 'active' : ''} ${active === null ? 'value-na' : ''}`}></div>
             </div>
           ))}
         </div>
@@ -404,7 +404,7 @@ export function DigitalIO({ data, className = '' }) {
           {outputs.map((active, index) => (
             <div key={`out-${index}`} className="io-led">
               <div className="io-led-label">DO{index}</div>
-              <div className={`io-led-indicator ${active === true ? 'active' : ''} ${active === null ? 'value-na' : ''}`}></div>
+              <div className={`io-led-indicator output-led ${active === true ? 'active' : ''} ${active === null ? 'value-na' : ''}`}></div>
             </div>
           ))}
         </div>

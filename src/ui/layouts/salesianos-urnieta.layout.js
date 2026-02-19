@@ -51,13 +51,6 @@ export const SALESIANOS_LAYOUT = {
           ]
         },
         {
-          title: "Estado General",
-          widgets: [
-            { type: "status", label: "Conexión", path: "estado.online", statusType: "online" },
-            { type: "kpi", label: "Último Error", path: "last_error", unit: "", format: "text" }
-          ]
-        },
-        {
           title: "TCP - Posición Cartesiana",
           widgets: [
             { type: "kpi", label: "X", path: "tcp.position.x", unit: "mm", format: "2", columns: 3 },
