@@ -29,8 +29,14 @@
   100% { filter: brightness(1); }
 }
 
+/* Ambient heartbeat for numeric data values */
+@keyframes ambient-heartbeat {
+  0%, 100% { filter: brightness(0.88); }
+  50%       { filter: brightness(1.12); }
+}
+
 .value-updated {
-  animation: value-update-glow 0.3s ease-out;
+  animation: value-update-glow 0.3s ease-out !important;
 }
 
 /* CardGlass - Contenedor con glassmorphism - Industrial Console Style */
@@ -103,6 +109,7 @@
   line-height: 1;
   text-shadow: 0 0 8px rgba(0, 209, 255, 0.5), 0 0 12px rgba(0, 209, 255, 0.3);
   transition: all 0.3s ease;
+  animation: ambient-heartbeat 1.8s ease-in-out infinite;
 }
 
 /* Icon styling for widget labels */

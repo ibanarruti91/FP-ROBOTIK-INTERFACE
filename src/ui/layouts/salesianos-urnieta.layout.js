@@ -25,6 +25,7 @@ export const SALESIANOS_LAYOUT = {
           widgets: [
             { type: "kpi", label: "Potencia", path: "sistema.potencia_total", unit: "W", format: "0", columns: 1, compact: true },
             { type: "kpi", label: "Temp. Control", path: "sistema.temperatura_control", unit: "°C", format: "1", columns: 1, compact: true },
+            { type: "kpi", label: "Velocidad TCP", path: "tcp.speed", unit: "mm/s", format: "1", columns: 1, compact: true },
             { type: "kpi", label: "Tiempo Ciclo", path: "estadisticas.tiempo_ciclo", unit: "s", format: "2", columns: 1, compact: true },
             { type: "kpi", label: "Horas Operación", path: "estadisticas.horas_operacion", unit: "h", format: "1", columns: 1, compact: true }
           ]
