@@ -22,7 +22,7 @@ export function CameraWidget({ streamUrl = '', className = '' }) {
             title="Camera Feed"
             allow="autoplay; camera; microphone; fullscreen; picture-in-picture"
             allowFullScreen
-            style={{ opacity: iframeLoaded ? 1 : 0, transition: 'opacity 0.5s ease' }}
+            style={{ opacity: iframeLoaded ? 1 : 0, transition: 'opacity 0.5s ease', background: 'transparent' }}
             loading="lazy"
             onLoad={() => setIframeLoaded(true)}
           />
