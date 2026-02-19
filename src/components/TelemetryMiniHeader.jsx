@@ -94,6 +94,7 @@ export function TelemetryMiniHeader({ data }) {
       ejecucion: data?.programa?.estado,
       programa: data?.programa?.nombre,
       numeroPrograma: data?.programa?.status_id,
+      tcpSpeed: data?.tcp?.speed,
     };
 
     const updated = new Set();
@@ -105,7 +106,7 @@ export function TelemetryMiniHeader({ data }) {
 
     if (updated.size > 0) {
       setUpdatedFields(updated);
-      const timer = setTimeout(() => setUpdatedFields(new Set()), 800);
+      const timer = setTimeout(() => setUpdatedFields(new Set()), 300);
       previousData.current = currentData;
       return () => clearTimeout(timer);
     }
@@ -119,6 +120,9 @@ export function TelemetryMiniHeader({ data }) {
   const programa = data?.programa?.nombre || 'N/A';
   const numeroProg = data?.programa?.status_id !== null && data?.programa?.status_id !== undefined
     ? data.programa.status_id
+    : 'N/A';
+  const tcpSpeed = data?.tcp?.speed !== null && data?.tcp?.speed !== undefined
+    ? (typeof data.tcp.speed === 'number' ? data.tcp.speed.toFixed(1) : data.tcp.speed)
     : 'N/A';
 
   // Human-readable labels for execution state
@@ -168,6 +172,11 @@ export function TelemetryMiniHeader({ data }) {
         <div className={`header-id-item header-id-num ${updatedFields.has('numeroPrograma') ? 'heartbeat' : ''}`}>
           <span className="id-label">ID Estado</span>
           <span className="id-value">{numeroProg}</span>
+        </div>
+
+        <div className={`header-id-item header-id-speed ${updatedFields.has('tcpSpeed') ? 'heartbeat' : ''}`}>
+          <span className="id-label">Velocidad TCP</span>
+          <span className="id-value id-speed-value">{tcpSpeed !== 'N/A' ? `${tcpSpeed} mm/s` : 'N/A'}</span>
         </div>
       </div>
     </div>
