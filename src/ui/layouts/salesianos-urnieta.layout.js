@@ -11,17 +11,6 @@ export const SALESIANOS_LAYOUT = {
       color: "#00e5ff", // Cyan
       groups: [
         {
-          title: "Resumen Operativo",
-          className: "principal-header",
-          compact: true,
-          widgets: [
-            { type: "kpi", label: "Nombre del Programa", path: "programa.nombre", unit: "", format: "text", columns: 2, compact: true },
-            { type: "status-dynamic", label: "Modo Operación", path: "sistema.modo_operacion", statusType: "modo_operacion", columns: 2, compact: true },
-            { type: "status-dynamic", label: "Estado Máquina", path: "sistema.estado_maquina", statusType: "estado_maquina", columns: 2, compact: true },
-            { type: "kpi", label: "ID Estado", path: "programa.status_id", unit: "", format: "0", columns: 1, compact: true }
-          ]
-        },
-        {
           title: "Vista en Vivo",
           className: "principal-camera",
           compact: true,
@@ -30,12 +19,12 @@ export const SALESIANOS_LAYOUT = {
           ]
         },
         {
-          title: "Datos Técnicos",
+          title: "Telemetría",
           className: "principal-metrics",
           compact: true,
           widgets: [
             { type: "kpi", label: "Potencia", path: "sistema.potencia_total", unit: "W", format: "0", columns: 1, compact: true },
-            { type: "kpi", label: "Temp.", path: "sistema.temperatura_control", unit: "°C", format: "1", columns: 1, compact: true },
+            { type: "kpi", label: "Temp. Control", path: "sistema.temperatura_control", unit: "°C", format: "1", columns: 1, compact: true },
             { type: "kpi", label: "Tiempo Ciclo", path: "estadisticas.tiempo_ciclo", unit: "s", format: "2", columns: 1, compact: true },
             { type: "kpi", label: "Horas Operación", path: "estadisticas.horas_operacion", unit: "h", format: "1", columns: 1, compact: true }
           ]
@@ -72,7 +61,6 @@ export const SALESIANOS_LAYOUT = {
           title: "Estado General",
           widgets: [
             { type: "status", label: "Conexión", path: "estado.online", statusType: "online" },
-            { type: "status", label: "Modo Operación", path: "estado.mode", statusType: "mode" },
             { type: "kpi", label: "Último Error", path: "last_error", unit: "", format: "text" }
           ]
         },
@@ -95,7 +83,7 @@ export const SALESIANOS_LAYOUT = {
         {
           title: "TCP - Velocidad",
           widgets: [
-            { type: "kpi", label: "Velocidad TCP", path: "tcp.speed", unit: "m/s", format: "3" }
+            { type: "kpi", label: "Velocidad TCP", path: "tcp.speed", unit: "mm/s", format: "3" }
           ]
         }
       ]
@@ -152,7 +140,6 @@ export const SALESIANOS_LAYOUT = {
         {
           title: "Diagnóstico de Errores",
           widgets: [
-            { type: "kpi", label: "Estado Seguridad", path: "estado.safety", unit: "", format: "text" },
             { type: "kpi", label: "Último Error", path: "last_error", unit: "", format: "text" }
           ]
         },

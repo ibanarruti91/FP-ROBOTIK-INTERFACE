@@ -1,6 +1,6 @@
 /**
  * Mini-Header de Telemetría
- * small, elegant header showing 5 key telemetry metrics
+ * Two-zone header: left = status badges, right = program identification
  * Appears at the top of all telemetry tabs
  */
 
@@ -11,19 +11,19 @@ export function TelemetryMiniHeader({ data }) {
   const [updatedFields, setUpdatedFields] = useState(new Set());
   const previousData = useRef({});
 
-  // Track which fields have been updated
+  // Track which fields have been updated for heartbeat effect
   useEffect(() => {
     if (!data) return;
 
-    const updated = new Set();
     const currentData = {
       estadoRobot: data?.sistema?.estado_maquina,
+      modo: data?.sistema?.modo_operacion,
+      seguridad: data?.estado?.safety,
       programa: data?.programa?.nombre,
-      statusProg: data?.programa?.status_id,
-      velocidad: data?.tcp?.speed,
-      modo: data?.sistema?.modo_operacion
+      numeroPrograma: data?.programa?.status_id,
     };
 
+    const updated = new Set();
     Object.keys(currentData).forEach(key => {
       if (previousData.current[key] !== currentData[key]) {
         updated.add(key);
@@ -40,89 +40,62 @@ export function TelemetryMiniHeader({ data }) {
 
   // Extract values with fallbacks
   const estadoRobot = data?.sistema?.estado_maquina || 'N/A';
-  const programa = data?.programa?.nombre || 'N/A';
-  const statusProg = data?.programa?.status_id !== null && data?.programa?.status_id !== undefined 
-    ? data.programa.status_id 
-    : 'N/A';
-  const velocidad = data?.tcp?.speed !== null && data?.tcp?.speed !== undefined 
-    ? `${(data.tcp.speed * 100).toFixed(0)}%` 
-    : 'N/A';
   const modo = data?.sistema?.modo_operacion || 'N/A';
-
-  // Helper to determine status class for Estado Robot
-  const getEstadoClass = (estado) => {
-    if (estado === 'N/A') return '';
-    if (estado === 'POWER_ON') return 'status-running';
-    if (estado === 'POWER_OFF') return 'status-stopped';
-    if (estado === 'EMERGENCY_STOP') return 'status-emergency';
+  const seguridad = data?.estado?.safety || 'N/A';
+  const programa = data?.programa?.nombre || 'N/A';
+  const numeroProg = data?.programa?.status_id !== null && data?.programa?.status_id !== undefined
+    ? data.programa.status_id
+    : 'N/A';
+  const getEstadoBadge = (estado) => {
+    if (estado === 'POWER_ON') return 'ok';
+    if (estado === 'POWER_OFF') return 'stop';
+    if (estado === 'EMERGENCY_STOP') return 'error';
     return '';
   };
 
-  // Helper to determine status class for Status Prog
-  const getStatusProgClass = (status) => {
-    if (status === 'N/A') return '';
-    // Assuming status_id: 1 = Running, 0 = Stopped, etc.
-    if (status === 1 || status === '1') return 'status-running';
-    if (status === 0 || status === '0') return 'status-stopped';
+  const getModoBadge = (modOp) => {
+    if (modOp === 'REMOTE' || modOp === 'AUTO') return 'ok';
+    if (modOp === 'MANUAL') return 'stop';
     return '';
   };
 
-  // Helper to get display text for Status Prog
-  const getStatusProgDisplay = (status) => {
-    if (status === 1 || status === '1') return 'Running';
-    if (status === 0 || status === '0') return 'Stopped';
-    return status;
+  const getSeguridadBadge = (seg) => {
+    if (seg === 'NORMAL') return 'ok';
+    if (seg === 'REDUCED') return 'stop';
+    if (seg === 'PROTECTIVE_STOP') return 'error';
+    return '';
   };
 
   return (
     <div className="telemetry-mini-header">
-      <div className={`mini-metric ${updatedFields.has('estadoRobot') ? 'metric-flash' : ''}`}>
-        <div className="mini-label">Estado Robot</div>
-        <div className={`mini-value ${getEstadoClass(estadoRobot)}`}>
-          {estadoRobot}
+      {/* Left: Status Badges */}
+      <div className="header-badges">
+        <div className={`status-badge badge-${getEstadoBadge(estadoRobot)} ${updatedFields.has('estadoRobot') ? 'heartbeat' : ''}`}>
+          <span className="badge-label">Estado Robot</span>
+          <span className="badge-value">{estadoRobot}</span>
         </div>
-        <div className="mini-progress-bar">
-          <div className={`mini-progress-fill ${getEstadoClass(estadoRobot)}`} style={{ width: estadoRobot !== 'N/A' ? '100%' : '0%' }}></div>
+
+        <div className={`status-badge badge-${getModoBadge(modo)} ${updatedFields.has('modo') ? 'heartbeat' : ''}`}>
+          <span className="badge-label">Modo Operación</span>
+          <span className="badge-value">{modo}</span>
+        </div>
+
+        <div className={`status-badge badge-${getSeguridadBadge(seguridad)} ${updatedFields.has('seguridad') ? 'heartbeat' : ''}`}>
+          <span className="badge-label">Seguridad</span>
+          <span className="badge-value">{seguridad}</span>
         </div>
       </div>
 
-      <div className={`mini-metric ${updatedFields.has('programa') ? 'metric-flash' : ''}`}>
-        <div className="mini-label">Programa</div>
-        <div className="mini-value">
-          {programa}
+      {/* Right: Program Identification */}
+      <div className="header-identification">
+        <div className={`header-id-item ${updatedFields.has('programa') ? 'heartbeat' : ''}`}>
+          <span className="id-label">Nombre Programa</span>
+          <span className="id-value">{programa}</span>
         </div>
-        <div className="mini-progress-bar">
-          <div className="mini-progress-fill" style={{ width: programa !== 'N/A' ? '100%' : '0%' }}></div>
-        </div>
-      </div>
 
-      <div className={`mini-metric ${updatedFields.has('statusProg') ? 'metric-flash' : ''}`}>
-        <div className="mini-label">Status Prog</div>
-        <div className={`mini-value ${getStatusProgClass(statusProg)}`}>
-          {getStatusProgDisplay(statusProg)}
-        </div>
-        <div className="mini-progress-bar">
-          <div className={`mini-progress-fill ${getStatusProgClass(statusProg)}`} style={{ width: statusProg !== 'N/A' ? '100%' : '0%' }}></div>
-        </div>
-      </div>
-
-      <div className={`mini-metric ${updatedFields.has('velocidad') ? 'metric-flash' : ''}`}>
-        <div className="mini-label">Velocidad</div>
-        <div className="mini-value">
-          {velocidad}
-        </div>
-        <div className="mini-progress-bar">
-          <div className="mini-progress-fill" style={{ width: velocidad !== 'N/A' ? velocidad : '0%' }}></div>
-        </div>
-      </div>
-
-      <div className={`mini-metric ${updatedFields.has('modo') ? 'metric-flash' : ''}`}>
-        <div className="mini-label">Modo</div>
-        <div className="mini-value">
-          {modo}
-        </div>
-        <div className="mini-progress-bar">
-          <div className="mini-progress-fill" style={{ width: modo !== 'N/A' ? '100%' : '0%' }}></div>
+        <div className={`header-id-item ${updatedFields.has('numeroPrograma') ? 'heartbeat' : ''}`}>
+          <span className="id-label">N° Programa</span>
+          <span className="id-value">{numeroProg}</span>
         </div>
       </div>
     </div>
