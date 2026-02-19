@@ -188,6 +188,18 @@ export function StatusDynamic({ label, value, statusType, className = '', compac
   const isValueAvailable = value !== null && value !== undefined && value !== '';
   const displayValue = isValueAvailable ? value : 'N/A';
   const isNA = !isValueAvailable;
+  const [isUpdated, setIsUpdated] = useState(false);
+  const previousValue = useRef(value);
+  
+  // Trigger update animation when value changes
+  useEffect(() => {
+    if (previousValue.current !== value && isValueAvailable) {
+      setIsUpdated(true);
+      previousValue.current = value;
+      const timer = setTimeout(() => setIsUpdated(false), 400);
+      return () => clearTimeout(timer);
+    }
+  }, [value, isValueAvailable]);
   
   let statusClass = '';
   let shouldBlink = false;
@@ -214,7 +226,7 @@ export function StatusDynamic({ label, value, statusType, className = '', compac
   return (
     <CardGlass className={`status-dynamic ${compact ? 'status-compact' : ''} ${className}`}>
       <div className="status-label">{label}</div>
-      <div className={`status-value ${statusClass} ${shouldBlink ? 'blink' : ''} ${isNA ? 'value-na' : ''}`}>
+      <div className={`status-value ${statusClass} ${shouldBlink ? 'blink' : ''} ${isNA ? 'value-na' : ''} ${isUpdated ? 'status-value-updated' : ''}`}>
         {!isNA && <span className="status-dot"></span>}
         {displayValue}
       </div>

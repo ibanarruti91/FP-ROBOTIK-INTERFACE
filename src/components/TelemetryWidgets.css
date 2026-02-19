@@ -25,15 +25,15 @@
 /* Value update animation - enhanced glow effect for Industrial Console */
 @keyframes value-update-glow {
   0% {
-    text-shadow: 0 0 15px rgba(0, 255, 0, 0.7), 0 0 25px rgba(0, 255, 0, 0.4);
+    text-shadow: 0 0 8px rgba(0, 209, 255, 0.5), 0 0 12px rgba(0, 209, 255, 0.3);
     transform: scale(1);
   }
   50% {
-    text-shadow: 0 0 30px rgba(0, 255, 0, 1), 0 0 50px rgba(0, 255, 0, 0.8), 0 0 70px rgba(0, 255, 0, 0.5);
+    text-shadow: 0 0 15px rgba(0, 209, 255, 0.8), 0 0 25px rgba(0, 209, 255, 0.6), 0 0 35px rgba(0, 209, 255, 0.4);
     transform: scale(1.05);
   }
   100% {
-    text-shadow: 0 0 15px rgba(0, 255, 0, 0.7), 0 0 25px rgba(0, 255, 0, 0.4);
+    text-shadow: 0 0 8px rgba(0, 209, 255, 0.5), 0 0 12px rgba(0, 209, 255, 0.3);
     transform: scale(1);
   }
 }
@@ -107,9 +107,9 @@
   font-family: 'Orbitron', 'Courier New', 'Consolas', monospace;
   font-size: 2.5rem;
   font-weight: 700;
-  color: #00ff00;
+  color: #00d1ff;
   line-height: 1;
-  text-shadow: 0 0 15px rgba(0, 255, 0, 0.7), 0 0 25px rgba(0, 255, 0, 0.4);
+  text-shadow: 0 0 8px rgba(0, 209, 255, 0.5), 0 0 12px rgba(0, 209, 255, 0.3);
   transition: all 0.3s ease;
 }
 
@@ -147,8 +147,8 @@
 
 .kpi-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #00ff00, #00ff00 80%, rgba(0, 255, 0, 0.5));
-  box-shadow: 0 0 8px rgba(0, 255, 0, 0.6);
+  background: linear-gradient(90deg, #00d1ff, #00d1ff 80%, rgba(0, 209, 255, 0.5));
+  box-shadow: 0 0 8px rgba(0, 209, 255, 0.4);
   border-radius: 2px;
   transition: width 0.5s ease;
   animation: progress-pulse 2s ease-in-out infinite;
@@ -156,10 +156,10 @@
 
 @keyframes progress-pulse {
   0%, 100% {
-    box-shadow: 0 0 8px rgba(0, 255, 0, 0.6);
+    box-shadow: 0 0 8px rgba(0, 209, 255, 0.4);
   }
   50% {
-    box-shadow: 0 0 12px rgba(0, 255, 0, 0.8), 0 0 16px rgba(0, 255, 0, 0.4);
+    box-shadow: 0 0 12px rgba(0, 209, 255, 0.6), 0 0 16px rgba(0, 209, 255, 0.3);
   }
 }
 
@@ -265,6 +265,7 @@
   gap: 0.75rem;
   min-height: 120px;
   justify-content: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .status-dynamic.status-compact {
@@ -282,27 +283,57 @@
   padding: 0.5rem 0.75rem;
 }
 
+/* Animation when state value changes */
+@keyframes status-update-scale {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.status-value-updated {
+  animation: status-update-scale 0.4s ease-out;
+}
+
 /* Estado Máquina Colors */
 .status-power-on {
-  color: #10b981;
-  border: 1px solid #10b981;
-  background: rgba(16, 185, 129, 0.1);
+  color: #00d1ff;
+  border: 2px solid #00d1ff;
+  background: rgba(0, 209, 255, 0.1);
+  box-shadow: 0 0 15px rgba(0, 209, 255, 0.3);
 }
 
 .status-power-on .status-dot {
-  background: #10b981;
-  box-shadow: 0 0 10px #10b981;
+  background: #00d1ff;
+  box-shadow: 0 0 12px #00d1ff, 0 0 20px rgba(0, 209, 255, 0.5);
+  animation: pulse-bright 2s ease-in-out infinite;
+}
+
+@keyframes pulse-bright {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 12px #00d1ff, 0 0 20px rgba(0, 209, 255, 0.5);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 18px #00d1ff, 0 0 30px rgba(0, 209, 255, 0.7);
+  }
 }
 
 .status-power-off {
-  color: #6b7280;
-  border: 1px solid #6b7280;
-  background: rgba(107, 114, 128, 0.1);
+  color: #94a3b8;
+  border: 2px solid #64748b;
+  background: rgba(100, 116, 139, 0.1);
 }
 
 .status-power-off .status-dot {
-  background: #6b7280;
-  box-shadow: 0 0 10px #6b7280;
+  background: #64748b;
+  box-shadow: 0 0 8px #64748b;
 }
 
 .status-emergency {
@@ -348,19 +379,21 @@
 
 /* Modo Operación Colors */
 .status-remote-auto {
-  color: #3b82f6;
-  border: 1px solid #3b82f6;
-  background: rgba(59, 130, 246, 0.1);
+  color: #00d1ff;
+  border: 2px solid #00d1ff;
+  background: rgba(0, 209, 255, 0.1);
+  box-shadow: 0 0 15px rgba(0, 209, 255, 0.3);
 }
 
 .status-remote-auto .status-dot {
-  background: #3b82f6;
-  box-shadow: 0 0 10px #3b82f6;
+  background: #00d1ff;
+  box-shadow: 0 0 12px #00d1ff, 0 0 20px rgba(0, 209, 255, 0.5);
+  animation: pulse-bright 2s ease-in-out infinite;
 }
 
 .status-manual {
   color: #f59e0b;
-  border: 1px solid #f59e0b;
+  border: 2px solid #f59e0b;
   background: rgba(245, 158, 11, 0.1);
 }
 
@@ -418,8 +451,8 @@
   font-family: 'Orbitron', 'Courier New', 'Consolas', monospace;
   font-size: 1.3rem;
   font-weight: 600;
-  color: #00ff00;
-  text-shadow: 0 0 12px rgba(0, 255, 0, 0.6), 0 0 20px rgba(0, 255, 0, 0.3);
+  color: #00d1ff;
+  text-shadow: 0 0 8px rgba(0, 209, 255, 0.5), 0 0 12px rgba(0, 209, 255, 0.3);
   transition: all 0.3s ease;
 }
 
@@ -766,9 +799,9 @@
   font-family: 'Orbitron', 'Courier New', 'Consolas', monospace;
   font-size: 1.4rem;
   font-weight: 700;
-  color: #00ff00;
+  color: #00d1ff;
   flex: 1;
-  text-shadow: 0 0 12px rgba(0, 255, 0, 0.6), 0 0 20px rgba(0, 255, 0, 0.3);
+  text-shadow: 0 0 8px rgba(0, 209, 255, 0.5), 0 0 12px rgba(0, 209, 255, 0.3);
   transition: all 0.3s ease;
 }
 
@@ -846,10 +879,10 @@
   font-family: 'Orbitron', 'Courier New', 'Consolas', monospace;
   font-size: 1.1rem;
   font-weight: 700;
-  color: #00ff00;
+  color: #00d1ff;
   flex: 1;
   text-align: center;
-  text-shadow: 0 0 12px rgba(0, 255, 0, 0.6), 0 0 20px rgba(0, 255, 0, 0.3);
+  text-shadow: 0 0 8px rgba(0, 209, 255, 0.5), 0 0 12px rgba(0, 209, 255, 0.3);
   transition: all 0.3s ease;
 }
 
