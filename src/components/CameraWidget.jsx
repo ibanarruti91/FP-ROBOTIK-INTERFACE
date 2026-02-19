@@ -6,15 +6,15 @@
 import { useState } from 'react';
 import './CameraWidget.css';
 
-export function CameraWidget({ streamUrl = '', cameraId = '---', className = '' }) {
+export function CameraWidget({ streamUrl = '', className = '' }) {
   const [iframeLoaded, setIframeLoaded] = useState(false);
 
   return (
     <div className={`camera-widget nexus-card ${className}`}>
       <div className="camera-inner camera-inner--ratio">
         <div className="camera-standby">
-          <span className="standby-main">🛰️ MODO STANDBY: ESPERANDO FEED...</span>
-          <span className="standby-id">Verificar ID: {cameraId}</span>
+          <span className="standby-main">📡 ESPERANDO SEÑAL DE VÍDEO...</span>
+          <span className="standby-id">Sin conexión desde el centro.</span>
         </div>
         {streamUrl && (
           <iframe
