@@ -124,12 +124,7 @@ export function KpiCard({ label, value, unit, className = '', compact = false, f
   const IconComponent = getIcon();
   
   // Calculate progress bar percentage (for numeric values)
-  const getProgressPercentage = () => {
-    if (!isValueAvailable || numericValue === null) return 0;
-    // For most values, show 100% if there's a value
-    // Could be customized based on specific metrics
-    return 100;
-  };
+  const progressPercentage = (isValueAvailable && numericValue !== null) ? 100 : 0;
   
   return (
     <CardGlass className={`kpi-card ${compact ? 'kpi-compact' : ''} ${className}`}>
@@ -145,7 +140,7 @@ export function KpiCard({ label, value, unit, className = '', compact = false, f
       <div className="kpi-progress-bar">
         <div 
           className="kpi-progress-fill" 
-          style={{ width: `${getProgressPercentage()}%` }}
+          style={{ width: `${progressPercentage}%` }}
         ></div>
       </div>
     </CardGlass>
