@@ -5,6 +5,7 @@ import { CENTROS } from '../config/centros';
 import { getMockTelemetryData } from '../servicios/iot';
 import { SALESIANOS_LAYOUT } from '../ui/layouts/salesianos-urnieta.layout';
 import WidgetRenderer from '../components/WidgetRenderer';
+import { TelemetryMiniHeader } from '../components/TelemetryMiniHeader';
 import { useMqttStatus } from '../hooks/useMqttStatus';
 import './TelemetriaDetail.css';
 
@@ -163,6 +164,9 @@ function TelemetriaDetail() {
           </button>
         ))}
       </div>
+
+      {/* Mini Telemetry Header - Appears on all tabs */}
+      <TelemetryMiniHeader data={telemetry} />
       
       {/* Tab Content */}
       <div className={`tab-content ${status === 'OFFLINE' ? 'offline-mode' : ''}`} data-section={activeTab}>
