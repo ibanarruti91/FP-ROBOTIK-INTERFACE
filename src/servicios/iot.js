@@ -114,6 +114,14 @@ export function getMockTelemetryData(centroConfig = null) {
       inputs: Array.from({ length: 16 }, () => null),
       outputs: Array.from({ length: 16 }, () => null)
     },
+    analog_io: {
+      inputs: Array.from({ length: 4 }, () => null),  // CI0-CI3 (V)
+      outputs: Array.from({ length: 4 }, () => null)  // CO0-CO3 (V)
+    },
+    tool: {
+      voltage: null, // V
+      current: null  // mA
+    },
     camera: {
       stream: centroConfig?.cameraStreamUrl || ''
     }

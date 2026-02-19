@@ -42,48 +42,11 @@ export const SALESIANOS_LAYOUT = {
     {
       id: "estado-io",
       label: "Estado+IO",
-      color: "#ffbf00", // Amber
+      color: "#00d1ff", // Cyan
       groups: [
         {
-          title: "Panel de Seguridad",
-          priority: "high",
           widgets: [
-            { type: "safety-panel", label: "Estado de Seguridad", path: "estado.safety" }
-          ]
-        },
-        {
-          title: "Entradas/Salidas Digitales",
-          widgets: [
-            { type: "digital-io", label: "Matriz IO Digital", path: "digital_io", ioCount: 32 }
-          ]
-        },
-        {
-          title: "Estado General",
-          widgets: [
-            { type: "status", label: "Conexión", path: "estado.online", statusType: "online" },
-            { type: "kpi", label: "Último Error", path: "last_error", unit: "", format: "text" }
-          ]
-        },
-        {
-          title: "TCP - Posición Cartesiana",
-          widgets: [
-            { type: "kpi", label: "X", path: "tcp.position.x", unit: "mm", format: "2", columns: 3 },
-            { type: "kpi", label: "Y", path: "tcp.position.y", unit: "mm", format: "2", columns: 3 },
-            { type: "kpi", label: "Z", path: "tcp.position.z", unit: "mm", format: "2", columns: 3 }
-          ]
-        },
-        {
-          title: "TCP - Orientación",
-          widgets: [
-            { type: "kpi", label: "RX", path: "tcp.orientation.rx", unit: "rad", format: "3", columns: 3 },
-            { type: "kpi", label: "RY", path: "tcp.orientation.ry", unit: "rad", format: "3", columns: 3 },
-            { type: "kpi", label: "RZ", path: "tcp.orientation.rz", unit: "rad", format: "3", columns: 3 }
-          ]
-        },
-        {
-          title: "TCP - Velocidad",
-          widgets: [
-            { type: "kpi", label: "Velocidad TCP", path: "tcp.speed", unit: "mm/s", format: "3" }
+            { type: "robot-dashboard", label: "Estado del Robot / Mapeado E/S" }
           ]
         }
       ]
