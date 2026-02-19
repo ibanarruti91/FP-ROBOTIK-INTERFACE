@@ -45,13 +45,6 @@ export const SALESIANOS_LAYOUT = {
       color: "#ffbf00", // Amber
       groups: [
         {
-          title: "Panel de Seguridad",
-          priority: "high",
-          widgets: [
-            { type: "safety-panel", label: "Estado de Seguridad", path: "estado.safety" }
-          ]
-        },
-        {
           title: "Entradas/Salidas Digitales",
           widgets: [
             { type: "digital-io", label: "Matriz IO Digital", path: "digital_io", ioCount: 32 }
