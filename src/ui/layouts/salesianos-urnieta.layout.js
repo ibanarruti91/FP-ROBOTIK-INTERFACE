@@ -45,36 +45,48 @@ export const SALESIANOS_LAYOUT = {
       label: "ESTADO ROBOT",
       color: "#ffbf00", // Amber
       groups: [
+        // ── LEFT COLUMN (55 %) ──────────────────────────────────────────
         {
-          title: "CONTROL",
-          className: "er-control",
-          compact: true,
+          title: null,
+          className: "er-camera",
           widgets: [
-            { type: "kpi", label: "Potencia Total", path: "sistema.potencia_total", unit: "W", format: "0", compact: true },
-            { type: "kpi", label: "Temp. Control", path: "sistema.temperatura_control", unit: "°C", format: "1", compact: true },
-            { type: "kpi", label: "Tiempo Ciclo", path: "estadisticas.tiempo_ciclo", unit: "s", format: "2", compact: true }
+            { type: "camera", path: "camera.stream", dismissible: true, borderColor: "#ffbf00" }
+          ]
+        },
+        {
+          title: "MAPEADO E/S DIGITAL",
+          className: "er-digital-io",
+          widgets: [
+            { type: "digital-io", path: "digital_io" }
+          ]
+        },
+        // ── RIGHT COLUMN (45 %) ─────────────────────────────────────────
+        {
+          title: "GESTIÓN",
+          className: "er-gestion",
+          widgets: [
+            { type: "gestion-panel", path: "programa" }
           ]
         },
         {
           title: "SEGURIDAD",
-          className: "er-safety",
+          className: "er-seguridad-leds",
           widgets: [
-            { type: "safety-panel", path: "estado.safety" }
+            { type: "security-leds", path: "estado" }
           ]
         },
         {
-          title: "INSTRUMENTACIÓN ANALÓGICA",
+          title: "ANALÓGICA",
           className: "er-analog",
           widgets: [
             { type: "analog-io", path: "analog_io" }
           ]
         },
         {
-          title: "VÍDEO + MATRIZ E/S DIGITAL",
-          className: "er-video-io",
+          title: "HERRAMIENTA",
+          className: "er-herramienta",
           widgets: [
-            { type: "camera", path: "camera.stream" },
-            { type: "digital-io", path: "digital_io", ioCount: 32 }
+            { type: "tool-panel", path: "herramienta" }
           ]
         }
       ]

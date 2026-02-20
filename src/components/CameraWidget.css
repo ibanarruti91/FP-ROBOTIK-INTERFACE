@@ -119,6 +119,14 @@
   animation: standby-pulse 2s infinite;
 }
 
+.standby-dismiss {
+  color: rgba(0, 209, 255, 0.5);
+  font-size: 0.65rem;
+  text-align: center;
+  letter-spacing: 0.05em;
+  margin-top: 0.4rem;
+}
+
 @keyframes standby-pulse {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.4; }

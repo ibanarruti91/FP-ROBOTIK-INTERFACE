@@ -6,16 +6,29 @@
 import { useState } from 'react';
 import './CameraWidget.css';
 
-export function CameraWidget({ streamUrl = '', className = '' }) {
+export function CameraWidget({ streamUrl = '', className = '', dismissible = false, borderColor = null }) {
   const [iframeLoaded, setIframeLoaded] = useState(false);
+  const [overlayDismissed, setOverlayDismissed] = useState(false);
+
+  const showOverlay = !overlayDismissed;
 
   return (
-    <div className={`camera-widget nexus-card ${className}`}>
+    <div
+      className={`camera-widget nexus-card ${className}`}
+      style={borderColor ? { borderColor } : {}}
+    >
       <div className="camera-inner camera-inner--ratio">
-        <div className="camera-standby camera-placeholder">
-          <span className="standby-main">📡 ESPERANDO SEÑAL DE VÍDEO...</span>
-          <span className="standby-id">Sin conexión desde el centro.</span>
-        </div>
+        {showOverlay && (
+          <div
+            className="camera-standby camera-placeholder"
+            onClick={dismissible ? () => setOverlayDismissed(true) : undefined}
+            style={dismissible ? { cursor: 'pointer', pointerEvents: 'auto' } : {}}
+          >
+            <span className="standby-main">📡 ESPERANDO SEÑAL DE VÍDEO...</span>
+            <span className="standby-id">Sin conexión desde el centro.</span>
+            {dismissible && <span className="standby-dismiss">[ Toca para ocultar ]</span>}
+          </div>
+        )}
         {streamUrl && (
           <iframe
             src={streamUrl}

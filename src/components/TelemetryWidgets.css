@@ -691,47 +691,65 @@
 }
 
 .io-cell {
-  aspect-ratio: 1;
-  border-radius: 3px;
-  background: rgba(148, 163, 184, 0.12);
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  padding: 0 2px;
+  border-radius: 2px;
   transition: background 0.2s ease, box-shadow 0.2s ease;
   min-width: 0;
   cursor: default;
+  overflow: hidden;
+}
+
+.io-cell-name {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.5rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
 }
 
 .io-cell.io-na {
-  background: rgba(107, 114, 128, 0.15);
-  border: 1px dashed rgba(107, 114, 128, 0.35);
-  opacity: 0.5;
+  opacity: 0.35;
+  border-style: dashed;
 }
 
-/* DI active – cyan */
-.io-cell.led-di.io-active {
-  background: #00d1ff;
-  border-color: #00d1ff;
-  box-shadow: 0 0 8px #00d1ff, 0 0 14px rgba(0, 209, 255, 0.6);
+/* Inputs (DI / CI) — dark blue */
+.io-cell.led-input {
+  background: rgba(0, 30, 90, 0.55);
+  border: 1px solid rgba(40, 100, 220, 0.3);
+}
+.io-cell.led-input .io-cell-name {
+  color: rgba(110, 160, 255, 0.7);
+}
+.io-cell.led-input.io-active {
+  background: rgba(0, 80, 220, 0.75);
+  border-color: #4b9fff;
+  box-shadow: 0 0 8px #4b9fff, 0 0 16px rgba(75, 159, 255, 0.55);
+}
+.io-cell.led-input.io-active .io-cell-name {
+  color: #e0f0ff;
 }
 
-/* CI active – teal */
-.io-cell.led-ci.io-active {
-  background: #00e5b0;
-  border-color: #00e5b0;
-  box-shadow: 0 0 8px #00e5b0, 0 0 14px rgba(0, 229, 176, 0.6);
+/* Outputs (DO / CO) — magenta */
+.io-cell.led-output {
+  background: rgba(70, 0, 40, 0.55);
+  border: 1px solid rgba(200, 0, 100, 0.3);
 }
-
-/* DO active – magenta */
-.io-cell.led-do.io-active {
-  background: #ff33bb;
+.io-cell.led-output .io-cell-name {
+  color: rgba(220, 80, 160, 0.75);
+}
+.io-cell.led-output.io-active {
+  background: rgba(180, 0, 100, 0.75);
   border-color: #ff33bb;
-  box-shadow: 0 0 8px #ff33bb, 0 0 14px rgba(255, 51, 187, 0.6);
+  box-shadow: 0 0 8px #ff33bb, 0 0 16px rgba(255, 51, 187, 0.55);
 }
-
-/* CO active – amber */
-.io-cell.led-co.io-active {
-  background: #ffbf00;
-  border-color: #ffbf00;
-  box-shadow: 0 0 8px #ffbf00, 0 0 14px rgba(255, 191, 0, 0.6);
+.io-cell.led-output.io-active .io-cell-name {
+  color: #ffe0f4;
 }
 
 /* ============================================
@@ -784,7 +802,169 @@
   letter-spacing: 0.02em;
 }
 
-/* TCP Pose - 6-value card for position and orientation */
+/* ============================================
+   Gestión Panel
+   ============================================ */
+
+.gestion-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.7rem 0.9rem;
+}
+
+.gestion-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 28px;
+}
+
+.gestion-label {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+}
+
+.gestion-value {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gestion-estado {
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+}
+
+/* ============================================
+   Security LEDs Panel
+   ============================================ */
+
+.security-leds-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.7rem 0.9rem;
+}
+
+.security-led-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 28px;
+}
+
+.security-led-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid transparent;
+}
+
+.security-led-dot.led-ok {
+  background: #10b981;
+  border-color: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+}
+
+.security-led-dot.led-alarm {
+  background: #ef4444;
+  border-color: #ef4444;
+  box-shadow: 0 0 10px #ef4444, 0 0 20px rgba(239, 68, 68, 0.5);
+  animation: led-alarm-blink 0.7s ease-in-out infinite;
+}
+
+.security-led-dot.led-na {
+  background: rgba(107, 114, 128, 0.3);
+  border: 1px dashed #6b7280;
+}
+
+@keyframes led-alarm-blink {
+  0%, 100% { opacity: 1;   box-shadow: 0 0 10px #ef4444, 0 0 20px rgba(239, 68, 68, 0.5); }
+  50%       { opacity: 0.3; box-shadow: none; }
+}
+
+.security-led-label {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex: 1;
+}
+
+.security-led-status {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.security-led-status.ok-text    { color: #10b981; }
+.security-led-status.alarm-text { color: #ef4444; animation: led-alarm-blink 0.7s ease-in-out infinite; }
+
+/* ============================================
+   Tool Panel – Tensión / Corriente / Potencia
+   ============================================ */
+
+.tool-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.7rem 0.9rem;
+}
+
+.tool-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 26px;
+}
+
+.tool-label {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+  width: 5.5rem;
+}
+
+.tool-value {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #00d1ff;
+  text-shadow: 0 0 8px rgba(0, 209, 255, 0.4);
+  flex: 1;
+  text-align: right;
+  transition: color 0.2s ease;
+}
+
+.tool-unit {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #64748b;
+  min-width: 2.5rem;
+  text-align: left;
+}
+
+
 .tcp-pose {
   min-height: 250px;
 }

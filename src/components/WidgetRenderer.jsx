@@ -2,7 +2,7 @@
  * WidgetRenderer - Renderiza widgets basándose en su tipo y configuración
  */
 
-import { KpiCard, StatusPill, StatusDynamic, DataTable, LogPanel, SafetyPanel, DigitalIO, AnalogIO, TcpPose, JointsGrid } from './TelemetryWidgets';
+import { KpiCard, StatusPill, StatusDynamic, DataTable, LogPanel, SafetyPanel, DigitalIO, AnalogIO, GestionPanel, SecurityLedsPanel, ToolPanel, TcpPose, JointsGrid } from './TelemetryWidgets';
 import { CameraWidget } from './CameraWidget';
 import './WidgetRenderer.css';
 
@@ -95,6 +95,8 @@ function renderWidget(widget, data, key) {
           key={key}
           streamUrl={value}
           className={cameraClassName}
+          dismissible={widget.dismissible || false}
+          borderColor={widget.borderColor || null}
         />
       );
     }
@@ -108,6 +110,33 @@ function renderWidget(widget, data, key) {
         />
       );
     
+    case 'gestion-panel':
+      return (
+        <GestionPanel
+          key={key}
+          data={value}
+          className="full-width"
+        />
+      );
+
+    case 'security-leds':
+      return (
+        <SecurityLedsPanel
+          key={key}
+          data={value}
+          className="full-width"
+        />
+      );
+
+    case 'tool-panel':
+      return (
+        <ToolPanel
+          key={key}
+          data={value}
+          className="full-width"
+        />
+      );
+
     case 'analog-io':
       return (
         <AnalogIO
