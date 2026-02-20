@@ -258,6 +258,29 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
     );
   }
 
+  // Diagnóstico: camera (left 50%) | data panels (right 50%) — same height; log full-width below
+  if (sectionId === 'diagnostico') {
+    const cameraGroups = groups.filter(g => g.className === 'diag-camera');
+    const dataGroups   = groups.filter(g => g.className === 'diag-data');
+    const logGroups    = groups.filter(g => g.className === 'diag-log');
+    const dataOffset   = cameraGroups.length;
+    const logOffset    = dataOffset + dataGroups.length;
+
+    return (
+      <div className="widget-renderer diagnostico-layout">
+        <div className="diag-left-column">
+          {cameraGroups.map((group, i) => renderGroup(group, data, i))}
+        </div>
+        <div className="diag-right-column">
+          {dataGroups.map((group, i) => renderGroup(group, data, dataOffset + i))}
+        </div>
+        <div className="diag-log-row">
+          {logGroups.map((group, i) => renderGroup(group, data, logOffset + i))}
+        </div>
+      </div>
+    );
+  }
+
   // Principal: camera (left) | metrics (right) — same height; events full-width below
   if (sectionId === 'principal') {
     const cameraGroups  = groups.filter(g => g.className === 'principal-camera');

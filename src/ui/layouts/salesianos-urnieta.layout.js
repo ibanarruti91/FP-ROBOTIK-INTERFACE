@@ -130,29 +130,45 @@ export const SALESIANOS_LAYOUT = {
       color: "#8a2be2", // Violet
       groups: [
         {
-          title: "Parámetros de Control",
+          title: "CÁMARA EN VIVO",
+          className: "diag-camera",
+          compact: true,
           widgets: [
-            { type: "kpi", label: "Temp. Controlador", path: "ctrl_temp", unit: "°C", format: "1", columns: 2 },
-            { type: "kpi", label: "Potencia Robot", path: "robot_power", unit: "W", format: "0", columns: 2 }
+            { type: "camera", path: "camera.stream", dismissible: true, borderColor: "#8a2be2" }
+          ]
+        },
+        {
+          title: "Parámetros de Control",
+          className: "diag-data",
+          compact: true,
+          widgets: [
+            { type: "kpi", label: "Temp. Controlador", path: "ctrl_temp", unit: "°C", format: "1", columns: 1, compact: true },
+            { type: "kpi", label: "Potencia Robot", path: "robot_power", unit: "W", format: "0", columns: 1, compact: true }
           ]
         },
         {
           title: "Diagnóstico de Errores",
+          className: "diag-data",
+          compact: true,
           widgets: [
-            { type: "kpi", label: "Último Error", path: "last_error", unit: "", format: "text" }
-          ]
-        },
-        {
-          title: "Historial de Eventos",
-          widgets: [
-            { type: "log", label: "Log del Sistema", path: "messages" }
+            { type: "kpi", label: "Último Error", path: "last_error", unit: "", format: "text", columns: 2, compact: true }
           ]
         },
         {
           title: "Información del Sistema",
+          className: "diag-data",
+          compact: true,
           widgets: [
-            { type: "kpi", label: "Tiempo Operación", path: "uptime_hours", unit: "h", format: "1", columns: 2 },
-            { type: "kpi", label: "Tiempo Ciclo Promedio", path: "cycle_time", unit: "s", format: "1", columns: 2 }
+            { type: "kpi", label: "Tiempo Operación", path: "uptime_hours", unit: "h", format: "1", columns: 1, compact: true },
+            { type: "kpi", label: "Tiempo Ciclo Promedio", path: "cycle_time", unit: "s", format: "1", columns: 1, compact: true }
+          ]
+        },
+        {
+          title: "Historial de Eventos",
+          className: "diag-log",
+          compact: true,
+          widgets: [
+            { type: "log", label: "Log del Sistema", path: "messages", compact: true, columns: 2 }
           ]
         }
       ]
