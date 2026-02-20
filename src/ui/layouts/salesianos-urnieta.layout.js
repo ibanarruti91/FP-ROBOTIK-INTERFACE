@@ -41,36 +41,40 @@ export const SALESIANOS_LAYOUT = {
       ]
     },
     {
-      id: "estado-io",
-      label: "Estado+IO",
+      id: "estado-robot",
+      label: "ESTADO ROBOT",
       color: "#ffbf00", // Amber
       groups: [
         {
-          title: "Entradas/Salidas Digitales",
+          title: "CONTROL",
+          className: "er-control",
+          compact: true,
           widgets: [
-            { type: "digital-io", label: "Matriz IO Digital", path: "digital_io", ioCount: 32 }
+            { type: "kpi", label: "Potencia Total", path: "sistema.potencia_total", unit: "W", format: "0", compact: true },
+            { type: "kpi", label: "Temp. Control", path: "sistema.temperatura_control", unit: "°C", format: "1", compact: true },
+            { type: "kpi", label: "Tiempo Ciclo", path: "estadisticas.tiempo_ciclo", unit: "s", format: "2", compact: true }
           ]
         },
         {
-          title: "TCP - Posición Cartesiana",
+          title: "SEGURIDAD",
+          className: "er-safety",
           widgets: [
-            { type: "kpi", label: "X", path: "tcp.position.x", unit: "mm", format: "2", columns: 3 },
-            { type: "kpi", label: "Y", path: "tcp.position.y", unit: "mm", format: "2", columns: 3 },
-            { type: "kpi", label: "Z", path: "tcp.position.z", unit: "mm", format: "2", columns: 3 }
+            { type: "safety-panel", path: "estado.safety" }
           ]
         },
         {
-          title: "TCP - Orientación",
+          title: "INSTRUMENTACIÓN ANALÓGICA",
+          className: "er-analog",
           widgets: [
-            { type: "kpi", label: "RX", path: "tcp.orientation.rx", unit: "rad", format: "3", columns: 3 },
-            { type: "kpi", label: "RY", path: "tcp.orientation.ry", unit: "rad", format: "3", columns: 3 },
-            { type: "kpi", label: "RZ", path: "tcp.orientation.rz", unit: "rad", format: "3", columns: 3 }
+            { type: "analog-io", path: "analog_io" }
           ]
         },
         {
-          title: "TCP - Velocidad",
+          title: "VÍDEO + MATRIZ E/S DIGITAL",
+          className: "er-video-io",
           widgets: [
-            { type: "kpi", label: "Velocidad TCP", path: "tcp.speed", unit: "mm/s", format: "3" }
+            { type: "camera", path: "camera.stream" },
+            { type: "digital-io", path: "digital_io", ioCount: 32 }
           ]
         }
       ]

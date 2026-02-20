@@ -379,36 +379,82 @@ export function SafetyPanel({ value, className = '' }) {
 }
 
 /**
- * Digital IO - Matriz de 32 LEDs para entradas/salidas digitales
+ * Digital IO - Matriz compacta 4×8 (DI / CI / DO / CO)
+ * Cada celda brilla en cian si el bit está en '1'
  */
 export function DigitalIO({ data, className = '' }) {
-  const inputs = data?.inputs || Array(16).fill(null);
+  const inputs  = data?.inputs  || Array(16).fill(null);
   const outputs = data?.outputs || Array(16).fill(null);
-  
+
+  const rows = [
+    { label: 'DI', values: inputs.slice(0, 8),   colorClass: 'led-di' },
+    { label: 'CI', values: inputs.slice(8, 16),  colorClass: 'led-ci' },
+    { label: 'DO', values: outputs.slice(0, 8),  colorClass: 'led-do' },
+    { label: 'CO', values: outputs.slice(8, 16), colorClass: 'led-co' },
+  ];
+
   return (
-    <CardGlass className={`digital-io ${className}`}>
-      <div className="io-section">
-        <div className="io-section-title">Entradas Digitales (DI)</div>
-        <div className="io-grid">
-          {inputs.map((active, index) => (
-            <div key={`in-${index}`} className="io-led">
-              <div className="io-led-label">DI{index}</div>
-              <div className={`io-led-indicator input-led ${active === true ? 'active' : ''} ${active === null ? 'value-na' : ''}`}></div>
-            </div>
+    <CardGlass className={`digital-io-compact ${className}`}>
+      <div className="io-matrix">
+        {/* Column header */}
+        <div className="io-matrix-header">
+          <div className="io-row-label-hdr" />
+          {Array.from({ length: 8 }, (_, i) => (
+            <div key={i} className="io-col-hdr">{i}</div>
           ))}
         </div>
+        {/* Data rows */}
+        {rows.map((row) => (
+          <div key={row.label} className="io-matrix-row">
+            <div className="io-row-label">{row.label}</div>
+            {row.values.map((active, i) => (
+              <div
+                key={i}
+                className={`io-cell ${row.colorClass} ${active === true ? 'io-active' : ''} ${active === null ? 'io-na' : ''}`}
+                title={`${row.label}${i}: ${active === null ? 'N/A' : active ? '1' : '0'}`}
+              />
+            ))}
+          </div>
+        ))}
       </div>
-      <div className="io-section">
-        <div className="io-section-title">Salidas Digitales (DO)</div>
-        <div className="io-grid">
-          {outputs.map((active, index) => (
-            <div key={`out-${index}`} className="io-led">
-              <div className="io-led-label">DO{index}</div>
-              <div className={`io-led-indicator output-led ${active === true ? 'active' : ''} ${active === null ? 'value-na' : ''}`}></div>
+    </CardGlass>
+  );
+}
+
+/**
+ * AnalogIO - Barras slim (8 px) para AI0/AI1/AO0/AO1
+ * Valor numérico en fuente Monospace al lado derecho
+ */
+export function AnalogIO({ data, className = '' }) {
+  const ai = data?.ai || [null, null];
+  const ao = data?.ao || [null, null];
+
+  const channels = [
+    ...ai.map((v, i) => ({ label: `AI${i}`, value: v, colorVar: '#00d1ff' })),
+    ...ao.map((v, i) => ({ label: `AO${i}`, value: v, colorVar: '#ff33bb' })),
+  ];
+
+  return (
+    <CardGlass className={`analog-io ${className}`}>
+      {channels.map(({ label, value, colorVar }) => {
+        const isAvailable = value !== null && value !== undefined;
+        // UR analog range 0–10 V
+        const pct = isAvailable ? Math.min(100, Math.max(0, (value / 10) * 100)) : 0;
+        return (
+          <div key={label} className="analog-bar-row">
+            <span className="analog-label">{label}</span>
+            <div className="analog-bar-track">
+              <div
+                className="analog-bar-fill"
+                style={{ width: `${pct}%`, background: colorVar, boxShadow: `0 0 6px ${colorVar}` }}
+              />
             </div>
-          ))}
-        </div>
-      </div>
+            <span className={`analog-value ${!isAvailable ? 'value-na' : ''}`}>
+              {isAvailable ? value.toFixed(3) : 'N/A'}
+            </span>
+          </div>
+        );
+      })}
     </CardGlass>
   );
 }
