@@ -221,7 +221,7 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
     );
   }
 
-  // Estado Robot (HARDWARE E/S): 2×2 grid — Camera (top-left) | Digital IO (top-right) | Analog (bottom-left) | Tool (bottom-right)
+  // Estado Robot (HARDWARE E/S): 2-column — Camera (left, full height) | Digital IO + Analog + Tool stacked (right)
   if (sectionId === 'estado-robot') {
     const cameraGroups  = groups.filter(g => g.className === 'er-camera');
     const digitalGroups = groups.filter(g => g.className === 'er-digital-io');
@@ -233,16 +233,12 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
 
     return (
       <div className="widget-renderer estado-robot-layout">
-        <div className="er-top-left">
+        <div className="er-left-column">
           {cameraGroups.map((group, i) => renderGroup(group, data, i))}
         </div>
-        <div className="er-top-right">
+        <div className="er-right-column">
           {digitalGroups.map((group, i) => renderGroup(group, data, d + i))}
-        </div>
-        <div className="er-bottom-left">
           {analogGroups.map((group, i) => renderGroup(group, data, di + i))}
-        </div>
-        <div className="er-bottom-right">
           {toolGroups.map((group, i) => renderGroup(group, data, da + i))}
         </div>
       </div>
