@@ -220,11 +220,29 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
       </div>
     );
   }
-  
+
+  // Estado Robot: two independent flex columns so the right column
+  // distributes its 4 panels evenly without being stretched by camera height.
+  if (sectionId === 'estado-robot') {
+    const LEFT_CLASSES  = new Set(['er-camera', 'er-digital-io']);
+    const leftGroups    = groups.filter(g => LEFT_CLASSES.has(g.className));
+    const rightGroups   = groups.filter(g => !LEFT_CLASSES.has(g.className));
+
+    return (
+      <div className="widget-renderer estado-robot-layout">
+        <div className="er-left-column">
+          {leftGroups.map((group, i) => renderGroup(group, data, i))}
+        </div>
+        <div className="er-right-column">
+          {rightGroups.map((group, i) => renderGroup(group, data, i + leftGroups.length))}
+        </div>
+      </div>
+    );
+  }
+
   const layoutClasses = [
     'widget-renderer',
     sectionId === 'principal' ? 'principal-layout' : null,
-    sectionId === 'estado-robot' ? 'estado-robot-layout' : null,
   ].filter(Boolean).join(' ');
 
   return (
