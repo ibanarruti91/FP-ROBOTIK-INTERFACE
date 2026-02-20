@@ -353,58 +353,6 @@
   }
 }
 
-/* ── DIAGNÓSTICO TAB: left (Camera + Power) / right (Diagnosis data) ── */
-.widget-renderer.diagnostico-layout {
-  display: grid;
-  grid-template-columns: 42% 58%;
-  gap: 20px;
-  align-items: start;
-}
-
-.widget-renderer.diagnostico-layout .diag-left-column {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.widget-renderer.diagnostico-layout .diag-right-column {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-/* Compact group titles inside diagnostico */
-.widget-renderer.diagnostico-layout .widget-group {
-  gap: 0.4rem;
-}
-
-.widget-renderer.diagnostico-layout .group-title {
-  font-size: 0.72rem;
-  padding-bottom: 0.3rem;
-  border-bottom-width: 1px;
-  margin-bottom: 0;
-}
-
-/* Tighten card padding inside the layout */
-.widget-renderer.diagnostico-layout .card-glass {
-  padding: 1rem;
-  background: rgba(15, 23, 42, 0.95);
-}
-
-/* Power diagnostics: two KPI side-by-side */
-.widget-renderer.diagnostico-layout .diag-potencia .widget-grid {
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-}
-
-/* Responsive: stack columns on narrow screens */
-@media (max-width: 1100px) {
-  .widget-renderer.diagnostico-layout {
-    grid-template-columns: 1fr;
-  }
-}
-
-
 /* Responsive grid adjustments */
 @media (max-width: 1200px) {
   .widget-grid {

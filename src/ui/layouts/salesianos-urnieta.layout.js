@@ -128,27 +128,8 @@ export const SALESIANOS_LAYOUT = {
       label: "Diagnóstico",
       color: "#8a2be2", // Violet
       groups: [
-        // ── LEFT COLUMN ──────────────────────────────────────────────────
-        {
-          title: "CÁMARA EN VIVO",
-          className: "diag-camera",
-          widgets: [
-            { type: "camera", path: "camera.stream", dismissible: true, borderColor: "#8a2be2" }
-          ]
-        },
-        {
-          title: "DIAGNÓSTICO DE POTENCIA",
-          className: "diag-potencia",
-          compact: true,
-          widgets: [
-            { type: "kpi", label: "Potencia Total", path: "sistema.potencia_total", unit: "W", format: "0", columns: 1, compact: true },
-            { type: "kpi", label: "Velocidad TCP", path: "sistema.velocidad_tcp", unit: "m/s", format: "3", columns: 1, compact: true }
-          ]
-        },
-        // ── RIGHT COLUMN ─────────────────────────────────────────────────
         {
           title: "Parámetros de Control",
-          className: "diag-control",
           widgets: [
             { type: "kpi", label: "Temp. Controlador", path: "ctrl_temp", unit: "°C", format: "1", columns: 2 },
             { type: "kpi", label: "Potencia Robot", path: "robot_power", unit: "W", format: "0", columns: 2 }
@@ -156,24 +137,21 @@ export const SALESIANOS_LAYOUT = {
         },
         {
           title: "Diagnóstico de Errores",
-          className: "diag-errores",
           widgets: [
             { type: "kpi", label: "Último Error", path: "last_error", unit: "", format: "text" }
           ]
         },
         {
-          title: "Información del Sistema",
-          className: "diag-info",
+          title: "Historial de Eventos",
           widgets: [
-            { type: "kpi", label: "Tiempo Operación", path: "uptime_hours", unit: "h", format: "1", columns: 2 },
-            { type: "kpi", label: "Tiempo Ciclo Promedio", path: "cycle_time", unit: "s", format: "1", columns: 2 }
+            { type: "log", label: "Log del Sistema", path: "messages" }
           ]
         },
         {
-          title: "Historial de Eventos",
-          className: "diag-log",
+          title: "Información del Sistema",
           widgets: [
-            { type: "log", label: "Log del Sistema", path: "messages" }
+            { type: "kpi", label: "Tiempo Operación", path: "uptime_hours", unit: "h", format: "1", columns: 2 },
+            { type: "kpi", label: "Tiempo Ciclo Promedio", path: "cycle_time", unit: "s", format: "1", columns: 2 }
           ]
         }
       ]
