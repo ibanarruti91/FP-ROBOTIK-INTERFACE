@@ -153,6 +153,19 @@ Las URLs de las cámaras se configuran mediante **variables de entorno** para fa
 - Las variables de entorno se leen en tiempo de build, por lo que necesitas reconstruir (`npm run build`) si cambias los valores en producción
 - Para desarrollo, el servidor de Vite recargará automáticamente al detectar cambios en `.env`
 
+## 📡 Referencia MQTT (Node-RED)
+
+Para configurar los nodos **mqtt out** de Node-RED consulta la guía técnica
+completa con todas las variables, unidades y ejemplos de payload:
+
+👉 **[MQTT_REFERENCE.md](./MQTT_REFERENCE.md)**
+
+Incluye tablas detalladas para cada pestaña de la interfaz:
+- **Menú Principal** – 6 indicadores clave + mini-cabecero de estado
+- **Cinemática** – TCP pose (X/Y/Z/RX/RY/RZ) y servomotores J1–J6
+- **Diagnóstico** – Potencia, temperatura, errores y log del sistema
+- **Hardware E/S** – E/S digital (DI/DO/CI/CO), analógica (AI/AO) y herramienta
+
 ## 📝 Licencia
 
 MIT
