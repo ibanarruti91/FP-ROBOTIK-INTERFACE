@@ -211,16 +211,15 @@
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto auto;
   gap: 1rem;
-  align-items: stretch;
+  align-items: start;
 }
 
-/* Left column (camera) — row 1, col 1; stretches to match right column */
+/* Left column (camera) — row 1, col 1; top-aligned so the camera title aligns with the right column */
 .widget-renderer.estado-robot-layout .er-left-column {
   grid-column: 1;
   grid-row: 1;
   display: flex;
   flex-direction: column;
-  min-height: 0;
 }
 
 /* Right column (IO signals) — row 1, col 2 */
@@ -239,33 +238,30 @@
   grid-row: 2;
 }
 
-/* Camera widget-group fills the full left-column height */
+/* Camera group: natural size (no flex-stretch — let 4:3 ratio govern the height) */
 .widget-renderer.estado-robot-layout .er-left-column .widget-group {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 0;
 }
 
 .widget-renderer.estado-robot-layout .er-left-column .widget-grid {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 0;
 }
 
 .widget-renderer.estado-robot-layout .er-left-column .camera-widget.nexus-card {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 0;
 }
 
-/* Remove 16:9 aspect-ratio lock so camera stretches to match IO column height */
+/* 4:3 aspect ratio — balanced, not too vertical; object-fit:cover prevents deformation */
 .widget-renderer.estado-robot-layout .er-left-column .camera-inner--ratio {
-  aspect-ratio: unset;
-  flex: 1;
-  min-height: 180px;
+  aspect-ratio: 4 / 3;
+}
+
+.widget-renderer.estado-robot-layout .er-left-column .camera-inner img,
+.widget-renderer.estado-robot-layout .er-left-column .camera-inner iframe {
+  object-fit: contain;
 }
 
 /* Compact group & title tweaks */
@@ -307,8 +303,6 @@
   }
   .widget-renderer.estado-robot-layout .er-left-column .camera-inner--ratio {
     aspect-ratio: 16 / 9;
-    flex: unset;
-    min-height: unset;
   }
 }
 
