@@ -380,17 +380,18 @@ export function SafetyPanel({ value, className = '' }) {
 
 /**
  * Digital IO - Matriz compacta 4×8 (DI / CI / DO / CO)
- * Cada celda brilla en cian si el bit está en '1'
+ * Inputs (DI/CI) → dark blue; Outputs (DO/CO) → magenta
+ * Active cells emit a strong glow of their respective colour.
  */
 export function DigitalIO({ data, className = '' }) {
   const inputs  = data?.inputs  || Array(16).fill(null);
   const outputs = data?.outputs || Array(16).fill(null);
 
   const rows = [
-    { label: 'DI', values: inputs.slice(0, 8),   colorClass: 'led-di' },
-    { label: 'CI', values: inputs.slice(8, 16),  colorClass: 'led-ci' },
-    { label: 'DO', values: outputs.slice(0, 8),  colorClass: 'led-do' },
-    { label: 'CO', values: outputs.slice(8, 16), colorClass: 'led-co' },
+    { label: 'DI', values: inputs.slice(0, 8),   colorClass: 'led-input' },
+    { label: 'CI', values: inputs.slice(8, 16),  colorClass: 'led-input' },
+    { label: 'DO', values: outputs.slice(0, 8),  colorClass: 'led-output' },
+    { label: 'CO', values: outputs.slice(8, 16), colorClass: 'led-output' },
   ];
 
   return (
@@ -412,7 +413,9 @@ export function DigitalIO({ data, className = '' }) {
                 key={i}
                 className={`io-cell ${row.colorClass} ${active === true ? 'io-active' : ''} ${active === null ? 'io-na' : ''}`}
                 title={`${row.label}${i}: ${active === null ? 'N/A' : active ? '1' : '0'}`}
-              />
+              >
+                <span className="io-cell-name">{`${row.label}${i}`}</span>
+              </div>
             ))}
           </div>
         ))}
@@ -455,6 +458,128 @@ export function AnalogIO({ data, className = '' }) {
           </div>
         );
       })}
+    </CardGlass>
+  );
+}
+
+/**
+ * GestionPanel – Script Activo + Estado Programa (no header duplicates)
+ */
+export function GestionPanel({ data, className = '' }) {
+  const nombre = data?.nombre;
+  const estado = data?.estado;
+
+  const estadoColor = {
+    PLAYING: '#10b981', RUNNING: '#10b981',
+    PAUSED:  '#ffbf00',
+    STOPPED: '#ef4444',
+  }[estado] || '#94a3b8';
+
+  const isNombre = nombre !== null && nombre !== undefined;
+  const isEstado = estado  !== null && estado  !== undefined;
+
+  return (
+    <CardGlass className={`gestion-panel ${className}`}>
+      <div className="gestion-row">
+        <span className="gestion-label">Script Activo</span>
+        <span className={`gestion-value ${!isNombre ? 'value-na' : ''}`}>{isNombre ? nombre : 'N/A'}</span>
+      </div>
+      <div className="gestion-row">
+        <span className="gestion-label">Estado Programa</span>
+        <span
+          className={`gestion-value gestion-estado ${!isEstado ? 'value-na' : ''}`}
+          style={isEstado ? { color: estadoColor, textShadow: `0 0 8px ${estadoColor}80` } : {}}
+        >
+          {isEstado ? estado : 'N/A'}
+        </span>
+      </div>
+    </CardGlass>
+  );
+}
+
+/**
+ * SecurityLedsPanel – LED indicators for emergency stop and protection
+ * Green (OK) / Red blinking (Alarm)
+ */
+export function SecurityLedsPanel({ data, className = '' }) {
+  const safety = data?.safety;
+  // Derive from direct fields if present, otherwise fall back to safety string
+  const emergencia = data?.emergencia_parada ?? (safety === 'EMERGENCY_STOP' ? true : safety === null ? null : false);
+  const proteccion = data?.proteccion ?? (safety === 'PROTECTIVE_STOP' || safety === 'REDUCED' ? true : safety === null ? null : false);
+
+  const ledState = (val) => {
+    if (val === null) return 'led-na';
+    return val ? 'led-alarm' : 'led-ok';
+  };
+
+  return (
+    <CardGlass className={`security-leds-panel ${className}`}>
+      <div className="security-led-row">
+        <div className={`security-led-dot ${ledState(emergencia)}`} />
+        <span className="security-led-label">PARADA EMERGENCIA</span>
+        <span className={`security-led-status ${emergencia ? 'alarm-text' : emergencia === null ? '' : 'ok-text'}`}>
+          {emergencia === null ? 'N/A' : emergencia ? 'ACTIVA' : 'OK'}
+        </span>
+      </div>
+      <div className="security-led-row">
+        <div className={`security-led-dot ${ledState(proteccion)}`} />
+        <span className="security-led-label">PROTECCIÓN</span>
+        <span className={`security-led-status ${proteccion ? 'alarm-text' : proteccion === null ? '' : 'ok-text'}`}>
+          {proteccion === null ? 'N/A' : proteccion ? 'ACTIVA' : 'OK'}
+        </span>
+      </div>
+    </CardGlass>
+  );
+}
+
+/**
+ * ToolPanel – Tensión (V), Corriente (mA) and computed Potencia (W)
+ * Applies .update-flash when data changes
+ */
+export function ToolPanel({ data, className = '' }) {
+  const [isUpdated, setIsUpdated] = useState(false);
+  const prevData = useRef(data);
+
+  useEffect(() => {
+    if (prevData.current !== data) {
+      setIsUpdated(true);
+      prevData.current = data;
+      const t = setTimeout(() => setIsUpdated(false), 400);
+      return () => clearTimeout(t);
+    }
+  }, [data]);
+
+  const tension   = data?.tension;
+  const corriente = data?.corriente;
+  const isT = tension   !== null && tension   !== undefined;
+  const isC = corriente !== null && corriente !== undefined;
+  const potencia = isT && isC ? tension * corriente / 1000 : null; // P(W) = V × I(mA) / 1000
+
+  const flashClass = isUpdated ? 'update-flash' : '';
+
+  return (
+    <CardGlass className={`tool-panel ${className}`}>
+      <div className="tool-row">
+        <span className="tool-label">Tensión</span>
+        <span className={`tool-value ${!isT ? 'value-na' : ''} ${flashClass}`}>
+          {isT ? tension.toFixed(2) : 'N/A'}
+        </span>
+        {isT && <span className="tool-unit">V</span>}
+      </div>
+      <div className="tool-row">
+        <span className="tool-label">Corriente</span>
+        <span className={`tool-value ${!isC ? 'value-na' : ''} ${flashClass}`}>
+          {isC ? corriente.toFixed(1) : 'N/A'}
+        </span>
+        {isC && <span className="tool-unit">mA</span>}
+      </div>
+      <div className="tool-row">
+        <span className="tool-label">Potencia</span>
+        <span className={`tool-value ${potencia === null ? 'value-na' : ''} ${flashClass}`}>
+          {potencia !== null ? potencia.toFixed(2) : 'N/A'}
+        </span>
+        {potencia !== null && <span className="tool-unit">W</span>}
+      </div>
     </CardGlass>
   );
 }

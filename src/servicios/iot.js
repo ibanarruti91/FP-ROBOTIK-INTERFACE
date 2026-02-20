@@ -80,7 +80,9 @@ export function getMockTelemetryData(centroConfig = null) {
     estado: {
       online: null,
       mode: null,
-      safety: null
+      safety: null,
+      emergencia_parada: null,   // boolean: true = emergency active
+      proteccion: null           // boolean: true = protection active
     },
     robot_power: null, // W
     cycle_time: null, // s
@@ -121,6 +123,10 @@ export function getMockTelemetryData(centroConfig = null) {
     },
     camera: {
       stream: centroConfig?.cameraStreamUrl || ''
+    },
+    herramienta: {
+      tension: null,   // V
+      corriente: null  // mA
     }
   };
 }

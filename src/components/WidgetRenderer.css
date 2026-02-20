@@ -118,32 +118,66 @@
   }
 }
 
-/* Estado Robot layout: 2 columns — left narrow, right wide */
+/* Estado Robot layout: 55% left (camera + IO), 45% right (4 diagnosis panels) */
 .widget-renderer.estado-robot-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
-  gap: 1rem;
+  grid-template-columns: 55% 45%;
+  gap: 0.5rem;
   align-items: start;
 }
 
-.widget-renderer.estado-robot-layout > .widget-group.er-control {
+/* LEFT COLUMN */
+.widget-renderer.estado-robot-layout > .widget-group.er-camera {
   grid-column: 1;
   grid-row: 1;
 }
 
-.widget-renderer.estado-robot-layout > .widget-group.er-safety {
+.widget-renderer.estado-robot-layout > .widget-group.er-digital-io {
   grid-column: 1;
   grid-row: 2;
 }
 
+/* RIGHT COLUMN – 4 stacked panels */
+.widget-renderer.estado-robot-layout > .widget-group.er-gestion {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.widget-renderer.estado-robot-layout > .widget-group.er-seguridad-leds {
+  grid-column: 2;
+  grid-row: 2;
+}
+
 .widget-renderer.estado-robot-layout > .widget-group.er-analog {
-  grid-column: 1;
+  grid-column: 2;
   grid-row: 3;
 }
 
-.widget-renderer.estado-robot-layout > .widget-group.er-video-io {
+.widget-renderer.estado-robot-layout > .widget-group.er-herramienta {
   grid-column: 2;
-  grid-row: 1 / span 3;
+  grid-row: 4;
+}
+
+/* Compact overrides for the estado-robot right-column panels */
+.widget-renderer.estado-robot-layout .widget-group {
+  gap: 0.35rem;
+}
+
+.widget-renderer.estado-robot-layout .group-title {
+  font-size: 0.7rem;
+  padding-bottom: 0.3rem;
+  border-bottom-width: 1px;
+  margin-bottom: 0;
+}
+
+/* Remove extra padding from card-glass in this layout */
+.widget-renderer.estado-robot-layout .card-glass {
+  padding: 0.6rem 0.8rem;
+}
+
+/* Digital IO compact override: minimal padding */
+.widget-renderer.estado-robot-layout .digital-io-compact {
+  padding: 0.6rem 0.8rem;
 }
 
 @media (max-width: 1100px) {
@@ -151,10 +185,12 @@
     grid-template-columns: 1fr;
   }
 
-  .widget-renderer.estado-robot-layout > .widget-group.er-control,
-  .widget-renderer.estado-robot-layout > .widget-group.er-safety,
+  .widget-renderer.estado-robot-layout > .widget-group.er-camera,
+  .widget-renderer.estado-robot-layout > .widget-group.er-digital-io,
+  .widget-renderer.estado-robot-layout > .widget-group.er-gestion,
+  .widget-renderer.estado-robot-layout > .widget-group.er-seguridad-leds,
   .widget-renderer.estado-robot-layout > .widget-group.er-analog,
-  .widget-renderer.estado-robot-layout > .widget-group.er-video-io {
+  .widget-renderer.estado-robot-layout > .widget-group.er-herramienta {
     grid-column: 1;
     grid-row: auto;
   }

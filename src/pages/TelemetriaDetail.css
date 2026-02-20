@@ -59,7 +59,8 @@
   box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
 }
 
-.tab-button[data-section="estado-io"].active {
+.tab-button[data-section="estado-io"].active,
+.tab-button[data-section="estado-robot"].active {
   border-color: #ffbf00;
   background: rgba(255, 191, 0, 0.15);
   box-shadow: 0 0 15px rgba(255, 191, 0, 0.3);
@@ -102,7 +103,8 @@
   box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
 }
 
-.tab-content[data-section="estado-io"] .card-glass:hover {
+.tab-content[data-section="estado-io"] .card-glass:hover,
+.tab-content[data-section="estado-robot"] .card-glass:hover {
   border-color: #ffbf00;
   box-shadow: 0 0 20px rgba(255, 191, 0, 0.2);
 }
