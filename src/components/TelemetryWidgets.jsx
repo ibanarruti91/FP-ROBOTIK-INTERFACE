@@ -425,16 +425,17 @@ export function DigitalIO({ data, className = '' }) {
 }
 
 /**
- * AnalogIO - Barras slim (8 px) para AI0/AI1/AO0/AO1
- * Valor numérico en fuente Monospace al lado derecho
+ * AnalogIO - Barras slim (6 px) para AI0/AI1/AO0/AO1
+ * AI: cian #00f3ff  |  AO: magenta #ff00ff
+ * Nombre a la izquierda, valor + "V" a la derecha – todo Monospace
  */
 export function AnalogIO({ data, className = '' }) {
   const ai = data?.ai || [null, null];
   const ao = data?.ao || [null, null];
 
   const channels = [
-    ...ai.map((v, i) => ({ label: `AI${i}`, value: v, colorVar: '#00d1ff' })),
-    ...ao.map((v, i) => ({ label: `AO${i}`, value: v, colorVar: '#ff33bb' })),
+    ...ai.map((v, i) => ({ label: `AI${i}`, value: v, colorVar: '#00f3ff', group: 'ai' })),
+    ...ao.map((v, i) => ({ label: `AO${i}`, value: v, colorVar: '#ff00ff', group: 'ao' })),
   ];
 
   return (
@@ -449,11 +450,11 @@ export function AnalogIO({ data, className = '' }) {
             <div className="analog-bar-track">
               <div
                 className="analog-bar-fill"
-                style={{ width: `${pct}%`, background: colorVar, boxShadow: `0 0 6px ${colorVar}` }}
+                style={{ width: `${pct}%`, background: colorVar, boxShadow: `0 0 5px ${colorVar}` }}
               />
             </div>
-            <span className={`analog-value ${!isAvailable ? 'value-na' : ''}`}>
-              {isAvailable ? value.toFixed(3) : 'N/A'}
+            <span className={`analog-value ${!isAvailable ? 'value-na' : ''}`} style={{ color: colorVar }}>
+              {isAvailable ? `${value.toFixed(2)} V` : 'N/A'}
             </span>
           </div>
         );
@@ -573,7 +574,7 @@ export function ToolPanel({ data, className = '' }) {
         </span>
         {isC && <span className="tool-unit">mA</span>}
       </div>
-      <div className="tool-row">
+      <div className="tool-row tool-potencia">
         <span className="tool-label">Potencia</span>
         <span className={`tool-value ${potencia === null ? 'value-na' : ''} ${flashClass}`}>
           {potencia !== null ? potencia.toFixed(2) : 'N/A'}

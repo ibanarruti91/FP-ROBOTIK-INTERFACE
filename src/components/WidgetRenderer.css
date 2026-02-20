@@ -122,6 +122,7 @@
 .widget-renderer.estado-robot-layout {
   display: grid;
   grid-template-columns: 55% 45%;
+  grid-template-rows: auto 1fr;
   gap: 0.5rem;
   align-items: start;
 }
@@ -137,25 +138,34 @@
   grid-row: 2;
 }
 
-/* RIGHT COLUMN – 4 stacked panels */
-.widget-renderer.estado-robot-layout > .widget-group.er-gestion {
-  grid-column: 2;
-  grid-row: 1;
-}
-
-.widget-renderer.estado-robot-layout > .widget-group.er-seguridad-leds {
-  grid-column: 2;
-  grid-row: 2;
-}
-
-.widget-renderer.estado-robot-layout > .widget-group.er-analog {
-  grid-column: 2;
-  grid-row: 3;
-}
-
+/* RIGHT COLUMN – 4 stacked panels filling available height */
+.widget-renderer.estado-robot-layout > .widget-group.er-gestion,
+.widget-renderer.estado-robot-layout > .widget-group.er-seguridad-leds,
+.widget-renderer.estado-robot-layout > .widget-group.er-analog,
 .widget-renderer.estado-robot-layout > .widget-group.er-herramienta {
   grid-column: 2;
-  grid-row: 4;
+}
+
+.widget-renderer.estado-robot-layout > .widget-group.er-gestion       { grid-row: 1; }
+.widget-renderer.estado-robot-layout > .widget-group.er-seguridad-leds { grid-row: 2; }
+.widget-renderer.estado-robot-layout > .widget-group.er-analog         { grid-row: 3; }
+.widget-renderer.estado-robot-layout > .widget-group.er-herramienta    { grid-row: 4; }
+
+/* Make the right column fill the vertical space of the left column */
+.widget-renderer.estado-robot-layout {
+  grid-template-rows: auto auto auto auto;
+}
+
+/* Subgrid trick: wrap right panels in a flex column that stretches to match left column height */
+.widget-renderer.estado-robot-layout > .widget-group.er-gestion {
+  align-self: start;
+}
+.widget-renderer.estado-robot-layout > .widget-group.er-herramienta {
+  align-self: end;
+}
+.widget-renderer.estado-robot-layout > .widget-group.er-seguridad-leds,
+.widget-renderer.estado-robot-layout > .widget-group.er-analog {
+  align-self: stretch;
 }
 
 /* Compact overrides for the estado-robot right-column panels */
@@ -180,6 +190,14 @@
   padding: 0.6rem 0.8rem;
 }
 
+/* Herramienta: stretch card to fill available space */
+.widget-renderer.estado-robot-layout .widget-group.er-herramienta .card-glass {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
 @media (max-width: 1100px) {
   .widget-renderer.estado-robot-layout {
     grid-template-columns: 1fr;
@@ -193,6 +211,7 @@
   .widget-renderer.estado-robot-layout > .widget-group.er-herramienta {
     grid-column: 1;
     grid-row: auto;
+    align-self: auto;
   }
 }
 
