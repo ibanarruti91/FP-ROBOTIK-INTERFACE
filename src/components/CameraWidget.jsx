@@ -12,7 +12,7 @@ export function CameraWidget({ streamUrl = '', className = '' }) {
   return (
     <div className={`camera-widget nexus-card ${className}`}>
       <div className="camera-inner camera-inner--ratio">
-        <div className="camera-standby">
+        <div className="camera-standby camera-placeholder">
           <span className="standby-main">📡 ESPERANDO SEÑAL DE VÍDEO...</span>
           <span className="standby-id">Sin conexión desde el centro.</span>
         </div>

@@ -69,7 +69,7 @@
   text-align: center;
   white-space: nowrap;
   flex-shrink: 1;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, filter 0.2s ease-out, transform 0.2s ease-out;
   animation: ambient-heartbeat 1.8s ease-in-out infinite;
 }
 
@@ -294,7 +294,7 @@
   background: rgba(0, 209, 255, 0.06);
   border: 1px solid rgba(0, 209, 255, 0.15);
   min-width: 130px;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, filter 0.2s ease-out, transform 0.2s ease-out;
 }
 
 /* Compact numeric ID badge */
@@ -345,6 +345,15 @@
 
 .heartbeat {
   animation: heartbeat-glow 0.3s ease-out !important;
+}
+
+/* ── Update flash – highly visible beat on data change ── */
+.update-flash {
+  filter: brightness(2);
+  transform: scale(1.1);
+  transition: all 0.1s ease-out;
+  color: #00f3ff !important;
+  text-shadow: 0 0 15px #00f3ff;
 }
 
 /* ── Responsive ───────────────────────────────── */
