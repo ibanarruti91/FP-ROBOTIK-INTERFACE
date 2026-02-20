@@ -240,6 +240,80 @@
   }
 }
 
+/* ── DIAGNÓSTICO TAB: left (Camera) / right (3 stacked panels) ── */
+.widget-renderer.diagnostico-layout {
+  display: grid;
+  grid-template-columns: 55% 45%;
+  gap: 20px;
+  align-items: stretch;
+}
+
+.widget-renderer.diagnostico-layout .diag-left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.widget-renderer.diagnostico-layout .diag-right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  height: 100%;
+}
+
+.widget-renderer.diagnostico-layout .diag-right-column > .widget-group {
+  flex: 1;
+  min-height: 0;
+}
+
+.widget-renderer.diagnostico-layout .diag-right-column > .widget-group > .widget-grid {
+  flex: 1;
+  min-height: 0;
+  grid-template-rows: 1fr;
+}
+
+.widget-renderer.diagnostico-layout .widget-group {
+  gap: 0.3rem;
+}
+
+/* Camera title: same full-size style as Principal tab (no override, uses default .group-title) */
+.widget-renderer.diagnostico-layout .diag-left-column .group-title {
+  font-size: 1.2rem;
+  padding-bottom: 0.5rem;
+  border-bottom-width: 2px;
+}
+
+/* Right-column panel titles: compact */
+.widget-renderer.diagnostico-layout .diag-right-column .group-title {
+  font-size: 0.7rem;
+  padding-bottom: 0.3rem;
+  border-bottom-width: 1px;
+  margin-bottom: 0;
+}
+
+/* Uniform symmetric padding on all cards */
+.widget-renderer.diagnostico-layout .card-glass {
+  padding: 1.5rem;
+  background: rgba(15, 23, 42, 0.95);
+}
+
+/* Vertically center content inside right-column cards */
+.widget-renderer.diagnostico-layout .diag-right-column .card-glass {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Responsive: stack columns on narrow screens */
+@media (max-width: 1100px) {
+  .widget-renderer.diagnostico-layout {
+    grid-template-columns: 1fr;
+  }
+  .widget-renderer.diagnostico-layout .diag-right-column {
+    height: auto;
+  }
+}
+
 /* ── CINEMÁTICA TAB: left (Camera + Power) / right (TCP + Joints) ── */
 .widget-renderer.cinematica-layout {
   display: grid;

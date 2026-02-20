@@ -128,30 +128,34 @@ export const SALESIANOS_LAYOUT = {
       label: "Diagnóstico",
       color: "#8a2be2", // Violet
       groups: [
+        // ── LEFT COLUMN ──────────────────────────────────────────────────
         {
-          title: "Parámetros de Control",
+          title: "CÁMARA EN VIVO",
+          className: "diag-camera",
           widgets: [
-            { type: "kpi", label: "Temp. Controlador", path: "ctrl_temp", unit: "°C", format: "1", columns: 2 },
-            { type: "kpi", label: "Potencia Robot", path: "robot_power", unit: "W", format: "0", columns: 2 }
+            { type: "camera", path: "camera.stream", dismissible: true, borderColor: "#8a2be2" }
+          ]
+        },
+        // ── RIGHT COLUMN ─────────────────────────────────────────────────
+        {
+          title: "SEGURIDAD",
+          className: "diag-seguridad",
+          widgets: [
+            { type: "security-leds", path: "estado" }
           ]
         },
         {
-          title: "Diagnóstico de Errores",
+          title: "ANALÓGICA",
+          className: "diag-analog",
           widgets: [
-            { type: "kpi", label: "Último Error", path: "last_error", unit: "", format: "text" }
+            { type: "analog-io", path: "analog_io" }
           ]
         },
         {
-          title: "Historial de Eventos",
+          title: "HERRAMIENTA",
+          className: "diag-herramienta",
           widgets: [
-            { type: "log", label: "Log del Sistema", path: "messages" }
-          ]
-        },
-        {
-          title: "Información del Sistema",
-          widgets: [
-            { type: "kpi", label: "Tiempo Operación", path: "uptime_hours", unit: "h", format: "1", columns: 2 },
-            { type: "kpi", label: "Tiempo Ciclo Promedio", path: "cycle_time", unit: "s", format: "1", columns: 2 }
+            { type: "tool-panel", path: "herramienta" }
           ]
         }
       ]
