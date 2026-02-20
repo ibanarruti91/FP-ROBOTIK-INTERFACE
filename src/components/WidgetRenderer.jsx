@@ -240,6 +240,24 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
     );
   }
 
+  // Diagnóstico: left column (Camera + Power), right column (diagnosis data)
+  if (sectionId === 'diagnostico') {
+    const LEFT_CLASSES  = new Set(['diag-camera', 'diag-potencia']);
+    const leftGroups    = groups.filter(g => LEFT_CLASSES.has(g.className));
+    const rightGroups   = groups.filter(g => !LEFT_CLASSES.has(g.className));
+
+    return (
+      <div className="widget-renderer diagnostico-layout">
+        <div className="diag-left-column">
+          {leftGroups.map((group, i) => renderGroup(group, data, i))}
+        </div>
+        <div className="diag-right-column">
+          {rightGroups.map((group, i) => renderGroup(group, data, i + leftGroups.length))}
+        </div>
+      </div>
+    );
+  }
+
   // Cinemática: left column (Camera + Power), right column (TCP Pose + Joints)
   if (sectionId === 'cinematica') {
     const LEFT_CLASSES  = new Set(['cin-camera', 'cin-potencia']);
