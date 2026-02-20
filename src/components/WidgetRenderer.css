@@ -12,27 +12,25 @@
   gap: 1rem;
 }
 
-/* ── PRINCIPAL TAB: MODIFICADO PARA EVENTOS FULL-WIDTH ── */
+/* ── PRINCIPAL TAB: equal-height columns + full-width events row ── */
 .widget-renderer.principal-two-col {
   display: grid;
-  /* Mantenemos tus proporciones originales para la fila superior */
   grid-template-columns: 65% 35%;
+  grid-template-rows: auto auto;
   gap: 1rem;
-  align-items: start;
+  align-items: stretch;
 }
 
-/* Hacemos que la columna izquierda sea transparente para el grid */
+/* Left column (camera) — occupies row 1 col 1, stretches to row height */
 .widget-renderer.principal-two-col .principal-left-column {
-  display: contents; /* Esto permite que sus hijos se posicionen directamente en el grid */
-}
-
-/* La cámara se queda en la primera columna */
-.widget-renderer.principal-two-col .principal-left-column > .widget-group:not(.principal-events) {
   grid-column: 1;
   grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
-/* Las métricas se quedan en la segunda columna */
+/* Right column (metrics) — occupies row 1 col 2 */
 .widget-renderer.principal-two-col .principal-right-column {
   grid-column: 2;
   grid-row: 1;
@@ -42,13 +40,39 @@
   min-width: 0;
 }
 
-/* EL CAMBIO CLAVE: El panel de eventos ocupa las dos columnas y se pone debajo */
-.widget-renderer.principal-two-col .principal-left-column > .widget-group.principal-events {
-  grid-column: 1 / span 2; /* Ocupa las dos columnas */
-  grid-row: 2;            /* Se posiciona en la segunda fila */
-  width: 100%;
-  max-width: none;
-  margin-top: 1rem;
+/* Events row — spans both columns below the two-column block */
+.widget-renderer.principal-two-col .principal-events-row {
+  grid-column: 1 / span 2;
+  grid-row: 2;
+}
+
+/* Camera widget-group fills the full left-column height */
+.widget-renderer.principal-two-col .principal-left-column .widget-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.widget-renderer.principal-two-col .principal-left-column .widget-grid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.widget-renderer.principal-two-col .principal-left-column .camera-widget.nexus-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Remove the 16:9 aspect-ratio lock so camera stretches to match data column */
+.widget-renderer.principal-two-col .principal-left-column .camera-inner--ratio {
+  aspect-ratio: unset;
+  flex: 1;
+  min-height: 180px;
 }
 
 /* Responsive: stack columns on narrow screens */
@@ -56,9 +80,19 @@
   .widget-renderer.principal-two-col {
     grid-template-columns: 1fr;
   }
-  .widget-renderer.principal-two-col .principal-left-column > .widget-group.principal-events {
+  .widget-renderer.principal-two-col .principal-left-column,
+  .widget-renderer.principal-two-col .principal-right-column {
     grid-column: 1;
     grid-row: auto;
+  }
+  .widget-renderer.principal-two-col .principal-events-row {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .widget-renderer.principal-two-col .principal-left-column .camera-inner--ratio {
+    aspect-ratio: 16 / 9;
+    flex: unset;
+    min-height: unset;
   }
 }
 
