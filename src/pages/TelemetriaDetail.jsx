@@ -78,12 +78,13 @@ function TelemetriaDetail() {
               status_id: data.programa?.status_id ?? baseTelemetry.programa?.status_id ?? 0,
               estado: data.programa?.estado ?? baseTelemetry.programa?.estado ?? null
             },
-            // Map sistema data
+            // Map sistema data (including new velocidad_tcp field)
             sistema: {
               modo_operacion: data.sistema?.modo_operacion ?? baseTelemetry.sistema?.modo_operacion ?? '',
               estado_maquina: data.sistema?.estado_maquina ?? baseTelemetry.sistema?.estado_maquina ?? '',
               potencia_total: data.sistema?.potencia_total ?? baseTelemetry.sistema?.potencia_total ?? 0,
-              temperatura_control: data.sistema?.temperatura_control ?? baseTelemetry.sistema?.temperatura_control ?? 0
+              temperatura_control: data.sistema?.temperatura_control ?? baseTelemetry.sistema?.temperatura_control ?? 0,
+              velocidad_tcp: data.sistema?.velocidad_tcp ?? baseTelemetry.sistema?.velocidad_tcp ?? null
             },
             // Map estadisticas data
             estadisticas: {
@@ -92,12 +93,38 @@ function TelemetriaDetail() {
             },
             // Map eventos array
             eventos: data.eventos ?? baseTelemetry.eventos ?? [],
-            // Keep existing data for other tabs
-            estado: baseTelemetry.estado,
-            tcp: baseTelemetry.tcp,
-            joints: baseTelemetry.joints,
-            digital_io: baseTelemetry.digital_io,
-            camera: baseTelemetry.camera
+            // Map estado with safety/security fields
+            estado: {
+              ...baseTelemetry.estado,
+              online: data.estado?.online ?? baseTelemetry.estado?.online,
+              mode: data.estado?.mode ?? baseTelemetry.estado?.mode,
+              safety: data.estado?.safety ?? baseTelemetry.estado?.safety,
+              emergencia_parada: data.estado?.emergencia_parada ?? baseTelemetry.estado?.emergencia_parada,
+              proteccion: data.estado?.proteccion ?? baseTelemetry.estado?.proteccion,
+              analogas: data.estado?.analogas ?? baseTelemetry.estado?.analogas
+            },
+            // Map tcp data
+            tcp: {
+              ...baseTelemetry.tcp,
+              position: data.tcp?.position ?? baseTelemetry.tcp?.position,
+              orientation: data.tcp?.orientation ?? baseTelemetry.tcp?.orientation,
+              speed: data.tcp?.speed ?? baseTelemetry.tcp?.speed,
+              velocity: data.tcp?.velocity ?? baseTelemetry.tcp?.velocity
+            },
+            joints: data.joints ?? baseTelemetry.joints,
+            // Map digital I/O from MQTT data
+            digital_io: data.digital_io ?? baseTelemetry.digital_io,
+            // Map analog I/O from MQTT data
+            analog_io: data.analog_io ?? baseTelemetry.analog_io,
+            camera: {
+              stream: data.camera?.stream ?? baseTelemetry.camera?.stream ?? ''
+            },
+            // Map herramienta data
+            herramienta: {
+              tension: data.herramienta?.tension ?? baseTelemetry.herramienta?.tension,
+              corriente: data.herramienta?.corriente ?? baseTelemetry.herramienta?.corriente,
+              potencia: data.herramienta?.potencia ?? baseTelemetry.herramienta?.potencia
+            }
           };
         });
       } catch (error) {

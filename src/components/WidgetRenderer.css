@@ -12,10 +12,10 @@
   gap: 1rem;
 }
 
-/* ── PRINCIPAL TAB: 55% left (camera + events), 45% right (metrics) ── */
+/* ── PRINCIPAL TAB: 65% left (camera + events), 35% right (metrics) ── */
 .widget-renderer.principal-two-col {
   display: grid;
-  grid-template-columns: 55% 45%;
+  grid-template-columns: 65% 35%;
   gap: 1rem;
   align-items: start;
 }
@@ -37,6 +37,10 @@
 /* Events panel: no absolute positioning, no negative margins */
 .widget-renderer.principal-two-col .principal-left-column > .widget-group.principal-events {
   position: relative;
+  width: 100%;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 /* Right column: metrics stacked vertically */

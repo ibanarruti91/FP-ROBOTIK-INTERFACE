@@ -67,7 +67,8 @@ export function getMockTelemetryData(centroConfig = null) {
       modo_operacion: null,
       estado_maquina: null,
       potencia_total: null,
-      temperatura_control: null
+      temperatura_control: null,
+      velocidad_tcp: null
     },
     // Performance and Statistics
     estadisticas: {
@@ -126,7 +127,8 @@ export function getMockTelemetryData(centroConfig = null) {
     },
     herramienta: {
       tension: null,   // V
-      corriente: null  // mA
+      corriente: null, // mA
+      potencia: null   // W
     }
   };
 }
