@@ -384,8 +384,9 @@ export function SafetyPanel({ value, className = '' }) {
  * Active cells emit a strong glow of their respective colour.
  */
 export function DigitalIO({ data, className = '' }) {
-  const inputs  = data?.inputs  || Array(16).fill(null);
-  const outputs = data?.outputs || Array(16).fill(null);
+  // Support both standard field names and configurable_ variants from MQTT
+  const inputs  = data?.inputs  || data?.configurable_inputs  || Array(16).fill(null);
+  const outputs = data?.outputs || data?.configurable_outputs || Array(16).fill(null);
 
   const rows = [
     { label: 'DI', values: inputs.slice(0, 8),   colorClass: 'led-input' },
@@ -535,48 +536,35 @@ export function SecurityLedsPanel({ data, className = '' }) {
 
 /**
  * ToolPanel – Tensión (V), Corriente (mA) and computed Potencia (W)
- * Applies .update-flash when data changes
+ * Updates are smooth/static (no flash effect)
  */
 export function ToolPanel({ data, className = '' }) {
-  const [isUpdated, setIsUpdated] = useState(false);
-  const prevData = useRef(data);
-
-  useEffect(() => {
-    if (prevData.current !== data) {
-      setIsUpdated(true);
-      prevData.current = data;
-      const t = setTimeout(() => setIsUpdated(false), 400);
-      return () => clearTimeout(t);
-    }
-  }, [data]);
-
   const tension   = data?.tension;
   const corriente = data?.corriente;
   const isT = tension   !== null && tension   !== undefined;
   const isC = corriente !== null && corriente !== undefined;
-  const potencia = isT && isC ? tension * corriente / 1000 : null; // P(W) = V × I(mA) / 1000
-
-  const flashClass = isUpdated ? 'update-flash' : '';
+  // Use MQTT-provided potencia if available, otherwise compute from tension × corriente
+  const potencia = data?.potencia ?? (isT && isC ? tension * corriente / 1000 : null);
 
   return (
     <CardGlass className={`tool-panel ${className}`}>
       <div className="tool-row">
         <span className="tool-label">Tensión</span>
-        <span className={`tool-value ${!isT ? 'value-na' : ''} ${flashClass}`}>
+        <span className={`tool-value ${!isT ? 'value-na' : ''}`}>
           {isT ? tension.toFixed(2) : 'N/A'}
         </span>
         {isT && <span className="tool-unit">V</span>}
       </div>
       <div className="tool-row">
         <span className="tool-label">Corriente</span>
-        <span className={`tool-value ${!isC ? 'value-na' : ''} ${flashClass}`}>
+        <span className={`tool-value ${!isC ? 'value-na' : ''}`}>
           {isC ? corriente.toFixed(1) : 'N/A'}
         </span>
         {isC && <span className="tool-unit">mA</span>}
       </div>
       <div className="tool-row tool-potencia">
         <span className="tool-label">Potencia</span>
-        <span className={`tool-value ${potencia === null ? 'value-na' : ''} ${flashClass}`}>
+        <span className={`tool-value ${potencia === null ? 'value-na' : ''}`}>
           {potencia !== null ? potencia.toFixed(2) : 'N/A'}
         </span>
         {potencia !== null && <span className="tool-unit">W</span>}
