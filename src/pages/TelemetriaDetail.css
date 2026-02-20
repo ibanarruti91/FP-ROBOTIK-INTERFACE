@@ -9,8 +9,8 @@
 .tab-bar {
   display: flex;
   gap: 0.5rem;
-  margin-top: 1.5rem;
-  margin-bottom: 1rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.5rem;
   padding: 0.5rem;
   background: var(--panel-bg);
   backdrop-filter: blur(15px);
@@ -83,7 +83,7 @@
 
 
 .tab-content {
-  margin-top: 1rem;
+  margin-top: 0.5rem;
   animation: fadeInUp 0.4s ease-out;
 }
 
@@ -266,8 +266,8 @@
 }
 
 .timestamp {
-  margin-top: 2rem;
-  padding: 1rem;
+  margin-top: 0.75rem;
+  padding: 0.5rem 1rem;
   background: rgba(0, 229, 255, 0.05);
   border: 1px solid rgba(0, 229, 255, 0.1);
   border-radius: 8px;
