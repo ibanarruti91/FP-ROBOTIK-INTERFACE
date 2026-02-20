@@ -27,7 +27,8 @@ export const SALESIANOS_LAYOUT = {
             { type: "kpi", label: "Temp. Control", path: "sistema.temperatura_control", unit: "°C", format: "1", columns: 1, compact: true },
             { type: "kpi", label: "Velocidad TCP", path: "sistema.velocidad_tcp", unit: "mm/s", format: "1", columns: 1, compact: true },
             { type: "kpi", label: "Tiempo Ciclo", path: "estadisticas.tiempo_ciclo", unit: "s", format: "2", columns: 1, compact: true },
-            { type: "kpi", label: "Horas Operación", path: "estadisticas.horas_operacion", unit: "h", format: "1", columns: 1, compact: true }
+            { type: "kpi", label: "Horas Operación", path: "estadisticas.horas_operacion", unit: "h", format: "1", columns: 1, compact: true },
+            { type: "kpi", label: "Est. Máquina", path: "sistema.estado_maquina", unit: "", format: "text", columns: 1, compact: true }
           ]
         },
         {
