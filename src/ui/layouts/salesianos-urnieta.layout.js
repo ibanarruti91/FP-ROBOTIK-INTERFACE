@@ -89,34 +89,36 @@ export const SALESIANOS_LAYOUT = {
       label: "Cinemática",
       color: "#007bff", // Electric Blue
       groups: [
+        // ── LEFT COLUMN ──────────────────────────────────────────────────
         {
-          title: "TCP Pose - Posición y Orientación",
+          title: "CÁMARA EN VIVO",
+          className: "cin-camera",
+          widgets: [
+            { type: "camera", path: "camera.stream", dismissible: true, borderColor: "#007bff" }
+          ]
+        },
+        {
+          title: "DIAGNÓSTICO DE POTENCIA",
+          className: "cin-potencia",
+          compact: true,
+          widgets: [
+            { type: "kpi", label: "Potencia Total", path: "sistema.potencia_total", unit: "W", format: "0", columns: 1, compact: true },
+            { type: "kpi", label: "Velocidad TCP", path: "sistema.velocidad_tcp", unit: "m/s", format: "3", columns: 1, compact: true }
+          ]
+        },
+        // ── RIGHT COLUMN ─────────────────────────────────────────────────
+        {
+          title: "ESTADO CARTESIANO DEL TCP",
+          className: "cin-tcp",
           widgets: [
             { type: "tcp-pose", label: "TCP Pose", path: "tcp" }
           ]
         },
         {
-          title: "Ejes del Robot (J1-J6)",
+          title: "ESTADO DE SERVOMOTORES (J1-J6)",
+          className: "cin-joints",
           widgets: [
             { type: "joints-grid", label: "Articulaciones", path: "joints" }
-          ]
-        },
-        {
-          title: "Posiciones de Ejes (rad)",
-          widgets: [
-            { type: "table", label: "Posiciones", path: "joints.positions", unit: "rad", format: "4" }
-          ]
-        },
-        {
-          title: "Temperaturas de Ejes (°C)",
-          widgets: [
-            { type: "table", label: "Temperaturas", path: "joints.temperatures", unit: "°C", format: "1" }
-          ]
-        },
-        {
-          title: "Corrientes de Ejes (A)",
-          widgets: [
-            { type: "table", label: "Corrientes", path: "joints.currents", unit: "A", format: "3" }
           ]
         }
       ]

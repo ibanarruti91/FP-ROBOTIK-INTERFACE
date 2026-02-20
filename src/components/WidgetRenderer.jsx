@@ -240,6 +240,24 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
     );
   }
 
+  // Cinemática: left column (Camera + Power), right column (TCP Pose + Joints)
+  if (sectionId === 'cinematica') {
+    const LEFT_CLASSES  = new Set(['cin-camera', 'cin-potencia']);
+    const leftGroups    = groups.filter(g => LEFT_CLASSES.has(g.className));
+    const rightGroups   = groups.filter(g => !LEFT_CLASSES.has(g.className));
+
+    return (
+      <div className="widget-renderer cinematica-layout">
+        <div className="cin-left-column">
+          {leftGroups.map((group, i) => renderGroup(group, data, i))}
+        </div>
+        <div className="cin-right-column">
+          {rightGroups.map((group, i) => renderGroup(group, data, i + leftGroups.length))}
+        </div>
+      </div>
+    );
+  }
+
   // Principal: left column (55%) = Camera + Events; right column (45%) = Metrics
   if (sectionId === 'principal') {
     const RIGHT_CLASSES = new Set(['principal-metrics']);
