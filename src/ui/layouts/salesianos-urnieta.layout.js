@@ -64,14 +64,6 @@ export const SALESIANOS_LAYOUT = {
           ]
         },
         {
-          title: "SEGURIDAD",
-          className: "er-seguridad-leds",
-          compact: true,
-          widgets: [
-            { type: "security-leds", path: "estado" }
-          ]
-        },
-        {
           title: "ANALÓGICA",
           className: "er-analog",
           compact: true,
@@ -85,15 +77,6 @@ export const SALESIANOS_LAYOUT = {
           compact: true,
           widgets: [
             { type: "tool-panel", path: "herramienta" }
-          ]
-        },
-        // ── BOTTOM ROW (100 %) — Events log ────────────────────────────
-        {
-          title: "REGISTROS / EVENTOS",
-          className: "er-events",
-          compact: true,
-          widgets: [
-            { type: "log", label: "Registros del Sistema", path: "eventos", compact: true, columns: 2 }
           ]
         }
       ]
