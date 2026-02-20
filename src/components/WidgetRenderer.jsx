@@ -240,13 +240,26 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
     );
   }
 
-  const layoutClasses = [
-    'widget-renderer',
-    sectionId === 'principal' ? 'principal-layout' : null,
-  ].filter(Boolean).join(' ');
+  // Principal: left column (55%) = Camera + Events; right column (45%) = Metrics
+  if (sectionId === 'principal') {
+    const RIGHT_CLASSES = new Set(['principal-metrics']);
+    const leftGroups    = groups.filter(g => !RIGHT_CLASSES.has(g.className));
+    const rightGroups   = groups.filter(g => RIGHT_CLASSES.has(g.className));
+
+    return (
+      <div className="widget-renderer principal-two-col">
+        <div className="principal-left-column">
+          {leftGroups.map((group, i) => renderGroup(group, data, i))}
+        </div>
+        <div className="principal-right-column">
+          {rightGroups.map((group, i) => renderGroup(group, data, i + leftGroups.length))}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className={layoutClasses}>
+    <div className="widget-renderer">
       {groups.map((group, index) => renderGroup(group, data, index))}
     </div>
   );
