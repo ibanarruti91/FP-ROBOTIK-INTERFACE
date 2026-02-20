@@ -771,8 +771,8 @@
 }
 
 .analog-label {
-  font-family: 'Roboto Mono', monospace;
-  font-size: 1rem;
+  font-family: ui-monospace, 'Roboto Mono', monospace;
+  font-size: 1.15rem;
   font-weight: 700;
   color: #e2e8f0;
   text-transform: uppercase;
