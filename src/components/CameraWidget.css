@@ -124,6 +124,27 @@
   50%       { opacity: 0.4; }
 }
 
+/* Camera placeholder – floating label over the feed, pointer-events: none so the iframe is clickable */
+.camera-placeholder {
+  position: absolute;
+  inset: auto; /* Reset inset: 0 from .camera-standby when both classes are used together */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 999;
+  pointer-events: none;
+  text-align: center;
+  width: 100%;
+  font-family: monospace;
+  background: transparent;
+  animation: pulse-opacity 2s infinite;
+}
+
+@keyframes pulse-opacity {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1; }
+}
+
 /* Ocultar cualquier overlay interno no deseado */
 .camera-inner > :not(img):not(iframe):not(.no-signal):not(.camera-standby) {
   display: none !important;

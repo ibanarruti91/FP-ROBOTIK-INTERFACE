@@ -105,7 +105,7 @@ export function TelemetryMiniHeader({ data }) {
 
     if (updated.size > 0) {
       setUpdatedFields(updated);
-      const timer = setTimeout(() => setUpdatedFields(new Set()), 300);
+      const timer = setTimeout(() => setUpdatedFields(new Set()), 200);
       previousData.current = currentData;
       return () => clearTimeout(timer);
     }
@@ -134,25 +134,25 @@ export function TelemetryMiniHeader({ data }) {
       {/* Left: Status Badges */}
       <div className="header-badges">
         {/* SEGURIDAD – máxima prioridad visual */}
-        <div className={`status-badge ${getSeguridadClass(seguridad)} ${updatedFields.has('seguridad') ? 'heartbeat' : ''}`}>
+        <div className={`status-badge ${getSeguridadClass(seguridad)} ${updatedFields.has('seguridad') ? 'update-flash' : ''}`}>
           <span className="badge-label">Seguridad</span>
           <span className="badge-value">{seguridad}</span>
         </div>
 
         {/* ESTADO ROBOT */}
-        <div className={`status-badge ${getEstadoRobotClass(estadoRobot)} ${updatedFields.has('estadoRobot') ? 'heartbeat' : ''}`}>
+        <div className={`status-badge ${getEstadoRobotClass(estadoRobot)} ${updatedFields.has('estadoRobot') ? 'update-flash' : ''}`}>
           <span className="badge-label">Estado Robot</span>
           <span className="badge-value">{estadoRobot}</span>
         </div>
 
         {/* ESTADO EJECUCIÓN */}
-        <div className={`status-badge ${getEjecucionClass(ejecucion)} ${updatedFields.has('ejecucion') ? 'heartbeat' : ''}`}>
+        <div className={`status-badge ${getEjecucionClass(ejecucion)} ${updatedFields.has('ejecucion') ? 'update-flash' : ''}`}>
           <span className="badge-label">Ejecución</span>
           <span className="badge-value">{ejecucionLabel}</span>
         </div>
 
         {/* MODO OPERACIÓN */}
-        <div className={`status-badge ${getModoClass(modo)} ${updatedFields.has('modo') ? 'heartbeat' : ''}`}>
+        <div className={`status-badge ${getModoClass(modo)} ${updatedFields.has('modo') ? 'update-flash' : ''}`}>
           <span className="badge-label">Modo Operación</span>
           <span className="badge-value">{modo}</span>
         </div>
@@ -160,12 +160,12 @@ export function TelemetryMiniHeader({ data }) {
 
       {/* Right: Program Identification */}
       <div className="header-identification">
-        <div className={`header-id-item ${updatedFields.has('programa') ? 'heartbeat' : ''}`}>
+        <div className={`header-id-item ${updatedFields.has('programa') ? 'update-flash' : ''}`}>
           <span className="id-label">Nombre Programa</span>
           <span className="id-value id-program-name">{programa}</span>
         </div>
 
-        <div className={`header-id-item header-id-num ${updatedFields.has('numeroPrograma') ? 'heartbeat' : ''}`}>
+        <div className={`header-id-item header-id-num ${updatedFields.has('numeroPrograma') ? 'update-flash' : ''}`}>
           <span className="id-label">ID Estado</span>
           <span className="id-value">{numeroProg}</span>
         </div>
