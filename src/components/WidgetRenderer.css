@@ -12,6 +12,49 @@
   gap: 1rem;
 }
 
+/* ── PRINCIPAL TAB: 55% left (camera + events), 45% right (metrics) ── */
+.widget-renderer.principal-two-col {
+  display: grid;
+  grid-template-columns: 55% 45%;
+  gap: 1rem;
+  align-items: start;
+}
+
+/* Left column: camera on top, events below – both full-width */
+.widget-renderer.principal-two-col .principal-left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: relative;
+  min-width: 0;
+}
+
+/* Camera takes 100% of the left column with 16/9 ratio (already enforced by .camera-inner--ratio) */
+.widget-renderer.principal-two-col .principal-left-column > .widget-group {
+  width: 100%;
+}
+
+/* Events panel: no absolute positioning, no negative margins */
+.widget-renderer.principal-two-col .principal-left-column > .widget-group.principal-events {
+  position: relative;
+}
+
+/* Right column: metrics stacked vertically */
+.widget-renderer.principal-two-col .principal-right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+/* Responsive: stack columns on narrow screens */
+@media (max-width: 1100px) {
+  .widget-renderer.principal-two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Legacy principal-layout (kept for compatibility, no longer used by JSX) ── */
 .widget-renderer.principal-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
@@ -153,10 +196,9 @@
   grid-template-rows: 1fr;
 }
 
-/* Camera: constrain size so Digital IO matrix is the protagonist */
+/* Camera: fill the full left-column width with 16/9 aspect ratio */
 .widget-renderer.estado-robot-layout .er-camera .camera-widget.nexus-card {
-  max-width: 420px;
-  margin: 0 auto;
+  width: 100%;
   padding: 0.75rem;
 }
 
