@@ -47,7 +47,7 @@ export const SALESIANOS_LAYOUT = {
       groups: [
         // ── LEFT COLUMN (55 %) ──────────────────────────────────────────
         {
-          title: null,
+          title: "CÁMARA EN VIVO",
           className: "er-camera",
           widgets: [
             { type: "camera", path: "camera.stream", dismissible: true, borderColor: "#ffbf00" }

@@ -216,8 +216,14 @@
 }
 
 .widget-renderer.estado-robot-layout .card-glass {
-  padding: 0.55rem 0.8rem;
+  padding: 1.5rem;
   background: rgba(15, 23, 42, 0.95);
+}
+
+.widget-renderer.estado-robot-layout .er-right-column .card-glass {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .widget-renderer.estado-robot-layout .digital-io-compact {
