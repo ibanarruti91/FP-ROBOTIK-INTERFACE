@@ -12,50 +12,53 @@
   gap: 1rem;
 }
 
-/* ── PRINCIPAL TAB: MODIFIED TO 100% WIDTH ── */
+/* ── PRINCIPAL TAB: MODIFICADO PARA EVENTOS FULL-WIDTH ── */
 .widget-renderer.principal-two-col {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  gap: 1.5rem;
-  align-items: stretch;
+  display: grid;
+  /* Mantenemos tus proporciones originales para la fila superior */
+  grid-template-columns: 65% 35%;
+  gap: 1rem;
+  align-items: start;
 }
 
-/* Left column: camera on top, events below – now full-width */
+/* Hacemos que la columna izquierda sea transparente para el grid */
 .widget-renderer.principal-two-col .principal-left-column {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  position: relative;
-  width: 100%;
+  display: contents; /* Esto permite que sus hijos se posicionen directamente en el grid */
 }
 
-/* Right column: metrics now stacked below at 100% width */
+/* La cámara se queda en la primera columna */
+.widget-renderer.principal-two-col .principal-left-column > .widget-group:not(.principal-events) {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+/* Las métricas se quedan en la segunda columna */
 .widget-renderer.principal-two-col .principal-right-column {
+  grid-column: 2;
+  grid-row: 1;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  width: 100%;
+  gap: 1rem;
+  min-width: 0;
 }
 
-/* Camera and Events take 100% width */
-.widget-renderer.principal-two-col .principal-left-column > .widget-group {
-  width: 100%;
-}
-
-/* Events panel: full-width reinforcement */
+/* EL CAMBIO CLAVE: El panel de eventos ocupa las dos columnas y se pone debajo */
 .widget-renderer.principal-two-col .principal-left-column > .widget-group.principal-events {
-  position: relative;
+  grid-column: 1 / span 2; /* Ocupa las dos columnas */
+  grid-row: 2;            /* Se posiciona en la segunda fila */
   width: 100%;
   max-width: none;
-  margin-left: 0;
-  margin-right: 0;
+  margin-top: 1rem;
 }
 
-/* Responsive: already handled by flex-direction column above */
+/* Responsive: stack columns on narrow screens */
 @media (max-width: 1100px) {
   .widget-renderer.principal-two-col {
     grid-template-columns: 1fr;
+  }
+  .widget-renderer.principal-two-col .principal-left-column > .widget-group.principal-events {
+    grid-column: 1;
+    grid-row: auto;
   }
 }
 
@@ -162,73 +165,76 @@
   50% { opacity: 0.5; }
 }
 
-/* ── ESTADO ROBOT LAYOUT: MODIFIED TO 100% WIDTH ── */
+/* Estado Robot layout: 55% left (camera + IO), 45% right (3 panels) */
 .widget-renderer.estado-robot-layout {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
+  display: grid;
+  grid-template-columns: 55% 45%;
   gap: 20px;
   align-items: stretch;
 }
 
-/* ── LEFT COLUMN (camera + digital IO) - FULL WIDTH ── */
+/* ── LEFT COLUMN (camera + digital IO) ── */
 .widget-renderer.estado-robot-layout .er-left-column {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  width: 100%;
 }
 
-/* ── RIGHT COLUMN (3 stacked panels) - FULL WIDTH ── */
+/* ── RIGHT COLUMN (3 stacked panels) ── */
 .widget-renderer.estado-robot-layout .er-right-column {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  width: 100%;
+  height: 100%;
 }
 
-/* Panels fill width and have adjusted title size for better visibility */
 .widget-renderer.estado-robot-layout .er-right-column > .widget-group {
-  width: 100%;
+  flex: 1;
   min-height: 0;
 }
 
 .widget-renderer.estado-robot-layout .er-right-column > .widget-group > .widget-grid {
-  width: 100%;
-  grid-template-rows: auto;
+  flex: 1;
+  min-height: 0;
+  grid-template-rows: 1fr;
 }
 
-/* Camera: full width */
 .widget-renderer.estado-robot-layout .er-camera .camera-widget.nexus-card {
   width: 100%;
   padding: 0.75rem;
 }
 
-/* Improved titles for the new wide layout */
+.widget-renderer.estado-robot-layout .widget-group {
+  gap: 0.3rem;
+}
+
 .widget-renderer.estado-robot-layout .group-title {
-  font-size: 1rem;
-  padding-bottom: 0.4rem;
+  font-size: 0.7rem;
+  padding-bottom: 0.3rem;
   border-bottom-width: 1px;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
 }
 
 .widget-renderer.estado-robot-layout .card-glass {
-  padding: 1rem;
+  padding: 0.55rem 0.8rem;
   background: rgba(15, 23, 42, 0.95);
 }
 
 .widget-renderer.estado-robot-layout .digital-io-compact {
-  padding: 0.8rem;
+  padding: 0.5rem 0.7rem;
 }
 
-/* Responsive stack */
+/* Responsive: stack columns on narrow screens */
 @media (max-width: 1100px) {
   .widget-renderer.estado-robot-layout {
     grid-template-columns: 1fr;
   }
+  .widget-renderer.estado-robot-layout .er-right-column {
+    height: auto;
+  }
 }
 
-/* General Grid responsive */
+/* Responsive grid adjustments */
 @media (max-width: 1200px) {
   .widget-grid {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
