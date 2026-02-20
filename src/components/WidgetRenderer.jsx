@@ -258,19 +258,24 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
     );
   }
 
-  // Principal: left column (55%) = Camera + Events; right column (45%) = Metrics
+  // Principal: camera (left) | metrics (right) — same height; events full-width below
   if (sectionId === 'principal') {
-    const RIGHT_CLASSES = new Set(['principal-metrics']);
-    const leftGroups    = groups.filter(g => !RIGHT_CLASSES.has(g.className));
-    const rightGroups   = groups.filter(g => RIGHT_CLASSES.has(g.className));
+    const cameraGroups  = groups.filter(g => g.className === 'principal-camera');
+    const metricsGroups = groups.filter(g => g.className === 'principal-metrics');
+    const eventsGroups  = groups.filter(g => g.className === 'principal-events');
+    const metricsOffset = cameraGroups.length;
+    const eventsOffset  = metricsOffset + metricsGroups.length;
 
     return (
       <div className="widget-renderer principal-two-col">
         <div className="principal-left-column">
-          {leftGroups.map((group, i) => renderGroup(group, data, i))}
+          {cameraGroups.map((group, i) => renderGroup(group, data, i))}
         </div>
         <div className="principal-right-column">
-          {rightGroups.map((group, i) => renderGroup(group, data, i + leftGroups.length))}
+          {metricsGroups.map((group, i) => renderGroup(group, data, metricsOffset + i))}
+        </div>
+        <div className="principal-events-row">
+          {eventsGroups.map((group, i) => renderGroup(group, data, eventsOffset + i))}
         </div>
       </div>
     );
