@@ -42,7 +42,7 @@ export const SALESIANOS_LAYOUT = {
     },
     {
       id: "estado-robot",
-      label: "ESTADO ROBOT",
+      label: "ESTADO HARDWARE E/S",
       color: "#ffbf00", // Amber
       groups: [
         // ── LEFT COLUMN (55 %) ──────────────────────────────────────────
