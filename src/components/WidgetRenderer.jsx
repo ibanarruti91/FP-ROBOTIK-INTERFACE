@@ -2,7 +2,7 @@
  * WidgetRenderer - Renderiza widgets basándose en su tipo y configuración
  */
 
-import { KpiCard, StatusPill, StatusDynamic, DataTable, LogPanel, SafetyPanel, DigitalIO, TcpPose, JointsGrid } from './TelemetryWidgets';
+import { KpiCard, StatusPill, StatusDynamic, DataTable, LogPanel, SafetyPanel, DigitalIO, AnalogIO, TcpPose, JointsGrid } from './TelemetryWidgets';
 import { CameraWidget } from './CameraWidget';
 import './WidgetRenderer.css';
 
@@ -108,6 +108,15 @@ function renderWidget(widget, data, key) {
         />
       );
     
+    case 'analog-io':
+      return (
+        <AnalogIO
+          key={key}
+          data={value}
+          className="full-width"
+        />
+      );
+    
     case 'digital-io':
       return (
         <DigitalIO
@@ -183,8 +192,14 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
     );
   }
   
+  const layoutClasses = [
+    'widget-renderer',
+    sectionId === 'principal' ? 'principal-layout' : null,
+    sectionId === 'estado-robot' ? 'estado-robot-layout' : null,
+  ].filter(Boolean).join(' ');
+
   return (
-    <div className={`widget-renderer ${sectionId === 'principal' ? 'principal-layout' : ''}`}>
+    <div className={layoutClasses}>
       {groups.map((group, index) => renderGroup(group, data, index))}
     </div>
   );

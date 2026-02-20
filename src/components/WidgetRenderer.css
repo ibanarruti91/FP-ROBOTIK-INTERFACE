@@ -118,6 +118,49 @@
   }
 }
 
+/* Estado Robot layout: 2 columns — left narrow, right wide */
+.widget-renderer.estado-robot-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.widget-renderer.estado-robot-layout > .widget-group.er-control {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.widget-renderer.estado-robot-layout > .widget-group.er-safety {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.widget-renderer.estado-robot-layout > .widget-group.er-analog {
+  grid-column: 1;
+  grid-row: 3;
+}
+
+.widget-renderer.estado-robot-layout > .widget-group.er-video-io {
+  grid-column: 2;
+  grid-row: 1 / span 3;
+}
+
+@media (max-width: 1100px) {
+  .widget-renderer.estado-robot-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .widget-renderer.estado-robot-layout > .widget-group.er-control,
+  .widget-renderer.estado-robot-layout > .widget-group.er-safety,
+  .widget-renderer.estado-robot-layout > .widget-group.er-analog,
+  .widget-renderer.estado-robot-layout > .widget-group.er-video-io {
+    grid-column: 1;
+    grid-row: auto;
+  }
+}
+
+
 /* Responsive grid adjustments */
 @media (max-width: 1200px) {
   .widget-grid {

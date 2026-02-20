@@ -115,6 +115,10 @@ export function getMockTelemetryData(centroConfig = null) {
       inputs: Array.from({ length: 16 }, () => null),
       outputs: Array.from({ length: 16 }, () => null)
     },
+    analog_io: {
+      ai: [null, null],   // Analog Inputs  AI0, AI1  (0–10 V)
+      ao: [null, null]    // Analog Outputs AO0, AO1  (0–10 V)
+    },
     camera: {
       stream: centroConfig?.cameraStreamUrl || ''
     }
