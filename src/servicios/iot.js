@@ -115,8 +115,10 @@ export function getMockTelemetryData(centroConfig = null) {
     },
     messages: [],
     digital_io: {
-      inputs: Array.from({ length: 16 }, () => null),
-      outputs: Array.from({ length: 16 }, () => null)
+      inputs:               Array.from({ length: 8 }, () => null),
+      outputs:              Array.from({ length: 8 }, () => null),
+      configurable_inputs:  Array.from({ length: 8 }, () => null),
+      configurable_outputs: Array.from({ length: 8 }, () => null)
     },
     analog_io: {
       ai: [null, null],   // Analog Inputs  AI0, AI1  (0–10 V)

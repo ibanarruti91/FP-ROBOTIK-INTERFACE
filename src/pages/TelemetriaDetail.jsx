@@ -112,11 +112,12 @@ function TelemetriaDetail() {
               velocity: data.tcp?.velocity ?? baseTelemetry.tcp?.velocity
             },
             joints: data.joints ?? baseTelemetry.joints,
-            // Map digital I/O from MQTT data
-            // Supports both standard (inputs/outputs) and configurable field names
+            // Map digital I/O from MQTT data – four independent 8-element arrays
             digital_io: {
-              inputs:  data.digital_io?.inputs  ?? data.digital_io?.configurable_inputs  ?? baseTelemetry.digital_io?.inputs,
-              outputs: data.digital_io?.outputs ?? data.digital_io?.configurable_outputs ?? baseTelemetry.digital_io?.outputs,
+              inputs:               data.digital_io?.inputs               ?? baseTelemetry.digital_io?.inputs,
+              outputs:              data.digital_io?.outputs              ?? baseTelemetry.digital_io?.outputs,
+              configurable_inputs:  data.digital_io?.configurable_inputs  ?? baseTelemetry.digital_io?.configurable_inputs,
+              configurable_outputs: data.digital_io?.configurable_outputs ?? baseTelemetry.digital_io?.configurable_outputs,
             },
             // Map analog I/O from MQTT data
             // Supports both analog_io.ai/ao and estado.analogas [AI0,AI1,AO0,AO1]

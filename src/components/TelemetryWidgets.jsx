@@ -384,15 +384,17 @@ export function SafetyPanel({ value, className = '' }) {
  * Active cells emit a strong glow of their respective colour.
  */
 export function DigitalIO({ data, className = '' }) {
-  // Support both standard field names and configurable_ variants from MQTT
-  const inputs  = data?.inputs  || data?.configurable_inputs  || Array(16).fill(null);
-  const outputs = data?.outputs || data?.configurable_outputs || Array(16).fill(null);
+  // Each row reads from its own 8-element array within digital_io
+  const inputs              = data?.inputs               || Array(8).fill(null);
+  const outputs             = data?.outputs              || Array(8).fill(null);
+  const configurableInputs  = data?.configurable_inputs  || Array(8).fill(null);
+  const configurableOutputs = data?.configurable_outputs || Array(8).fill(null);
 
   const rows = [
-    { label: 'DI', values: inputs.slice(0, 8),   colorClass: 'led-input' },
-    { label: 'CI', values: inputs.slice(8, 16),  colorClass: 'led-input' },
-    { label: 'DO', values: outputs.slice(0, 8),  colorClass: 'led-output' },
-    { label: 'CO', values: outputs.slice(8, 16), colorClass: 'led-output' },
+    { label: 'DI', values: inputs,              colorClass: 'led-input' },
+    { label: 'CI', values: configurableInputs,  colorClass: 'led-input' },
+    { label: 'DO', values: outputs,             colorClass: 'led-output' },
+    { label: 'CO', values: configurableOutputs, colorClass: 'led-output' },
   ];
 
   return (
