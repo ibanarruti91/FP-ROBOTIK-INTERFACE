@@ -113,9 +113,21 @@ function TelemetriaDetail() {
             },
             joints: data.joints ?? baseTelemetry.joints,
             // Map digital I/O from MQTT data
-            digital_io: data.digital_io ?? baseTelemetry.digital_io,
+            // Supports both standard (inputs/outputs) and configurable field names
+            digital_io: {
+              inputs:  data.digital_io?.inputs  ?? data.digital_io?.configurable_inputs  ?? baseTelemetry.digital_io?.inputs,
+              outputs: data.digital_io?.outputs ?? data.digital_io?.configurable_outputs ?? baseTelemetry.digital_io?.outputs,
+            },
             // Map analog I/O from MQTT data
-            analog_io: data.analog_io ?? baseTelemetry.analog_io,
+            // Supports both analog_io.ai/ao and estado.analogas [AI0,AI1,AO0,AO1]
+            analog_io: {
+              ai: data.analog_io?.ai
+                ?? (Array.isArray(data.estado?.analogas) ? data.estado.analogas.slice(0, 2) : undefined)
+                ?? baseTelemetry.analog_io?.ai,
+              ao: data.analog_io?.ao
+                ?? (Array.isArray(data.estado?.analogas) ? data.estado.analogas.slice(2, 4) : undefined)
+                ?? baseTelemetry.analog_io?.ao,
+            },
             camera: {
               stream: data.camera?.stream ?? baseTelemetry.camera?.stream ?? ''
             },
