@@ -205,101 +205,60 @@
   50% { opacity: 0.5; }
 }
 
-/* Estado Robot layout: 2×2 grid — Camera (top-left) | Digital IO (top-right) | Analog (bottom-left) | Tool (bottom-right) */
+/* Estado Robot layout: 2-column — Camera (left, full height) | Digital IO + Analog + Tool stacked (right) */
 .widget-renderer.estado-robot-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto;
   gap: 1rem;
-  align-items: start;
+  align-items: stretch;
 }
 
-/* Top-left: Camera */
-.widget-renderer.estado-robot-layout .er-top-left {
-  grid-column: 1;
-  grid-row: 1;
+/* Left column: Camera — stretches to match right column total height */
+.widget-renderer.estado-robot-layout .er-left-column {
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
-/* Top-right: Digital IO */
-.widget-renderer.estado-robot-layout .er-top-right {
-  grid-column: 2;
-  grid-row: 1;
+/* Right column: Digital IO, Analog, Tool — stacked vertically */
+.widget-renderer.estado-robot-layout .er-right-column {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   min-width: 0;
 }
 
-/* Bottom-left: Analógica — stretches to match Herramienta height */
-.widget-renderer.estado-robot-layout .er-bottom-left {
-  grid-column: 1;
-  grid-row: 2;
-  align-self: stretch;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Bottom-right: Herramienta — stretches to match Analógica height */
-.widget-renderer.estado-robot-layout .er-bottom-right {
-  grid-column: 2;
-  grid-row: 2;
-  align-self: stretch;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Bottom widget groups fill their cell */
-.widget-renderer.estado-robot-layout .er-bottom-left .widget-group,
-.widget-renderer.estado-robot-layout .er-bottom-right .widget-group {
+/* Camera group and widget fill the left column */
+.widget-renderer.estado-robot-layout .er-left-column .widget-group {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
 }
 
-.widget-renderer.estado-robot-layout .er-bottom-left .widget-grid,
-.widget-renderer.estado-robot-layout .er-bottom-right .widget-grid {
+.widget-renderer.estado-robot-layout .er-left-column .widget-grid {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
-/* Center content vertically inside Analógica and Herramienta cards */
-.widget-renderer.estado-robot-layout .er-bottom-left .card-glass,
-.widget-renderer.estado-robot-layout .er-bottom-right .card-glass {
+.widget-renderer.estado-robot-layout .er-left-column .camera-widget.nexus-card {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 1.5rem;
+  min-height: 0;
 }
 
-/* Camera group: natural 4:3 ratio, no stretching */
-.widget-renderer.estado-robot-layout .er-top-left .widget-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
+/* Remove aspect-ratio lock so camera stretches to match right column height */
+.widget-renderer.estado-robot-layout .er-left-column .camera-inner--ratio {
+  aspect-ratio: unset;
+  flex: 1;
+  min-height: 180px;
 }
 
-.widget-renderer.estado-robot-layout .er-top-left .widget-grid {
-  display: flex;
-  flex-direction: column;
-}
-
-.widget-renderer.estado-robot-layout .er-top-left .camera-widget.nexus-card {
-  display: flex;
-  flex-direction: column;
-}
-
-/* 4:3 aspect ratio — balanced, not too vertical */
-.widget-renderer.estado-robot-layout .er-top-left .camera-inner--ratio {
-  aspect-ratio: 4 / 3;
-}
-
-.widget-renderer.estado-robot-layout .er-top-left .camera-inner img,
-.widget-renderer.estado-robot-layout .er-top-left .camera-inner iframe {
+.widget-renderer.estado-robot-layout .er-left-column .camera-inner img,
+.widget-renderer.estado-robot-layout .er-left-column .camera-inner iframe {
   object-fit: contain;
 }
 
@@ -317,7 +276,7 @@
 }
 
 /* Camera title: larger, matches Principal tab .group-title style */
-.widget-renderer.estado-robot-layout .er-top-left .group-title {
+.widget-renderer.estado-robot-layout .er-left-column .group-title {
   font-size: 0.95rem;
   padding-bottom: 0.4rem;
   border-bottom-width: 2px;
@@ -338,16 +297,16 @@
   .widget-renderer.estado-robot-layout {
     grid-template-columns: 1fr;
   }
-  .widget-renderer.estado-robot-layout .er-top-left,
-  .widget-renderer.estado-robot-layout .er-top-right,
-  .widget-renderer.estado-robot-layout .er-bottom-left,
-  .widget-renderer.estado-robot-layout .er-bottom-right {
+  .widget-renderer.estado-robot-layout .er-left-column,
+  .widget-renderer.estado-robot-layout .er-right-column {
     grid-column: 1;
     grid-row: auto;
     align-self: auto;
   }
-  .widget-renderer.estado-robot-layout .er-top-left .camera-inner--ratio {
+  .widget-renderer.estado-robot-layout .er-left-column .camera-inner--ratio {
     aspect-ratio: 16 / 9;
+    flex: unset;
+    min-height: unset;
   }
 }
 
