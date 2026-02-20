@@ -221,20 +221,25 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
     );
   }
 
-  // Estado Robot: two independent flex columns so the right column
-  // distributes its 4 panels evenly without being stretched by camera height.
+  // Estado Robot (HARDWARE E/S): camera (left 50%) | IO signals (right 50%) — same height; log full-width below
   if (sectionId === 'estado-robot') {
-    const LEFT_CLASSES  = new Set(['er-camera', 'er-digital-io']);
-    const leftGroups    = groups.filter(g => LEFT_CLASSES.has(g.className));
-    const rightGroups   = groups.filter(g => !LEFT_CLASSES.has(g.className));
+    const RIGHT_CLASSES  = new Set(['er-digital-io', 'er-seguridad-leds', 'er-analog', 'er-herramienta']);
+    const cameraGroups   = groups.filter(g => g.className === 'er-camera');
+    const rightGroups    = groups.filter(g => RIGHT_CLASSES.has(g.className));
+    const eventsGroups   = groups.filter(g => g.className === 'er-events');
+    const rightOffset    = cameraGroups.length;
+    const eventsOffset   = rightOffset + rightGroups.length;
 
     return (
       <div className="widget-renderer estado-robot-layout">
         <div className="er-left-column">
-          {leftGroups.map((group, i) => renderGroup(group, data, i))}
+          {cameraGroups.map((group, i) => renderGroup(group, data, i))}
         </div>
         <div className="er-right-column">
-          {rightGroups.map((group, i) => renderGroup(group, data, i + leftGroups.length))}
+          {rightGroups.map((group, i) => renderGroup(group, data, rightOffset + i))}
+        </div>
+        <div className="er-events-row">
+          {eventsGroups.map((group, i) => renderGroup(group, data, eventsOffset + i))}
         </div>
       </div>
     );

@@ -46,7 +46,7 @@ export const SALESIANOS_LAYOUT = {
       label: "ESTADO HARDWARE E/S",
       color: "#ffbf00", // Amber
       groups: [
-        // ── LEFT COLUMN (55 %) ──────────────────────────────────────────
+        // ── LEFT COLUMN (50 %) — Camera stretches to match right column ──
         {
           title: "CÁMARA EN VIVO",
           className: "er-camera",
@@ -54,17 +54,19 @@ export const SALESIANOS_LAYOUT = {
             { type: "camera", path: "camera.stream", dismissible: true, borderColor: "#ffbf00" }
           ]
         },
+        // ── RIGHT COLUMN (50 %) — Compact IO signals grid ───────────────
         {
           title: "MAPEADO E/S DIGITAL",
           className: "er-digital-io",
+          compact: true,
           widgets: [
             { type: "digital-io", path: "digital_io" }
           ]
         },
-        // ── RIGHT COLUMN (45 %) ─────────────────────────────────────────
         {
           title: "SEGURIDAD",
           className: "er-seguridad-leds",
+          compact: true,
           widgets: [
             { type: "security-leds", path: "estado" }
           ]
@@ -72,6 +74,7 @@ export const SALESIANOS_LAYOUT = {
         {
           title: "ANALÓGICA",
           className: "er-analog",
+          compact: true,
           widgets: [
             { type: "analog-io", path: "analog_io" }
           ]
@@ -79,8 +82,18 @@ export const SALESIANOS_LAYOUT = {
         {
           title: "HERRAMIENTA",
           className: "er-herramienta",
+          compact: true,
           widgets: [
             { type: "tool-panel", path: "herramienta" }
+          ]
+        },
+        // ── BOTTOM ROW (100 %) — Events log ────────────────────────────
+        {
+          title: "REGISTROS / EVENTOS",
+          className: "er-events",
+          compact: true,
+          widgets: [
+            { type: "log", label: "Registros del Sistema", path: "eventos", compact: true, columns: 2 }
           ]
         }
       ]

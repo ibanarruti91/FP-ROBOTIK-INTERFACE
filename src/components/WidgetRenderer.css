@@ -205,69 +205,90 @@
   50% { opacity: 0.5; }
 }
 
-/* Estado Robot layout: 55% left (camera + IO), 45% right (3 panels) */
+/* Estado Robot layout: symmetric 50/50 — camera (left) | IO signals (right) + full-width events row */
 .widget-renderer.estado-robot-layout {
   display: grid;
-  grid-template-columns: 55% 45%;
-  gap: 20px;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 1rem;
   align-items: stretch;
 }
 
-/* ── LEFT COLUMN (camera + digital IO) ── */
+/* Left column (camera) — row 1, col 1; stretches to match right column */
 .widget-renderer.estado-robot-layout .er-left-column {
+  grid-column: 1;
+  grid-row: 1;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  min-height: 0;
 }
 
-/* ── RIGHT COLUMN (3 stacked panels) ── */
+/* Right column (IO signals) — row 1, col 2 */
 .widget-renderer.estado-robot-layout .er-right-column {
+  grid-column: 2;
+  grid-row: 1;
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  height: 100%;
+  gap: 0.75rem;
+  min-width: 0;
 }
 
-.widget-renderer.estado-robot-layout .er-right-column > .widget-group {
+/* Events row — spans both columns below the two-column block */
+.widget-renderer.estado-robot-layout .er-events-row {
+  grid-column: 1 / span 2;
+  grid-row: 2;
+}
+
+/* Camera widget-group fills the full left-column height */
+.widget-renderer.estado-robot-layout .er-left-column .widget-group {
   flex: 1;
+  display: flex;
+  flex-direction: column;
   min-height: 0;
 }
 
-.widget-renderer.estado-robot-layout .er-right-column > .widget-group > .widget-grid {
+.widget-renderer.estado-robot-layout .er-left-column .widget-grid {
   flex: 1;
+  display: flex;
+  flex-direction: column;
   min-height: 0;
-  grid-template-rows: 1fr;
 }
 
-.widget-renderer.estado-robot-layout .er-camera .camera-widget.nexus-card {
-  width: 100%;
-  padding: 0.75rem;
+.widget-renderer.estado-robot-layout .er-left-column .camera-widget.nexus-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
+/* Remove 16:9 aspect-ratio lock so camera stretches to match IO column height */
+.widget-renderer.estado-robot-layout .er-left-column .camera-inner--ratio {
+  aspect-ratio: unset;
+  flex: 1;
+  min-height: 180px;
+}
+
+/* Compact group & title tweaks */
 .widget-renderer.estado-robot-layout .widget-group {
-  gap: 0.3rem;
+  gap: 0.4rem;
 }
 
 .widget-renderer.estado-robot-layout .group-title {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   padding-bottom: 0.3rem;
   border-bottom-width: 1px;
+  border-bottom-color: #ffbf00;
   margin-bottom: 0;
 }
 
 .widget-renderer.estado-robot-layout .card-glass {
-  padding: 1.5rem;
+  padding: 0.75rem 1rem;
   background: rgba(15, 23, 42, 0.95);
 }
 
-.widget-renderer.estado-robot-layout .er-right-column .card-glass {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.widget-renderer.estado-robot-layout .digital-io-compact {
-  padding: 0.5rem 0.7rem;
+/* Digital IO matrix: slightly smaller cells to fit compactly */
+.widget-renderer.estado-robot-layout .io-cell {
+  height: 32px;
 }
 
 /* Responsive: stack columns on narrow screens */
@@ -275,8 +296,19 @@
   .widget-renderer.estado-robot-layout {
     grid-template-columns: 1fr;
   }
+  .widget-renderer.estado-robot-layout .er-left-column,
   .widget-renderer.estado-robot-layout .er-right-column {
-    height: auto;
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .widget-renderer.estado-robot-layout .er-events-row {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .widget-renderer.estado-robot-layout .er-left-column .camera-inner--ratio {
+    aspect-ratio: 16 / 9;
+    flex: unset;
+    min-height: unset;
   }
 }
 
