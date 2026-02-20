@@ -118,59 +118,82 @@
   }
 }
 
-/* Estado Robot layout: 55% left (camera + IO), 45% right (4 diagnosis panels) */
+/* Estado Robot layout: 55% left (camera + IO), 45% right (4 diagnosis panels)
+   Two independent flex columns so the right column distributes panels evenly
+   without being stretched by the camera's height. */
 .widget-renderer.estado-robot-layout {
   display: grid;
   grid-template-columns: 55% 45%;
-  grid-template-rows: auto 1fr;
   gap: 0.5rem;
-  align-items: start;
+  /* Constrain to the available viewport height (header + tabbar + mini-header ≈ 22rem) */
+  height: calc(100vh - 22rem);
+  min-height: 0;
 }
 
-/* LEFT COLUMN */
-.widget-renderer.estado-robot-layout > .widget-group.er-camera {
-  grid-column: 1;
-  grid-row: 1;
+/* ── LEFT COLUMN (camera + digital IO) ── */
+.widget-renderer.estado-robot-layout .er-left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 
-.widget-renderer.estado-robot-layout > .widget-group.er-digital-io {
-  grid-column: 1;
-  grid-row: 2;
+/* Camera takes ~70% of the left column height */
+.widget-renderer.estado-robot-layout .er-left-column .widget-group.er-camera {
+  flex: 7;
+  min-height: 0;
 }
 
-/* RIGHT COLUMN – 4 stacked panels filling available height */
-.widget-renderer.estado-robot-layout > .widget-group.er-gestion,
-.widget-renderer.estado-robot-layout > .widget-group.er-seguridad-leds,
-.widget-renderer.estado-robot-layout > .widget-group.er-analog,
-.widget-renderer.estado-robot-layout > .widget-group.er-herramienta {
-  grid-column: 2;
+/* Camera card fills its flex cell */
+.widget-renderer.estado-robot-layout .er-left-column .widget-group.er-camera .camera-widget {
+  height: 100%;
 }
 
-.widget-renderer.estado-robot-layout > .widget-group.er-gestion       { grid-row: 1; }
-.widget-renderer.estado-robot-layout > .widget-group.er-seguridad-leds { grid-row: 2; }
-.widget-renderer.estado-robot-layout > .widget-group.er-analog         { grid-row: 3; }
-.widget-renderer.estado-robot-layout > .widget-group.er-herramienta    { grid-row: 4; }
-
-/* Make the right column fill the vertical space of the left column */
-.widget-renderer.estado-robot-layout {
-  grid-template-rows: auto auto auto auto;
+/* Remove fixed aspect-ratio inside this layout so the camera fills its flex cell */
+.widget-renderer.estado-robot-layout .er-left-column .camera-inner--ratio {
+  aspect-ratio: unset;
+  height: 100%;
 }
 
-/* Subgrid trick: wrap right panels in a flex column that stretches to match left column height */
-.widget-renderer.estado-robot-layout > .widget-group.er-gestion {
-  align-self: start;
-}
-.widget-renderer.estado-robot-layout > .widget-group.er-herramienta {
-  align-self: end;
-}
-.widget-renderer.estado-robot-layout > .widget-group.er-seguridad-leds,
-.widget-renderer.estado-robot-layout > .widget-group.er-analog {
-  align-self: stretch;
+/* Digital IO takes ~30% of the left column height */
+.widget-renderer.estado-robot-layout .er-left-column .widget-group.er-digital-io {
+  flex: 3;
+  min-height: 0;
 }
 
-/* Compact overrides for the estado-robot right-column panels */
+/* ── RIGHT COLUMN (4 equal panels) ── */
+.widget-renderer.estado-robot-layout .er-right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* All right-column panels share height equally */
+.widget-renderer.estado-robot-layout .er-right-column .widget-group {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Cards inside right column fill their flex cell */
+.widget-renderer.estado-robot-layout .er-right-column .widget-group .card-glass {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Herramienta card: distribute its rows with space-between so content sits at the bottom edge */
+.widget-renderer.estado-robot-layout .er-right-column .widget-group.er-herramienta .tool-panel {
+  height: 100%;
+  justify-content: space-between;
+}
+
+/* Compact overrides for both columns */
 .widget-renderer.estado-robot-layout .widget-group {
-  gap: 0.35rem;
+  gap: 0.3rem;
 }
 
 .widget-renderer.estado-robot-layout .group-title {
@@ -180,38 +203,35 @@
   margin-bottom: 0;
 }
 
-/* Remove extra padding from card-glass in this layout */
 .widget-renderer.estado-robot-layout .card-glass {
-  padding: 0.6rem 0.8rem;
+  padding: 0.55rem 0.8rem;
 }
 
-/* Digital IO compact override: minimal padding */
 .widget-renderer.estado-robot-layout .digital-io-compact {
-  padding: 0.6rem 0.8rem;
+  padding: 0.5rem 0.7rem;
 }
 
-/* Herramienta: stretch card to fill available space */
-.widget-renderer.estado-robot-layout .widget-group.er-herramienta .card-glass {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
+/* Responsive: stack columns on narrow screens */
 @media (max-width: 1100px) {
   .widget-renderer.estado-robot-layout {
     grid-template-columns: 1fr;
+    height: auto;
   }
 
-  .widget-renderer.estado-robot-layout > .widget-group.er-camera,
-  .widget-renderer.estado-robot-layout > .widget-group.er-digital-io,
-  .widget-renderer.estado-robot-layout > .widget-group.er-gestion,
-  .widget-renderer.estado-robot-layout > .widget-group.er-seguridad-leds,
-  .widget-renderer.estado-robot-layout > .widget-group.er-analog,
-  .widget-renderer.estado-robot-layout > .widget-group.er-herramienta {
-    grid-column: 1;
-    grid-row: auto;
-    align-self: auto;
+  .widget-renderer.estado-robot-layout .er-left-column,
+  .widget-renderer.estado-robot-layout .er-right-column {
+    height: auto;
+  }
+
+  .widget-renderer.estado-robot-layout .er-left-column .widget-group.er-camera,
+  .widget-renderer.estado-robot-layout .er-left-column .widget-group.er-digital-io,
+  .widget-renderer.estado-robot-layout .er-right-column .widget-group {
+    flex: unset;
+  }
+
+  .widget-renderer.estado-robot-layout .er-left-column .camera-inner--ratio {
+    aspect-ratio: 16 / 9;
+    height: auto;
   }
 }
 

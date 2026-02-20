@@ -81,6 +81,11 @@
   color: #8a2be2;
 }
 
+/* Single-view mode: prevent main-content scroll when in estado-robot tab */
+.main-content:has(.tab-content[data-section="estado-robot"]) {
+  overflow-y: hidden;
+}
+
 .tab-content {
   margin-top: 1rem;
   animation: fadeInUp 0.4s ease-out;
