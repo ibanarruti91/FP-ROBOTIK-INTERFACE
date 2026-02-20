@@ -221,25 +221,29 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
     );
   }
 
-  // Estado Robot (HARDWARE E/S): camera (left 50%) | IO signals (right 50%) — same height; log full-width below
+  // Estado Robot (HARDWARE E/S): 2×2 grid — Camera (top-left) | Digital IO (top-right) | Analog (bottom-left) | Tool (bottom-right)
   if (sectionId === 'estado-robot') {
-    const RIGHT_CLASSES  = new Set(['er-digital-io', 'er-seguridad-leds', 'er-analog', 'er-herramienta']);
-    const cameraGroups   = groups.filter(g => g.className === 'er-camera');
-    const rightGroups    = groups.filter(g => RIGHT_CLASSES.has(g.className));
-    const eventsGroups   = groups.filter(g => g.className === 'er-events');
-    const rightOffset    = cameraGroups.length;
-    const eventsOffset   = rightOffset + rightGroups.length;
+    const cameraGroups  = groups.filter(g => g.className === 'er-camera');
+    const digitalGroups = groups.filter(g => g.className === 'er-digital-io');
+    const analogGroups  = groups.filter(g => g.className === 'er-analog');
+    const toolGroups    = groups.filter(g => g.className === 'er-herramienta');
+    const d = cameraGroups.length;
+    const di = d + digitalGroups.length;
+    const da = di + analogGroups.length;
 
     return (
       <div className="widget-renderer estado-robot-layout">
-        <div className="er-left-column">
+        <div className="er-top-left">
           {cameraGroups.map((group, i) => renderGroup(group, data, i))}
         </div>
-        <div className="er-right-column">
-          {rightGroups.map((group, i) => renderGroup(group, data, rightOffset + i))}
+        <div className="er-top-right">
+          {digitalGroups.map((group, i) => renderGroup(group, data, d + i))}
         </div>
-        <div className="er-events-row">
-          {eventsGroups.map((group, i) => renderGroup(group, data, eventsOffset + i))}
+        <div className="er-bottom-left">
+          {analogGroups.map((group, i) => renderGroup(group, data, di + i))}
+        </div>
+        <div className="er-bottom-right">
+          {toolGroups.map((group, i) => renderGroup(group, data, da + i))}
         </div>
       </div>
     );
