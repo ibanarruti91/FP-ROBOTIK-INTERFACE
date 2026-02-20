@@ -12,29 +12,38 @@
   gap: 1rem;
 }
 
-/* ── PRINCIPAL TAB: 65% left (camera + events), 35% right (metrics) ── */
+/* ── PRINCIPAL TAB: MODIFIED TO 100% WIDTH ── */
 .widget-renderer.principal-two-col {
-  display: grid;
-  grid-template-columns: 65% 35%;
-  gap: 1rem;
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 1.5rem;
+  align-items: stretch;
 }
 
-/* Left column: camera on top, events below – both full-width */
+/* Left column: camera on top, events below – now full-width */
 .widget-renderer.principal-two-col .principal-left-column {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
   position: relative;
-  min-width: 0;
+  width: 100%;
 }
 
-/* Camera takes 100% of the left column with 16/9 ratio (already enforced by .camera-inner--ratio) */
+/* Right column: metrics now stacked below at 100% width */
+.widget-renderer.principal-two-col .principal-right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+/* Camera and Events take 100% width */
 .widget-renderer.principal-two-col .principal-left-column > .widget-group {
   width: 100%;
 }
 
-/* Events panel: no absolute positioning, no negative margins */
+/* Events panel: full-width reinforcement */
 .widget-renderer.principal-two-col .principal-left-column > .widget-group.principal-events {
   position: relative;
   width: 100%;
@@ -43,22 +52,14 @@
   margin-right: 0;
 }
 
-/* Right column: metrics stacked vertically */
-.widget-renderer.principal-two-col .principal-right-column {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  min-width: 0;
-}
-
-/* Responsive: stack columns on narrow screens */
+/* Responsive: already handled by flex-direction column above */
 @media (max-width: 1100px) {
   .widget-renderer.principal-two-col {
     grid-template-columns: 1fr;
   }
 }
 
-/* ── Legacy principal-layout (kept for compatibility, no longer used by JSX) ── */
+/* ── Legacy principal-layout (kept for compatibility) ── */
 .widget-renderer.principal-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
@@ -157,89 +158,77 @@
 }
 
 @keyframes pulse-text {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
-/* Estado Robot layout: 55% left (camera + IO), 45% right (3 panels) */
+/* ── ESTADO ROBOT LAYOUT: MODIFIED TO 100% WIDTH ── */
 .widget-renderer.estado-robot-layout {
-  display: grid;
-  grid-template-columns: 55% 45%;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   gap: 20px;
   align-items: stretch;
 }
 
-/* ── LEFT COLUMN (camera + digital IO) ── */
+/* ── LEFT COLUMN (camera + digital IO) - FULL WIDTH ── */
 .widget-renderer.estado-robot-layout .er-left-column {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  width: 100%;
 }
 
-/* ── RIGHT COLUMN (3 stacked panels) ── */
+/* ── RIGHT COLUMN (3 stacked panels) - FULL WIDTH ── */
 .widget-renderer.estado-robot-layout .er-right-column {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  height: 100%;
+  width: 100%;
 }
 
-/* Right column panels fill available height proportionally */
+/* Panels fill width and have adjusted title size for better visibility */
 .widget-renderer.estado-robot-layout .er-right-column > .widget-group {
-  flex: 1;
+  width: 100%;
   min-height: 0;
 }
 
 .widget-renderer.estado-robot-layout .er-right-column > .widget-group > .widget-grid {
-  flex: 1;
-  min-height: 0;
-  grid-template-rows: 1fr;
+  width: 100%;
+  grid-template-rows: auto;
 }
 
-/* Camera: fill the full left-column width with 16/9 aspect ratio */
+/* Camera: full width */
 .widget-renderer.estado-robot-layout .er-camera .camera-widget.nexus-card {
   width: 100%;
   padding: 0.75rem;
 }
 
-/* Compact overrides for both columns */
-.widget-renderer.estado-robot-layout .widget-group {
-  gap: 0.3rem;
-}
-
+/* Improved titles for the new wide layout */
 .widget-renderer.estado-robot-layout .group-title {
-  font-size: 0.7rem;
-  padding-bottom: 0.3rem;
+  font-size: 1rem;
+  padding-bottom: 0.4rem;
   border-bottom-width: 1px;
-  margin-bottom: 0;
+  margin-bottom: 0.5rem;
 }
 
 .widget-renderer.estado-robot-layout .card-glass {
-  padding: 0.55rem 0.8rem;
+  padding: 1rem;
   background: rgba(15, 23, 42, 0.95);
 }
 
 .widget-renderer.estado-robot-layout .digital-io-compact {
-  padding: 0.5rem 0.7rem;
+  padding: 0.8rem;
 }
 
-/* Responsive: stack columns on narrow screens */
+/* Responsive stack */
 @media (max-width: 1100px) {
   .widget-renderer.estado-robot-layout {
     grid-template-columns: 1fr;
   }
-
-  .widget-renderer.estado-robot-layout .er-right-column {
-    height: auto;
-  }
 }
 
-
-/* Responsive grid adjustments */
+/* General Grid responsive */
 @media (max-width: 1200px) {
   .widget-grid {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -250,23 +239,8 @@
   .widget-grid {
     grid-template-columns: 1fr;
   }
-  
   .widget-grid .span-2,
   .widget-grid .span-3 {
     grid-column: span 1;
-  }
-}
-
-@media (max-width: 1100px) {
-  .widget-renderer.principal-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .widget-renderer.principal-layout > .widget-group.principal-header,
-  .widget-renderer.principal-layout > .widget-group.principal-camera,
-  .widget-renderer.principal-layout > .widget-group.principal-metrics,
-  .widget-renderer.principal-layout > .widget-group.principal-events {
-    grid-column: 1;
-    grid-row: auto;
   }
 }
