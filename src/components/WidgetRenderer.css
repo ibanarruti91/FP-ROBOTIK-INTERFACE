@@ -118,12 +118,12 @@
   }
 }
 
-/* Estado Robot layout: 55% left (camera + IO), 45% right (4 diagnosis panels) */
+/* Estado Robot layout: 55% left (camera + IO), 45% right (3 panels) */
 .widget-renderer.estado-robot-layout {
   display: grid;
   grid-template-columns: 55% 45%;
   gap: 20px;
-  align-items: start;
+  align-items: stretch;
 }
 
 /* ── LEFT COLUMN (camera + digital IO) ── */
@@ -133,13 +133,31 @@
   gap: 20px;
 }
 
-/* ── RIGHT COLUMN (4 stacked panels) ── */
+/* ── RIGHT COLUMN (3 stacked panels) ── */
 .widget-renderer.estado-robot-layout .er-right-column {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  max-height: calc(100vh - 22rem);
-  overflow-y: auto;
+  height: 100%;
+}
+
+/* Right column panels fill available height proportionally */
+.widget-renderer.estado-robot-layout .er-right-column > .widget-group {
+  flex: 1;
+  min-height: 0;
+}
+
+.widget-renderer.estado-robot-layout .er-right-column > .widget-group > .widget-grid {
+  flex: 1;
+  min-height: 0;
+  grid-template-rows: 1fr;
+}
+
+/* Camera: constrain size so Digital IO matrix is the protagonist */
+.widget-renderer.estado-robot-layout .er-camera .camera-widget.nexus-card {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 0.75rem;
 }
 
 /* Compact overrides for both columns */
@@ -170,8 +188,7 @@
   }
 
   .widget-renderer.estado-robot-layout .er-right-column {
-    max-height: none;
-    overflow-y: visible;
+    height: auto;
   }
 }
 

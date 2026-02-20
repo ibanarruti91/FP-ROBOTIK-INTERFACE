@@ -694,9 +694,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 22px;
-  padding: 0 2px;
-  border-radius: 2px;
+  height: 36px;
+  padding: 0 4px;
+  border-radius: 4px;
   transition: background 0.2s ease, box-shadow 0.2s ease;
   min-width: 0;
   cursor: default;
@@ -705,7 +705,7 @@
 
 .io-cell-name {
   font-family: 'Roboto Mono', monospace;
-  font-size: 0.5rem;
+  font-size: 0.65rem;
   font-weight: 700;
   line-height: 1;
   white-space: nowrap;
@@ -729,7 +729,7 @@
 .io-cell.led-input.io-active {
   background: rgba(0, 80, 220, 0.75);
   border-color: #4b9fff;
-  box-shadow: 0 0 8px #4b9fff, 0 0 16px rgba(75, 159, 255, 0.55);
+  box-shadow: 0 0 12px #4b9fff, 0 0 24px rgba(75, 159, 255, 0.7), 0 0 36px rgba(75, 159, 255, 0.35);
 }
 .io-cell.led-input.io-active .io-cell-name {
   color: #e0f0ff;
@@ -746,7 +746,7 @@
 .io-cell.led-output.io-active {
   background: rgba(180, 0, 100, 0.75);
   border-color: #ff33bb;
-  box-shadow: 0 0 8px #ff33bb, 0 0 16px rgba(255, 51, 187, 0.55);
+  box-shadow: 0 0 12px #ff33bb, 0 0 24px rgba(255, 51, 187, 0.7), 0 0 36px rgba(255, 51, 187, 0.35);
 }
 .io-cell.led-output.io-active .io-cell-name {
   color: #ffe0f4;
@@ -780,9 +780,9 @@
 }
 
 .analog-bar-track {
-  height: 6px;
+  height: 12px;
   background: rgba(0, 0, 0, 0.5);
-  border-radius: 3px;
+  border-radius: 6px;
   overflow: hidden;
   border: 1px solid rgba(148, 163, 184, 0.15);
 }

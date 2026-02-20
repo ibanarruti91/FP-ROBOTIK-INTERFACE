@@ -62,13 +62,6 @@ export const SALESIANOS_LAYOUT = {
         },
         // ── RIGHT COLUMN (45 %) ─────────────────────────────────────────
         {
-          title: "GESTIÓN",
-          className: "er-gestion",
-          widgets: [
-            { type: "gestion-panel", path: "programa" }
-          ]
-        },
-        {
           title: "SEGURIDAD",
           className: "er-seguridad-leds",
           widgets: [
