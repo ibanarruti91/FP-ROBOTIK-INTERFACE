@@ -135,6 +135,39 @@
   font-weight: 500;
 }
 
+/* KPI Alert - warning threshold exceeded */
+.kpi-alert {
+  border-color: #f59e0b !important;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.3) !important;
+}
+.kpi-alert .kpi-value {
+  color: #f59e0b !important;
+  text-shadow: 0 0 8px rgba(245, 158, 11, 0.5), 0 0 12px rgba(245, 158, 11, 0.3) !important;
+}
+.kpi-progress-fill.progress-alert {
+  background: linear-gradient(90deg, #f59e0b, #f59e0b 80%, rgba(245, 158, 11, 0.5));
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+}
+
+/* KPI Critical - critical threshold exceeded (red blinking) */
+.kpi-critical {
+  border-color: #ef4444 !important;
+  animation: kpi-critical-pulse 0.8s ease-in-out infinite !important;
+}
+.kpi-critical .kpi-value {
+  color: #ef4444 !important;
+  text-shadow: 0 0 8px rgba(239, 68, 68, 0.6), 0 0 12px rgba(239, 68, 68, 0.4) !important;
+}
+.kpi-progress-fill.progress-critical {
+  background: linear-gradient(90deg, #ef4444, #ef4444 80%, rgba(239, 68, 68, 0.5));
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+}
+
+@keyframes kpi-critical-pulse {
+  0%, 100% { box-shadow: 0 0 14px rgba(239, 68, 68, 0.4); border-color: #ef4444; }
+  50%       { box-shadow: 0 0 28px rgba(239, 68, 68, 0.7); border-color: rgba(239, 68, 68, 0.6); }
+}
+
 /* Progress bar for KPI cards */
 .kpi-progress-bar {
   height: 4px;

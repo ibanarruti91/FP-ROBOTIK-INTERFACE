@@ -69,7 +69,7 @@ export function CardGlass({ children, className = '' }) {
 /**
  * Tarjeta KPI - muestra label, valor grande y unidad
  */
-export function KpiCard({ label, value, unit, className = '', compact = false, format = '0', icon }) {
+export function KpiCard({ label, value, unit, className = '', compact = false, format = '0', icon, alertThreshold, criticalThreshold, progressMax }) {
   const isValueAvailable = value !== null && value !== undefined && value !== '';
   const numericValue = typeof value === 'number' ? value : null;
   const animatedValue = useCountingAnimation(numericValue || 0, 400);
@@ -79,10 +79,10 @@ export function KpiCard({ label, value, unit, className = '', compact = false, f
   // Trigger update animation when value changes
   useEffect(() => {
     if (previousValue.current !== value && isValueAvailable) {
-      setIsUpdated(true);
       previousValue.current = value;
-      const timer = setTimeout(() => setIsUpdated(false), 600);
-      return () => clearTimeout(timer);
+      const flashTimer = setTimeout(() => setIsUpdated(true), 0);
+      const clearTimer = setTimeout(() => setIsUpdated(false), 600);
+      return () => { clearTimeout(flashTimer); clearTimeout(clearTimer); };
     }
   }, [value, isValueAvailable]);
   
@@ -124,10 +124,18 @@ export function KpiCard({ label, value, unit, className = '', compact = false, f
   const IconComponent = getIcon();
   
   // Calculate progress bar percentage (for numeric values)
-  const progressPercentage = (isValueAvailable && numericValue !== null) ? 100 : 0;
-  
+  const progressPercentage = (isValueAvailable && numericValue !== null)
+    ? progressMax
+      ? Math.min(100, Math.max(0, (numericValue / progressMax) * 100))
+      : 100
+    : 0;
+
+  // Threshold-based alert state
+  const isCritical = criticalThreshold !== undefined && numericValue !== null && numericValue >= criticalThreshold;
+  const isAlert    = !isCritical && alertThreshold !== undefined && numericValue !== null && numericValue >= alertThreshold;
+
   return (
-    <CardGlass className={`kpi-card ${compact ? 'kpi-compact' : ''} ${className}`}>
+    <CardGlass className={`kpi-card ${compact ? 'kpi-compact' : ''} ${isCritical ? 'kpi-critical' : isAlert ? 'kpi-alert' : ''} ${className}`}>
       <div className="kpi-label">
         {IconComponent && <span className="widget-icon">{IconComponent}</span>}
         {label}
@@ -139,7 +147,7 @@ export function KpiCard({ label, value, unit, className = '', compact = false, f
       {/* Progress bar for visual feedback */}
       <div className="kpi-progress-bar">
         <div 
-          className="kpi-progress-fill" 
+          className={`kpi-progress-fill ${isCritical ? 'progress-critical' : isAlert ? 'progress-alert' : ''}`}
           style={{ width: `${progressPercentage}%` }}
         ></div>
       </div>
@@ -194,10 +202,10 @@ export function StatusDynamic({ label, value, statusType, className = '', compac
   // Trigger update animation when value changes
   useEffect(() => {
     if (previousValue.current !== value && isValueAvailable) {
-      setIsUpdated(true);
       previousValue.current = value;
-      const timer = setTimeout(() => setIsUpdated(false), 400);
-      return () => clearTimeout(timer);
+      const flashTimer = setTimeout(() => setIsUpdated(true), 0);
+      const clearTimer = setTimeout(() => setIsUpdated(false), 400);
+      return () => { clearTimeout(flashTimer); clearTimeout(clearTimer); };
     }
   }, [value, isValueAvailable]);
   
@@ -251,9 +259,10 @@ export function DataTable({ label, data, unit, format }) {
       });
       
       if (updated.size > 0) {
-        setUpdatedIndices(updated);
-        const timer = setTimeout(() => setUpdatedIndices(new Set()), 600);
-        return () => clearTimeout(timer);
+        previousData.current = data;
+        const flashTimer = setTimeout(() => setUpdatedIndices(updated), 0);
+        const clearTimer = setTimeout(() => setUpdatedIndices(new Set()), 600);
+        return () => { clearTimeout(flashTimer); clearTimeout(clearTimer); };
       }
     }
     previousData.current = data;
@@ -664,9 +673,10 @@ export function JointsGrid({ data, className = '' }) {
     });
     
     if (updated.size > 0) {
-      setUpdatedPositions(updated);
-      const timer = setTimeout(() => setUpdatedPositions(new Set()), 600);
-      return () => clearTimeout(timer);
+      previousPositions.current = positions;
+      const flashTimer = setTimeout(() => setUpdatedPositions(updated), 0);
+      const clearTimer = setTimeout(() => setUpdatedPositions(new Set()), 600);
+      return () => { clearTimeout(flashTimer); clearTimeout(clearTimer); };
     }
     previousPositions.current = positions;
   }, [positions]);

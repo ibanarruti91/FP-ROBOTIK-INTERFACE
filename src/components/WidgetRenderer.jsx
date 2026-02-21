@@ -39,6 +39,9 @@ function renderWidget(widget, data, key) {
           className={`${widget.columns ? `span-${widget.columns}` : ''} ${compactClass}`}
           compact={widget.compact}
           format={widget.format}
+          alertThreshold={widget.alertThreshold}
+          criticalThreshold={widget.criticalThreshold}
+          progressMax={widget.progressMax}
         />
       );
     

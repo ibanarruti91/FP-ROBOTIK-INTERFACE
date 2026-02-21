@@ -23,11 +23,11 @@ export const SALESIANOS_LAYOUT = {
           className: "principal-metrics",
           compact: true,
           widgets: [
-            { type: "kpi", label: "Potencia", path: "sistema.potencia_total", unit: "W", format: "0", columns: 1, compact: true },
-            { type: "kpi", label: "Temp. Control", path: "sistema.temperatura_control", unit: "°C", format: "1", columns: 1, compact: true },
-            { type: "kpi", label: "Velocidad TCP", path: "sistema.velocidad_tcp", unit: "mm/s", format: "1", columns: 1, compact: true },
+            { type: "kpi", label: "Potencia", path: "sistema.potencia_total", unit: "W", format: "0", columns: 1, compact: true, alertThreshold: 200, progressMax: 250 },
+            { type: "kpi", label: "Temp. Control", path: "sistema.temperatura_control", unit: "°C", format: "1", columns: 1, compact: true, alertThreshold: 50, criticalThreshold: 60, progressMax: 80 },
+            { type: "kpi", label: "Velocidad TCP", path: "sistema.velocidad_tcp", unit: "m/s", format: "3", columns: 1, compact: true },
             { type: "kpi", label: "Tiempo Ciclo", path: "estadisticas.tiempo_ciclo", unit: "s", format: "2", columns: 1, compact: true },
-            { type: "kpi", label: "Horas Operación", path: "estadisticas.horas_operacion", unit: "h", format: "1", columns: 1, compact: true },
+            { type: "kpi", label: "Horas Operación", path: "estadisticas.horas_operacion", unit: "h", format: "0", columns: 1, compact: true },
             { type: "kpi", label: "Est. Máquina", path: "sistema.estado_maquina", unit: "", format: "text", columns: 1, compact: true }
           ]
         },
@@ -99,7 +99,7 @@ export const SALESIANOS_LAYOUT = {
           className: "cin-potencia",
           compact: true,
           widgets: [
-            { type: "kpi", label: "Potencia Total", path: "sistema.potencia_total", unit: "W", format: "0", columns: 1, compact: true },
+            { type: "kpi", label: "Potencia Total", path: "sistema.potencia_total", unit: "W", format: "0", columns: 1, compact: true, alertThreshold: 200, progressMax: 250 },
             { type: "kpi", label: "Velocidad TCP", path: "sistema.velocidad_tcp", unit: "m/s", format: "3", columns: 1, compact: true }
           ]
         },
@@ -138,8 +138,8 @@ export const SALESIANOS_LAYOUT = {
           className: "diag-data",
           compact: true,
           widgets: [
-            { type: "kpi", label: "Temp. Controlador", path: "ctrl_temp", unit: "°C", format: "1", columns: 1, compact: true },
-            { type: "kpi", label: "Potencia Robot", path: "robot_power", unit: "W", format: "0", columns: 1, compact: true }
+            { type: "kpi", label: "Temp. Controlador", path: "sistema.temperatura_control", unit: "°C", format: "1", columns: 1, compact: true, alertThreshold: 50, criticalThreshold: 60, progressMax: 80 },
+            { type: "kpi", label: "Potencia Robot", path: "sistema.potencia_total", unit: "W", format: "0", columns: 1, compact: true, alertThreshold: 200, progressMax: 250 }
           ]
         },
         {
@@ -155,8 +155,8 @@ export const SALESIANOS_LAYOUT = {
           className: "diag-data",
           compact: true,
           widgets: [
-            { type: "kpi", label: "Tiempo Operación", path: "uptime_hours", unit: "h", format: "1", columns: 1, compact: true },
-            { type: "kpi", label: "Tiempo Ciclo Promedio", path: "cycle_time", unit: "s", format: "1", columns: 1, compact: true }
+            { type: "kpi", label: "Tiempo Operación", path: "estadisticas.horas_operacion", unit: "h", format: "0", columns: 1, compact: true },
+            { type: "kpi", label: "Tiempo Ciclo Promedio", path: "estadisticas.tiempo_ciclo", unit: "s", format: "2", columns: 1, compact: true }
           ]
         },
         {
