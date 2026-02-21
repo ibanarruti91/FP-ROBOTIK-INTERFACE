@@ -9,6 +9,27 @@ import { TelemetryMiniHeader } from '../components/TelemetryMiniHeader';
 import { useMqttStatus } from '../hooks/useMqttStatus';
 import './TelemetriaDetail.css';
 
+// ── Numeric → String state maps (UR robot protocol) ──────────────────────────
+const ROBOT_STATUS_MAP = {
+  3: 'BOOTING',
+  4: 'POWER_OFF',
+  5: 'POWER_ON',
+  7: 'RUNNING', // robot_status 7 (Running) and 8 (Pausing) both map to RUNNING
+  8: 'RUNNING', // to keep a simple binary "machine is active" state in the UI
+};
+const ROBOT_MODE_MAP   = { 1: 'MANUAL', 2: 'AUTO', 3: 'REMOTE' };
+const RUNTIME_STATE_MAP = { 1: 'STOPPED', 2: 'PLAYING', 3: 'PAUSED' };
+const SAFETY_STATUS_MAP = { 1: 'NORMAL', 3: 'PROTECTIVE_STOP', 4: 'EMERGENCY_STOP' };
+
+/**
+ * Maps a numeric value using the provided lookup table.
+ * String values are returned as-is; null/undefined are returned unchanged.
+ */
+function mapNumericState(map, value) {
+  if (typeof value === 'number') return map[value] ?? String(value);
+  return value;
+}
+
 function TelemetriaDetail() {
   const { centroId } = useParams();
   const navigate = useNavigate();
@@ -67,21 +88,31 @@ function TelemetriaDetail() {
         setTelemetry((prevTelemetry) => {
           // Create a new telemetry object based on previous state or mock data
           const baseTelemetry = prevTelemetry || getMockTelemetryData(centro);
-          
+
+          // Resolve safety from new path (seguridad.safety) with fallback to estado.safety
+          const rawSafety = data.seguridad?.safety ?? data.estado?.safety;
+          const resolvedSafety = mapNumericState(SAFETY_STATUS_MAP, rawSafety) ?? baseTelemetry.seguridad?.safety ?? baseTelemetry.estado?.safety;
+
           // Map incoming MQTT data to telemetry structure
           return {
             ...baseTelemetry,
             timestamp: new Date().toISOString(),
-            // Map programa data
+            // Map programa data.
+            // `programa.id` is the new consolidated path; `programa.status_id` is the legacy path.
+            // Both are kept for backward compatibility with existing widgets.
             programa: {
               nombre: data.programa?.nombre ?? baseTelemetry.programa?.nombre ?? '',
-              status_id: data.programa?.status_id ?? baseTelemetry.programa?.status_id ?? 0,
-              estado: data.programa?.estado ?? baseTelemetry.programa?.estado ?? null
+              // legacy field used by TelemetryMiniHeader; defaults to 0 (no program)
+              status_id: data.programa?.status_id ?? data.programa?.id ?? baseTelemetry.programa?.status_id ?? 0,
+              // new consolidated field; null means not provided
+              id: data.programa?.id ?? data.programa?.status_id ?? baseTelemetry.programa?.id ?? null,
+              ciclos: data.programa?.ciclos ?? baseTelemetry.programa?.ciclos ?? null,
+              estado: mapNumericState(RUNTIME_STATE_MAP, data.programa?.estado) ?? baseTelemetry.programa?.estado ?? null
             },
-            // Map sistema data (including new velocidad_tcp field)
+            // Map sistema data – apply numeric→string mappings
             sistema: {
-              modo_operacion: data.sistema?.modo_operacion ?? baseTelemetry.sistema?.modo_operacion ?? '',
-              estado_maquina: data.sistema?.estado_maquina ?? baseTelemetry.sistema?.estado_maquina ?? '',
+              modo_operacion: mapNumericState(ROBOT_MODE_MAP, data.sistema?.modo_operacion) ?? baseTelemetry.sistema?.modo_operacion ?? '',
+              estado_maquina: mapNumericState(ROBOT_STATUS_MAP, data.sistema?.estado_maquina) ?? baseTelemetry.sistema?.estado_maquina ?? '',
               potencia_total: data.sistema?.potencia_total ?? baseTelemetry.sistema?.potencia_total ?? 0,
               temperatura_control: data.sistema?.temperatura_control ?? baseTelemetry.sistema?.temperatura_control ?? 0,
               velocidad_tcp: data.sistema?.velocidad_tcp ?? baseTelemetry.sistema?.velocidad_tcp ?? null
@@ -93,12 +124,16 @@ function TelemetriaDetail() {
             },
             // Map eventos array
             eventos: data.eventos ?? baseTelemetry.eventos ?? [],
-            // Map estado with safety/security fields
+            // Map seguridad (new consolidated path: seguridad.safety)
+            seguridad: {
+              safety: resolvedSafety
+            },
+            // Map estado with safety/security fields (legacy + new path support)
             estado: {
               ...baseTelemetry.estado,
               online: data.estado?.online ?? baseTelemetry.estado?.online,
               mode: data.estado?.mode ?? baseTelemetry.estado?.mode,
-              safety: data.estado?.safety ?? baseTelemetry.estado?.safety,
+              safety: resolvedSafety,
               emergencia_parada: data.estado?.emergencia_parada ?? baseTelemetry.estado?.emergencia_parada,
               proteccion: data.estado?.proteccion ?? baseTelemetry.estado?.proteccion,
               analogas: data.estado?.analogas ?? baseTelemetry.estado?.analogas

@@ -210,6 +210,10 @@ export function StatusDynamic({ label, value, statusType, className = '', compac
         statusClass = 'status-power-on';
       } else if (value === 'POWER_OFF') {
         statusClass = 'status-power-off';
+      } else if (value === 'BOOTING') {
+        statusClass = 'status-booting';
+      } else if (value === 'RUNNING') {
+        statusClass = 'status-power-on';
       } else if (value === 'EMERGENCY_STOP') {
         statusClass = 'status-emergency';
         shouldBlink = true;

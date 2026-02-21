@@ -90,7 +90,7 @@ export function TelemetryMiniHeader({ data }) {
     const currentData = {
       estadoRobot: data?.sistema?.estado_maquina,
       modo: data?.sistema?.modo_operacion,
-      seguridad: data?.estado?.safety,
+      seguridad: data?.seguridad?.safety ?? data?.estado?.safety,
       ejecucion: data?.programa?.estado,
       programa: data?.programa?.nombre,
       numeroPrograma: data?.programa?.status_id,
@@ -114,7 +114,7 @@ export function TelemetryMiniHeader({ data }) {
   // Extract values with fallbacks
   const estadoRobot = data?.sistema?.estado_maquina || 'N/A';
   const modo = data?.sistema?.modo_operacion || 'N/A';
-  const seguridad = data?.estado?.safety || 'N/A';
+  const seguridad = data?.seguridad?.safety || data?.estado?.safety || 'N/A';
   const ejecucion = data?.programa?.estado || 'N/A';
   const programa = data?.programa?.nombre || 'N/A';
   const numeroProg = data?.programa?.status_id !== null && data?.programa?.status_id !== undefined
