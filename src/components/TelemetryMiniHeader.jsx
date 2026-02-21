@@ -20,14 +20,20 @@ function getSeguridadClass(seg) {
     case 'NORMAL':
     case 'OK':
       return 'badge-normal';
-    case 'PROTECTIVE_STOP':
-      return 'badge-protective-stop';
-    case 'EMERGENCY_STOP':
-      return 'badge-emergency';
-    case 'RECOVERY':
-      return 'badge-recovery';
     case 'REDUCED':
       return 'badge-reduced';
+    case 'PROTECTIVE_STOP':
+      return 'badge-protective-stop';
+    case 'RECOVERY':
+      return 'badge-recovery';
+    case 'EMERGENCY_STOP':
+      return 'badge-emergency';
+    case 'VIOLATION':
+      return 'badge-violation';
+    case 'FAULT':
+      return 'badge-fault';
+    case 'UNKNOWN':
+      return 'badge-unknown';
     default:
       return '';
   }
@@ -43,8 +49,12 @@ function getEstadoRobotClass(estado) {
       return 'badge-idle';
     case 'BOOTING':
       return 'badge-booting';
+    case 'RUNNING':
+      return 'badge-running';
     case 'EMERGENCY_STOP':
       return 'badge-emergency';
+    case 'UNKNOWN':
+      return 'badge-unknown';
     default:
       return '';
   }
@@ -59,6 +69,8 @@ function getEjecucionClass(est) {
       return 'badge-paused';
     case 'STOPPED':
       return 'badge-stopped';
+    case 'UNKNOWN':
+      return 'badge-unknown';
     default:
       return '';
   }
@@ -72,6 +84,8 @@ function getModoClass(modOp) {
     case 'LOCAL':
     case 'TEACH':
       return 'badge-local';
+    case 'UNKNOWN':
+      return 'badge-unknown';
     default:
       return '';
   }
@@ -104,10 +118,16 @@ export function TelemetryMiniHeader({ data }) {
     });
 
     if (updated.size > 0) {
-      setUpdatedFields(updated);
-      const timer = setTimeout(() => setUpdatedFields(new Set()), 200);
       previousData.current = currentData;
-      return () => clearTimeout(timer);
+      let clearTimer = null;
+      const flashTimer = setTimeout(() => {
+        setUpdatedFields(updated);
+        clearTimer = setTimeout(() => setUpdatedFields(new Set()), 200);
+      }, 0);
+      return () => {
+        clearTimeout(flashTimer);
+        clearTimeout(clearTimer);
+      };
     }
   }, [data]);
 
