@@ -60,6 +60,8 @@ export function getMockTelemetryData(centroConfig = null) {
     programa: {
       nombre: null,
       status_id: null,
+      id: null,
+      ciclos: null,
       estado: null    // PLAYING | RUNNING | PAUSED | STOPPED
     },
     // System Status
@@ -77,6 +79,10 @@ export function getMockTelemetryData(centroConfig = null) {
     },
     // Event Log
     eventos: [],
+    // Security status (new consolidated path)
+    seguridad: {
+      safety: null   // NORMAL | PROTECTIVE_STOP | EMERGENCY_STOP
+    },
     // Legacy fields for other tabs
     estado: {
       online: null,

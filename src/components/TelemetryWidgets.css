@@ -336,6 +336,30 @@
   box-shadow: 0 0 8px #64748b;
 }
 
+/* BOOTING → amber/yellow fade animation (estado crítico) */
+.status-booting {
+  color: #ffbf00;
+  border: 2px solid #ffbf00;
+  background: rgba(255, 191, 0, 0.1);
+  animation: fade-booting-widget 1.5s ease-in-out infinite;
+}
+
+.status-booting .status-dot {
+  background: #ffbf00;
+  box-shadow: 0 0 10px #ffbf00;
+  animation: pulse-booting-widget 1.5s ease-in-out infinite;
+}
+
+@keyframes fade-booting-widget {
+  0%, 100% { opacity: 1; border-color: #ffbf00; }
+  50%       { opacity: 0.6; border-color: rgba(255, 191, 0, 0.35); }
+}
+
+@keyframes pulse-booting-widget {
+  0%, 100% { opacity: 1; box-shadow: 0 0 10px #ffbf00; }
+  50%       { opacity: 0.5; box-shadow: 0 0 4px #ffbf00; }
+}
+
 .status-emergency {
   color: #ef4444;
   border: 1px solid #ef4444;
