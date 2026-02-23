@@ -4,14 +4,30 @@
  * Appears at the top of all telemetry tabs
  *
  * Color mapping:
- *   Seguridad  – NORMAL→green, PROTECTIVE_STOP→amber-blink, EMERGENCY_STOP→red-pulse, RECOVERY→yellow
- *   Robot      – POWER_ON→cyan, POWER_OFF→gray, IDLE→blue, BOOTING→cyan-fade
- *   Ejecución  – PLAYING/RUNNING→green-cyan, PAUSED→amber, STOPPED→matte-red
+ *   Seguridad  – NORMAL→green, PROTECTIVE_STOP→solid-red, EMERGENCY_STOP→red-blink, RECOVERY→yellow
+ *   Robot      – POWER_ON→blue, POWER_OFF→gray, IDLE→blue, BOOTING→amber-pulse, RUNNING→green
+ *   Ejecución  – PLAYING/RUNNING→green, PAUSED→yellow, STOPPED→gray, ESPERANDO→gray
  *   Modo       – REMOTE/AUTO→purple, LOCAL/TEACH→electric-blue
+ *
+ * Numeric ID mapping (from Node-RED):
+ *   sistema.estado_maquina: 3→BOOTING, 5→POWER_ON, 7/8→RUNNING
+ *   seguridad.safety:       1→NORMAL, 3→PROTECTIVE_STOP, 4→EMERGENCY_STOP
+ *   programa.estado:        1→STOPPED, 2→PLAYING, 3→PAUSED
  */
 
 import { useState, useEffect, useRef } from 'react';
 import './TelemetryMiniHeader.css';
+
+// ── Numeric ID → string label maps ────────────────────────────────────────
+
+const ESTADO_MAQUINA_MAP = { 3: 'BOOTING', 5: 'POWER_ON', 7: 'RUNNING', 8: 'RUNNING' };
+const SAFETY_MAP         = { 1: 'NORMAL', 3: 'PROTECTIVE_STOP', 4: 'EMERGENCY_STOP' };
+const PROGRAMA_MAP       = { 1: 'STOPPED', 2: 'PLAYING', 3: 'PAUSED' };
+
+function resolveId(map, val) {
+  if (typeof val === 'number') return map[val] ?? String(val);
+  return val;
+}
 
 // ── Color-class resolvers ──────────────────────────────────────────────────
 
@@ -43,6 +59,8 @@ function getEstadoRobotClass(estado) {
       return 'badge-idle';
     case 'BOOTING':
       return 'badge-booting';
+    case 'RUNNING':
+      return 'badge-running';
     case 'EMERGENCY_STOP':
       return 'badge-emergency';
     default:
@@ -59,6 +77,8 @@ function getEjecucionClass(est) {
       return 'badge-paused';
     case 'STOPPED':
       return 'badge-stopped';
+    case 'ESPERANDO':
+      return 'badge-waiting';
     default:
       return '';
   }
@@ -88,10 +108,10 @@ export function TelemetryMiniHeader({ data }) {
     if (!data) return;
 
     const currentData = {
-      estadoRobot: data?.sistema?.estado_maquina,
+      estadoRobot: resolveId(ESTADO_MAQUINA_MAP, data?.sistema?.estado_maquina),
       modo: data?.sistema?.modo_operacion,
-      seguridad: data?.seguridad?.safety ?? data?.estado?.safety,
-      ejecucion: data?.programa?.estado,
+      seguridad: resolveId(SAFETY_MAP, data?.seguridad?.safety ?? data?.estado?.safety),
+      ejecucion: resolveId(PROGRAMA_MAP, data?.programa?.estado),
       programa: data?.programa?.nombre,
       numeroPrograma: data?.programa?.status_id,
     };
@@ -111,15 +131,20 @@ export function TelemetryMiniHeader({ data }) {
     }
   }, [data]);
 
-  // Extract values with fallbacks
-  const estadoRobot = data?.sistema?.estado_maquina || 'N/A';
+  // Extract values with fallbacks (numeric IDs are resolved to string labels)
+  const estadoRobot = resolveId(ESTADO_MAQUINA_MAP, data?.sistema?.estado_maquina) || 'N/A';
   const modo = data?.sistema?.modo_operacion || 'N/A';
-  const seguridad = data?.seguridad?.safety || data?.estado?.safety || 'N/A';
-  const ejecucion = data?.programa?.estado || 'N/A';
+  const seguridad = resolveId(SAFETY_MAP, data?.seguridad?.safety ?? data?.estado?.safety) || 'N/A';
   const programa = data?.programa?.nombre || 'N/A';
   const numeroProg = data?.programa?.status_id !== null && data?.programa?.status_id !== undefined
     ? data.programa.status_id
     : 'N/A';
+
+  // Priority rule: if robot is BOOTING, lock program indicator to ESPERANDO (gray)
+  const isBooting = estadoRobot === 'BOOTING';
+  const ejecucion = isBooting
+    ? 'ESPERANDO'
+    : (resolveId(PROGRAMA_MAP, data?.programa?.estado) || 'N/A');
 
   // Human-readable labels for execution state
   const ejecucionLabel = {
@@ -127,6 +152,7 @@ export function TelemetryMiniHeader({ data }) {
     RUNNING: 'EN EJECUCIÓN',
     PAUSED: 'PAUSADO',
     STOPPED: 'DETENIDO',
+    ESPERANDO: 'ESPERANDO',
   }[ejecucion] || ejecucion;
 
   return (
