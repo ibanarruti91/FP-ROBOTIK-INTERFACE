@@ -202,6 +202,7 @@ function TelemetriaDetail() {
                 controller_temp: toNum(data.telemetry?.controller_temp ?? data.sistema?.temperatura_control),
                 main_voltage:    toNum(data.telemetry?.main_voltage),
                 cpu_load:        toNum(data.telemetry?.cpu_load),
+                ciclos:          toNum(data.telemetry?.ciclos          ?? data.programa?.ciclos),
               };
             })(),
             // Raw RTDE protocol numeric IDs (before string mapping) – consumed by header badges
