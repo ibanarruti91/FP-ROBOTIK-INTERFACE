@@ -136,6 +136,17 @@
   text-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
 }
 
+/* ORANGE → protective/safeguard stop, brakes locked */
+.badge-orange {
+  background: rgba(249, 115, 22, 0.15);
+  border-color: #f97316;
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.3), inset 0 0 6px rgba(249, 115, 22, 0.1);
+}
+.badge-orange .badge-value {
+  color: #fb923c;
+  text-shadow: 0 0 8px rgba(249, 115, 22, 0.6);
+}
+
 /* ── Estado Robot ────────────────────────────── */
 
 /* POWER_ON → blue */
@@ -279,6 +290,13 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Numeric RTDE ID prefix shown in small text inside the badge value */
+.badge-id {
+  font-size: 0.7em;
+  opacity: 0.75;
+  font-weight: 500;
 }
 
 /* ── RIGHT: Program Identification ───────────── */

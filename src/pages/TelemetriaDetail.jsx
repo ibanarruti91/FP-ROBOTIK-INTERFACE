@@ -93,6 +93,10 @@ function TelemetriaDetail() {
           const rawSafety = data.seguridad?.safety ?? data.estado?.safety;
           const resolvedSafety = mapNumericState(SAFETY_STATUS_MAP, rawSafety) ?? baseTelemetry.seguridad?.safety ?? baseTelemetry.estado?.safety;
 
+          // Capture raw RTDE numeric IDs before string mapping (used by the header badges)
+          const rawRobotMode = data.sistema?.estado_maquina;
+          const rawProgramState = data.programa?.estado;
+
           // Map incoming MQTT data to telemetry structure
           return {
             ...baseTelemetry,
@@ -172,6 +176,12 @@ function TelemetriaDetail() {
               tension: data.herramienta?.tension ?? baseTelemetry.herramienta?.tension,
               corriente: data.herramienta?.corriente ?? baseTelemetry.herramienta?.corriente,
               potencia: data.herramienta?.potencia ?? baseTelemetry.herramienta?.potencia
+            },
+            // Raw RTDE protocol numeric IDs (before string mapping) – consumed by header badges
+            rtde: {
+              safety_status: typeof rawSafety === 'number' ? rawSafety : (baseTelemetry.rtde?.safety_status ?? null),
+              robot_mode: typeof rawRobotMode === 'number' ? rawRobotMode : (baseTelemetry.rtde?.robot_mode ?? null),
+              program_state: typeof rawProgramState === 'number' ? rawProgramState : (baseTelemetry.rtde?.program_state ?? null),
             }
           };
         });
