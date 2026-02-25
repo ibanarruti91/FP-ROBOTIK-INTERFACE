@@ -307,26 +307,28 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
     );
   }
 
-  // Principal: camera (left) | chart (70%) + sys-cards (30%) — or legacy metrics/events
+  // Principal: top row (camera 75-80% | sys-cards 20-25%) + bottom row (chart 100%)
   if (sectionId === 'principal') {
     const cameraGroups   = groups.filter(g => g.className === 'principal-camera');
     const chartGroups    = groups.filter(g => g.className === 'principal-chart');
     const sysCardsGroups = groups.filter(g => g.className === 'principal-sys-cards');
 
-    // New 3-column layout (chart + sys-cards present)
+    // New layout: top row (camera + cards) + bottom row (chart)
     if (chartGroups.length > 0 || sysCardsGroups.length > 0) {
       const chartOffset    = cameraGroups.length;
       const sysCardsOffset = chartOffset + chartGroups.length;
       return (
-        <div className="widget-renderer principal-three-col">
-          <div className="principal-camera-col">
-            {cameraGroups.map((group, i) => renderGroup(group, data, i))}
+        <div className="widget-renderer principal-new-layout">
+          <div className="principal-top-row">
+            <div className="principal-camera-col">
+              {cameraGroups.map((group, i) => renderGroup(group, data, i))}
+            </div>
+            <div className="principal-cards-col">
+              {sysCardsGroups.map((group, i) => renderGroup(group, data, sysCardsOffset + i))}
+            </div>
           </div>
-          <div className="principal-chart-col">
+          <div className="principal-chart-row">
             {chartGroups.map((group, i) => renderGroup(group, data, chartOffset + i))}
-          </div>
-          <div className="principal-cards-col">
-            {sysCardsGroups.map((group, i) => renderGroup(group, data, sysCardsOffset + i))}
           </div>
         </div>
       );
