@@ -137,6 +137,12 @@ export function getMockTelemetryData(centroConfig = null) {
       tension: null,   // V
       corriente: null, // mA
       potencia: null   // W
+    },
+    // Raw RTDE protocol numeric IDs (before string mapping)
+    rtde: {
+      safety_status: null,
+      robot_mode: null,
+      program_state: null,
     }
   };
 }

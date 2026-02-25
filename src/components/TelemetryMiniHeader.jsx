@@ -1,100 +1,70 @@
 /**
- * Mini-Header de Telemetría
- * Two-zone header: left = status badges, right = program identification
- * Appears at the top of all telemetry tabs
+ * Mini-Header de Telemetría – RTDE Universal Header
+ * Five badges driven by raw RTDE protocol numeric IDs:
+ *   Programa     – .urp filename (programa.nombre)
+ *   Seguridad    – safety_status  (rtde.safety_status)
+ *   Modo Robot   – robot_mode     (rtde.robot_mode)
+ *   Ejecución    – program_state  (rtde.program_state)
+ *   Frenos       – derived from robot_mode (7 = RELEASED, otherwise LOCKED)
  *
- * Color mapping:
- *   Seguridad  – NORMAL→green, PROTECTIVE_STOP→solid-red, EMERGENCY_STOP→red-blink, RECOVERY→yellow
- *   Robot      – POWER_ON→blue, POWER_OFF→gray, IDLE→blue, BOOTING→amber-pulse, RUNNING→green
- *   Ejecución  – PLAYING/RUNNING→green, PAUSED→yellow, STOPPED→gray, ESPERANDO→gray
- *   Modo       – REMOTE/AUTO→purple, LOCAL/TEACH→electric-blue
- *
- * Numeric ID mapping (from Node-RED):
- *   sistema.estado_maquina: 3→BOOTING, 5→POWER_ON, 7/8→RUNNING
- *   seguridad.safety:       1→NORMAL, 3→PROTECTIVE_STOP, 4→EMERGENCY_STOP
- *   programa.estado:        1→STOPPED, 2→PLAYING, 3→PAUSED
+ * Color mapping (by numeric RTDE ID):
+ *   Seguridad:  1,2 → green   3,5,22 → orange   6,7,20 → red-solid   8,9 → red-blink
+ *   Modo Robot: 7   → green   5,6    → blue      2,4    → amber
+ *   Ejecución:  2   → green   3,4    → yellow    0,1    → red
+ *   Frenos:     7   → green (RELEASED)            other  → orange (LOCKED)
  */
 
 import { useState, useEffect, useRef } from 'react';
 import './TelemetryMiniHeader.css';
 
-// ── Numeric ID → string label maps ────────────────────────────────────────
+// ── RTDE ID → label maps ───────────────────────────────────────────────────
 
-const ESTADO_MAQUINA_MAP = { 3: 'BOOTING', 5: 'POWER_ON', 7: 'RUNNING', 8: 'RUNNING' };
-const SAFETY_MAP         = { 1: 'NORMAL', 3: 'PROTECTIVE_STOP', 4: 'EMERGENCY_STOP' };
-const PROGRAMA_MAP       = { 1: 'STOPPED', 2: 'PLAYING', 3: 'PAUSED' };
+const SAFETY_STATUS_LABELS = {
+  1: 'NORMAL', 2: 'REDUCED',
+  3: 'PROTECTIVE STOP', 5: 'SAFEGUARD STOP', 22: 'SAFEGUARD STOP',
+  6: 'EMERGENCY STOP', 7: 'EMERGENCY STOP', 20: 'EMERGENCY STOP',
+  8: 'FAULT', 9: 'FAULT',
+};
 
-function resolveId(map, val) {
-  if (typeof val === 'number') return map[val] ?? String(val);
-  return val;
-}
+const ROBOT_MODE_LABELS = {
+  2: 'BOOTING', 4: 'BOOTING',
+  5: 'IDLE', 6: 'BACKDRIVE',
+  7: 'RUNNING',
+};
+
+const PROGRAM_STATE_LABELS = {
+  0: 'STOPPED', 1: 'STOPPED',
+  2: 'PLAYING',
+  3: 'PAUSED', 4: 'PAUSED',
+};
 
 // ── Color-class resolvers ──────────────────────────────────────────────────
 
-function getSeguridadClass(seg) {
-  switch (seg) {
-    case 'NORMAL':
-    case 'OK':
-      return 'badge-normal';
-    case 'PROTECTIVE_STOP':
-      return 'badge-protective-stop';
-    case 'EMERGENCY_STOP':
-      return 'badge-emergency';
-    case 'RECOVERY':
-      return 'badge-recovery';
-    case 'REDUCED':
-      return 'badge-reduced';
-    default:
-      return '';
-  }
+function getSafetyClass(id) {
+  if (id === 1 || id === 2) return 'badge-normal';
+  if (id === 3 || id === 5 || id === 22) return 'badge-orange';
+  if (id === 6 || id === 7 || id === 20) return 'badge-protective-stop';
+  if (id === 8 || id === 9) return 'badge-emergency';
+  return '';
 }
 
-function getEstadoRobotClass(estado) {
-  switch (estado) {
-    case 'POWER_ON':
-      return 'badge-power-on';
-    case 'POWER_OFF':
-      return 'badge-power-off';
-    case 'IDLE':
-      return 'badge-idle';
-    case 'BOOTING':
-      return 'badge-booting';
-    case 'RUNNING':
-      return 'badge-running';
-    case 'EMERGENCY_STOP':
-      return 'badge-emergency';
-    default:
-      return '';
-  }
+function getRobotModeClass(id) {
+  if (id === 7) return 'badge-running';
+  if (id === 5 || id === 6) return 'badge-idle';
+  if (id === 2 || id === 4) return 'badge-booting';
+  return '';
 }
 
-function getEjecucionClass(est) {
-  switch (est) {
-    case 'PLAYING':
-    case 'RUNNING':
-      return 'badge-running';
-    case 'PAUSED':
-      return 'badge-paused';
-    case 'STOPPED':
-      return 'badge-stopped';
-    case 'ESPERANDO':
-      return 'badge-waiting';
-    default:
-      return '';
-  }
+function getProgramStateClass(id) {
+  if (id === 2) return 'badge-running';
+  if (id === 3 || id === 4) return 'badge-paused';
+  if (id === 0 || id === 1) return 'badge-protective-stop';
+  return '';
 }
 
-function getModoClass(modOp) {
-  switch (modOp) {
-    case 'REMOTE':
-    case 'AUTO':
-      return 'badge-remote';
-    case 'LOCAL':
-    case 'TEACH':
-      return 'badge-local';
-    default:
-      return '';
-  }
+function getBrakesInfo(robotModeId) {
+  if (robotModeId === 7) return { label: 'BRAKES RELEASED', cls: 'badge-running' };
+  return { label: 'LOCKED', cls: 'badge-orange' };
 }
 
 // ── Component ──────────────────────────────────────────────────────────────
@@ -103,98 +73,70 @@ export function TelemetryMiniHeader({ data }) {
   const [updatedFields, setUpdatedFields] = useState(new Set());
   const previousData = useRef({});
 
-  // Track which fields have been updated for heartbeat effect
+  const safetyId      = data?.rtde?.safety_status ?? null;
+  const robotModeId   = data?.rtde?.robot_mode    ?? null;
+  const programStateId = data?.rtde?.program_state ?? null;
+  const programName   = data?.programa?.nombre    || 'N/A';
+
   useEffect(() => {
-    if (!data) return;
-
-    const currentData = {
-      estadoRobot: resolveId(ESTADO_MAQUINA_MAP, data?.sistema?.estado_maquina),
-      modo: data?.sistema?.modo_operacion,
-      seguridad: resolveId(SAFETY_MAP, data?.seguridad?.safety ?? data?.estado?.safety),
-      ejecucion: resolveId(PROGRAMA_MAP, data?.programa?.estado),
-      programa: data?.programa?.nombre,
-      numeroPrograma: data?.programa?.status_id,
-    };
-
+    const current = { safetyId, robotModeId, programStateId, programName };
     const updated = new Set();
-    Object.keys(currentData).forEach(key => {
-      if (previousData.current[key] !== currentData[key]) {
-        updated.add(key);
-      }
+    Object.keys(current).forEach(key => {
+      if (previousData.current[key] !== current[key]) updated.add(key);
     });
-
     if (updated.size > 0) {
       setUpdatedFields(updated);
       const timer = setTimeout(() => setUpdatedFields(new Set()), 200);
-      previousData.current = currentData;
+      previousData.current = current;
       return () => clearTimeout(timer);
     }
-  }, [data]);
+  }, [safetyId, robotModeId, programStateId, programName]);
 
-  // Extract values with fallbacks (numeric IDs are resolved to string labels)
-  const estadoRobot = resolveId(ESTADO_MAQUINA_MAP, data?.sistema?.estado_maquina) || 'N/A';
-  const modo = data?.sistema?.modo_operacion || 'N/A';
-  const seguridad = resolveId(SAFETY_MAP, data?.seguridad?.safety ?? data?.estado?.safety) || 'N/A';
-  const programa = data?.programa?.nombre || 'N/A';
-  const numeroProg = data?.programa?.status_id !== null && data?.programa?.status_id !== undefined
-    ? data.programa.status_id
-    : 'N/A';
-
-  // Priority rule: if robot is BOOTING, lock program indicator to ESPERANDO (gray)
-  const isBooting = estadoRobot === 'BOOTING';
-  const ejecucion = isBooting
-    ? 'ESPERANDO'
-    : (resolveId(PROGRAMA_MAP, data?.programa?.estado) || 'N/A');
-
-  // Human-readable labels for execution state
-  const ejecucionLabel = {
-    PLAYING: 'EN EJECUCIÓN',
-    RUNNING: 'EN EJECUCIÓN',
-    PAUSED: 'PAUSADO',
-    STOPPED: 'DETENIDO',
-    ESPERANDO: 'ESPERANDO',
-  }[ejecucion] || ejecucion;
+  const safetyLabel       = safetyId       !== null ? (SAFETY_STATUS_LABELS[safetyId]       ?? String(safetyId))       : 'N/A';
+  const robotModeLabel    = robotModeId    !== null ? (ROBOT_MODE_LABELS[robotModeId]        ?? String(robotModeId))    : 'N/A';
+  const programStateLabel = programStateId !== null ? (PROGRAM_STATE_LABELS[programStateId]  ?? String(programStateId)) : 'N/A';
+  const brakes = getBrakesInfo(robotModeId);
 
   return (
     <div className="telemetry-mini-header">
-      {/* Left: Status Badges */}
       <div className="header-badges">
-        {/* SEGURIDAD – máxima prioridad visual */}
-        <div className={`status-badge ${getSeguridadClass(seguridad)} ${updatedFields.has('seguridad') ? 'update-flash' : ''}`}>
+
+        {/* PROGRAMA */}
+        <div id="header-program-name" className={`status-badge ${updatedFields.has('programName') ? 'update-flash' : ''}`}>
+          <span className="badge-label">Programa</span>
+          <span className="badge-value id-value">{programName}</span>
+        </div>
+
+        {/* SEGURIDAD */}
+        <div id="header-safety-status" className={`status-badge ${getSafetyClass(safetyId)} ${updatedFields.has('safetyId') ? 'update-flash' : ''}`}>
           <span className="badge-label">Seguridad</span>
-          <span className="badge-value">{seguridad}</span>
+          <span className="badge-value">
+            {safetyId !== null && <span className="badge-id">[{safetyId}]</span>} {safetyLabel}
+          </span>
         </div>
 
-        {/* ESTADO ROBOT */}
-        <div className={`status-badge ${getEstadoRobotClass(estadoRobot)} ${updatedFields.has('estadoRobot') ? 'update-flash' : ''}`}>
-          <span className="badge-label">Estado Robot</span>
-          <span className="badge-value">{estadoRobot}</span>
+        {/* MODO ROBOT */}
+        <div id="header-robot-mode" className={`status-badge ${getRobotModeClass(robotModeId)} ${updatedFields.has('robotModeId') ? 'update-flash' : ''}`}>
+          <span className="badge-label">Modo Robot</span>
+          <span className="badge-value">
+            {robotModeId !== null && <span className="badge-id">[{robotModeId}]</span>} {robotModeLabel}
+          </span>
         </div>
 
-        {/* ESTADO EJECUCIÓN */}
-        <div className={`status-badge ${getEjecucionClass(ejecucion)} ${updatedFields.has('ejecucion') ? 'update-flash' : ''}`}>
+        {/* EJECUCIÓN */}
+        <div id="header-program-state" className={`status-badge ${getProgramStateClass(programStateId)} ${updatedFields.has('programStateId') ? 'update-flash' : ''}`}>
           <span className="badge-label">Ejecución</span>
-          <span className="badge-value">{ejecucionLabel}</span>
+          <span className="badge-value">
+            {programStateId !== null && <span className="badge-id">[{programStateId}]</span>} {programStateLabel}
+          </span>
         </div>
 
-        {/* MODO OPERACIÓN */}
-        <div className={`status-badge ${getModoClass(modo)} ${updatedFields.has('modo') ? 'update-flash' : ''}`}>
-          <span className="badge-label">Modo Operación</span>
-          <span className="badge-value">{modo}</span>
-        </div>
-      </div>
-
-      {/* Right: Program Identification */}
-      <div className="header-identification">
-        <div className={`header-id-item ${updatedFields.has('programa') ? 'update-flash' : ''}`}>
-          <span className="id-label">Nombre Programa</span>
-          <span className="id-value id-program-name">{programa}</span>
+        {/* FRENOS */}
+        <div id="header-brakes" className={`status-badge ${brakes.cls} ${updatedFields.has('robotModeId') ? 'update-flash' : ''}`}>
+          <span className="badge-label">Frenos</span>
+          <span className="badge-value">{brakes.label}</span>
         </div>
 
-        <div className={`header-id-item header-id-num ${updatedFields.has('numeroPrograma') ? 'update-flash' : ''}`}>
-          <span className="id-label">ID Estado</span>
-          <span className="id-value">{numeroProg}</span>
-        </div>
       </div>
     </div>
   );
