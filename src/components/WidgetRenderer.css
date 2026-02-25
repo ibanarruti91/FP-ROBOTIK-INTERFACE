@@ -12,7 +12,123 @@
   gap: 1rem;
 }
 
-/* ── PRINCIPAL TAB (NEW): 3-column layout — Camera | Chart (70%) | Sys-Cards (30%) ── */
+/* ── PRINCIPAL TAB (NEW): top row (camera 75-80% | sys-cards 20-25%) + bottom row (chart 100%) ── */
+
+.widget-renderer.principal-new-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Top row: camera (left, large) + sys-cards (right, narrow) */
+.widget-renderer.principal-new-layout .principal-top-row {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+/* Camera column — fills full height of top row */
+.widget-renderer.principal-new-layout .principal-camera-col {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.widget-renderer.principal-new-layout .principal-camera-col .widget-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.widget-renderer.principal-new-layout .principal-camera-col .widget-grid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.widget-renderer.principal-new-layout .principal-camera-col .camera-widget.nexus-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.widget-renderer.principal-new-layout .principal-camera-col .camera-inner--ratio {
+  aspect-ratio: 16 / 9;
+  flex: unset;
+  min-height: 300px;
+}
+
+/* Sys-cards column — 3 cards stacked vertically on the right */
+.widget-renderer.principal-new-layout .principal-cards-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 0;
+}
+
+.widget-renderer.principal-new-layout .principal-cards-col .widget-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.widget-renderer.principal-new-layout .principal-cards-col .widget-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.widget-renderer.principal-new-layout .principal-cards-col .sys-metric-card {
+  flex: 1;
+}
+
+/* Bottom row: chart spans full width */
+.widget-renderer.principal-new-layout .principal-chart-row {
+  width: 100%;
+}
+
+.widget-renderer.principal-new-layout .principal-chart-row .widget-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.widget-renderer.principal-new-layout .principal-chart-row .widget-grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.widget-renderer.principal-new-layout .principal-chart-row .perf-chart {
+  width: 100%;
+}
+
+/* Responsive: stack all on narrow screens */
+@media (max-width: 1100px) {
+  .widget-renderer.principal-new-layout .principal-top-row {
+    grid-template-columns: 1fr;
+  }
+
+  .widget-renderer.principal-new-layout .principal-camera-col .camera-inner--ratio {
+    min-height: unset;
+  }
+
+  .widget-renderer.principal-new-layout .principal-cards-col {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .widget-renderer.principal-new-layout .principal-cards-col .sys-metric-card {
+    flex: 1;
+    min-width: 160px;
+  }
+}
+
+/* ── PRINCIPAL TAB (THREE-COL LEGACY): kept for compatibility ── */
 
 .widget-renderer.principal-three-col {
   display: grid;
