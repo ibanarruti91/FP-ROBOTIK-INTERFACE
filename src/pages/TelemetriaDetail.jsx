@@ -45,6 +45,8 @@ function TelemetriaDetail() {
     [centro]
   );
   const [telemetry, setTelemetry] = useState(initialTelemetry);
+  // Raw MQTT payload – passed directly to TelemetryMiniHeader
+  const [rawPayload, setRawPayload] = useState(null);
 
   // Calculate loading state based on centro and telemetry
   const loading = !centro || centro.estado === 'PROXIMAMENTE' ? false : !telemetry;
@@ -84,6 +86,9 @@ function TelemetriaDetail() {
         const data = JSON.parse(message.toString());
         console.log('Mensaje MQTT recibido:', data);
 
+        // Store raw payload for TelemetryMiniHeader (reads new MQTT structure directly)
+        setRawPayload(data);
+
         // Update telemetry state with incoming data
         setTelemetry((prevTelemetry) => {
           // Create a new telemetry object based on previous state or mock data
@@ -94,12 +99,14 @@ function TelemetriaDetail() {
           const resolvedSafety = mapNumericState(SAFETY_STATUS_MAP, rawSafety) ?? baseTelemetry.seguridad?.safety ?? baseTelemetry.estado?.safety;
 
           // Capture raw RTDE numeric IDs before string mapping (used by the header badges)
-          // Accepts: direct rtde.* keys, top-level *_id keys from Node-RED, or nested paths
-          const rawRobotMode    = data.rtde?.robot_mode_id    ?? data.robot_mode_id    ?? data.sistema?.estado_maquina;
-          const rawProgramState = data.rtde?.program_state_id ?? data.program_state_id ?? data.programa?.estado;
-          const rawSafetyId     = data.rtde?.safety_status_id ?? data.safety_status_id ?? rawSafety;
+          // Supports new MQTT format (rtde.robot_mode / rtde.safety_status / rtde.program_state)
+          // and legacy formats with _id suffix or top-level keys
+          const rawRobotMode    = data.rtde?.robot_mode       ?? data.rtde?.robot_mode_id    ?? data.robot_mode_id    ?? data.sistema?.estado_maquina;
+          const rawProgramState = data.rtde?.program_state    ?? data.rtde?.program_state_id ?? data.program_state_id ?? data.programa?.estado;
+          const rawSafetyId     = data.rtde?.safety_status    ?? data.rtde?.safety_status_id ?? data.safety_status_id ?? rawSafety;
 
-          // Map incoming MQTT data to telemetry structure
+          // Map incoming MQTT data to telemetry structure.
+          // program_name / program_id are the new top-level fields from Node-RED.
           return {
             ...baseTelemetry,
             timestamp: new Date().toISOString(),
@@ -107,12 +114,12 @@ function TelemetriaDetail() {
             // `programa.id` is the new consolidated path; `programa.status_id` is the legacy path.
             // Both are kept for backward compatibility with existing widgets.
             programa: {
-              nombre: data.programa?.nombre ?? baseTelemetry.programa?.nombre ?? '',
+              nombre: data.program_name ?? data.programa?.nombre ?? baseTelemetry.programa?.nombre ?? '',
               // legacy field used by TelemetryMiniHeader; defaults to 0 (no program)
-              status_id: data.programa?.status_id ?? data.programa?.id ?? baseTelemetry.programa?.status_id ?? 0,
+              status_id: data.program_id ?? data.programa?.status_id ?? data.programa?.id ?? baseTelemetry.programa?.status_id ?? 0,
               // new consolidated field; null means not provided
-              id: data.programa?.id ?? data.programa?.status_id ?? baseTelemetry.programa?.id ?? null,
-              ciclos: data.programa?.ciclos ?? baseTelemetry.programa?.ciclos ?? null,
+              id: data.program_id ?? data.programa?.id ?? data.programa?.status_id ?? baseTelemetry.programa?.id ?? null,
+              ciclos: data.telemetry?.ciclos ?? data.programa?.ciclos ?? baseTelemetry.programa?.ciclos ?? null,
               estado: mapNumericState(RUNTIME_STATE_MAP, data.programa?.estado) ?? baseTelemetry.programa?.estado ?? null
             },
             // Map sistema data – apply numeric→string mappings
@@ -254,7 +261,7 @@ function TelemetriaDetail() {
       </div>
 
       {/* Mini Telemetry Header - Appears on all tabs */}
-      <TelemetryMiniHeader data={telemetry} />
+      <TelemetryMiniHeader data={rawPayload} />
       
       {/* Tab Content */}
       <div className={`tab-content ${status === 'OFFLINE' ? 'offline-mode' : ''}`} data-section={activeTab}>
