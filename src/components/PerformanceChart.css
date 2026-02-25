@@ -1,0 +1,98 @@
+/* PerformanceChart – Gráfico de líneas dinámico para el Menú Principal */
+
+.perf-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem 1.25rem;
+  height: 100%;
+  min-height: 260px;
+  box-sizing: border-box;
+}
+
+.perf-chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.3);
+}
+
+.perf-chart-title {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.perf-chart-legend {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.perf-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.perf-legend-speed { color: #00e5ff; }
+.perf-legend-power  { color: #ffbf00; }
+
+/* SVG fills the remaining card space */
+.perf-chart-svg {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  display: block;
+}
+
+/* Axis label text inside SVG */
+.perf-axis-label {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 9px;
+  fill: #94a3b8;
+}
+
+.perf-axis-unit {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  fill: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.perf-axis-speed { fill: rgba(0, 229, 255, 0.7); }
+.perf-axis-power  { fill: rgba(255, 191, 0, 0.7); }
+
+.perf-no-data {
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  fill: #475569;
+  font-style: italic;
+}
+
+/* Animated glow on latest-point dots */
+.perf-dot {
+  animation: perf-dot-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes perf-dot-pulse {
+  0%, 100% { opacity: 1;   r: 3.5; }
+  50%       { opacity: 0.6; r: 5;   }
+}
+
+/* Subtle line glow via filter */
+.perf-line {
+  filter: drop-shadow(0 0 3px currentColor);
+}

@@ -19,24 +19,18 @@ export const SALESIANOS_LAYOUT = {
           ]
         },
         {
-          title: "Telemetría",
-          className: "principal-metrics",
-          compact: true,
+          title: "RENDIMIENTO DINÁMICO",
+          className: "principal-chart",
           widgets: [
-            { type: "kpi", label: "Potencia", path: "sistema.potencia_total", unit: "W", format: "0", columns: 1, compact: true },
-            { type: "kpi", label: "Temp. Control", path: "sistema.temperatura_control", unit: "°C", format: "1", columns: 1, compact: true },
-            { type: "kpi", label: "Velocidad TCP", path: "sistema.velocidad_tcp", unit: "mm/s", format: "1", columns: 1, compact: true },
-            { type: "kpi", label: "Tiempo Ciclo", path: "estadisticas.tiempo_ciclo", unit: "s", format: "2", columns: 1, compact: true },
-            { type: "kpi", label: "Horas Operación", path: "estadisticas.horas_operacion", unit: "h", format: "1", columns: 1, compact: true },
-            { type: "kpi", label: "Est. Máquina", path: "sistema.estado_maquina", unit: "", format: "text", columns: 1, compact: true }
+            { type: "performance-chart", path: "telemetry" }
           ]
         },
         {
-          title: "Eventos",
-          className: "principal-events",
-          compact: true,
+          className: "principal-sys-cards",
           widgets: [
-            { type: "log", label: "Mensajes del Sistema", path: "eventos", compact: true, columns: 2 }
+            { type: "sys-metric", label: "Temperatura Sistema", path: "telemetry.controller_temp", unit: "ºC", icon: "temp" },
+            { type: "sys-metric", label: "Tensión Principal",   path: "telemetry.main_voltage",    unit: "V",  icon: "voltage" },
+            { type: "sys-metric", label: "Carga CPU",           path: "telemetry.cpu_load",        unit: "%",  icon: "cpu", showBar: true }
           ]
         }
       ]
