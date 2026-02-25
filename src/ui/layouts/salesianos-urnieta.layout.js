@@ -32,7 +32,7 @@ export const SALESIANOS_LAYOUT = {
             { type: "sys-metric", label: "Tensión Principal",   path: "telemetry.main_voltage",    unit: "V",    icon: "voltage" },
             { type: "sys-metric", label: "Carga CPU",           path: "telemetry.cpu_load",        unit: "%",    icon: "cpu",    showBar: true },
             { type: "sys-metric", label: "Consumo Actual",      path: "telemetry.power",           unit: "W",    icon: "power" },
-            { type: "sys-metric", label: "Velocidad TCP",       path: "actual_TCP_speed",          unit: "mm/s", icon: "speed" },
+            { type: "sys-metric", label: "Velocidad TCP",       path: "telemetry.speed",           unit: "mm/s", icon: "speed" },
             { type: "sys-metric", label: "Eficiencia (Ciclos)", path: "telemetry.ciclos",          unit: "",     icon: "cycles" }
           ]
         }
