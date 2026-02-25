@@ -1,11 +1,11 @@
 /**
  * Mini-Header de Telemetría – RTDE Universal Header
- * Five badges driven by raw RTDE protocol numeric IDs:
- *   Programa     – .urp filename (programa.nombre)
- *   Seguridad    – safety_status_id  (rtde.safety_status_id)
- *   Modo Robot   – robot_mode_id     (rtde.robot_mode_id)
- *   Ejecución    – program_state_id  (rtde.program_state_id)
- *   Frenos       – derived from robot_mode (7 = RELEASED, otherwise LOCKED)
+ * Five badges driven by raw MQTT payload from Node-RED:
+ *   Programa     – program_name + program_id
+ *   Seguridad    – rtde.safety_status
+ *   Modo Robot   – rtde.robot_mode
+ *   Ejecución    – rtde.program_state
+ *   Frenos       – derived from rtde.robot_mode (7 = RELEASED, otherwise LOCKED)
  *
  * Color mapping (by numeric RTDE ID):
  *   Seguridad:  1,2 → green   3,5,22 → orange   6,7,20 → red-solid   8,9 → red-blink
@@ -73,13 +73,15 @@ export function TelemetryMiniHeader({ data }) {
   const [updatedFields, setUpdatedFields] = useState(new Set());
   const previousData = useRef({});
 
-  const safetyId       = data?.rtde?.safety_status_id ?? null;
-  const robotModeId    = data?.rtde?.robot_mode_id    ?? null;
-  const programStateId = data?.rtde?.program_state_id ?? null;
-  const programName   = data?.programa?.nombre    || 'N/A';
+  // Read directly from the raw MQTT payload structure
+  const safetyId       = data?.rtde?.safety_status ?? null;
+  const robotModeId    = data?.rtde?.robot_mode    ?? null;
+  const programStateId = data?.rtde?.program_state ?? null;
+  const programId      = data?.program_id          ?? null;
+  const programName    = data?.program_name        ?? null;
 
   useEffect(() => {
-    const current = { safetyId, robotModeId, programStateId, programName };
+    const current = { safetyId, robotModeId, programStateId, programId, programName };
     const updated = new Set();
     Object.keys(current).forEach(key => {
       if (previousData.current[key] !== current[key]) updated.add(key);
@@ -90,28 +92,34 @@ export function TelemetryMiniHeader({ data }) {
       previousData.current = current;
       return () => clearTimeout(timer);
     }
-  }, [safetyId, robotModeId, programStateId, programName]);
+  }, [safetyId, robotModeId, programStateId, programId, programName]);
 
-  const safetyLabel       = safetyId       !== null ? (SAFETY_STATUS_LABELS[safetyId]       ?? String(safetyId))       : 'N/A';
-  const robotModeLabel    = robotModeId    !== null ? (ROBOT_MODE_LABELS[robotModeId]        ?? String(robotModeId))    : 'N/A';
-  const programStateLabel = programStateId !== null ? (PROGRAM_STATE_LABELS[programStateId]  ?? String(programStateId)) : 'N/A';
+  const safetyLabel       = safetyId       !== null ? (SAFETY_STATUS_LABELS[safetyId]       ?? String(safetyId))       : '[-]';
+  const robotModeLabel    = robotModeId    !== null ? (ROBOT_MODE_LABELS[robotModeId]        ?? String(robotModeId))    : '[-]';
+  const programStateLabel = programStateId !== null ? (PROGRAM_STATE_LABELS[programStateId]  ?? String(programStateId)) : '[-]';
   const brakes = getBrakesInfo(robotModeId);
+
+  // Program badge: [105] PROCESO_SOLDADURA.URP
+  const programIdDisplay   = programId   !== null ? `[${programId}]`              : '[-]';
+  const programNameDisplay = programName !== null ? String(programName).toUpperCase() : '[-]';
 
   return (
     <div className="telemetry-mini-header">
       <div className="header-badges">
 
         {/* PROGRAMA */}
-        <div id="header-program-name" className={`status-badge ${updatedFields.has('programName') ? 'update-flash' : ''}`}>
+        <div id="header-program-name" className={`status-badge ${updatedFields.has('programName') || updatedFields.has('programId') ? 'update-flash' : ''}`}>
           <span className="badge-label">Programa</span>
-          <span className="badge-value id-value">{programName}</span>
+          <span className="badge-value id-value">
+            <span className="badge-id">{programIdDisplay}</span> {programNameDisplay}
+          </span>
         </div>
 
         {/* SEGURIDAD */}
         <div id="header-safety-status" className={`status-badge ${getSafetyClass(safetyId)} ${updatedFields.has('safetyId') ? 'update-flash' : ''}`}>
           <span className="badge-label">Seguridad</span>
           <span className="badge-value">
-            {safetyId !== null && <span className="badge-id">[{safetyId}]</span>} {safetyLabel}
+            <span className="badge-id">{safetyId !== null ? `[${safetyId}]` : '[-]'}</span> {safetyLabel}
           </span>
         </div>
 
@@ -119,7 +127,7 @@ export function TelemetryMiniHeader({ data }) {
         <div id="header-robot-mode" className={`status-badge ${getRobotModeClass(robotModeId)} ${updatedFields.has('robotModeId') ? 'update-flash' : ''}`}>
           <span className="badge-label">Modo Robot</span>
           <span className="badge-value">
-            {robotModeId !== null && <span className="badge-id">[{robotModeId}]</span>} {robotModeLabel}
+            <span className="badge-id">{robotModeId !== null ? `[${robotModeId}]` : '[-]'}</span> {robotModeLabel}
           </span>
         </div>
 
@@ -127,7 +135,7 @@ export function TelemetryMiniHeader({ data }) {
         <div id="header-program-state" className={`status-badge ${getProgramStateClass(programStateId)} ${updatedFields.has('programStateId') ? 'update-flash' : ''}`}>
           <span className="badge-label">Ejecución</span>
           <span className="badge-value">
-            {programStateId !== null && <span className="badge-id">[{programStateId}]</span>} {programStateLabel}
+            <span className="badge-id">{programStateId !== null ? `[${programStateId}]` : '[-]'}</span> {programStateLabel}
           </span>
         </div>
 
