@@ -294,9 +294,10 @@
 
 /* Numeric RTDE ID prefix shown in small text inside the badge value */
 .badge-id {
-  font-size: 0.7em;
+  font-size: 0.75em;
   opacity: 0.75;
   font-weight: 500;
+  margin-right: 0.3em;
 }
 
 /* ── RIGHT: Program Identification ───────────── */

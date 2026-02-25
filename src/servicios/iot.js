@@ -140,9 +140,9 @@ export function getMockTelemetryData(centroConfig = null) {
     },
     // Raw RTDE protocol numeric IDs (before string mapping)
     rtde: {
-      safety_status: null,
-      robot_mode: null,
-      program_state: null,
+      safety_status_id: null,
+      robot_mode_id: null,
+      program_state_id: null,
     }
   };
 }

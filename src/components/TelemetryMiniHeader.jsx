@@ -2,9 +2,9 @@
  * Mini-Header de Telemetría – RTDE Universal Header
  * Five badges driven by raw RTDE protocol numeric IDs:
  *   Programa     – .urp filename (programa.nombre)
- *   Seguridad    – safety_status  (rtde.safety_status)
- *   Modo Robot   – robot_mode     (rtde.robot_mode)
- *   Ejecución    – program_state  (rtde.program_state)
+ *   Seguridad    – safety_status_id  (rtde.safety_status_id)
+ *   Modo Robot   – robot_mode_id     (rtde.robot_mode_id)
+ *   Ejecución    – program_state_id  (rtde.program_state_id)
  *   Frenos       – derived from robot_mode (7 = RELEASED, otherwise LOCKED)
  *
  * Color mapping (by numeric RTDE ID):
@@ -73,9 +73,9 @@ export function TelemetryMiniHeader({ data }) {
   const [updatedFields, setUpdatedFields] = useState(new Set());
   const previousData = useRef({});
 
-  const safetyId      = data?.rtde?.safety_status ?? null;
-  const robotModeId   = data?.rtde?.robot_mode    ?? null;
-  const programStateId = data?.rtde?.program_state ?? null;
+  const safetyId       = data?.rtde?.safety_status_id ?? null;
+  const robotModeId    = data?.rtde?.robot_mode_id    ?? null;
+  const programStateId = data?.rtde?.program_state_id ?? null;
   const programName   = data?.programa?.nombre    || 'N/A';
 
   useEffect(() => {

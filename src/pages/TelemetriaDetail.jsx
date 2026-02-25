@@ -94,8 +94,10 @@ function TelemetriaDetail() {
           const resolvedSafety = mapNumericState(SAFETY_STATUS_MAP, rawSafety) ?? baseTelemetry.seguridad?.safety ?? baseTelemetry.estado?.safety;
 
           // Capture raw RTDE numeric IDs before string mapping (used by the header badges)
-          const rawRobotMode = data.sistema?.estado_maquina;
-          const rawProgramState = data.programa?.estado;
+          // Accepts: direct rtde.* keys, top-level *_id keys from Node-RED, or nested paths
+          const rawRobotMode    = data.rtde?.robot_mode_id    ?? data.robot_mode_id    ?? data.sistema?.estado_maquina;
+          const rawProgramState = data.rtde?.program_state_id ?? data.program_state_id ?? data.programa?.estado;
+          const rawSafetyId     = data.rtde?.safety_status_id ?? data.safety_status_id ?? rawSafety;
 
           // Map incoming MQTT data to telemetry structure
           return {
@@ -179,9 +181,9 @@ function TelemetriaDetail() {
             },
             // Raw RTDE protocol numeric IDs (before string mapping) – consumed by header badges
             rtde: {
-              safety_status: typeof rawSafety === 'number' ? rawSafety : (baseTelemetry.rtde?.safety_status ?? null),
-              robot_mode: typeof rawRobotMode === 'number' ? rawRobotMode : (baseTelemetry.rtde?.robot_mode ?? null),
-              program_state: typeof rawProgramState === 'number' ? rawProgramState : (baseTelemetry.rtde?.program_state ?? null),
+              safety_status_id: typeof rawSafetyId === 'number' ? rawSafetyId : (baseTelemetry.rtde?.safety_status_id ?? null),
+              robot_mode_id: typeof rawRobotMode === 'number' ? rawRobotMode : (baseTelemetry.rtde?.robot_mode_id ?? null),
+              program_state_id: typeof rawProgramState === 'number' ? rawProgramState : (baseTelemetry.rtde?.program_state_id ?? null),
             }
           };
         });
