@@ -1222,3 +1222,62 @@
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+/* ============================================
+   SystemMetricCard – Tarjetas de sistema (Menú Principal)
+   ============================================ */
+
+.sys-metric-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+}
+
+.sys-metric-label {
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+}
+
+.sys-metric-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.sys-metric-value {
+  font-family: 'Roboto Mono', 'Orbitron', monospace;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #00d1ff;
+  line-height: 1;
+  text-shadow: 0 0 8px rgba(0, 209, 255, 0.5);
+  transition: color 0.3s ease;
+}
+
+.sys-metric-unit {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.9rem;
+  color: var(--accent-cyan);
+  font-weight: 500;
+}
+
+.sys-metric-bar-track {
+  height: 6px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 0.25rem;
+}
+
+.sys-metric-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease, background 0.3s ease;
+}

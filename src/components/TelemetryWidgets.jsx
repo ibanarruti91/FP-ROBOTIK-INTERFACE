@@ -3,7 +3,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { Zap, Thermometer, Settings, Gauge, Activity, AlertTriangle } from 'lucide-react';
+import { Zap, Thermometer, Settings, Gauge, Activity, Cpu } from 'lucide-react';
 import './TelemetryWidgets.css';
 
 /**
@@ -748,6 +748,63 @@ export function JointsGrid({ data, className = '' }) {
           );
         })}
       </div>
+    </CardGlass>
+  );
+}
+
+/**
+ * SystemMetricCard – Tarjeta compacta para métricas de sistema del Menú Principal.
+ * Muestra label, valor con unidad y, opcionalmente, una mini barra de progreso (para CPU load).
+ */
+export function SystemMetricCard({ label, value, unit, showBar = false, icon = null }) {
+  const isAvailable = value !== null && value !== undefined;
+  // Only treat finite numbers as numericValue to prevent toFixed errors with Infinity/NaN
+  const numericValue = (typeof value === 'number' && isFinite(value)) ? value : null;
+  const barPercent = (showBar && numericValue !== null)
+    ? Math.min(100, Math.max(0, numericValue))
+    : 0;
+
+  const getBarColor = (pct) => {
+    if (pct >= 85) return '#ef4444';
+    if (pct >= 60) return '#ffbf00';
+    return '#00e5ff';
+  };
+
+  const getIcon = () => {
+    if (icon === 'temp')    return <Thermometer size={16} />;
+    if (icon === 'cpu')     return <Cpu size={16} />;
+    if (icon === 'voltage') return <Zap size={16} />;
+    return null;
+  };
+
+  const IconEl = getIcon();
+
+  return (
+    <CardGlass className="sys-metric-card">
+      <div className="sys-metric-label">
+        {IconEl && <span className="widget-icon">{IconEl}</span>}
+        {label}
+      </div>
+      <div className="sys-metric-value-row">
+        <span className={`sys-metric-value ${!isAvailable ? 'value-na' : ''}`}>
+          {isAvailable
+            ? (numericValue !== null ? numericValue.toFixed(numericValue % 1 === 0 ? 0 : 1) : value)
+            : 'N/A'}
+        </span>
+        {isAvailable && unit && <span className="sys-metric-unit">{unit}</span>}
+      </div>
+      {showBar && (
+        <div className="sys-metric-bar-track">
+          <div
+            className="sys-metric-bar-fill"
+            style={{
+              width: `${barPercent}%`,
+              background: getBarColor(barPercent),
+              boxShadow: `0 0 6px ${getBarColor(barPercent)}`,
+            }}
+          />
+        </div>
+      )}
     </CardGlass>
   );
 }

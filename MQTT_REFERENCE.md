@@ -46,24 +46,36 @@ incluidos conservan su estado anterior en la interfaz.
 
 ## Pestaña: MENÚ PRINCIPAL (`principal`)
 
-Estos 6 indicadores clave aparecen en la columna de métricas de la pestaña
-principal.  Además, el mini-cabecero que se muestra en **todas** las pestañas
-usa los campos marcados con ★.
+Estos indicadores aparecen en la pestaña principal.  Además, el mini-cabecero
+que se muestra en **todas** las pestañas usa los campos marcados con ★.
+
+### Gráfico dinámico + Tarjetas de sistema (nuevo diseño)
+
+Los widgets del nuevo diseño de telemetría leen del sub-objeto `telemetry`:
 
 | Dato Dinámico | ID / Variable Exacta | Unidad / Valores válidos |
 |---------------|----------------------|--------------------------|
-| Potencia del sistema | `sistema.potencia_total` | W (número) |
-| Temperatura controlador | `sistema.temperatura_control` | °C (número) |
-| Velocidad TCP | `sistema.velocidad_tcp` | mm/s (número) |
-| Tiempo de ciclo | `estadisticas.tiempo_ciclo` | s (número) |
-| Horas de operación | `estadisticas.horas_operacion` | h (número) |
+| Velocidad (gráfico) | `telemetry.speed` | mm/s (número) |
+| Potencia (gráfico)  | `telemetry.power` | W (número) |
+| Temperatura Sistema | `telemetry.controller_temp` | °C (número) |
+| Tensión Principal   | `telemetry.main_voltage` | V (número) |
+| Carga CPU           | `telemetry.cpu_load` | % (0–100, número) |
+
+> **Compatibilidad hacia atrás:** si `telemetry.speed` / `telemetry.power` /
+> `telemetry.controller_temp` no están presentes, la interfaz los toma
+> automáticamente de `sistema.velocidad_tcp`, `sistema.potencia_total` y
+> `sistema.temperatura_control` respectivamente.
+
+### Campos del mini-cabecero (★) y de estado general
+
+| Dato Dinámico | ID / Variable Exacta | Unidad / Valores válidos |
+|---------------|----------------------|--------------------------|
 | Estado máquina ★ | `sistema.estado_maquina` | `POWER_ON` \| `POWER_OFF` \| `IDLE` \| `BOOTING` \| `EMERGENCY_STOP` |
 | Modo operación ★ | `sistema.modo_operacion` | `REMOTE` \| `AUTO` \| `LOCAL` \| `TEACH` \| `MANUAL` |
 | Estado seguridad ★ | `estado.safety` | `NORMAL` \| `PROTECTIVE_STOP` \| `EMERGENCY_STOP` \| `RECOVERY` \| `REDUCED` |
 | Estado ejecución ★ | `programa.estado` | `PLAYING` \| `RUNNING` \| `PAUSED` \| `STOPPED` |
 | Nombre del programa ★ | `programa.nombre` | string |
 | ID estado programa ★ | `programa.status_id` | número entero |
-| Log de eventos | `eventos` | array de objetos `{ "hora": "HH:MM:SS", "msg": "string" }` |
 
 ---
 

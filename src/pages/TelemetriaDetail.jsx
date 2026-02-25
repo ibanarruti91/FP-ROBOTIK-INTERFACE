@@ -186,6 +186,24 @@ function TelemetriaDetail() {
               corriente: data.herramienta?.corriente ?? baseTelemetry.herramienta?.corriente,
               potencia: data.herramienta?.potencia ?? baseTelemetry.herramienta?.potencia
             },
+            // Map telemetry sub-object for the Menú Principal dashboard widgets.
+            // Accepts the new Node-RED `payload.telemetry` format with fallback to
+            // existing sistema/estadisticas fields for backward compatibility.
+            // toNum() ensures all values are either a finite Number or null.
+            telemetry: (() => {
+              const toNum = (v) => {
+                if (v === null || v === undefined) return null;
+                const n = Number(v);
+                return isFinite(n) ? n : null;
+              };
+              return {
+                speed:           toNum(data.telemetry?.speed           ?? data.sistema?.velocidad_tcp),
+                power:           toNum(data.telemetry?.power           ?? data.sistema?.potencia_total),
+                controller_temp: toNum(data.telemetry?.controller_temp ?? data.sistema?.temperatura_control),
+                main_voltage:    toNum(data.telemetry?.main_voltage),
+                cpu_load:        toNum(data.telemetry?.cpu_load),
+              };
+            })(),
             // Raw RTDE protocol numeric IDs (before string mapping) – consumed by header badges
             rtde: {
               safety_status_id: typeof rawSafetyId === 'number' ? rawSafetyId : (baseTelemetry.rtde?.safety_status_id ?? null),

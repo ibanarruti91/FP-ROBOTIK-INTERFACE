@@ -2,8 +2,9 @@
  * WidgetRenderer - Renderiza widgets basándose en su tipo y configuración
  */
 
-import { KpiCard, StatusPill, StatusDynamic, DataTable, LogPanel, SafetyPanel, DigitalIO, AnalogIO, GestionPanel, SecurityLedsPanel, ToolPanel, TcpPose, JointsGrid } from './TelemetryWidgets';
+import { KpiCard, StatusPill, StatusDynamic, DataTable, LogPanel, SafetyPanel, DigitalIO, AnalogIO, GestionPanel, SecurityLedsPanel, ToolPanel, TcpPose, JointsGrid, SystemMetricCard } from './TelemetryWidgets';
 import { CameraWidget } from './CameraWidget';
+import { PerformanceChart } from './PerformanceChart';
 import './WidgetRenderer.css';
 
 /**
@@ -173,7 +174,27 @@ function renderWidget(widget, data, key) {
           className="full-width"
         />
       );
-    
+
+    case 'performance-chart':
+      return (
+        <PerformanceChart
+          key={key}
+          data={value}
+        />
+      );
+
+    case 'sys-metric':
+      return (
+        <SystemMetricCard
+          key={key}
+          label={widget.label}
+          value={value}
+          unit={widget.unit}
+          showBar={widget.showBar || false}
+          icon={widget.icon || null}
+        />
+      );
+
     default:
       return (
         <div key={key} className="widget-unknown">
@@ -286,9 +307,32 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
     );
   }
 
-  // Principal: camera (left) | metrics (right) — same height; events full-width below
+  // Principal: camera (left) | chart (70%) + sys-cards (30%) — or legacy metrics/events
   if (sectionId === 'principal') {
-    const cameraGroups  = groups.filter(g => g.className === 'principal-camera');
+    const cameraGroups   = groups.filter(g => g.className === 'principal-camera');
+    const chartGroups    = groups.filter(g => g.className === 'principal-chart');
+    const sysCardsGroups = groups.filter(g => g.className === 'principal-sys-cards');
+
+    // New 3-column layout (chart + sys-cards present)
+    if (chartGroups.length > 0 || sysCardsGroups.length > 0) {
+      const chartOffset    = cameraGroups.length;
+      const sysCardsOffset = chartOffset + chartGroups.length;
+      return (
+        <div className="widget-renderer principal-three-col">
+          <div className="principal-camera-col">
+            {cameraGroups.map((group, i) => renderGroup(group, data, i))}
+          </div>
+          <div className="principal-chart-col">
+            {chartGroups.map((group, i) => renderGroup(group, data, chartOffset + i))}
+          </div>
+          <div className="principal-cards-col">
+            {sysCardsGroups.map((group, i) => renderGroup(group, data, sysCardsOffset + i))}
+          </div>
+        </div>
+      );
+    }
+
+    // Legacy 2-column layout (metrics + events)
     const metricsGroups = groups.filter(g => g.className === 'principal-metrics');
     const eventsGroups  = groups.filter(g => g.className === 'principal-events');
     const metricsOffset = cameraGroups.length;

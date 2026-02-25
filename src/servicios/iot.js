@@ -138,6 +138,14 @@ export function getMockTelemetryData(centroConfig = null) {
       corriente: null, // mA
       potencia: null   // W
     },
+    // Telemetry sub-object for the Menú Principal dashboard (Node-RED payload.telemetry)
+    telemetry: {
+      speed:           null,   // mm/s
+      power:           null,   // W
+      controller_temp: null,   // °C
+      main_voltage:    null,   // V
+      cpu_load:        null,   // %
+    },
     // Raw RTDE protocol numeric IDs (before string mapping)
     rtde: {
       safety_status_id: null,
