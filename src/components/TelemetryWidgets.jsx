@@ -3,7 +3,7 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
-import { Zap, Thermometer, Settings, Gauge, Activity, Cpu } from 'lucide-react';
+import { Zap, Thermometer, Settings, Gauge, Activity, Cpu, RefreshCw } from 'lucide-react';
 import './TelemetryWidgets.css';
 
 /**
@@ -774,6 +774,9 @@ export function SystemMetricCard({ label, value, unit, showBar = false, icon = n
     if (icon === 'temp')    return <Thermometer size={16} />;
     if (icon === 'cpu')     return <Cpu size={16} />;
     if (icon === 'voltage') return <Zap size={16} />;
+    if (icon === 'power')   return <Zap size={16} />;
+    if (icon === 'speed')   return <Gauge size={16} />;
+    if (icon === 'cycles')  return <RefreshCw size={16} />;
     return null;
   };
 

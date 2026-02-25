@@ -20,10 +20,10 @@
   gap: 1rem;
 }
 
-/* Top row: camera (left, large) + sys-cards (right, narrow) */
+/* Top row: camera (left, 50%) + sys-cards (right, 50%) */
 .widget-renderer.principal-new-layout .principal-top-row {
   display: grid;
-  grid-template-columns: 3fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 1rem;
   align-items: stretch;
 }
@@ -62,30 +62,32 @@
   min-height: 300px;
 }
 
-/* Sys-cards column — 3 cards stacked vertically on the right */
+/* Sys-cards column — 6 cards in a 2-column Bento Box grid */
 .widget-renderer.principal-new-layout .principal-cards-col {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
   min-height: 0;
 }
 
 .widget-renderer.principal-new-layout .principal-cards-col .widget-group {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
   flex: 1;
 }
 
 .widget-renderer.principal-new-layout .principal-cards-col .widget-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
   flex: 1;
+  align-content: stretch;
 }
 
 .widget-renderer.principal-new-layout .principal-cards-col .sys-metric-card {
   flex: 1;
+  min-height: 0;
 }
 
 /* Bottom row: chart spans full width */
@@ -117,14 +119,12 @@
     min-height: unset;
   }
 
-  .widget-renderer.principal-new-layout .principal-cards-col {
-    flex-direction: row;
-    flex-wrap: wrap;
+  .widget-renderer.principal-new-layout .principal-cards-col .widget-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .widget-renderer.principal-new-layout .principal-cards-col .sys-metric-card {
-    flex: 1;
-    min-width: 160px;
+    min-width: 140px;
   }
 }
 

@@ -28,9 +28,12 @@ export const SALESIANOS_LAYOUT = {
         {
           className: "principal-sys-cards",
           widgets: [
-            { type: "sys-metric", label: "Temperatura Sistema", path: "telemetry.controller_temp", unit: "ºC", icon: "temp" },
-            { type: "sys-metric", label: "Tensión Principal",   path: "telemetry.main_voltage",    unit: "V",  icon: "voltage" },
-            { type: "sys-metric", label: "Carga CPU",           path: "telemetry.cpu_load",        unit: "%",  icon: "cpu", showBar: true }
+            { type: "sys-metric", label: "Temperatura Sistema", path: "telemetry.controller_temp", unit: "ºC",   icon: "temp" },
+            { type: "sys-metric", label: "Tensión Principal",   path: "telemetry.main_voltage",    unit: "V",    icon: "voltage" },
+            { type: "sys-metric", label: "Carga CPU",           path: "telemetry.cpu_load",        unit: "%",    icon: "cpu",    showBar: true },
+            { type: "sys-metric", label: "Consumo Actual",      path: "telemetry.power",           unit: "W",    icon: "power" },
+            { type: "sys-metric", label: "Velocidad TCP",       path: "actual_TCP_speed",          unit: "mm/s", icon: "speed" },
+            { type: "sys-metric", label: "Eficiencia (Ciclos)", path: "telemetry.ciclos",          unit: "",     icon: "cycles" }
           ]
         }
       ]
