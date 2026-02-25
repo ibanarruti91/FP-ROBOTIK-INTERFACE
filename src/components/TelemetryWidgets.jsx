@@ -418,8 +418,8 @@ export function DigitalIO({ data, className = '' }) {
             {row.values.map((active, i) => (
               <div
                 key={i}
-                className={`io-cell ${row.colorClass} ${active === true ? 'io-active' : ''} ${active === null ? 'io-na' : ''}`}
-                title={`${row.label}${i}: ${active === null ? 'N/A' : active ? '1' : '0'}`}
+                className={`io-cell ${row.colorClass} ${active ? 'io-active' : ''} ${active == null ? 'io-na' : ''}`}
+                title={`${row.label}${i}: ${active == null ? 'N/A' : active ? '1' : '0'}`}
               >
                 <span className="io-cell-name">{`${row.label}${i}`}</span>
               </div>
