@@ -21,6 +21,9 @@ const ROBOT_MODE_MAP   = { 1: 'MANUAL', 2: 'AUTO', 3: 'REMOTE' };
 const RUNTIME_STATE_MAP = { 1: 'STOPPED', 2: 'PLAYING', 3: 'PAUSED' };
 const SAFETY_STATUS_MAP = { 1: 'NORMAL', 3: 'PROTECTIVE_STOP', 4: 'EMERGENCY_STOP' };
 
+// UR robot uses a 24 V DC bus; total joint power = Σ(current[i] × DC_BUS_VOLTAGE)
+const DC_BUS_VOLTAGE = 24;
+
 /**
  * Maps a numeric value using the provided lookup table.
  * String values are returned as-is; null/undefined are returned unchanged.
@@ -159,7 +162,19 @@ function TelemetriaDetail() {
               speed: data.tcp?.speed ?? baseTelemetry.tcp?.speed,
               velocity: data.tcp?.velocity ?? baseTelemetry.tcp?.velocity
             },
-            joints: data.joints ?? baseTelemetry.joints,
+            joints: (() => {
+              const j = data.joints ?? baseTelemetry.joints;
+              if (!j) return baseTelemetry.joints;
+              // Compute total joint power from currents (24 V DC bus) on the frontend.
+              // This avoids relying on Node-RED's pre-computed `power` field, which can
+              // be zero when the assembler runs before the cinematica change node has
+              // updated the global context (race condition).
+              const currents = Array.isArray(j.currents) ? j.currents : [];
+              const power = parseFloat(
+                currents.reduce((s, c) => s + (Number(c) || 0) * DC_BUS_VOLTAGE, 0).toFixed(2)
+              );
+              return { ...j, power, potencia_total: power, consumo_movimiento: power };
+            })(),
             // Map digital I/O from MQTT data – four independent 8-element arrays
             digital_io: {
               inputs:               data.digital_io?.inputs               ?? baseTelemetry.digital_io?.inputs,

@@ -117,7 +117,10 @@ export function getMockTelemetryData(centroConfig = null) {
     joints: {
       positions: [null, null, null, null, null, null],
       temperatures: [null, null, null, null, null, null],
-      currents: [null, null, null, null, null, null]
+      currents: [null, null, null, null, null, null],
+      power: null,
+      potencia_total: null,
+      consumo_movimiento: null
     },
     messages: [],
     digital_io: {
