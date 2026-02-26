@@ -19,6 +19,37 @@ vía MQTT.  Usa esta guía para configurar los nodos **mqtt out** de Node-RED.
 
 ## Estructura general del payload JSON
 
+La interfaz acepta **dos formatos** de payload, ambos soportados simultáneamente:
+
+### Formato nuevo (recomendado – compatible con el flujo Node-RED actual)
+
+```json
+{
+  "program_name":  "<string>",
+  "program_id":    <número>,
+  "rtde": {
+    "safety_status": <número>,
+    "robot_mode":    <número>,
+    "program_state": <número>
+  },
+  "telemetry":   { ... },
+  "sistema":     { ... },
+  "tcp":         { ... },
+  "joints":      { ... },
+  "digital_io":  { ... },
+  "analog_io":   { ... },
+  "herramienta": { ... },
+  "robot_power":   <número>,
+  "cycle_time":    <número>,
+  "uptime_hours":  <número>,
+  "ctrl_temp":     <número>,
+  "last_error":    "<string>",
+  "messages":      [ ... ]
+}
+```
+
+### Formato legacy (también soportado)
+
 ```json
 {
   "programa":    { ... },
@@ -68,6 +99,18 @@ Los widgets del nuevo diseño de telemetría leen del sub-objeto `telemetry`:
 
 ### Campos del mini-cabecero (★) y de estado general
 
+**Formato nuevo** (`program_name`, `program_id`, `rtde.*`):
+
+| Dato Dinámico | ID / Variable Exacta | Unidad / Valores válidos |
+|---------------|----------------------|--------------------------|
+| Nombre del programa ★ | `program_name` | string |
+| ID del programa ★ | `program_id` | número entero |
+| Modo robot (RTDE) ★ | `rtde.robot_mode` | número entero (7 = RUNNING) |
+| Estado programa (RTDE) ★ | `rtde.program_state` | número entero (1 = STOPPED, 2 = PLAYING, 3 = PAUSED) |
+| Estado seguridad (RTDE) ★ | `rtde.safety_status` | número entero (1 = NORMAL, 3 = PROTECTIVE_STOP, 4 = EMERGENCY_STOP) |
+
+**Formato legacy** (también soportado):
+
 | Dato Dinámico | ID / Variable Exacta | Unidad / Valores válidos |
 |---------------|----------------------|--------------------------|
 | Estado máquina ★ | `sistema.estado_maquina` | `POWER_ON` \| `POWER_OFF` \| `IDLE` \| `BOOTING` \| `EMERGENCY_STOP` |
@@ -83,10 +126,22 @@ Los widgets del nuevo diseño de telemetría leen del sub-objeto `telemetry`:
 
 ### Diagnóstico de Potencia
 
+El widget **"Consumo total de articulaciones"** lee, por orden de prioridad:
+`joints.currents` → calcula automáticamente la potencia en el frontend (24 V × Σ corrientes).
+Opcionalmente puedes enviar el valor ya calculado:
+
 | Dato Dinámico | ID / Variable Exacta | Unidad |
 |---------------|----------------------|--------|
-| Potencia Total | `sistema.potencia_total` | W |
+| Consumo total articulaciones | `joints.power` | W |
+| Consumo total (alias) | `joints.potencia_total` | W |
+| Consumo total (alias) | `joints.consumo_movimiento` | W |
 | Velocidad TCP | `sistema.velocidad_tcp` | m/s |
+
+> **Nota:** si `joints.currents` está disponible la interfaz calcula la potencia
+> total automáticamente como `Σ(corriente[i] × 24 V)`, independientemente del
+> valor de `joints.power`.  Esto evita problemas cuando el ensamblador de
+> Node-RED ejecuta antes de que el nodo de cambio de cinemática haya actualizado
+> el contexto global (condición de carrera).
 
 ### Estado Cartesiano del TCP (X, Y, Z, RX, RY, RZ)
 
@@ -116,9 +171,13 @@ Ejemplo:
 "joints": {
   "positions":    [1.57, -1.57, 1.57, -1.57, 1.57, 0.0],
   "temperatures": [28.5, 29.1, 30.0, 27.8, 28.0, 27.5],
-  "currents":     [0.45, 0.52, 0.38, 0.41, 0.35, 0.22]
+  "currents":     [0.45, 0.52, 0.38, 0.41, 0.35, 0.22],
+  "power":        51.84,
+  "potencia_total": 51.84,
+  "consumo_movimiento": 51.84
 }
 ```
+
 
 ---
 
