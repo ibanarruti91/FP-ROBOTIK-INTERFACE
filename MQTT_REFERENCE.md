@@ -281,3 +281,34 @@ Ejemplo:
 5. **Cámara** – El campo `camera.stream` acepta una URL MJPEG/RTSP.  Si ya está
    configurado mediante variable de entorno (`VITE_CAMERA_*`) no es necesario
    enviarlo por MQTT.
+
+6. **Simulador de pruebas** – En `nodered/simulador.js` se incluye un script
+   completo para el nodo `function` de Node-RED que genera datos realistas con
+   animación continua.  Úsalo durante el desarrollo/demo para verificar que todos
+   los widgets se actualizan correctamente.
+
+7. **Corrientes de articulaciones (`joints.currents`)** – Si la RTDE devuelve
+   `[0,0,0,0,0,0]` (robot en reposo o parado), la interfaz mostrará `0.00 A`.
+   Para pruebas, utiliza el simulador del punto anterior o calcula valores
+   dinámicos en el nodo `function` (donde `paso` es un contador de ciclo
+   obtenido de `flow.get('paso')`):
+
+   ```js
+   const paso = flow.get('paso') || 0;
+   const currents = Array(6).fill(0).map((_, i) =>
+     parseFloat((1.0 + Math.random() * 0.5 + Math.sin(paso * (0.1 + i * 0.05))).toFixed(2))
+   );
+   ```
+
+8. **Potencia total** – La interfaz lee `telemetry.power` con fallback a
+   `sistema.potencia_total`.  Para garantizar la compatibilidad, publica el
+   mismo valor en **ambos** campos:
+
+   ```js
+   const power = 150; // W
+   msg.payload = {
+     robot_power: power,
+     sistema: { potencia_total: power },
+     telemetry: { power: power }
+   };
+   ```
