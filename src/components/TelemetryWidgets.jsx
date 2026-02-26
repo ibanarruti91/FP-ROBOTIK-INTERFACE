@@ -70,8 +70,8 @@ export function CardGlass({ children, className = '' }) {
  * Tarjeta KPI - muestra label, valor grande y unidad
  */
 export function KpiCard({ label, value, unit, className = '', compact = false, format = '0', icon }) {
-  const isValueAvailable = value !== null && value !== undefined && value !== '';
-  const numericValue = typeof value === 'number' ? value : null;
+  const isValueAvailable = value !== null && value !== undefined && value !== '' && !(typeof value === 'number' && Number.isNaN(value));
+  const numericValue = typeof value === 'number' && !Number.isNaN(value) ? value : null;
   const animatedValue = useCountingAnimation(numericValue || 0, 400);
   const [isUpdated, setIsUpdated] = useState(false);
   const previousValue = useRef(value);

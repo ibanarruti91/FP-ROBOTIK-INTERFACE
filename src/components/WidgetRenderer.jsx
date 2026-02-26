@@ -25,7 +25,15 @@ function getNestedValue(obj, path) {
  * Renderiza un widget individual
  */
 function renderWidget(widget, data, key) {
-  const value = getNestedValue(data, widget.path);
+  let value;
+  if (Array.isArray(widget.paths)) {
+    for (const p of widget.paths) {
+      const v = getNestedValue(data, p);
+      if (v !== null && v !== undefined && !Number.isNaN(v)) { value = v; break; }
+    }
+  } else {
+    value = getNestedValue(data, widget.path);
+  }
   const compactClass = widget.compact ? 'compact' : '';
   
   switch (widget.type) {
