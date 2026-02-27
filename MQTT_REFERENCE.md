@@ -142,6 +142,12 @@ Opcionalmente puedes enviar el valor ya calculado:
 > valor de `joints.power`.  Esto evita problemas cuando el ensamblador de
 > Node-RED ejecuta antes de que el nodo de cambio de cinemática haya actualizado
 > el contexto global (condición de carrera).
+>
+> Si todos los valores de `joints.currents` son cero (situación que ocurre
+> cuando el global `ur_joint_currents` aún no ha sido poblado tras un reinicio
+> de Node-RED), la interfaz conserva el último estado válido de las
+> articulaciones en lugar de mostrar 0 W.  Esto evita que el widget de consumo
+> parpadee a cero durante el intervalo de arranque de Node-RED.
 
 ### Estado Cartesiano del TCP (X, Y, Z, RX, RY, RZ)
 

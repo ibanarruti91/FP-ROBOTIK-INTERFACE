@@ -170,6 +170,16 @@ function TelemetriaDetail() {
               // be zero when the assembler runs before the cinematica change node has
               // updated the global context (race condition).
               const currents = Array.isArray(j.currents) ? j.currents : [];
+              // Guard: if every current is zero the Node-RED global ur_joint_currents
+              // was not populated yet when the assembler ran (race condition on restart).
+              // Keep the previous joints snapshot so the display does not flicker to 0 W.
+              const hasNonZeroCurrents = currents.some(c => (Number(c) || 0) !== 0);
+              if (!hasNonZeroCurrents) {
+                // If previous joints state is available, keep it; otherwise return
+                // a null-power structure so the widget shows N/A instead of 0 W.
+                if (baseTelemetry.joints) return baseTelemetry.joints;
+                return { ...j, power: null, potencia_total: null, consumo_movimiento: null };
+              }
               const power = parseFloat(
                 currents.reduce((s, c) => s + (Number(c) || 0) * DC_BUS_VOLTAGE, 0).toFixed(2)
               );
