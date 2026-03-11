@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import mqtt from 'mqtt';
+import ExcelJS from 'exceljs';
 import './Validacion.css';
 
 const MQTT_BROKER = 'wss://broker.emqx.io:8084/mqtt';
@@ -8,26 +9,38 @@ const MAX_CAPTURES = 200;
 
 let captureCounter = 0;
 
-function exportToCSV(captures) {
-  const headers = ['step_id', 'timestamp', 'program_name', 'x', 'y', 'z'];
-  const rows = captures.map((c) => [
-    c.step_id ?? '',
-    c.timestamp ?? '',
-    c.program_name ?? '',
-    c.x != null ? c.x : '',
-    c.y != null ? c.y : '',
-    c.z != null ? c.z : '',
-  ]);
+async function exportToXLSX(captures) {
+  const workbook = new ExcelJS.Workbook();
+  const sheet = workbook.addWorksheet('Step Points');
 
-  const csvContent = [headers, ...rows]
-    .map((row) => row.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','))
-    .join('\r\n');
+  sheet.columns = [
+    { header: 'step_id',      key: 'step_id',      width: 12 },
+    { header: 'timestamp',    key: 'timestamp',    width: 26 },
+    { header: 'program_name', key: 'program_name', width: 20 },
+    { header: 'x_mm',         key: 'x_mm',         width: 14 },
+    { header: 'y_mm',         key: 'y_mm',         width: 14 },
+    { header: 'z_mm',         key: 'z_mm',         width: 14 },
+  ];
 
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  captures.forEach((c) => {
+    sheet.addRow({
+      step_id:      c.step_id      ?? null,
+      timestamp:    c.timestamp    ?? null,
+      program_name: c.program_name ?? null,
+      x_mm:         c.x            ?? null,
+      y_mm:         c.y            ?? null,
+      z_mm:         c.z            ?? null,
+    });
+  });
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = `step_points_${new Date().toISOString().replace(/[:.]/g, '-')}.csv`;
+  link.download = 'step_points_captura.xlsx';
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -113,7 +126,9 @@ function Validacion() {
   };
 
   const handleExport = () => {
-    exportToCSV(captures);
+    exportToXLSX(captures).catch((err) => {
+      console.error('Error al exportar a Excel:', err);
+    });
   };
 
   return (
