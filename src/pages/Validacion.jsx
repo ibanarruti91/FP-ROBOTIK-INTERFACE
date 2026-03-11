@@ -1,69 +1,119 @@
+import { useState, useEffect } from 'react';
+import mqtt from 'mqtt';
 import './Validacion.css';
 
+const MQTT_BROKER = 'wss://broker.emqx.io:8084/mqtt';
+const MQTT_TOPIC = 'salesianos/robot/iban/step_capture';
+const MAX_CAPTURES = 200;
+
 function Validacion() {
+  const [captures, setCaptures] = useState([]);
+  const [mqttConnected, setMqttConnected] = useState(false);
+
+  useEffect(() => {
+    const client = mqtt.connect(MQTT_BROKER);
+
+    client.on('connect', () => {
+      console.log('Conectado al broker MQTT (step_capture)');
+      setMqttConnected(true);
+      client.subscribe(MQTT_TOPIC, (err) => {
+        if (err) {
+          console.error('Error al suscribirse al topic:', err);
+        } else {
+          console.log('Suscrito al topic:', MQTT_TOPIC);
+        }
+      });
+    });
+
+    client.on('disconnect', () => setMqttConnected(false));
+    client.on('error', (err) => {
+      console.error('MQTT error:', err);
+      setMqttConnected(false);
+    });
+
+    client.on('message', (topic, message) => {
+      try {
+        const data = JSON.parse(message.toString());
+        const capture = {
+          step_id: data.step_id,
+          timestamp: data.timestamp,
+          timestampFormatted: data.timestamp
+            ? new Date(data.timestamp).toLocaleTimeString()
+            : '—',
+          x: data.tcp_position_mm?.x,
+          y: data.tcp_position_mm?.y,
+          z: data.tcp_position_mm?.z,
+          program_name: data.program_name,
+        };
+        setCaptures((prev) => [capture, ...prev].slice(0, MAX_CAPTURES));
+      } catch (err) {
+        console.error('Error al parsear mensaje MQTT:', err);
+      }
+    });
+
+    return () => {
+      try {
+        client.end();
+      } catch (err) {
+        console.error('Error al cerrar la conexión MQTT:', err);
+      }
+    };
+  }, []);
 
   return (
     <div className="page-container">
       <div className="universal-header">
-        <h1 className="universal-title">Control de validación código</h1>
-        <p className="universal-description">Módulo de control y validación de código robótico. Verificación automática de sintaxis y análisis de seguridad.</p>
+        <h1 className="universal-title">Registro de Step Points Reales</h1>
+        <p className="universal-description">
+          Visualización en tiempo real de los step points capturados por el robot.
+          Topic MQTT: <code>{MQTT_TOPIC}</code>
+        </p>
       </div>
-      
+
       <div className="page-content">
         <div className="info-card">
-          <div className="card-icon">✓</div>
-          <h2>Sistema de Validación</h2>
+          <div className="card-icon">📍</div>
+          <h2>Historial de Capturas</h2>
           <p>
-            Módulo de control y validación de código robótico.
-            Verificación automática de sintaxis y análisis de seguridad.
+            {mqttConnected
+              ? `Conectado · ${captures.length} captura${captures.length !== 1 ? 's' : ''} recibida${captures.length !== 1 ? 's' : ''}`
+              : 'Conectando al broker MQTT…'}
           </p>
         </div>
 
-        <div className="validation-panel">
-          <div className="code-section">
-            <h3>Editor de Código</h3>
-            <div className="code-editor">
-              <div className="code-line">
-                <span className="line-number">1</span>
-                <span className="code-text">function initRobot() {'{'}</span>
-              </div>
-              <div className="code-line">
-                <span className="line-number">2</span>
-                <span className="code-text">  robot.connect();</span>
-              </div>
-              <div className="code-line">
-                <span className="line-number">3</span>
-                <span className="code-text">  robot.calibrate();</span>
-              </div>
-              <div className="code-line">
-                <span className="line-number">4</span>
-                <span className="code-text">  return robot.status;</span>
-              </div>
-              <div className="code-line">
-                <span className="line-number">5</span>
-                <span className="code-text">{'}'}</span>
-              </div>
-            </div>
+        <div className="step-captures-panel">
+          <div className="step-captures-header">
+            <span className="step-col step-col-id">Step ID</span>
+            <span className="step-col step-col-timestamp">Timestamp</span>
+            <span className="step-col step-col-coord">X (mm)</span>
+            <span className="step-col step-col-coord">Y (mm)</span>
+            <span className="step-col step-col-coord">Z (mm)</span>
           </div>
 
-          <div className="validation-results">
-            <h3>Resultados de Validación</h3>
-            <div className="result-item success">
-              <span className="result-icon">✓</span>
-              <span>Sintaxis correcta</span>
-            </div>
-            <div className="result-item success">
-              <span className="result-icon">✓</span>
-              <span>Sin errores de seguridad</span>
-            </div>
-            <div className="result-item success">
-              <span className="result-icon">✓</span>
-              <span>Optimización aprobada</span>
-            </div>
-            <div className="result-item warning">
-              <span className="result-icon">⚠</span>
-              <span>Variable no utilizada en línea 4</span>
-            </div>
+          <div className="step-captures-list">
+            {captures.length === 0 ? (
+              <div className="step-captures-empty">
+                <span>Esperando capturas de step points…</span>
+              </div>
+            ) : (
+              captures.map((c, idx) => (
+                <div key={`${c.step_id}-${c.timestamp ?? idx}`} className="step-capture-row">
+                  <span className="step-col step-col-id">{c.step_id ?? '—'}</span>
+                  <span className="step-col step-col-timestamp">
+                    {c.timestampFormatted}
+                  </span>
+                  <span className="step-col step-col-coord">
+                    {c.x != null ? c.x.toFixed(3) : '—'}
+                  </span>
+                  <span className="step-col step-col-coord">
+                    {c.y != null ? c.y.toFixed(3) : '—'}
+                  </span>
+                  <span className="step-col step-col-coord">
+                    {c.z != null ? c.z.toFixed(3) : '—'}
+                  </span>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
