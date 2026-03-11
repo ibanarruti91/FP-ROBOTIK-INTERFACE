@@ -146,3 +146,86 @@
   max-width: 600px;
   margin: 0 auto;
 }
+
+.program-name-badge {
+  display: inline-block;
+  background: rgba(0, 229, 255, 0.1);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  border-radius: 8px;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem !important;
+}
+
+.program-name-badge strong {
+  color: var(--accent-cyan);
+  font-weight: 700;
+}
+
+/* ── Control Zone ──────────────────────────────────────────────────────────── */
+.capture-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.ctrl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.25s ease;
+  background: rgba(15, 23, 42, 0.7);
+}
+
+.ctrl-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ctrl-btn-start {
+  border-color: rgba(52, 211, 153, 0.5);
+  color: #34d399;
+}
+
+.ctrl-btn-start:hover:not(:disabled) {
+  background: rgba(52, 211, 153, 0.12);
+  border-color: #34d399;
+}
+
+.ctrl-btn-pause {
+  border-color: rgba(251, 191, 36, 0.5);
+  color: #fbbf24;
+}
+
+.ctrl-btn-pause:hover:not(:disabled) {
+  background: rgba(251, 191, 36, 0.1);
+  border-color: #fbbf24;
+}
+
+.ctrl-btn-clear {
+  border-color: rgba(248, 113, 113, 0.5);
+  color: #f87171;
+}
+
+.ctrl-btn-clear:hover:not(:disabled) {
+  background: rgba(248, 113, 113, 0.1);
+  border-color: #f87171;
+}
+
+.ctrl-btn-export {
+  border-color: rgba(0, 229, 255, 0.4);
+  color: var(--accent-cyan);
+}
+
+.ctrl-btn-export:hover:not(:disabled) {
+  background: rgba(0, 229, 255, 0.08);
+  border-color: var(--accent-cyan);
+}
