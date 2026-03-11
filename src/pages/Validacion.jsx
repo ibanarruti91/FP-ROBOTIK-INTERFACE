@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import mqtt from 'mqtt';
 import './Validacion.css';
 
@@ -8,9 +8,40 @@ const MAX_CAPTURES = 200;
 
 let captureCounter = 0;
 
+function exportToCSV(captures) {
+  const headers = ['step_id', 'timestamp', 'program_name', 'x', 'y', 'z'];
+  const rows = captures.map((c) => [
+    c.step_id ?? '',
+    c.timestamp ?? '',
+    c.program_name ?? '',
+    c.x != null ? c.x : '',
+    c.y != null ? c.y : '',
+    c.z != null ? c.z : '',
+  ]);
+
+  const csvContent = [headers, ...rows]
+    .map((row) => row.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','))
+    .join('\r\n');
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `step_points_${new Date().toISOString().replace(/[:.]/g, '-')}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 function Validacion() {
   const [captures, setCaptures] = useState([]);
   const [mqttConnected, setMqttConnected] = useState(false);
+  // isPausedRef avoids stale-closure in the MQTT message handler;
+  // isPaused state drives the UI button toggle.
+  const [isPaused, setIsPaused] = useState(false);
+  const [currentProgram, setCurrentProgram] = useState(null);
+  const isPausedRef = useRef(false);
 
   useEffect(() => {
     const client = mqtt.connect(MQTT_BROKER);
@@ -34,12 +65,14 @@ function Validacion() {
     });
 
     client.on('message', (topic, message) => {
+      if (isPausedRef.current) return;
       try {
         const data = JSON.parse(message.toString());
         const capture = {
           _id: ++captureCounter,
           step_id: data.step_id,
           timestamp: data.timestamp,
+          program_name: data.program_name ?? null,
           timestampFormatted: data.timestamp
             ? new Date(data.timestamp).toLocaleTimeString()
             : '—',
@@ -47,6 +80,9 @@ function Validacion() {
           y: data.tcp_position_mm?.y,
           z: data.tcp_position_mm?.z,
         };
+        if (data.program_name) {
+          setCurrentProgram(data.program_name);
+        }
         setCaptures((prev) => [capture, ...prev].slice(0, MAX_CAPTURES));
       } catch (err) {
         console.error('Error al parsear mensaje MQTT:', err);
@@ -62,25 +98,69 @@ function Validacion() {
     };
   }, []);
 
+  const handlePause = () => {
+    isPausedRef.current = true;
+    setIsPaused(true);
+  };
+
+  const handleResume = () => {
+    isPausedRef.current = false;
+    setIsPaused(false);
+  };
+
+  const handleClear = () => {
+    setCaptures([]);
+  };
+
+  const handleExport = () => {
+    exportToCSV(captures);
+  };
+
   return (
     <div className="page-container">
       <div className="universal-header">
-        <h1 className="universal-title">Registro de Step Points Reales</h1>
+        <h1 className="universal-title">Registro de Step Points</h1>
         <p className="universal-description">
-          Visualización en tiempo real de los step points capturados por el robot.
-          Topic MQTT: <code>{MQTT_TOPIC}</code>
+          Aquí se muestran los step points reales capturados durante la ejecución del programa activo del robot.
         </p>
       </div>
 
       <div className="page-content">
         <div className="info-card">
-          <div className="card-icon">📍</div>
+          <div className="card-icon">📋</div>
           <h2>Historial de Capturas</h2>
+          {currentProgram && (
+            <p className="program-name-badge">
+              Programa activo: <strong>{currentProgram}</strong>
+            </p>
+          )}
           <p>
             {mqttConnected
               ? `Conectado · ${captures.length} captura${captures.length !== 1 ? 's' : ''} recibida${captures.length !== 1 ? 's' : ''}`
               : 'Conectando al broker MQTT…'}
           </p>
+        </div>
+
+        <div className="capture-controls">
+          {isPaused ? (
+            <button className="ctrl-btn ctrl-btn-start" onClick={handleResume}>
+              ▶ Iniciar captura
+            </button>
+          ) : (
+            <button className="ctrl-btn ctrl-btn-pause" onClick={handlePause}>
+              ⏸ Pausar captura
+            </button>
+          )}
+          <button className="ctrl-btn ctrl-btn-clear" onClick={handleClear}>
+            🗑 Limpiar historial
+          </button>
+          <button
+            className="ctrl-btn ctrl-btn-export"
+            onClick={handleExport}
+            disabled={captures.length === 0}
+          >
+            📥 Exportar a Excel
+          </button>
         </div>
 
         <div className="step-captures-panel">

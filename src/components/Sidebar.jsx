@@ -26,9 +26,9 @@ function Sidebar() {
     },
     {
       id: 3,
-      title: 'Control de validación código',
+      title: 'Registro de Step Points',
       path: '/validacion',
-      icon: '✓'
+      icon: '📋'
     },
     {
       id: 4,
