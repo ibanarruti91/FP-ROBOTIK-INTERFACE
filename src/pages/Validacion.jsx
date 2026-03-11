@@ -6,6 +6,8 @@ const MQTT_BROKER = 'wss://broker.emqx.io:8084/mqtt';
 const MQTT_TOPIC = 'salesianos/robot/iban/step_capture';
 const MAX_CAPTURES = 200;
 
+let captureCounter = 0;
+
 function Validacion() {
   const [captures, setCaptures] = useState([]);
   const [mqttConnected, setMqttConnected] = useState(false);
@@ -35,6 +37,7 @@ function Validacion() {
       try {
         const data = JSON.parse(message.toString());
         const capture = {
+          _id: ++captureCounter,
           step_id: data.step_id,
           timestamp: data.timestamp,
           timestampFormatted: data.timestamp
@@ -43,7 +46,6 @@ function Validacion() {
           x: data.tcp_position_mm?.x,
           y: data.tcp_position_mm?.y,
           z: data.tcp_position_mm?.z,
-          program_name: data.program_name,
         };
         setCaptures((prev) => [capture, ...prev].slice(0, MAX_CAPTURES));
       } catch (err) {
@@ -96,8 +98,8 @@ function Validacion() {
                 <span>Esperando capturas de step points…</span>
               </div>
             ) : (
-              captures.map((c, idx) => (
-                <div key={`${c.step_id}-${c.timestamp ?? idx}`} className="step-capture-row">
+              captures.map((c) => (
+                <div key={c._id} className="step-capture-row">
                   <span className="step-col step-col-id">{c.step_id ?? '—'}</span>
                   <span className="step-col step-col-timestamp">
                     {c.timestampFormatted}
