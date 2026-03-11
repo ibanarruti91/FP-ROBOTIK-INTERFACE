@@ -34,7 +34,7 @@ function Home() {
     },
     {
       id: 'validacion',
-      label: 'Control Validación',
+      label: 'Registro de Step Points',
       path: '/validacion',
       position: { left: '13%', bottom: '-8%' },
       icon: 'nodo-validacion.png'
