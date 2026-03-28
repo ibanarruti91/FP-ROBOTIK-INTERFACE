@@ -8,7 +8,7 @@ function Centros() {
   const { status } = useMqttStatus();
 
   const handleCentroClick = (centroId, estado) => {
-    if (estado === 'ONLINE') {
+    if (estado !== 'PROXIMAMENTE') {
       navigate(`/telemetria/${centroId}`);
     }
   };
@@ -28,7 +28,7 @@ function Centros() {
           return (
             <div
               key={id}
-              className={`centro-card ${dynamicEstado === 'ONLINE' ? 'enabled' : 'disabled'}`}
+              className={`centro-card ${dynamicEstado === 'PROXIMAMENTE' ? 'disabled' : 'enabled'}`}
               onClick={() => handleCentroClick(id, dynamicEstado)}
             >
               <div className="centro-header">
@@ -66,10 +66,10 @@ function Centros() {
                   ? 'Haz clic para acceder a los datos de telemetría en tiempo real'
                   : dynamicEstado === 'PROXIMAMENTE'
                   ? 'Este centro estará disponible próximamente'
-                  : 'Centro sin conexión - Esperando datos'}
+                  : 'Centro sin conexión - Haz clic para ver la telemetría'}
               </p>
               
-              {dynamicEstado === 'ONLINE' && (
+              {dynamicEstado !== 'PROXIMAMENTE' && (
                 <div className="centro-arrow">→</div>
               )}
             </div>
