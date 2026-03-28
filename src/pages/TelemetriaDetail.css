@@ -180,6 +180,7 @@
   font-size: 1rem;
   font-weight: 600;
   color: var(--text-primary);
+  transition: color 0.4s ease, opacity 0.3s ease;
 }
 
 .metric-value.online {
@@ -397,25 +398,25 @@
   animation: none;
 }
 
-/* ── Disconnecting state: magenta dashed, disabled ── */
+/* ── Disconnecting state: orange dashed, disabled ── */
 .btn-smart--disconnecting {
   background: repeating-linear-gradient(
     45deg,
-    rgba(255, 51, 187, 0.08),
-    rgba(255, 51, 187, 0.08) 4px,
-    rgba(255, 51, 187, 0.02) 4px,
-    rgba(255, 51, 187, 0.02) 8px
+    rgba(255, 124, 0, 0.08),
+    rgba(255, 124, 0, 0.08) 4px,
+    rgba(255, 124, 0, 0.02) 4px,
+    rgba(255, 124, 0, 0.02) 8px
   );
-  color: var(--accent-magenta);
-  border-color: var(--accent-magenta);
+  color: #ff7c00;
+  border-color: #ff7c00;
   border-style: dashed;
   cursor: not-allowed;
   opacity: 0.8;
 }
 
 .btn-smart--disconnecting .btn-smart-spinner {
-  border-color: rgba(255, 51, 187, 0.3);
-  border-top-color: var(--accent-magenta);
+  border-color: rgba(255, 124, 0, 0.3);
+  border-top-color: #ff7c00;
 }
 
 /* ── Inline spinner for Connecting / Disconnecting state ── */
@@ -480,4 +481,58 @@
 @keyframes livePulse {
   0%, 100% { opacity: 1; box-shadow: 0 0 4px var(--accent-magenta); }
   50%       { opacity: 0.35; box-shadow: none; }
+}
+
+/* ── Heartbeat LED – blinks green on each incoming MQTT message ── */
+.heartbeat-led {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(0, 230, 118, 0.2);
+  border: 1px solid rgba(0, 230, 118, 0.35);
+  flex-shrink: 0;
+  transition: background 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.heartbeat-led--active {
+  background: #00e676;
+  border-color: #00e676;
+  animation: heartbeatFlash 0.6s ease-out forwards;
+}
+
+@keyframes heartbeatFlash {
+  0%   { box-shadow: 0 0 14px #00e676, 0 0 30px rgba(0, 230, 118, 0.55); transform: scale(1.35); }
+  60%  { box-shadow: 0 0 8px #00e676, 0 0 16px rgba(0, 230, 118, 0.3);  transform: scale(1.1);  }
+  100% { box-shadow: 0 0 5px #00e676;                                     transform: scale(1);    }
+}
+
+/* ── Active data container – green glow when telemetry is live ── */
+.tab-content--active {
+  border-radius: 12px;
+  outline: 2px solid rgba(0, 230, 118, 0.18);
+  outline-offset: 4px;
+  box-shadow: 0 0 24px rgba(0, 230, 118, 0.07);
+  animation: activeDataPulse 3s ease-in-out infinite;
+}
+
+@keyframes activeDataPulse {
+  0%, 100% {
+    outline-color: rgba(0, 230, 118, 0.12);
+    box-shadow: 0 0 16px rgba(0, 230, 118, 0.05);
+  }
+  50% {
+    outline-color: rgba(0, 230, 118, 0.28);
+    box-shadow: 0 0 32px rgba(0, 230, 118, 0.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heartbeat-led--active {
+    animation: none;
+    transform: scale(1);
+    box-shadow: 0 0 5px #00e676;
+  }
+  .tab-content--active {
+    animation: none;
+  }
 }
