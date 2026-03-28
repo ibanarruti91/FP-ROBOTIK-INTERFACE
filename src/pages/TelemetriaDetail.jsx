@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import mqtt from 'mqtt';
 import { CENTROS } from '../config/centros';
@@ -48,6 +48,10 @@ function TelemetriaDetail() {
   // ignoring other fields (e.g. bit_vida heartbeats) that do not confirm activation.
   const [startRequested, setStartRequested] = useState(false);
   const [stopRequested, setStopRequested] = useState(false);
+
+  // Heartbeat LED – flashes green for 600 ms on each incoming MQTT message
+  const [heartbeatActive, setHeartbeatActive] = useState(false);
+  const heartbeatTimerRef = useRef(null);
 
   // Smart Button state: 'inactive' | 'connecting' | 'active' | 'disconnecting'
   const buttonState =
@@ -137,6 +141,11 @@ function TelemetriaDetail() {
 
         // Store raw payload for TelemetryMiniHeader (reads new MQTT structure directly)
         setRawPayload(data);
+
+        // Trigger heartbeat LED flash
+        clearTimeout(heartbeatTimerRef.current);
+        setHeartbeatActive(true);
+        heartbeatTimerRef.current = setTimeout(() => setHeartbeatActive(false), 600);
 
         // Update telemetry state with incoming data
         setTelemetry((prevTelemetry) => {
@@ -303,6 +312,7 @@ function TelemetriaDetail() {
     // Cleanup on unmount
     return () => {
       client.end();
+      clearTimeout(heartbeatTimerRef.current);
       console.log('Desconectado del broker MQTT');
     };
   }, [centro]);
@@ -370,6 +380,11 @@ function TelemetriaDetail() {
 
       {/* Control Panel */}
       <div className={`control-panel${buttonState === 'active' || buttonState === 'disconnecting' ? ' control-panel--active' : ''}`}>
+        <span
+          className={`heartbeat-led${heartbeatActive ? ' heartbeat-led--active' : ''}`}
+          aria-hidden="true"
+          title="Latido de datos MQTT"
+        ></span>
         <span className="control-panel-label">Control Telemetría</span>
         <button
           className={`btn-smart btn-smart--${buttonState}`}
@@ -400,7 +415,10 @@ function TelemetriaDetail() {
       </div>
       
       {/* Tab Content */}
-      <div className={`tab-content ${status === 'OFFLINE' ? 'offline-mode' : ''}`} data-section={activeTab}>
+      <div
+        className={`tab-content${buttonState === 'active' || buttonState === 'disconnecting' ? ' tab-content--active' : ''} ${status === 'OFFLINE' ? 'offline-mode' : ''}`}
+        data-section={activeTab}
+      >
         {layout.tabs
           .filter(tab => tab.id === activeTab)
           .map(tab => (
