@@ -42,23 +42,30 @@ function TelemetriaDetail() {
   // ── Control de telemetría ────────────────────────────────────────────────────
   // startRequested tracks whether the user has clicked "Iniciar" without yet
   // receiving confirmation that telemetry is active.
+  // stopRequested tracks whether the user has clicked "Detener" without yet
+  // receiving confirmation that telemetry has stopped.
   // Button state is driven exclusively by telemetria_activa from the JSON payload,
   // ignoring other fields (e.g. bit_vida heartbeats) that do not confirm activation.
   const [startRequested, setStartRequested] = useState(false);
-  const isConnecting = startRequested && telemetryData?.telemetria_activa !== true;
+  const [stopRequested, setStopRequested] = useState(false);
 
-  // Smart Button state: 'inactive' | 'connecting' | 'active'
-  const buttonState = telemetryData?.telemetria_activa === true ? 'active' : isConnecting ? 'connecting' : 'inactive';
+  // Smart Button state: 'inactive' | 'connecting' | 'active' | 'disconnecting'
+  const buttonState =
+    telemetryData?.telemetria_activa === true
+      ? stopRequested ? 'disconnecting' : 'active'
+      : startRequested ? 'connecting' : 'inactive';
 
   const handleSmartButton = () => {
     if (buttonState === 'inactive') {
       setStartRequested(true);
+      setStopRequested(false);
       publishCommand?.('robot/control/rtde', { comando: 'start' });
     } else if (buttonState === 'active') {
+      setStopRequested(true);
       setStartRequested(false);
       publishCommand?.('robot/control/rtde', { comando: 'stop' });
     }
-    // 'connecting' state: button is disabled, no action
+    // 'connecting' and 'disconnecting' states: button is disabled, no action
   };
 
   const centro = CENTROS[centroId];
@@ -83,11 +90,20 @@ function TelemetriaDetail() {
     }
   }, [centroId, centro, navigate]);
 
+  // Reset stopRequested once the backend confirms telemetry has stopped
+  useEffect(() => {
+    if (telemetryData?.telemetria_activa !== true && stopRequested) {
+      setStopRequested(false);
+    }
+  }, [telemetryData?.telemetria_activa, stopRequested]);
+
   // Clear telemetry data when MQTT goes offline
   useEffect(() => {
     if (status === 'OFFLINE') {
       setTelemetry(centro ? getMockTelemetryData(centro) : null);
       setRawPayload(null);
+      setStartRequested(false);
+      setStopRequested(false);
     }
   }, [status, centro]);
 
@@ -353,12 +369,12 @@ function TelemetriaDetail() {
       )}
 
       {/* Control Panel */}
-      <div className="control-panel">
+      <div className={`control-panel${buttonState === 'active' || buttonState === 'disconnecting' ? ' control-panel--active' : ''}`}>
         <span className="control-panel-label">Control Telemetría</span>
         <button
           className={`btn-smart btn-smart--${buttonState}`}
           onClick={handleSmartButton}
-          disabled={buttonState === 'connecting'}
+          disabled={buttonState === 'connecting' || buttonState === 'disconnecting'}
         >
           {buttonState === 'inactive' && '▶ Iniciar Telemetría'}
           {buttonState === 'connecting' && (
@@ -368,7 +384,19 @@ function TelemetriaDetail() {
             </>
           )}
           {buttonState === 'active' && '⏹ Detener Telemetría'}
+          {buttonState === 'disconnecting' && (
+            <>
+              <span className="btn-smart-spinner" aria-hidden="true"></span>
+              Desconectando...
+            </>
+          )}
         </button>
+        {(buttonState === 'active' || buttonState === 'disconnecting') && (
+          <span className="live-badge">
+            <span className="live-badge-dot" aria-hidden="true"></span>
+            EN VIVO
+          </span>
+        )}
       </div>
       
       {/* Tab Content */}
