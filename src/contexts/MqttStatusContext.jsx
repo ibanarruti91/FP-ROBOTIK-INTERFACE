@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import mqtt from 'mqtt';
 import { MqttStatusContext } from './MqttStatusContext.js';
 
@@ -6,10 +6,12 @@ export const MqttStatusProvider = ({ children }) => {
   const [status, setStatus] = useState('OFFLINE');
   const [lastMessageTime, setLastMessageTime] = useState(null);
   const [telemetryData, setTelemetryData] = useState(null);
+  const clientRef = useRef(null);
 
   // MQTT Connection Effect
   useEffect(() => {
     const client = mqtt.connect('wss://broker.emqx.io:8084/mqtt');
+    clientRef.current = client;
 
     client.on('connect', () => {
       console.log('Conectado al broker MQTT para watchdog');
@@ -43,8 +45,18 @@ export const MqttStatusProvider = ({ children }) => {
 
     return () => {
       client.end();
+      clientRef.current = null;
       console.log('Desconectado del broker MQTT (watchdog)');
     };
+  }, []);
+
+  const publishCommand = useCallback((topic, payload) => {
+    if (clientRef.current && clientRef.current.connected) {
+      clientRef.current.publish(topic, JSON.stringify(payload));
+      console.log(`Comando publicado en ${topic}:`, payload);
+    } else {
+      console.warn('No se puede publicar: cliente MQTT no conectado');
+    }
   }, []);
 
   // Watchdog Effect - Check for timeout every second
@@ -69,7 +81,8 @@ export const MqttStatusProvider = ({ children }) => {
   const value = {
     status,
     lastMessageTime,
-    telemetryData
+    telemetryData,
+    publishCommand
   };
 
   return (
