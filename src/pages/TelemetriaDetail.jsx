@@ -41,12 +41,14 @@ function TelemetriaDetail() {
 
   // ── Control de telemetría ────────────────────────────────────────────────────
   // startRequested tracks whether the user has clicked "Iniciar" without yet
-  // receiving data back. isConnecting is derived: true only while waiting.
+  // receiving confirmation that telemetry is active.
+  // Button state is driven exclusively by telemetria_activa from the JSON payload,
+  // ignoring other fields (e.g. bit_vida heartbeats) that do not confirm activation.
   const [startRequested, setStartRequested] = useState(false);
-  const isConnecting = startRequested && telemetryData === null;
+  const isConnecting = startRequested && telemetryData?.telemetria_activa !== true;
 
   // Smart Button state: 'inactive' | 'connecting' | 'active'
-  const buttonState = telemetryData !== null ? 'active' : isConnecting ? 'connecting' : 'inactive';
+  const buttonState = telemetryData?.telemetria_activa === true ? 'active' : isConnecting ? 'connecting' : 'inactive';
 
   const handleSmartButton = () => {
     if (buttonState === 'inactive') {
