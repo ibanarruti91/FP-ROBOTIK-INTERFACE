@@ -38,6 +38,7 @@ export const MqttStatusProvider = ({ children }) => {
     client.on('error', (error) => {
       console.error('Error en conexión MQTT:', error);
       setStatus('OFFLINE');
+      setTelemetryData(null);
     });
 
     return () => {
@@ -56,6 +57,7 @@ export const MqttStatusProvider = ({ children }) => {
         // If more than 6 seconds (6000ms) have passed without a message
         if (timeSinceLastMessage > 6000 && status === 'ONLINE') {
           setStatus('OFFLINE');
+          setTelemetryData(null);
           console.log('Watchdog: Sin mensajes durante 6 segundos - Estado: OFFLINE');
         }
       }

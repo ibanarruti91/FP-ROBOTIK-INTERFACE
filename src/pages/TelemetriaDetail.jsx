@@ -61,6 +61,14 @@ function TelemetriaDetail() {
     }
   }, [centroId, centro, navigate]);
 
+  // Clear telemetry data when MQTT goes offline
+  useEffect(() => {
+    if (status === 'OFFLINE') {
+      setTelemetry(centro ? getMockTelemetryData(centro) : null);
+      setRawPayload(null);
+    }
+  }, [status, centro]);
+
   // MQTT Connection Effect
   useEffect(() => {
     if (!centro) {
@@ -313,6 +321,14 @@ function TelemetriaDetail() {
 
       {/* Mini Telemetry Header - Appears on all tabs */}
       <TelemetryMiniHeader data={rawPayload} />
+
+      {/* Disconnected indicator */}
+      {status === 'OFFLINE' && (
+        <div className="offline-banner">
+          <span className="offline-banner-dot"></span>
+          Desconectado
+        </div>
+      )}
       
       {/* Tab Content */}
       <div className={`tab-content ${status === 'OFFLINE' ? 'offline-mode' : ''}`} data-section={activeTab}>
