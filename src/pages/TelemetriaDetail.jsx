@@ -37,7 +37,23 @@ function TelemetriaDetail() {
   const { centroId } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('principal');
-  const { status } = useMqttStatus();
+  const { status, telemetryData, publishCommand } = useMqttStatus();
+
+  // ── Control de telemetría ────────────────────────────────────────────────────
+  // startRequested tracks whether the user has clicked "Iniciar" without yet
+  // receiving data back. isConnecting is derived: true only while waiting.
+  const [startRequested, setStartRequested] = useState(false);
+  const isConnecting = startRequested && telemetryData === null;
+
+  const handleStartTelemetry = () => {
+    setStartRequested(true);
+    publishCommand?.('robot/control/rtde', { comando: 'start' });
+  };
+
+  const handleStopTelemetry = () => {
+    setStartRequested(false);
+    publishCommand?.('robot/control/rtde', { comando: 'stop' });
+  };
 
   const centro = CENTROS[centroId];
   const layout = SALESIANOS_LAYOUT; // En el futuro, se podría cargar dinámicamente según el centro
@@ -329,6 +345,24 @@ function TelemetriaDetail() {
           Desconectado
         </div>
       )}
+
+      {/* Control Panel */}
+      <div className="control-panel">
+        <span className="control-panel-label">Control Telemetría</span>
+        <button
+          className="btn-start"
+          onClick={handleStartTelemetry}
+          disabled={isConnecting}
+        >
+          {isConnecting ? 'Conectando...' : 'Iniciar Telemetría'}
+        </button>
+        <button
+          className="btn-stop"
+          onClick={handleStopTelemetry}
+        >
+          Detener Telemetría
+        </button>
+      </div>
       
       {/* Tab Content */}
       <div className={`tab-content ${status === 'OFFLINE' ? 'offline-mode' : ''}`} data-section={activeTab}>
