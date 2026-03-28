@@ -45,14 +45,18 @@ function TelemetriaDetail() {
   const [startRequested, setStartRequested] = useState(false);
   const isConnecting = startRequested && telemetryData === null;
 
-  const handleStartTelemetry = () => {
-    setStartRequested(true);
-    publishCommand?.('robot/control/rtde', { comando: 'start' });
-  };
+  // Smart Button state: 'inactive' | 'connecting' | 'active'
+  const buttonState = telemetryData !== null ? 'active' : isConnecting ? 'connecting' : 'inactive';
 
-  const handleStopTelemetry = () => {
-    setStartRequested(false);
-    publishCommand?.('robot/control/rtde', { comando: 'stop' });
+  const handleSmartButton = () => {
+    if (buttonState === 'inactive') {
+      setStartRequested(true);
+      publishCommand?.('robot/control/rtde', { comando: 'start' });
+    } else if (buttonState === 'active') {
+      setStartRequested(false);
+      publishCommand?.('robot/control/rtde', { comando: 'stop' });
+    }
+    // 'connecting' state: button is disabled, no action
   };
 
   const centro = CENTROS[centroId];
@@ -350,17 +354,18 @@ function TelemetriaDetail() {
       <div className="control-panel">
         <span className="control-panel-label">Control Telemetría</span>
         <button
-          className="btn-start"
-          onClick={handleStartTelemetry}
-          disabled={isConnecting}
+          className={`btn-smart btn-smart--${buttonState}`}
+          onClick={handleSmartButton}
+          disabled={buttonState === 'connecting'}
         >
-          {isConnecting ? 'Conectando...' : 'Iniciar Telemetría'}
-        </button>
-        <button
-          className="btn-stop"
-          onClick={handleStopTelemetry}
-        >
-          Detener Telemetría
+          {buttonState === 'inactive' && '▶ Iniciar Telemetría'}
+          {buttonState === 'connecting' && (
+            <>
+              <span className="btn-smart-spinner" aria-hidden="true"></span>
+              Conectando...
+            </>
+          )}
+          {buttonState === 'active' && '⏹ Detener Telemetría'}
         </button>
       </div>
       

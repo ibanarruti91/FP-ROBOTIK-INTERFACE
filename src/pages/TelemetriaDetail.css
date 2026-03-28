@@ -324,49 +324,88 @@
   margin-right: 0.25rem;
 }
 
-.btn-start {
-  padding: 0.5rem 1.25rem;
+/* Smart Button (replaces btn-start / btn-stop) */
+.btn-smart {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.5rem;
   font-family: var(--font-display);
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  background: rgba(0, 229, 255, 0.15);
+  letter-spacing: 0.08em;
+  border: 2px solid;
+  border-radius: 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 0.35s ease,
+    border-color 0.35s ease,
+    color 0.35s ease,
+    box-shadow 0.35s ease,
+    transform 0.2s ease,
+    opacity 0.35s ease;
+}
+
+/* ── Inactive state: cyan/green ── */
+.btn-smart--inactive {
+  background: rgba(0, 229, 255, 0.12);
   color: var(--accent-cyan);
-  border: 2px solid var(--accent-cyan);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  border-color: var(--accent-cyan);
 }
 
-.btn-start:hover:not(:disabled) {
-  background: rgba(0, 229, 255, 0.3);
-  box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
-  transform: translateY(-1px);
+.btn-smart--inactive:hover {
+  background: rgba(0, 229, 255, 0.28);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.35);
+  transform: translateY(-2px);
 }
 
-.btn-start:disabled {
-  opacity: 0.6;
+/* ── Connecting state: amber/orange, disabled ── */
+.btn-smart--connecting {
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(255, 180, 0, 0.08),
+    rgba(255, 180, 0, 0.08) 4px,
+    rgba(255, 180, 0, 0.02) 4px,
+    rgba(255, 180, 0, 0.02) 8px
+  );
+  color: #ffb400;
+  border-color: #ffb400;
+  border-style: dashed;
   cursor: not-allowed;
+  opacity: 0.8;
 }
 
-.btn-stop {
-  padding: 0.5rem 1.25rem;
-  font-family: var(--font-display);
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  background: rgba(255, 51, 187, 0.15);
+/* ── Active state: magenta/red ── */
+.btn-smart--active {
+  background: rgba(255, 51, 187, 0.12);
   color: var(--accent-magenta);
-  border: 2px solid var(--accent-magenta);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  border-color: var(--accent-magenta);
 }
 
-.btn-stop:hover {
-  background: rgba(255, 51, 187, 0.3);
-  box-shadow: 0 0 15px rgba(255, 51, 187, 0.3);
-  transform: translateY(-1px);
+.btn-smart--active:hover {
+  background: rgba(255, 51, 187, 0.28);
+  box-shadow: 0 0 20px rgba(255, 51, 187, 0.35);
+  transform: translateY(-2px);
+}
+
+/* ── Inline spinner for Connecting state ── */
+.btn-smart-spinner {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(255, 180, 0, 0.3);
+  border-top-color: #ffb400;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-smart-spinner {
+    animation: none;
+    border-top-color: #ffb400;
+    border-right-color: #ffb400;
+  }
 }
