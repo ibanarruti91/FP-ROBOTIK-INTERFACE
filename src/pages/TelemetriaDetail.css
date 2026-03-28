@@ -382,15 +382,43 @@
   background: rgba(255, 51, 187, 0.12);
   color: var(--accent-magenta);
   border-color: var(--accent-magenta);
+  animation: activeGlow 2s ease-in-out infinite;
+}
+
+@keyframes activeGlow {
+  0%, 100% { box-shadow: 0 0 6px rgba(255, 51, 187, 0.3); }
+  50%       { box-shadow: 0 0 22px rgba(255, 51, 187, 0.6), 0 0 40px rgba(255, 51, 187, 0.15); }
 }
 
 .btn-smart--active:hover {
   background: rgba(255, 51, 187, 0.28);
   box-shadow: 0 0 20px rgba(255, 51, 187, 0.35);
   transform: translateY(-2px);
+  animation: none;
 }
 
-/* ── Inline spinner for Connecting state ── */
+/* ── Disconnecting state: magenta dashed, disabled ── */
+.btn-smart--disconnecting {
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(255, 51, 187, 0.08),
+    rgba(255, 51, 187, 0.08) 4px,
+    rgba(255, 51, 187, 0.02) 4px,
+    rgba(255, 51, 187, 0.02) 8px
+  );
+  color: var(--accent-magenta);
+  border-color: var(--accent-magenta);
+  border-style: dashed;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.btn-smart--disconnecting .btn-smart-spinner {
+  border-color: rgba(255, 51, 187, 0.3);
+  border-top-color: var(--accent-magenta);
+}
+
+/* ── Inline spinner for Connecting / Disconnecting state ── */
 .btn-smart-spinner {
   display: inline-block;
   width: 13px;
@@ -408,4 +436,48 @@
     border-top-color: #ffb400;
     border-right-color: #ffb400;
   }
+  .btn-smart--active {
+    animation: none;
+  }
+  .live-badge-dot {
+    animation: none;
+  }
+}
+
+/* ── Control panel highlight when telemetry is active ── */
+.control-panel--active {
+  border-color: rgba(255, 51, 187, 0.25);
+  box-shadow: 0 0 14px rgba(255, 51, 187, 0.08);
+}
+
+/* ── LIVE badge ── */
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  background: rgba(255, 51, 187, 0.12);
+  border: 1px solid rgba(255, 51, 187, 0.35);
+  border-radius: 20px;
+  color: var(--accent-magenta);
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.live-badge-dot {
+  width: 7px;
+  height: 7px;
+  background: var(--accent-magenta);
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: livePulse 1.2s ease-in-out infinite;
+}
+
+@keyframes livePulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 4px var(--accent-magenta); }
+  50%       { opacity: 0.35; box-shadow: none; }
 }

@@ -11,7 +11,7 @@
  *   Seguridad:  1,2 → green   3,5 → orange   4,8 → red-blink   6,7,9 → red-solid   11 → gray
  *   Modo Robot: 7   → green   5,6 → blue      4   → amber       1,2   → yellow      0,3 → gray
  *   Programa:   2   → green   3,4 → yellow    5   → blue        1     → red         0   → gray
- *   Frenos:     7   → green (LIBERADOS)        other → orange (BLOQUEADOS)
+ *   Frenos:     7   → green (LIBERADOS)        other → orange (BLOQUEADOS)   null → gray [-]
  */
 
 import { useState, useEffect, useRef } from 'react';
@@ -82,6 +82,7 @@ function getProgramStateClass(id) {
 }
 
 function getBrakesInfo(robotModeId) {
+  if (robotModeId === null) return { label: '[-]', cls: '' };
   if (robotModeId === 7) return { label: 'FRENOS LIBERADOS', cls: 'badge-running' };
   return { label: 'FRENOS BLOQUEADOS', cls: 'badge-orange' };
 }
