@@ -120,6 +120,12 @@ function TelemetriaDetail() {
         // Store raw payload for TelemetryMiniHeader (reads new MQTT structure directly)
         setRawPayload(data);
 
+        // If telemetria_activa is false the backend is not sending telemetry variables
+        // (to save bandwidth). Keep the last known values on screen without errors.
+        if (data.telemetria_activa === false) {
+          return;
+        }
+
         // Update telemetry state with incoming data
         setTelemetry((prevTelemetry) => {
           // Create a new telemetry object based on previous state or mock data

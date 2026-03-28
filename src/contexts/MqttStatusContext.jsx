@@ -27,11 +27,14 @@ export const MqttStatusProvider = ({ children }) => {
     client.on('message', (topic, message) => {
       try {
         const data = JSON.parse(message.toString());
-        const now = Date.now();
-        setLastMessageTime(now);
-        setStatus('ONLINE');
+        // Only messages with bit_vida: true count for the Online/Offline watchdog
+        if (data.bit_vida === true) {
+          const now = Date.now();
+          setLastMessageTime(now);
+          setStatus('ONLINE');
+          console.log('Mensaje MQTT recibido en watchdog (bit_vida: true):', data);
+        }
         setTelemetryData(data);
-        console.log('Mensaje MQTT recibido en watchdog:', data);
       } catch (error) {
         console.error('Error al parsear mensaje MQTT:', error);
       }
@@ -66,11 +69,11 @@ export const MqttStatusProvider = ({ children }) => {
         const currentTime = Date.now();
         const timeSinceLastMessage = currentTime - lastMessageTime;
         
-        // If more than 6 seconds (6000ms) have passed without a message
-        if (timeSinceLastMessage > 6000 && status === 'ONLINE') {
+        // If more than 5 seconds (5000ms) have passed without a bit_vida: true message
+        if (timeSinceLastMessage > 5000 && status === 'ONLINE') {
           setStatus('OFFLINE');
           setTelemetryData(null);
-          console.log('Watchdog: Sin mensajes durante 6 segundos - Estado: OFFLINE');
+          console.log('Watchdog: Sin mensajes bit_vida durante 5 segundos - Estado: OFFLINE');
         }
       }
     }, 1000); // Check every second
