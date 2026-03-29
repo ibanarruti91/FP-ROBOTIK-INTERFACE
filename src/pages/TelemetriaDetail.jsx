@@ -49,9 +49,9 @@ function TelemetriaDetail() {
   const [startRequested, setStartRequested] = useState(false);
   const [stopRequested, setStopRequested] = useState(false);
 
-  // Heartbeat LED – flashes green for 600 ms on each incoming MQTT message
-  const [heartbeatActive, setHeartbeatActive] = useState(false);
-  const heartbeatTimerRef = useRef(null);
+  // Server ONLINE/OFFLINE indicator – true if MQTT data received within the last 5 s
+  const lastDataTimeRef = useRef(null);
+  const [mqttOnline, setMqttOnline] = useState(false);
 
   // Smart Button state: 'inactive' | 'connecting' | 'active' | 'disconnecting'
   // When the MQTT connection is offline the button always shows as 'inactive'
@@ -64,9 +64,6 @@ function TelemetriaDetail() {
 
   // Absolute truth for active state styling (independent of pending request flags)
   const isActive = telemetryData?.telemetria_activa === true;
-
-  // Derived badge variant: drives the capsule status indicator
-  const badgeVariant = isActive ? 'active' : status === 'OFFLINE' ? 'offline' : 'connected';
 
   const handleSmartButton = () => {
     if (buttonState === 'inactive') {
@@ -108,6 +105,16 @@ function TelemetriaDetail() {
     }
   }, [centroId, centro, navigate]);
 
+  // Interval effect: mark server ONLINE if data arrived within the last 5 s.
+  // Checked every 2 s – sub-second precision is unnecessary for a 5 s threshold.
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const online = lastDataTimeRef.current !== null && Date.now() - lastDataTimeRef.current < 5000;
+      setMqttOnline(online);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
   // MQTT Connection Effect
   useEffect(() => {
     if (!centro) {
@@ -145,10 +152,8 @@ function TelemetriaDetail() {
         // Store raw payload for TelemetryMiniHeader (reads new MQTT structure directly)
         setRawPayload(data);
 
-        // Trigger heartbeat LED flash
-        clearTimeout(heartbeatTimerRef.current);
-        setHeartbeatActive(true);
-        heartbeatTimerRef.current = setTimeout(() => setHeartbeatActive(false), 600);
+        // Record the time of the last received message (used by the ONLINE/OFFLINE indicator)
+        lastDataTimeRef.current = Date.now();
 
         // Update telemetry state with incoming data
         setTelemetry((prevTelemetry) => {
@@ -315,7 +320,6 @@ function TelemetriaDetail() {
     // Cleanup on unmount
     return () => {
       client.end();
-      clearTimeout(heartbeatTimerRef.current);
       console.log('Desconectado del broker MQTT');
     };
   }, [centro]);
@@ -353,28 +357,24 @@ function TelemetriaDetail() {
     <div className="page-container">
       <div className="universal-header telemetry-header">
         <div className="header-title-group">
-          <span
-            className={`heartbeat-led${heartbeatActive ? ' heartbeat-led--active' : ''}`}
-            aria-hidden="true"
-            title="Latido de datos MQTT"
-          ></span>
           <div>
             <h1 className="universal-title">{centro.nombre}</h1>
             <p className="universal-description">Telemetría en tiempo real</p>
+            <div className={`server-status-indicator server-status-indicator--${mqttOnline ? 'online' : 'offline'}`}>
+              <span className="server-status-dot" aria-hidden="true"></span>
+              {mqttOnline ? 'ONLINE' : 'OFFLINE'}
+            </div>
           </div>
         </div>
         <div className="header-right">
-          <div className={`status-badge status-badge--${badgeVariant}`}>
-            <span className="status-badge-dot" aria-hidden="true">
-              {badgeVariant === 'offline' ? '○' : '●'}
-            </span>
-            {badgeVariant === 'active'
-              ? 'RECIBIENDO DATOS'
-              : badgeVariant === 'offline'
-                ? 'SISTEMA OFFLINE'
-                : 'SISTEMA CONECTADO'
-            }
-          </div>
+          {isActive && (
+            <div className="data-stream" aria-hidden="true">
+              <span className="data-stream-bar"></span>
+              <span className="data-stream-bar"></span>
+              <span className="data-stream-bar"></span>
+              <span className="data-stream-bar"></span>
+            </div>
+          )}
           <button
             className={`btn-smart btn-smart--${buttonState}`}
             onClick={handleSmartButton}
