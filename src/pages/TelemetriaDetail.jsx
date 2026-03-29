@@ -65,6 +65,9 @@ function TelemetriaDetail() {
   // Absolute truth for active state styling (independent of pending request flags)
   const isActive = telemetryData?.telemetria_activa === true;
 
+  // Derived badge variant: drives the capsule status indicator
+  const badgeVariant = isActive ? 'active' : status === 'OFFLINE' ? 'offline' : 'connected';
+
   const handleSmartButton = () => {
     if (buttonState === 'inactive') {
       setStartRequested(true);
@@ -360,26 +363,39 @@ function TelemetriaDetail() {
             <p className="universal-description">Telemetría en tiempo real</p>
           </div>
         </div>
-        <button
-          className={`btn-smart btn-smart--${buttonState}`}
-          onClick={handleSmartButton}
-          disabled={buttonState === 'connecting' || buttonState === 'disconnecting'}
-        >
-          {buttonState === 'inactive' && '▶ INICIAR TELEMETRÍA'}
-          {buttonState === 'connecting' && (
-            <>
-              <span className="btn-smart-spinner" aria-hidden="true"></span>
-              Conectando...
-            </>
-          )}
-          {buttonState === 'active' && '⏹ DETENER TELEMETRÍA'}
-          {buttonState === 'disconnecting' && (
-            <>
-              <span className="btn-smart-spinner" aria-hidden="true"></span>
-              Desconectando...
-            </>
-          )}
-        </button>
+        <div className="header-right">
+          <div className={`status-badge status-badge--${badgeVariant}`}>
+            <span className="status-badge-dot" aria-hidden="true">
+              {badgeVariant === 'offline' ? '○' : '●'}
+            </span>
+            {badgeVariant === 'active'
+              ? 'RECIBIENDO DATOS'
+              : badgeVariant === 'offline'
+                ? 'SISTEMA OFFLINE'
+                : 'SISTEMA CONECTADO'
+            }
+          </div>
+          <button
+            className={`btn-smart btn-smart--${buttonState}`}
+            onClick={handleSmartButton}
+            disabled={buttonState === 'connecting' || buttonState === 'disconnecting'}
+          >
+            {buttonState === 'inactive' && '▶ INICIAR TELEMETRÍA'}
+            {buttonState === 'connecting' && (
+              <>
+                <span className="btn-smart-spinner" aria-hidden="true"></span>
+                Conectando...
+              </>
+            )}
+            {buttonState === 'active' && '⏹ DETENER TELEMETRÍA'}
+            {buttonState === 'disconnecting' && (
+              <>
+                <span className="btn-smart-spinner" aria-hidden="true"></span>
+                Desconectando...
+              </>
+            )}
+          </button>
+        </div>
       </div>
       
       {/* Tab Navigation */}
@@ -398,14 +414,6 @@ function TelemetriaDetail() {
 
       {/* Mini Telemetry Header - Appears on all tabs */}
       <TelemetryMiniHeader data={displayRawPayload} />
-
-      {/* Disconnected indicator */}
-      {status === 'OFFLINE' && (
-        <div className="offline-banner">
-          <span className="offline-banner-dot"></span>
-          Desconectado
-        </div>
-      )}
 
       
       {/* Tab Content */}
