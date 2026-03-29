@@ -349,16 +349,17 @@
     opacity 0.35s ease;
 }
 
-/* ── Inactive state: cyan/green ── */
+/* ── Inactive state: Emerald Green ── */
 .btn-smart--inactive {
-  background: rgba(0, 229, 255, 0.12);
-  color: var(--accent-cyan);
-  border-color: var(--accent-cyan);
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  border-color: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.2);
 }
 
 .btn-smart--inactive:hover {
-  background: rgba(0, 229, 255, 0.28);
-  box-shadow: 0 0 20px rgba(0, 229, 255, 0.35);
+  background: rgba(16, 185, 129, 0.28);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
   transform: translateY(-2px);
 }
 
@@ -378,22 +379,22 @@
   opacity: 0.8;
 }
 
-/* ── Active state: magenta/red ── */
+/* ── Active state: Industrial Red ── */
 .btn-smart--active {
-  background: rgba(255, 51, 187, 0.12);
-  color: var(--accent-magenta);
-  border-color: var(--accent-magenta);
+  background: rgba(220, 38, 38, 0.12);
+  color: #dc2626;
+  border-color: #dc2626;
   animation: activeGlow 2s ease-in-out infinite;
 }
 
 @keyframes activeGlow {
-  0%, 100% { box-shadow: 0 0 6px rgba(255, 51, 187, 0.3); }
-  50%       { box-shadow: 0 0 22px rgba(255, 51, 187, 0.6), 0 0 40px rgba(255, 51, 187, 0.15); }
+  0%, 100% { box-shadow: 0 0 6px rgba(220, 38, 38, 0.3); }
+  50%       { box-shadow: 0 0 22px rgba(220, 38, 38, 0.6), 0 0 40px rgba(220, 38, 38, 0.15); }
 }
 
 .btn-smart--active:hover {
-  background: rgba(255, 51, 187, 0.28);
-  box-shadow: 0 0 20px rgba(255, 51, 187, 0.35);
+  background: rgba(220, 38, 38, 0.28);
+  box-shadow: 0 0 20px rgba(220, 38, 38, 0.4);
   transform: translateY(-2px);
   animation: none;
 }
@@ -447,8 +448,8 @@
 
 /* ── Control panel highlight when telemetry is active ── */
 .control-panel--active {
-  border-color: rgba(255, 51, 187, 0.25);
-  box-shadow: 0 0 14px rgba(255, 51, 187, 0.08);
+  border-color: rgba(0, 229, 255, 0.35);
+  box-shadow: 0 0 14px rgba(0, 229, 255, 0.1);
 }
 
 /* ── LIVE badge ── */
@@ -483,46 +484,62 @@
   50%       { opacity: 0.35; box-shadow: none; }
 }
 
-/* ── Heartbeat LED – blinks green on each incoming MQTT message ── */
+/* ── Heartbeat LED – blinks cyan on each incoming MQTT message ── */
 .heartbeat-led {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(0, 230, 118, 0.2);
-  border: 1px solid rgba(0, 230, 118, 0.35);
+  background: rgba(0, 229, 255, 0.15);
+  border: 1px solid rgba(0, 229, 255, 0.3);
   flex-shrink: 0;
   transition: background 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
 .heartbeat-led--active {
-  background: #00e676;
-  border-color: #00e676;
+  background: #00e5ff;
+  border-color: #00e5ff;
   animation: heartbeatFlash 0.6s ease-out forwards;
 }
 
 @keyframes heartbeatFlash {
-  0%   { box-shadow: 0 0 14px #00e676, 0 0 30px rgba(0, 230, 118, 0.55); transform: scale(1.35); }
-  60%  { box-shadow: 0 0 8px #00e676, 0 0 16px rgba(0, 230, 118, 0.3);  transform: scale(1.1);  }
-  100% { box-shadow: 0 0 5px #00e676;                                     transform: scale(1);    }
+  0%   { box-shadow: 0 0 14px #00e5ff, 0 0 30px rgba(0, 229, 255, 0.55); transform: scale(1.35); }
+  60%  { box-shadow: 0 0 8px #00e5ff, 0 0 16px rgba(0, 229, 255, 0.3);  transform: scale(1.1);  }
+  100% { box-shadow: 0 0 5px #00e5ff;                                     transform: scale(1);    }
 }
 
-/* ── Active data container – green glow when telemetry is live ── */
+/* ── Active data container – neon cyan glow when telemetry is live ── */
 .tab-content--active {
   border-radius: 12px;
-  outline: 2px solid rgba(0, 230, 118, 0.18);
+  outline: 2px solid rgba(0, 229, 255, 0.2);
   outline-offset: 4px;
-  box-shadow: 0 0 24px rgba(0, 230, 118, 0.07);
+  box-shadow: 0 0 24px rgba(0, 229, 255, 0.08);
   animation: activeDataPulse 3s ease-in-out infinite;
+}
+
+/* Cards glow in neon cyan when telemetry is active */
+.tab-content--active .card-glass {
+  border-color: rgba(0, 229, 255, 0.55) !important;
+  box-shadow: 0 0 18px rgba(0, 229, 255, 0.18), 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Numeric values light up in neon cyan when active */
+.tab-content--active .kpi-value:not(.value-na),
+.tab-content--active .status-value:not(.value-na),
+.tab-content--active .cell-value:not(.value-na),
+.tab-content--active .tcp-pose-value:not(.value-na),
+.tab-content--active .joint-metric-value:not(.value-na) {
+  color: var(--accent-cyan) !important;
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.45) !important;
 }
 
 @keyframes activeDataPulse {
   0%, 100% {
-    outline-color: rgba(0, 230, 118, 0.12);
-    box-shadow: 0 0 16px rgba(0, 230, 118, 0.05);
+    outline-color: rgba(0, 229, 255, 0.12);
+    box-shadow: 0 0 16px rgba(0, 229, 255, 0.05);
   }
   50% {
-    outline-color: rgba(0, 230, 118, 0.28);
-    box-shadow: 0 0 32px rgba(0, 230, 118, 0.12);
+    outline-color: rgba(0, 229, 255, 0.32);
+    box-shadow: 0 0 32px rgba(0, 229, 255, 0.15);
   }
 }
 
