@@ -107,10 +107,11 @@ export function TelemetryMiniHeader({ data }) {
       if (previousData.current[key] !== current[key]) updated.add(key);
     });
     if (updated.size > 0) {
+      previousData.current = current;
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setUpdatedFields(updated);
       const timer = setTimeout(() => setUpdatedFields(new Set()), 200);
-      previousData.current = current;
-      return () => clearTimeout(timer);
+      return () => { clearTimeout(timer); };
     }
   }, [safetyId, robotModeId, programStateId, programId, programName]);
 

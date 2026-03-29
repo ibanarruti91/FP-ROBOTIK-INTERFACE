@@ -54,7 +54,10 @@ function TelemetriaDetail() {
   const heartbeatTimerRef = useRef(null);
 
   // Smart Button state: 'inactive' | 'connecting' | 'active' | 'disconnecting'
+  // When the MQTT connection is offline the button always shows as 'inactive'
+  // regardless of any pending request flags.
   const buttonState =
+    status === 'OFFLINE' ? 'inactive' :
     telemetryData?.telemetria_activa === true
       ? stopRequested ? 'disconnecting' : 'active'
       : startRequested ? 'connecting' : 'inactive';
@@ -81,8 +84,13 @@ function TelemetriaDetail() {
     [centro]
   );
   const [telemetry, setTelemetry] = useState(initialTelemetry);
-  // Raw MQTT payload – passed directly to TelemetryMiniHeader
+  // Raw MQTT payload – passed directly to TelemetryMiniHeader.
+  // When the connection is offline, display null (no header) and initial mock data
+  // rather than stale live data.  These are computed during render to avoid
+  // synchronous setState inside effects (react-hooks/set-state-in-effect).
   const [rawPayload, setRawPayload] = useState(null);
+  const displayRawPayload = status === 'OFFLINE' ? null : rawPayload;
+  const displayTelemetry  = status === 'OFFLINE' ? initialTelemetry : telemetry;
 
   // Calculate loading state based on centro and telemetry
   const loading = !centro || centro.estado === 'PROXIMAMENTE' ? false : !telemetry;
@@ -93,23 +101,6 @@ function TelemetriaDetail() {
       return;
     }
   }, [centroId, centro, navigate]);
-
-  // Reset stopRequested once the backend confirms telemetry has stopped
-  useEffect(() => {
-    if (telemetryData?.telemetria_activa !== true && stopRequested) {
-      setStopRequested(false);
-    }
-  }, [telemetryData?.telemetria_activa, stopRequested]);
-
-  // Clear telemetry data when MQTT goes offline
-  useEffect(() => {
-    if (status === 'OFFLINE') {
-      setTelemetry(centro ? getMockTelemetryData(centro) : null);
-      setRawPayload(null);
-      setStartRequested(false);
-      setStopRequested(false);
-    }
-  }, [status, centro]);
 
   // MQTT Connection Effect
   useEffect(() => {
@@ -138,6 +129,12 @@ function TelemetriaDetail() {
         // Parse the JSON message
         const data = JSON.parse(message.toString());
         console.log('Mensaje MQTT recibido:', data);
+
+        // Reset pending button state flags when the backend confirms the new state.
+        // This is done inside the message callback (not synchronously in an effect body)
+        // so that the linter rule react-hooks/set-state-in-effect is satisfied.
+        if (data.telemetria_activa === true) setStartRequested(false);
+        if (data.telemetria_activa === false) setStopRequested(false);
 
         // Store raw payload for TelemetryMiniHeader (reads new MQTT structure directly)
         setRawPayload(data);
@@ -368,7 +365,7 @@ function TelemetriaDetail() {
       </div>
 
       {/* Mini Telemetry Header - Appears on all tabs */}
-      <TelemetryMiniHeader data={rawPayload} />
+      <TelemetryMiniHeader data={displayRawPayload} />
 
       {/* Disconnected indicator */}
       {status === 'OFFLINE' && (
@@ -425,7 +422,7 @@ function TelemetriaDetail() {
             <WidgetRenderer
               key={tab.id}
               groups={tab.groups}
-              data={telemetry}
+              data={displayTelemetry}
               sectionColor={tab.color}
               sectionId={tab.id}
             />
@@ -433,9 +430,9 @@ function TelemetriaDetail() {
         }
       </div>
 
-      {telemetry?.timestamp && (
+      {displayTelemetry?.timestamp && (
         <div className="timestamp">
-          Última actualización: {new Date(telemetry.timestamp).toLocaleString('es-ES')}
+          Última actualización: {new Date(displayTelemetry.timestamp).toLocaleString('es-ES')}
         </div>
       )}
     </div>

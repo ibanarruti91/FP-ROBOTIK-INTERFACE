@@ -79,6 +79,7 @@ export function KpiCard({ label, value, unit, className = '', compact = false, f
   // Trigger update animation when value changes
   useEffect(() => {
     if (previousValue.current !== value && isValueAvailable) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsUpdated(true);
       previousValue.current = value;
       const timer = setTimeout(() => setIsUpdated(false), 600);
@@ -194,6 +195,7 @@ export function StatusDynamic({ label, value, statusType, className = '', compac
   // Trigger update animation when value changes
   useEffect(() => {
     if (previousValue.current !== value && isValueAvailable) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsUpdated(true);
       previousValue.current = value;
       const timer = setTimeout(() => setIsUpdated(false), 400);
@@ -255,6 +257,7 @@ export function DataTable({ label, data, unit, format }) {
       });
       
       if (updated.size > 0) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setUpdatedIndices(updated);
         const timer = setTimeout(() => setUpdatedIndices(new Set()), 600);
         return () => clearTimeout(timer);
@@ -668,6 +671,7 @@ export function JointsGrid({ data, className = '' }) {
     });
     
     if (updated.size > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setUpdatedPositions(updated);
       const timer = setTimeout(() => setUpdatedPositions(new Set()), 600);
       return () => clearTimeout(timer);
