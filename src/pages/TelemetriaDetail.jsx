@@ -62,6 +62,9 @@ function TelemetriaDetail() {
       ? stopRequested ? 'disconnecting' : 'active'
       : startRequested ? 'connecting' : 'inactive';
 
+  // Absolute truth for active state styling (independent of pending request flags)
+  const isActive = telemetryData?.telemetria_activa === true;
+
   const handleSmartButton = () => {
     if (buttonState === 'inactive') {
       setStartRequested(true);
@@ -345,9 +348,38 @@ function TelemetriaDetail() {
 
   return (
     <div className="page-container">
-      <div className="universal-header">
-        <h1 className="universal-title">{centro.nombre}</h1>
-        <p className="universal-description">Telemetría en tiempo real</p>
+      <div className="universal-header telemetry-header">
+        <div className="header-title-group">
+          <span
+            className={`heartbeat-led${heartbeatActive ? ' heartbeat-led--active' : ''}`}
+            aria-hidden="true"
+            title="Latido de datos MQTT"
+          ></span>
+          <div>
+            <h1 className="universal-title">{centro.nombre}</h1>
+            <p className="universal-description">Telemetría en tiempo real</p>
+          </div>
+        </div>
+        <button
+          className={`btn-smart btn-smart--${buttonState}`}
+          onClick={handleSmartButton}
+          disabled={buttonState === 'connecting' || buttonState === 'disconnecting'}
+        >
+          {buttonState === 'inactive' && '▶ INICIAR TELEMETRÍA'}
+          {buttonState === 'connecting' && (
+            <>
+              <span className="btn-smart-spinner" aria-hidden="true"></span>
+              Conectando...
+            </>
+          )}
+          {buttonState === 'active' && '⏹ DETENER TELEMETRÍA'}
+          {buttonState === 'disconnecting' && (
+            <>
+              <span className="btn-smart-spinner" aria-hidden="true"></span>
+              Desconectando...
+            </>
+          )}
+        </button>
       </div>
       
       {/* Tab Navigation */}
@@ -375,45 +407,10 @@ function TelemetriaDetail() {
         </div>
       )}
 
-      {/* Control Panel */}
-      <div className={`control-panel${buttonState === 'active' || buttonState === 'disconnecting' ? ' control-panel--active' : ''}`}>
-        <span
-          className={`heartbeat-led${heartbeatActive ? ' heartbeat-led--active' : ''}`}
-          aria-hidden="true"
-          title="Latido de datos MQTT"
-        ></span>
-        <span className="control-panel-label">Control Telemetría</span>
-        <button
-          className={`btn-smart btn-smart--${buttonState}`}
-          onClick={handleSmartButton}
-          disabled={buttonState === 'connecting' || buttonState === 'disconnecting'}
-        >
-          {buttonState === 'inactive' && '▶ Iniciar Telemetría'}
-          {buttonState === 'connecting' && (
-            <>
-              <span className="btn-smart-spinner" aria-hidden="true"></span>
-              Conectando...
-            </>
-          )}
-          {buttonState === 'active' && '⏹ Detener Telemetría'}
-          {buttonState === 'disconnecting' && (
-            <>
-              <span className="btn-smart-spinner" aria-hidden="true"></span>
-              Desconectando...
-            </>
-          )}
-        </button>
-        {(buttonState === 'active' || buttonState === 'disconnecting') && (
-          <span className="live-badge">
-            <span className="live-badge-dot" aria-hidden="true"></span>
-            EN VIVO
-          </span>
-        )}
-      </div>
       
       {/* Tab Content */}
       <div
-        className={`tab-content${buttonState === 'active' || buttonState === 'disconnecting' ? ' tab-content--active' : ''} ${status === 'OFFLINE' ? 'offline-mode' : ''}`}
+        className={`tab-content${isActive ? ' tab-content--active' : ''} ${status === 'OFFLINE' ? 'offline-mode' : ''}`}
         data-section={activeTab}
       >
         {layout.tabs
