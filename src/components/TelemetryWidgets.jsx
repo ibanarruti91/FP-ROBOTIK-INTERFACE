@@ -607,7 +607,7 @@ export function TcpPose({ data, className = '' }) {
       <div className="tcp-pose-title">TCP Pose</div>
       <div className="tcp-pose-grid">
         <div className="tcp-pose-section">
-          <div className="tcp-pose-section-label">Posición</div>
+          <div className="tcp-pose-section-label">POSICIÓN CARTESIANA [mm]</div>
           <div className="tcp-pose-values">
             <div className="tcp-pose-item">
               <span className="tcp-pose-axis">X</span>
@@ -627,22 +627,22 @@ export function TcpPose({ data, className = '' }) {
           </div>
         </div>
         <div className="tcp-pose-section">
-          <div className="tcp-pose-section-label">Orientación</div>
+          <div className="tcp-pose-section-label">ORIENTACIÓN ANGULAR [°]</div>
           <div className="tcp-pose-values">
             <div className="tcp-pose-item">
               <span className="tcp-pose-axis">RX</span>
               <span className={`tcp-pose-value ${orientRx === 'N/A' ? 'value-na' : ''}`}>{orientRx}</span>
-              {orientRx !== 'N/A' && <span className="tcp-pose-unit">rad</span>}
+              {orientRx !== 'N/A' && <span className="tcp-pose-unit">°</span>}
             </div>
             <div className="tcp-pose-item">
               <span className="tcp-pose-axis">RY</span>
               <span className={`tcp-pose-value ${orientRy === 'N/A' ? 'value-na' : ''}`}>{orientRy}</span>
-              {orientRy !== 'N/A' && <span className="tcp-pose-unit">rad</span>}
+              {orientRy !== 'N/A' && <span className="tcp-pose-unit">°</span>}
             </div>
             <div className="tcp-pose-item">
               <span className="tcp-pose-axis">RZ</span>
               <span className={`tcp-pose-value ${orientRz === 'N/A' ? 'value-na' : ''}`}>{orientRz}</span>
-              {orientRz !== 'N/A' && <span className="tcp-pose-unit">rad</span>}
+              {orientRz !== 'N/A' && <span className="tcp-pose-unit">°</span>}
             </div>
           </div>
         </div>
@@ -725,7 +725,7 @@ export function JointsGrid({ data, className = '' }) {
                 <div className="joint-metric">
                   <span className="joint-metric-label">Pos</span>
                   <span className={`joint-metric-value ${isPosNA ? 'value-na' : ''} ${isPosUpdated ? 'value-updated' : ''}`}>{posValue}</span>
-                  {!isPosNA && <span className="joint-metric-unit">rad</span>}
+                  {!isPosNA && <span className="joint-metric-unit">°</span>}
                 </div>
                 <div className="joint-metric">
                   <span className="joint-metric-label">Cur</span>

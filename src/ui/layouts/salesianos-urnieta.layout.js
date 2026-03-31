@@ -97,7 +97,7 @@ export const SALESIANOS_LAYOUT = {
           compact: true,
           widgets: [
             { type: "kpi", label: "Consumo total de articulaciones", paths: ["joints.power", "joints.potencia_total", "joints.consumo_movimiento"], unit: "W", format: "0", columns: 1, compact: true },
-            { type: "kpi", label: "Velocidad TCP", path: "sistema.velocidad_tcp", unit: "m/s", format: "3", columns: 1, compact: true }
+            { type: "kpi", label: "Velocidad TCP", path: "sistema.velocidad_tcp", unit: "mm/s", format: "3", columns: 1, compact: true }
           ]
         },
         // ── RIGHT COLUMN ─────────────────────────────────────────────────
