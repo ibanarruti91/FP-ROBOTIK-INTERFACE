@@ -2,7 +2,7 @@
  * WidgetRenderer - Renderiza widgets basándose en su tipo y configuración
  */
 
-import { KpiCard, StatusPill, StatusDynamic, DataTable, LogPanel, SafetyPanel, DigitalIO, AnalogIO, GestionPanel, SecurityLedsPanel, ToolPanel, TcpPose, JointsGrid, SystemMetricCard } from './TelemetryWidgets';
+import { KpiCard, StatusPill, StatusDynamic, DataTable, LogPanel, SafetyPanel, DigitalIO, AnalogIO, GestionPanel, SecurityLedsPanel, ToolPanel, TcpPose, JointsGrid, SystemMetricCard, StepCaptureTable } from './TelemetryWidgets';
 import { CameraWidget } from './CameraWidget';
 import { PerformanceChart } from './PerformanceChart';
 import './WidgetRenderer.css';
@@ -188,6 +188,15 @@ function renderWidget(widget, data, key) {
         <PerformanceChart
           key={key}
           data={value}
+        />
+      );
+
+    case 'step-capture-table':
+      return (
+        <StepCaptureTable
+          key={key}
+          records={Array.isArray(value) ? value : []}
+          className="full-width"
         />
       );
 

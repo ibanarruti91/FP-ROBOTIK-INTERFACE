@@ -2,7 +2,7 @@
  * Componentes reutilizables para widgets de telemetría
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Zap, Thermometer, Settings, Gauge, Activity, Cpu, RefreshCw } from 'lucide-react';
 import './TelemetryWidgets.css';
 
@@ -812,6 +812,94 @@ export function SystemMetricCard({ label, value, unit, showBar = false, icon = n
           />
         </div>
       )}
+    </CardGlass>
+  );
+}
+
+/**
+ * StepCaptureTable – Tabla en tiempo real para los registros del topic step_capture.
+ * Muestra hasta los últimos 50 registros recibidos por MQTT, del más reciente al más antiguo.
+ * El campo interno _receivedAt se excluye de la visualización.
+ */
+export function StepCaptureTable({ records = [], className = '' }) {
+  const prevCountRef = useRef(records.length);
+  const [newRowIndex, setNewRowIndex] = useState(null);
+
+  useEffect(() => {
+    if (records.length > prevCountRef.current) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setNewRowIndex(0); // La fila más reciente es siempre la primera (orden DESC)
+      const timer = setTimeout(() => setNewRowIndex(null), 600);
+      prevCountRef.current = records.length;
+      return () => clearTimeout(timer);
+    }
+    prevCountRef.current = records.length;
+  }, [records.length]);
+
+  const displayRecords = useMemo(() => [...records].reverse(), [records]); // Más reciente primero
+
+  // Derive column names from the first record, memoized to avoid repeated computation
+  const columns = useMemo(
+    () => (displayRecords.length > 0 ? Object.keys(displayRecords[0]).filter((k) => k !== '_receivedAt') : []),
+    [displayRecords]
+  );
+
+  if (displayRecords.length === 0) {
+    return (
+      <CardGlass className={`step-capture-table ${className}`}>
+        <div className="sct-header">
+          <Activity size={16} className="widget-icon" />
+          Capturas de Paso (step_capture)
+        </div>
+        <div className="sct-empty">Esperando datos del topic salesianos/robot/iban/step_capture…</div>
+      </CardGlass>
+    );
+  }
+
+  return (
+    <CardGlass className={`step-capture-table ${className}`}>
+      <div className="sct-header">
+        <Activity size={16} className="widget-icon" />
+        Capturas de Paso — últimos {displayRecords.length} registros
+      </div>
+      <div className="sct-scroll">
+        <table className="sct-tbl">
+          <thead>
+            <tr>
+              <th className="sct-th sct-th-idx">#</th>
+              <th className="sct-th">Recibido</th>
+              {columns.map((col) => (
+                <th key={col} className="sct-th">{col}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {displayRecords.map((record, idx) => {
+              const receivedTime = new Date(record._receivedAt).toLocaleTimeString('es-ES');
+              const isNew = idx === newRowIndex;
+              return (
+                <tr key={`${record._receivedAt ?? ''}-${idx}`} className={`sct-tr ${isNew ? 'sct-tr--new' : ''}`}>
+                  <td className="sct-td sct-td-idx">{displayRecords.length - idx}</td>
+                  <td className="sct-td sct-td-time">{receivedTime}</td>
+                  {columns.map((col) => {
+                    const cellVal = record[col];
+                    const formatted = cellVal === null || cellVal === undefined
+                      ? 'N/A'
+                      : typeof cellVal === 'object'
+                        ? JSON.stringify(cellVal)
+                        : String(cellVal);
+                    return (
+                      <td key={col} className={`sct-td ${formatted === 'N/A' ? 'value-na' : ''}`}>
+                        {formatted}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </CardGlass>
   );
 }
