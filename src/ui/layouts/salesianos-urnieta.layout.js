@@ -165,6 +165,20 @@ export const SALESIANOS_LAYOUT = {
           ]
         }
       ]
+    },
+    {
+      id: "capturas",
+      label: "Capturas",
+      color: "#10b981", // Emerald green
+      groups: [
+        {
+          title: "TABLA DE CAPTURAS DE PASO EN TIEMPO REAL",
+          className: "cap-table",
+          widgets: [
+            { type: "step-capture-table", path: "step_capture", columns: 2 }
+          ]
+        }
+      ]
     }
   ]
 };

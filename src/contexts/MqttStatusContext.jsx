@@ -2,10 +2,13 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import mqtt from 'mqtt';
 import { MqttStatusContext } from './MqttStatusContext.js';
 
+const MAX_STEP_CAPTURE_RECORDS = 50;
+
 export const MqttStatusProvider = ({ children }) => {
   const [status, setStatus] = useState('OFFLINE');
   const [lastMessageTime, setLastMessageTime] = useState(null);
   const [telemetryData, setTelemetryData] = useState(null);
+  const [stepCaptureRecords, setStepCaptureRecords] = useState([]);
   const clientRef = useRef(null);
 
   // MQTT Connection Effect
@@ -17,9 +20,16 @@ export const MqttStatusProvider = ({ children }) => {
       console.log('Conectado al broker MQTT para watchdog');
       client.subscribe('salesianos/robot/iban/principal', (err) => {
         if (err) {
-          console.error('Error al suscribirse al topic:', err);
+          console.error('Error al suscribirse al topic principal:', err);
         } else {
           console.log('Suscrito al topic: salesianos/robot/iban/principal');
+        }
+      });
+      client.subscribe('salesianos/robot/iban/step_capture', (err) => {
+        if (err) {
+          console.error('Error al suscribirse al topic step_capture:', err);
+        } else {
+          console.log('Suscrito al topic: salesianos/robot/iban/step_capture');
         }
       });
     });
@@ -28,6 +38,18 @@ export const MqttStatusProvider = ({ children }) => {
       try {
         const data = JSON.parse(message.toString());
         const now = Date.now();
+
+        if (topic === 'salesianos/robot/iban/step_capture') {
+          const record = { ...data, _receivedAt: now };
+          setStepCaptureRecords((prev) => {
+            const updated = [...prev, record];
+            return updated.length > MAX_STEP_CAPTURE_RECORDS
+              ? updated.slice(updated.length - MAX_STEP_CAPTURE_RECORDS)
+              : updated;
+          });
+          return;
+        }
+
         setLastMessageTime(now);
         setStatus('ONLINE');
         setTelemetryData(data);
@@ -82,6 +104,7 @@ export const MqttStatusProvider = ({ children }) => {
     status,
     lastMessageTime,
     telemetryData,
+    stepCaptureRecords,
     publishCommand
   };
 

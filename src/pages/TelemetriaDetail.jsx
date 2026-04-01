@@ -37,7 +37,7 @@ function TelemetriaDetail() {
   const { centroId } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('principal');
-  const { status, telemetryData, publishCommand } = useMqttStatus();
+  const { status, telemetryData, publishCommand, stepCaptureRecords } = useMqttStatus();
 
   // ── Control de telemetría ────────────────────────────────────────────────────
   // startRequested tracks whether the user has clicked "Iniciar" without yet
@@ -93,7 +93,9 @@ function TelemetriaDetail() {
   // synchronous setState inside effects (react-hooks/set-state-in-effect).
   const [rawPayload, setRawPayload] = useState(null);
   const displayRawPayload = status === 'OFFLINE' ? null : rawPayload;
-  const displayTelemetry  = status === 'OFFLINE' ? initialTelemetry : telemetry;
+  const displayTelemetry  = status === 'OFFLINE'
+    ? { ...initialTelemetry, step_capture: [] }
+    : { ...telemetry, step_capture: stepCaptureRecords };
 
   // Calculate loading state based on centro and telemetry
   const loading = !centro || centro.estado === 'PROXIMAMENTE' ? false : !telemetry;
