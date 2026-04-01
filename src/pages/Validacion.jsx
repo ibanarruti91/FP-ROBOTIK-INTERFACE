@@ -54,6 +54,8 @@ function Validacion() {
   // isPaused state drives the UI button toggle.
   const [isPaused, setIsPaused] = useState(false);
   const [currentProgram, setCurrentProgram] = useState(null);
+  const [currentChecksum, setCurrentChecksum] = useState(null);
+  const [currentOrigen, setCurrentOrigen] = useState(null);
   const isPausedRef = useRef(false);
 
   useEffect(() => {
@@ -95,6 +97,12 @@ function Validacion() {
         };
         if (data.program_name) {
           setCurrentProgram(data.program_name);
+        }
+        if (data.checksum !== null && data.checksum !== undefined) {
+          setCurrentChecksum(data.checksum);
+        }
+        if (data.origen !== null && data.origen !== undefined) {
+          setCurrentOrigen(data.origen);
         }
         setCaptures((prev) => [capture, ...prev].slice(0, MAX_CAPTURES));
       } catch (err) {
@@ -147,11 +155,22 @@ function Validacion() {
           {currentProgram && (
             <p className="program-name-badge">
               Programa activo: <strong>{currentProgram}</strong>
+              {currentChecksum !== null && (
+                <> | Firma: <strong>{currentChecksum}</strong></>
+              )}
             </p>
           )}
           <p>
             {mqttConnected
-              ? `Conectado · ${captures.length} captura${captures.length !== 1 ? 's' : ''} recibida${captures.length !== 1 ? 's' : ''}`
+              ? <>
+                  {currentOrigen === 'real'
+                    ? '🟢 Conectado (Robot Real)'
+                    : currentOrigen === 'simulador'
+                      ? '🔵 Conectado (Simulador)'
+                      : '🟢 Conectado'}
+                  {' · '}
+                  {captures.length} captura{captures.length !== 1 ? 's' : ''} recibida{captures.length !== 1 ? 's' : ''}
+                </>
               : 'Conectando al broker MQTT…'}
           </p>
         </div>
@@ -200,13 +219,13 @@ function Validacion() {
                     {c.timestampFormatted}
                   </span>
                   <span className="step-col step-col-coord">
-                    {c.x != null ? c.x.toFixed(3) : '—'}
+                    {c.x != null ? c.x.toFixed(2) : '—'}
                   </span>
                   <span className="step-col step-col-coord">
-                    {c.y != null ? c.y.toFixed(3) : '—'}
+                    {c.y != null ? c.y.toFixed(2) : '—'}
                   </span>
                   <span className="step-col step-col-coord">
-                    {c.z != null ? c.z.toFixed(3) : '—'}
+                    {c.z != null ? c.z.toFixed(2) : '—'}
                   </span>
                 </div>
               ))
