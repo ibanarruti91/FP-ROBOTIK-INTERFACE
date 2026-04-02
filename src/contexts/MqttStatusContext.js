@@ -7,5 +7,8 @@ export const MqttStatusContext = createContext({
   stepCaptureRecords: [],
   currentProgram: null,
   currentChecksum: null,
+  isPausedStepCapture: false,
+  togglePauseStepCapture: () => {},
+  clearStepCaptureRecords: () => {},
   publishCommand: () => {}
 });

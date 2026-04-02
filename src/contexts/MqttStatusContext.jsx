@@ -11,6 +11,8 @@ export const MqttStatusProvider = ({ children }) => {
   const [stepCaptureRecords, setStepCaptureRecords] = useState([]);
   const [currentProgram, setCurrentProgram] = useState(null);
   const [currentChecksum, setCurrentChecksum] = useState(null);
+  const [isPausedStepCapture, setIsPausedStepCapture] = useState(false);
+  const isPausedStepCaptureRef = useRef(false);
   const clientRef = useRef(null);
 
   // MQTT Connection Effect
@@ -42,13 +44,15 @@ export const MqttStatusProvider = ({ children }) => {
         const now = Date.now();
 
         if (topic === 'salesianos/robot/iban/step_capture') {
-          const record = { ...data, _receivedAt: now };
-          setStepCaptureRecords((prev) => {
-            const updated = [...prev, record];
-            return updated.length > MAX_STEP_CAPTURE_RECORDS
-              ? updated.slice(updated.length - MAX_STEP_CAPTURE_RECORDS)
-              : updated;
-          });
+          if (!isPausedStepCaptureRef.current) {
+            const record = { ...data, _receivedAt: now };
+            setStepCaptureRecords((prev) => {
+              const updated = [...prev, record];
+              return updated.length > MAX_STEP_CAPTURE_RECORDS
+                ? updated.slice(updated.length - MAX_STEP_CAPTURE_RECORDS)
+                : updated;
+            });
+          }
           if (data.program_name) {
             setCurrentProgram(data.program_name);
           }
@@ -89,6 +93,18 @@ export const MqttStatusProvider = ({ children }) => {
     }
   }, []);
 
+  const togglePauseStepCapture = useCallback(() => {
+    setIsPausedStepCapture((prev) => {
+      const next = !prev;
+      isPausedStepCaptureRef.current = next;
+      return next;
+    });
+  }, []);
+
+  const clearStepCaptureRecords = useCallback(() => {
+    setStepCaptureRecords([]);
+  }, []);
+
   // Watchdog Effect - Check for timeout every second
   useEffect(() => {
     const interval = setInterval(() => {
@@ -115,6 +131,9 @@ export const MqttStatusProvider = ({ children }) => {
     stepCaptureRecords,
     currentProgram,
     currentChecksum,
+    isPausedStepCapture,
+    togglePauseStepCapture,
+    clearStepCaptureRecords,
     publishCommand
   };
 

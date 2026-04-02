@@ -168,7 +168,7 @@ export const SALESIANOS_LAYOUT = {
     },
     {
       id: "capturas",
-      label: "Capturas",
+      label: "Registro de Step Point",
       color: "#10b981", // Emerald green
       groups: [
         {

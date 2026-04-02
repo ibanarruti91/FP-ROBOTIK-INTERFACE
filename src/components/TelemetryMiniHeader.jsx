@@ -89,7 +89,7 @@ function getBrakesInfo(robotModeId) {
 
 // ── Component ──────────────────────────────────────────────────────────────
 
-export function TelemetryMiniHeader({ data }) {
+export function TelemetryMiniHeader({ data, checksum }) {
   const [updatedFields, setUpdatedFields] = useState(new Set());
   const previousData = useRef({});
 
@@ -134,6 +134,11 @@ export function TelemetryMiniHeader({ data }) {
           <span className="badge-value id-value">
             <span className="badge-id">{programIdDisplay}</span> {programNameDisplay}
           </span>
+          {checksum != null && (
+            <span className="badge-checksum-line">
+              Checksum: <span className="badge-checksum-value">{checksum}</span>
+            </span>
+          )}
         </div>
 
         {/* SEGURIDAD */}

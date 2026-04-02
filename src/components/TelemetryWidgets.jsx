@@ -2,8 +2,9 @@
  * Componentes reutilizables para widgets de telemetría
  */
 
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useContext } from 'react';
 import { Zap, Thermometer, Settings, Gauge, Activity, Cpu, RefreshCw } from 'lucide-react';
+import { MqttStatusContext } from '../contexts/MqttStatusContext.js';
 import './TelemetryWidgets.css';
 
 /**
@@ -875,8 +876,10 @@ export function SystemMetricCard({ label, value, unit, showBar = false, icon = n
  * StepCaptureTable – Tabla en tiempo real para los registros del topic step_capture.
  * Muestra hasta los últimos 50 registros recibidos por MQTT, del más reciente al más antiguo.
  * El campo interno _receivedAt se excluye de la visualización.
+ * Incluye controles para pausar/reanudar captura, borrar registros y exportar a CSV.
  */
 export function StepCaptureTable({ records = [], className = '' }) {
+  const { isPausedStepCapture, togglePauseStepCapture, clearStepCaptureRecords } = useContext(MqttStatusContext);
   const prevCountRef = useRef(records.length);
   const [newRowIndex, setNewRowIndex] = useState(null);
 
@@ -899,62 +902,112 @@ export function StepCaptureTable({ records = [], className = '' }) {
     [displayRecords]
   );
 
-  if (displayRecords.length === 0) {
-    return (
-      <CardGlass className={`step-capture-table ${className}`}>
-        <div className="sct-header">
-          <Activity size={16} className="widget-icon" />
-          Capturas de Paso (step_capture)
-        </div>
-        <div className="sct-empty">Esperando datos del topic salesianos/robot/iban/step_capture…</div>
-      </CardGlass>
-    );
-  }
+  const handleExport = () => {
+    try {
+      if (displayRecords.length === 0) return;
+      const headers = ['#', 'recibido', ...columns];
+      const rows = displayRecords.map((record, idx) => {
+        const receivedTime = new Date(record._receivedAt).toLocaleTimeString('es-ES');
+        return [
+          displayRecords.length - idx,
+          receivedTime,
+          ...columns.map((col) => {
+            const v = record[col];
+            return v === null || v === undefined ? '' : typeof v === 'object' ? JSON.stringify(v) : String(v);
+          }),
+        ];
+      });
+      const csvContent = [headers, ...rows]
+        .map((row) => row.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','))
+        .join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'capturas_step_points.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Error al exportar a CSV:', err);
+    }
+  };
 
   return (
     <CardGlass className={`step-capture-table ${className}`}>
       <div className="sct-header">
         <Activity size={16} className="widget-icon" />
-        Capturas de Paso — últimos {displayRecords.length} registros
+        {displayRecords.length === 0
+          ? 'Registro de Step Point'
+          : `Registro de Step Point — últimos ${displayRecords.length} registros`}
       </div>
-      <div className="sct-scroll">
-        <table className="sct-tbl">
-          <thead>
-            <tr>
-              <th className="sct-th sct-th-idx">#</th>
-              <th className="sct-th">Recibido</th>
-              {columns.map((col) => (
-                <th key={col} className="sct-th">{col}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {displayRecords.map((record, idx) => {
-              const receivedTime = new Date(record._receivedAt).toLocaleTimeString('es-ES');
-              const isNew = idx === newRowIndex;
-              return (
-                <tr key={`${record._receivedAt ?? ''}-${idx}`} className={`sct-tr ${isNew ? 'sct-tr--new' : ''}`}>
-                  <td className="sct-td sct-td-idx">{displayRecords.length - idx}</td>
-                  <td className="sct-td sct-td-time">{receivedTime}</td>
-                  {columns.map((col) => {
-                    const cellVal = record[col];
-                    const formatted = cellVal === null || cellVal === undefined
-                      ? 'N/A'
-                      : typeof cellVal === 'object'
-                        ? JSON.stringify(cellVal)
-                        : String(cellVal);
-                    return (
-                      <td key={col} className={`sct-td ${formatted === 'N/A' ? 'value-na' : ''}`}>
-                        {formatted}
-                      </td>
-                    );
-                  })}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+
+      <div className="sct-controls">
+        <button
+          className={`ctrl-btn ${isPausedStepCapture ? 'ctrl-btn-start' : 'ctrl-btn-pause'}`}
+          onClick={togglePauseStepCapture}
+        >
+          {isPausedStepCapture ? '▶ Reanudar captura' : '⏸ Detener captura'}
+        </button>
+        <button
+          className="ctrl-btn ctrl-btn-clear"
+          onClick={clearStepCaptureRecords}
+          disabled={displayRecords.length === 0}
+        >
+          🗑 Borrar capturas
+        </button>
+        <button
+          className="ctrl-btn ctrl-btn-export"
+          onClick={handleExport}
+          disabled={displayRecords.length === 0}
+        >
+          📥 Exportar CSV
+        </button>
       </div>
+
+      {displayRecords.length === 0 ? (
+        <div className="sct-empty">Esperando datos del topic salesianos/robot/iban/step_capture…</div>
+      ) : (
+        <div className="sct-scroll">
+          <table className="sct-tbl">
+            <thead>
+              <tr>
+                <th className="sct-th sct-th-idx">#</th>
+                <th className="sct-th">Recibido</th>
+                {columns.map((col) => (
+                  <th key={col} className="sct-th">{col}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {displayRecords.map((record, idx) => {
+                const receivedTime = new Date(record._receivedAt).toLocaleTimeString('es-ES');
+                const isNew = idx === newRowIndex;
+                return (
+                  <tr key={`${record._receivedAt ?? ''}-${idx}`} className={`sct-tr ${isNew ? 'sct-tr--new' : ''}`}>
+                    <td className="sct-td sct-td-idx">{displayRecords.length - idx}</td>
+                    <td className="sct-td sct-td-time">{receivedTime}</td>
+                    {columns.map((col) => {
+                      const cellVal = record[col];
+                      const formatted = cellVal === null || cellVal === undefined
+                        ? 'N/A'
+                        : typeof cellVal === 'object'
+                          ? JSON.stringify(cellVal)
+                          : String(cellVal);
+                      return (
+                        <td key={col} className={`sct-td ${formatted === 'N/A' ? 'value-na' : ''}`}>
+                          {formatted}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </CardGlass>
   );
 }

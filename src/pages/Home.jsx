@@ -33,13 +33,6 @@ function Home() {
       icon: 'nodo-blockly.png'
     },
     {
-      id: 'validacion',
-      label: 'Registro de Step Points',
-      path: '/validacion',
-      position: { left: '13%', bottom: '-8%' },
-      icon: 'nodo-validacion.png'
-    },
-    {
       id: 'monitor',
       label: 'Cámara en Directo Multicentros',
       path: '/selector-centros',
