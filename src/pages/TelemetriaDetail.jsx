@@ -304,7 +304,10 @@ function TelemetriaDetail() {
             ctrl_temp: data.ctrl_temp ?? data.telemetry?.controller_temp ?? baseTelemetry.ctrl_temp ?? null,
             uptime_hours: data.diagnostico?.uptime_hours ?? data.uptime_hours ?? baseTelemetry.uptime_hours ?? null,
             cycle_time: data.diagnostico?.cycle_time ?? data.cycle_time ?? baseTelemetry.cycle_time ?? null,
-            last_error: data.diagnostico?.last_error ?? data.last_error ?? baseTelemetry.last_error ?? 'Ninguno',
+            // Use || (not ??) so that an empty string from the backend also falls back to
+            // the next source in the chain, ensuring 'Ninguno' is always shown when no
+            // real error is present. last_error is always a string, so || is safe here.
+            last_error: data.diagnostico?.last_error || data.last_error || 'Ninguno',
             messages: data.diagnostico?.messages ?? data.messages ?? baseTelemetry.messages ?? 'No hay mensajes',
             // Map telemetry sub-object for the Menú Principal dashboard widgets.
             // Accepts the new Node-RED `payload.telemetry` format with fallback to
