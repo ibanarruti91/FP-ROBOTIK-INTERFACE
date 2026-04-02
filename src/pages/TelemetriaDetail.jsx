@@ -196,7 +196,7 @@ function TelemetriaDetail() {
               estado_maquina: mapNumericState(ROBOT_STATUS_MAP, data.sistema?.estado_maquina) ?? baseTelemetry.sistema?.estado_maquina ?? '',
               potencia_total: data.sistema?.potencia_total ?? baseTelemetry.sistema?.potencia_total ?? 0,
               temperatura_control: data.sistema?.temperatura_control ?? baseTelemetry.sistema?.temperatura_control ?? 0,
-              velocidad_tcp: data.sistema?.velocidad_tcp ?? baseTelemetry.sistema?.velocidad_tcp ?? null
+              velocidad_tcp: data.sistema?.velocidad_tcp ?? data.telemetry?.speed ?? baseTelemetry.sistema?.velocidad_tcp ?? null
             },
             // Map estadisticas data
             estadisticas: {
@@ -230,6 +230,28 @@ function TelemetriaDetail() {
             joints: (() => {
               const j = data.joints ?? baseTelemetry.joints;
               if (!j) return baseTelemetry.joints;
+
+              // New format: data.joints is an array of {id, current_a, temperature_c}
+              // Transform into the internal object format {currents, temperatures, positions, power}
+              if (Array.isArray(j)) {
+                const sorted = [...j].sort((a, b) => Number(a.id ?? 0) - Number(b.id ?? 0));
+                const currents = sorted.map(jt => Number(jt.current_a) || 0);
+                const temperatures = sorted.map(jt => jt.temperature_c ?? null);
+                const positions = sorted.map((jt, i) =>
+                  jt.position ?? baseTelemetry.joints?.positions?.[i] ?? null
+                );
+                const hasNonZeroCurrents = currents.some(c => c !== 0);
+                if (!hasNonZeroCurrents) {
+                  if (baseTelemetry.joints) return baseTelemetry.joints;
+                  return { currents, temperatures, positions, power: null, potencia_total: null, consumo_movimiento: null };
+                }
+                const power = parseFloat(
+                  currents.reduce((s, c) => s + c * DC_BUS_VOLTAGE, 0).toFixed(2)
+                );
+                return { currents, temperatures, positions, power, potencia_total: power, consumo_movimiento: power };
+              }
+
+              // Legacy format: data.joints is an object with currents/temperatures/positions arrays
               // Compute total joint power from currents (24 V DC bus) on the frontend.
               // This avoids relying on Node-RED's pre-computed `power` field, which can
               // be zero when the assembler runs before the cinematica change node has
@@ -278,8 +300,8 @@ function TelemetriaDetail() {
             },
             // Map diagnostic fields from the new MQTT payload `diagnostico` block,
             // with fallback to root-level fields for backward compatibility.
-            robot_power: data.robot_power ?? baseTelemetry.robot_power ?? null,
-            ctrl_temp: data.ctrl_temp ?? baseTelemetry.ctrl_temp ?? null,
+            robot_power: data.robot_power ?? data.telemetry?.power ?? baseTelemetry.robot_power ?? null,
+            ctrl_temp: data.ctrl_temp ?? data.telemetry?.controller_temp ?? baseTelemetry.ctrl_temp ?? null,
             uptime_hours: data.diagnostico?.uptime_hours ?? data.uptime_hours ?? baseTelemetry.uptime_hours ?? null,
             cycle_time: data.diagnostico?.cycle_time ?? data.cycle_time ?? baseTelemetry.cycle_time ?? null,
             last_error: data.diagnostico?.last_error ?? data.last_error ?? baseTelemetry.last_error ?? 'Ninguno',
