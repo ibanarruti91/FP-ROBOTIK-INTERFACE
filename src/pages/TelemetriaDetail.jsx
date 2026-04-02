@@ -242,7 +242,7 @@ function TelemetriaDetail() {
                 );
                 const hasNonZeroCurrents = currents.some(c => c !== 0);
                 if (!hasNonZeroCurrents) {
-                  if (baseTelemetry.joints) return baseTelemetry.joints;
+                  if (baseTelemetry.joints) return { ...baseTelemetry.joints, positions };
                   return { currents, temperatures, positions, power: null, potencia_total: null, consumo_movimiento: null };
                 }
                 const power = parseFloat(
