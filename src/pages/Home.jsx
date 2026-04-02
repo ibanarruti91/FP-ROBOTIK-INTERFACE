@@ -36,7 +36,7 @@ function Home() {
       id: 'monitor',
       label: 'Cámara en Directo Multicentros',
       path: '/selector-centros',
-      position: { right: '-13%', bottom: '-4%' },
+      position: { left: '50%', top: '78%' },
       icon: 'nodo-monitor.png'
     }
   ];
