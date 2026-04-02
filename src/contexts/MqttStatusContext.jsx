@@ -9,6 +9,8 @@ export const MqttStatusProvider = ({ children }) => {
   const [lastMessageTime, setLastMessageTime] = useState(null);
   const [telemetryData, setTelemetryData] = useState(null);
   const [stepCaptureRecords, setStepCaptureRecords] = useState([]);
+  const [currentProgram, setCurrentProgram] = useState(null);
+  const [currentChecksum, setCurrentChecksum] = useState(null);
   const clientRef = useRef(null);
 
   // MQTT Connection Effect
@@ -47,6 +49,12 @@ export const MqttStatusProvider = ({ children }) => {
               ? updated.slice(updated.length - MAX_STEP_CAPTURE_RECORDS)
               : updated;
           });
+          if (data.program_name) {
+            setCurrentProgram(data.program_name);
+          }
+          if (data.checksum != null) {
+            setCurrentChecksum(data.checksum);
+          }
           return;
         }
 
@@ -105,6 +113,8 @@ export const MqttStatusProvider = ({ children }) => {
     lastMessageTime,
     telemetryData,
     stepCaptureRecords,
+    currentProgram,
+    currentChecksum,
     publishCommand
   };
 

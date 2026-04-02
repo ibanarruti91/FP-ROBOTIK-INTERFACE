@@ -1,8 +1,11 @@
+import { useContext } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import { MqttStatusContext } from '../contexts/MqttStatusContext.js';
 import './Sidebar.css';
 
 function Sidebar() {
   const navigate = useNavigate();
+  const { currentProgram, currentChecksum } = useContext(MqttStatusContext);
 
   // Botones que se quedan en la parte superior
   const menuItems = [
@@ -50,6 +53,22 @@ function Sidebar() {
         <h1 className="sidebar-title">FP Robotic Interface</h1>
         <p className="sidebar-subtitle">Colaboración Salesianos Urnieta × CIFP Repélega</p>
       </div>
+
+      {/* PROGRAMA ACTIVO Y CHECKSUM */}
+      {(currentProgram || currentChecksum !== null) && (
+        <div className="sidebar-robot-info" onClick={(e) => e.stopPropagation()}>
+          {currentProgram && (
+            <span className="sidebar-badge sidebar-badge-program">
+              📋 {currentProgram}
+            </span>
+          )}
+          {currentChecksum !== null && (
+            <span className="sidebar-badge sidebar-badge-checksum">
+              🔑 {currentChecksum}
+            </span>
+          )}
+        </div>
+      )}
 
       {/* NAVEGACIÓN PRINCIPAL */}
       <nav className="sidebar-nav">
