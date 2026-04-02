@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import mqtt from 'mqtt';
-import ExcelJS from 'exceljs';
 import './Validacion.css';
 
 const MQTT_BROKER = 'wss://broker.emqx.io:8084/mqtt';
@@ -9,42 +8,32 @@ const MAX_CAPTURES = 200;
 
 let captureCounter = 0;
 
-async function exportToXLSX(captures) {
-  const workbook = new ExcelJS.Workbook();
-  const sheet = workbook.addWorksheet('Step Points');
-
-  sheet.columns = [
-    { header: 'step_id',      key: 'step_id',      width: 12 },
-    { header: 'timestamp',    key: 'timestamp',    width: 26 },
-    { header: 'program_name', key: 'program_name', width: 20 },
-    { header: 'x_mm',         key: 'x_mm',         width: 14 },
-    { header: 'y_mm',         key: 'y_mm',         width: 14 },
-    { header: 'z_mm',         key: 'z_mm',         width: 14 },
-  ];
-
-  captures.forEach((c) => {
-    sheet.addRow({
-      step_id:      c.step_id      ?? null,
-      timestamp:    c.timestamp    ?? null,
-      program_name: c.program_name ?? null,
-      x_mm:         c.x            ?? null,
-      y_mm:         c.y            ?? null,
-      z_mm:         c.z            ?? null,
-    });
-  });
-
-  const buffer = await workbook.xlsx.writeBuffer();
-  const blob = new Blob([buffer], {
-    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'step_points_captura.xlsx';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+function exportToCSV(captures) {
+  try {
+    const headers = ['step_id', 'timestamp', 'program_name', 'x_mm', 'y_mm', 'z_mm'];
+    const rows = captures.map((c) => [
+      c.step_id      ?? '',
+      c.timestamp    ?? '',
+      c.program_name ?? '',
+      c.x            ?? '',
+      c.y            ?? '',
+      c.z            ?? '',
+    ]);
+    const csvContent = [headers, ...rows]
+      .map((row) => row.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'step_points_captura.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error('Error al exportar a CSV:', err);
+  }
 }
 
 function Validacion() {
@@ -98,10 +87,10 @@ function Validacion() {
         if (data.program_name) {
           setCurrentProgram(data.program_name);
         }
-        if (data.checksum !== null && data.checksum !== undefined) {
+        if (data.checksum != null) {
           setCurrentChecksum(data.checksum);
         }
-        if (data.origen !== null && data.origen !== undefined) {
+        if (data.origen != null) {
           setCurrentOrigen(data.origen);
         }
         setCaptures((prev) => [capture, ...prev].slice(0, MAX_CAPTURES));
@@ -134,9 +123,7 @@ function Validacion() {
   };
 
   const handleExport = () => {
-    exportToXLSX(captures).catch((err) => {
-      console.error('Error al exportar a Excel:', err);
-    });
+    exportToCSV(captures);
   };
 
   return (
@@ -155,9 +142,6 @@ function Validacion() {
           {currentProgram && (
             <p className="program-name-badge">
               Programa activo: <strong>{currentProgram}</strong>
-              {currentChecksum !== null && (
-                <> | Firma: <strong>{currentChecksum}</strong></>
-              )}
             </p>
           )}
           <p>
@@ -182,18 +166,18 @@ function Validacion() {
             </button>
           ) : (
             <button className="ctrl-btn ctrl-btn-pause" onClick={handlePause}>
-              ⏸ Pausar captura
+              ⏸ Detener captura
             </button>
           )}
           <button className="ctrl-btn ctrl-btn-clear" onClick={handleClear}>
-            🗑 Limpiar historial
+            🗑 Borrar capturas
           </button>
           <button
             className="ctrl-btn ctrl-btn-export"
             onClick={handleExport}
             disabled={captures.length === 0}
           >
-            📥 Exportar a Excel
+            📥 Exportar CSV
           </button>
         </div>
 

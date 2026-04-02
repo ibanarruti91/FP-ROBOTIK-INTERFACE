@@ -5,5 +5,7 @@ export const MqttStatusContext = createContext({
   lastMessageTime: null,
   telemetryData: null,
   stepCaptureRecords: [],
+  currentProgram: null,
+  currentChecksum: null,
   publishCommand: () => {}
 });
