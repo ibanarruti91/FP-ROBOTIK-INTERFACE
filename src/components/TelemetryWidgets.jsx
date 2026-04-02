@@ -318,7 +318,9 @@ export function LogPanel({ messages, className = '', compact = false }) {
 
   // Parse rows from either a newline-separated string or an array of message objects.
   // Each row is { time: string, text: string }.
-  const rows = (() => {
+  // useMemo ensures rows are re-derived whenever the messages prop changes,
+  // keeping the log panel reactive to incoming data without relying on remounts.
+  const rows = useMemo(() => {
     if (typeof messages === 'string') {
       if (!messages) return [];
       return messages
@@ -341,7 +343,7 @@ export function LogPanel({ messages, className = '', compact = false }) {
       }));
     }
     return [];
-  })();
+  }, [messages]);
 
   const handleExportCsv = () => {
     const csvLines = ['Hora,Evento'];
