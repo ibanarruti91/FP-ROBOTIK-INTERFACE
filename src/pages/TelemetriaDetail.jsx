@@ -276,13 +276,14 @@ function TelemetriaDetail() {
               corriente: data.herramienta?.corriente ?? baseTelemetry.herramienta?.corriente,
               potencia: data.herramienta?.potencia ?? baseTelemetry.herramienta?.potencia
             },
-            // Map diagnostic fields from MQTT payload root (used by the Diagnóstico tab)
+            // Map diagnostic fields from the new MQTT payload `diagnostico` block,
+            // with fallback to root-level fields for backward compatibility.
             robot_power: data.robot_power ?? baseTelemetry.robot_power ?? null,
             ctrl_temp: data.ctrl_temp ?? baseTelemetry.ctrl_temp ?? null,
-            uptime_hours: data.uptime_hours ?? baseTelemetry.uptime_hours ?? null,
-            cycle_time: data.cycle_time ?? baseTelemetry.cycle_time ?? null,
-            last_error: data.last_error ?? baseTelemetry.last_error ?? null,
-            messages: data.messages ?? baseTelemetry.messages ?? [],
+            uptime_hours: data.diagnostico?.uptime_hours ?? data.uptime_hours ?? baseTelemetry.uptime_hours ?? null,
+            cycle_time: data.diagnostico?.cycle_time ?? data.cycle_time ?? baseTelemetry.cycle_time ?? null,
+            last_error: data.diagnostico?.last_error ?? data.last_error ?? baseTelemetry.last_error ?? 'Ninguno',
+            messages: data.diagnostico?.messages ?? data.messages ?? baseTelemetry.messages ?? 'No hay mensajes',
             // Map telemetry sub-object for the Menú Principal dashboard widgets.
             // Accepts the new Node-RED `payload.telemetry` format with fallback to
             // existing sistema/estadisticas fields for backward compatibility.

@@ -314,6 +314,24 @@ export function DataTable({ label, data, unit, format }) {
  * Panel de logs/mensajes
  */
 export function LogPanel({ messages, className = '', compact = false }) {
+  // Handle plain-string messages (new diagnostico.messages format from Node-RED)
+  if (typeof messages === 'string') {
+    return (
+      <CardGlass className={`log-panel ${compact ? 'log-compact' : ''} ${className}`}>
+        <div className="log-title">Registro de Eventos</div>
+        {messages ? (
+          <div className="log-messages">
+            <div className="log-message">
+              <span className="log-text">{messages}</span>
+            </div>
+          </div>
+        ) : (
+          <div className="log-empty">No hay mensajes</div>
+        )}
+      </CardGlass>
+    );
+  }
+
   if (!messages || !Array.isArray(messages) || messages.length === 0) {
     return (
       <CardGlass className={`log-panel ${compact ? 'log-compact' : ''} ${className}`}>

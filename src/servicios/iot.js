@@ -122,7 +122,7 @@ export function getMockTelemetryData(centroConfig = null) {
       potencia_total: null,
       consumo_movimiento: null
     },
-    messages: [],
+    messages: null,
     digital_io: {
       inputs:               Array.from({ length: 8 }, () => null),
       outputs:              Array.from({ length: 8 }, () => null),
