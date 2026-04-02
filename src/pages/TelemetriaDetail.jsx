@@ -238,7 +238,7 @@ function TelemetriaDetail() {
                 const currents = sorted.map(jt => Number(jt.current_a) || 0);
                 const temperatures = sorted.map(jt => jt.temperature_c ?? null);
                 const positions = sorted.map((jt, i) =>
-                  jt.position ?? baseTelemetry.joints?.positions?.[i] ?? null
+                  jt.position_deg ?? baseTelemetry.joints?.positions?.[i] ?? null
                 );
                 const hasNonZeroCurrents = currents.some(c => c !== 0);
                 if (!hasNonZeroCurrents) {
