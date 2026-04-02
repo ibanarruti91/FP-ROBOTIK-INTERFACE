@@ -230,11 +230,25 @@ function TelemetriaDetail() {
             joints: (() => {
               const j = data.joints ?? baseTelemetry.joints;
               if (!j) return baseTelemetry.joints;
+              // Normalize joints to a flat structure with `positions`, `temperatures`
+              // and `currents` arrays (expected by JointsGrid widget).
+              // New Node-RED format: array of objects [{id, position_deg, current_a, temperature_c}]
+              // Legacy format: flat object with {positions, temperatures, currents} arrays.
+              let normalized;
+              if (Array.isArray(j)) {
+                normalized = {
+                  positions:    j.map(joint => joint.position_deg   ?? null),
+                  temperatures: j.map(joint => joint.temperature_c  ?? null),
+                  currents:     j.map(joint => joint.current_a      ?? null),
+                };
+              } else {
+                normalized = j;
+              }
               // Compute total joint power from currents (24 V DC bus) on the frontend.
               // This avoids relying on Node-RED's pre-computed `power` field, which can
               // be zero when the assembler runs before the cinematica change node has
               // updated the global context (race condition).
-              const currents = Array.isArray(j.currents) ? j.currents : [];
+              const currents = Array.isArray(normalized.currents) ? normalized.currents : [];
               // Guard: if every current is zero the Node-RED global ur_joint_currents
               // was not populated yet when the assembler ran (race condition on restart).
               // Keep the previous joints snapshot so the display does not flicker to 0 W.
@@ -243,12 +257,12 @@ function TelemetriaDetail() {
                 // If previous joints state is available, keep it; otherwise return
                 // a null-power structure so the widget shows N/A instead of 0 W.
                 if (baseTelemetry.joints) return baseTelemetry.joints;
-                return { ...j, power: null, potencia_total: null, consumo_movimiento: null };
+                return { ...normalized, power: null, potencia_total: null, consumo_movimiento: null };
               }
               const power = parseFloat(
                 currents.reduce((s, c) => s + (Number(c) || 0) * DC_BUS_VOLTAGE, 0).toFixed(2)
               );
-              return { ...j, power, potencia_total: power, consumo_movimiento: power };
+              return { ...normalized, power, potencia_total: power, consumo_movimiento: power };
             })(),
             // Map digital I/O from MQTT data – four independent 8-element arrays
             digital_io: {
@@ -278,8 +292,8 @@ function TelemetriaDetail() {
             },
             // Map diagnostic fields from the new MQTT payload `diagnostico` block,
             // with fallback to root-level fields for backward compatibility.
-            robot_power: data.robot_power ?? baseTelemetry.robot_power ?? null,
-            ctrl_temp: data.ctrl_temp ?? baseTelemetry.ctrl_temp ?? null,
+            robot_power: data.telemetry?.power ?? data.robot_power ?? baseTelemetry.robot_power ?? null,
+            ctrl_temp: data.telemetry?.controller_temp ?? data.ctrl_temp ?? baseTelemetry.ctrl_temp ?? null,
             uptime_hours: data.diagnostico?.uptime_hours ?? data.uptime_hours ?? baseTelemetry.uptime_hours ?? null,
             cycle_time: data.diagnostico?.cycle_time ?? data.cycle_time ?? baseTelemetry.cycle_time ?? null,
             last_error: data.diagnostico?.last_error ?? data.last_error ?? baseTelemetry.last_error ?? 'Ninguno',
