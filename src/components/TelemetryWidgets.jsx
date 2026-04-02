@@ -314,57 +314,92 @@ export function DataTable({ label, data, unit, format }) {
  * Panel de logs/mensajes
  */
 export function LogPanel({ messages, className = '', compact = false }) {
-  // Handle plain-string messages (new diagnostico.messages format from Node-RED)
-  if (typeof messages === 'string') {
-    return (
-      <CardGlass className={`log-panel ${compact ? 'log-compact' : ''} ${className}`}>
-        <div className="log-title">Registro de Eventos</div>
-        {messages ? (
-          <div className="log-messages">
-            <div className="log-message">
-              <span className="log-text">{messages}</span>
-            </div>
-          </div>
-        ) : (
-          <div className="log-empty">No hay mensajes</div>
-        )}
-      </CardGlass>
-    );
-  }
+  const [cleared, setCleared] = useState(false);
 
-  if (!messages || !Array.isArray(messages) || messages.length === 0) {
-    return (
-      <CardGlass className={`log-panel ${compact ? 'log-compact' : ''} ${className}`}>
-        <div className="log-title">Registro de Eventos</div>
-        <div className="log-empty">No hay mensajes</div>
-      </CardGlass>
-    );
-  }
-  
+  // Parse rows from either a newline-separated string or an array of message objects.
+  // Each row is { time: string, text: string }.
+  const rows = (() => {
+    if (typeof messages === 'string') {
+      if (!messages) return [];
+      return messages
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0)
+        .map(line => {
+          // Expected format: "HH:MM -> Evento X" — split at the first " -> "
+          const arrowIdx = line.indexOf(' -> ');
+          if (arrowIdx !== -1) {
+            return { time: line.slice(0, arrowIdx).trim(), text: line.slice(arrowIdx + 4).trim() };
+          }
+          return { time: '', text: line };
+        });
+    }
+    if (Array.isArray(messages)) {
+      return messages.map(msg => ({
+        time: msg.hora ?? msg.time ?? '--:--:--',
+        text: msg.msg ?? msg.mensaje ?? msg.txt ?? msg.message ?? '--',
+      }));
+    }
+    return [];
+  })();
+
+  const handleExportCsv = () => {
+    const csvLines = ['Hora,Evento'];
+    rows.forEach(({ time, text }) => {
+      // Wrap fields in quotes and escape any internal quotes
+      const safeTime = `"${String(time).replace(/"/g, '""')}"`;
+      const safeText = `"${String(text).replace(/"/g, '""')}"`;
+      csvLines.push(`${safeTime},${safeText}`);
+    });
+    const blob = new Blob([csvLines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'registro_eventos.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const visibleRows = cleared ? [] : rows;
+
   return (
     <CardGlass className={`log-panel ${compact ? 'log-compact' : ''} ${className}`}>
-      <div className="log-title">Registro de Eventos</div>
-      <div className="log-messages">
-        {messages.map((msg, index) => {
-          // Handle different time formats from MQTT
-          let timeDisplay = '--:--:--';
-          if (msg.hora) {
-            timeDisplay = msg.hora;
-          } else if (msg.time) {
-            timeDisplay = msg.time;
-          }
-          
-          // Handle different message field names
-          const messageText = msg.msg || msg.mensaje || msg.txt || msg.message || '--';
-          
-          return (
-            <div key={index} className="log-message">
-              <span className="log-time">{timeDisplay}</span>
-              <span className="log-text">{messageText}</span>
-            </div>
-          );
-        })}
+      <div className="log-header">
+        <div className="log-title">Registro de Eventos</div>
+        <div className="log-actions">
+          <button
+            className="log-btn log-btn--export"
+            onClick={handleExportCsv}
+            disabled={rows.length === 0}
+            title="Exportar registro a CSV"
+          >
+            ⬇ Exportar a Excel
+          </button>
+          <button
+            className="log-btn log-btn--clear"
+            onClick={() => setCleared(prev => !prev)}
+            title={cleared ? 'Mostrar registros' : 'Borrar registros de la pantalla'}
+          >
+            {cleared ? '↩ Restaurar' : '🗑 Borrar Registros'}
+          </button>
+        </div>
       </div>
+      {cleared ? (
+        <div className="log-empty">Historial borrado de la pantalla</div>
+      ) : visibleRows.length === 0 ? (
+        <div className="log-empty">No hay mensajes</div>
+      ) : (
+        <div className="log-messages">
+          {visibleRows.map((row, index) => (
+            <div key={index} className="log-message">
+              {row.time && <span className="log-time">{row.time}</span>}
+              <span className="log-text">{row.text}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </CardGlass>
   );
 }
