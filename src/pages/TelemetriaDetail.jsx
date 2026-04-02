@@ -37,7 +37,7 @@ function TelemetriaDetail() {
   const { centroId } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('principal');
-  const { status, telemetryData, publishCommand, stepCaptureRecords } = useMqttStatus();
+  const { status, telemetryData, publishCommand, stepCaptureRecords, currentChecksum } = useMqttStatus();
 
   // ── Control de telemetría ────────────────────────────────────────────────────
   // startRequested tracks whether the user has clicked "Iniciar" without yet
@@ -441,7 +441,7 @@ function TelemetriaDetail() {
       </div>
 
       {/* Mini Telemetry Header - Appears on all tabs */}
-      <TelemetryMiniHeader data={displayRawPayload} />
+      <TelemetryMiniHeader data={displayRawPayload} checksum={currentChecksum} />
 
       
       {/* Tab Content */}
