@@ -304,11 +304,39 @@ function TelemetriaDetail() {
             ctrl_temp: data.ctrl_temp ?? data.telemetry?.controller_temp ?? baseTelemetry.ctrl_temp ?? null,
             uptime_hours: data.diagnostico?.uptime_hours ?? data.uptime_hours ?? baseTelemetry.uptime_hours ?? null,
             cycle_time: data.diagnostico?.cycle_time ?? data.cycle_time ?? baseTelemetry.cycle_time ?? null,
-            // Use || (not ??) so that an empty string from the backend also falls back to
-            // the next source in the chain, ensuring 'Ninguno' is always shown when no
-            // real error is present. last_error is always a string, so || is safe here.
-            last_error: data.diagnostico?.last_error || data.last_error || 'Ninguno',
             messages: data.diagnostico?.messages ?? data.messages ?? baseTelemetry.messages ?? 'No hay mensajes',
+            // Derive last_error reactively from the messages log so that "Último Error"
+            // always reflects the most recent ERROR entry in the event history.
+            // Supports both array-of-objects and newline-separated string formats.
+            last_error: (() => {
+              const msgs = data.diagnostico?.messages ?? data.messages ?? baseTelemetry.messages;
+              // --- array format: [{msg, type?, ...}, ...] ---
+              if (Array.isArray(msgs)) {
+                const errorEntry = msgs.find(m => {
+                  const text = m.msg ?? m.mensaje ?? m.txt ?? m.message ?? '';
+                  return (
+                    (typeof m.type === 'string' && m.type.toUpperCase().includes('ERROR')) ||
+                    (typeof text === 'string' && text.toUpperCase().includes('ERROR'))
+                  );
+                });
+                if (errorEntry) {
+                  return errorEntry.msg ?? errorEntry.mensaje ?? errorEntry.txt ?? errorEntry.message ?? 'ERROR';
+                }
+              }
+              // --- string format: "HH:MM -> Evento\n..." ---
+              if (typeof msgs === 'string' && msgs.length > 0) {
+                const errorLine = msgs
+                  .split('\n')
+                  .map(l => l.trim())
+                  .filter(l => l.toUpperCase().includes('ERROR'))[0];
+                if (errorLine) {
+                  const arrowIdx = errorLine.indexOf(' -> ');
+                  return arrowIdx !== -1 ? errorLine.slice(arrowIdx + 4).trim() : errorLine;
+                }
+              }
+              // Fall back to explicit backend field, then 'Ninguno'
+              return data.diagnostico?.last_error || data.last_error || 'Ninguno';
+            })(),
             // Map telemetry sub-object for the Menú Principal dashboard widgets.
             // Accepts the new Node-RED `payload.telemetry` format with fallback to
             // existing sistema/estadisticas fields for backward compatibility.
