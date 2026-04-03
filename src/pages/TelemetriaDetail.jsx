@@ -308,8 +308,7 @@ function TelemetriaDetail() {
             // Derive last_error reactively from the messages log so that "Último Error"
             // always reflects the most recent ERROR entry in the event history.
             // Supports both array-of-objects and newline-separated string formats.
-            // Uses findLast / the last matching line because event logs are typically
-            // ordered oldest-first (newest entry appended at the end of the array/string).
+            // The array/string is newest-first, so index [0] is the most recent entry.
             last_error: (() => {
               const getMsgText = m => m.msg ?? m.mensaje ?? m.txt ?? m.message ?? '';
               const isErrorEntry = m =>
@@ -319,18 +318,17 @@ function TelemetriaDetail() {
               const msgs = data.diagnostico?.messages ?? data.messages ?? baseTelemetry.messages;
               // --- array format: [{msg, type?, ...}, ...] ---
               if (Array.isArray(msgs)) {
-                const errorEntry = [...msgs].reverse().find(isErrorEntry);
+                const errorEntry = msgs.find(isErrorEntry);
                 if (errorEntry) {
                   return getMsgText(errorEntry) || 'ERROR';
                 }
               }
               // --- string format: "HH:MM -> Evento\n..." ---
               if (typeof msgs === 'string' && msgs.length > 0) {
-                const errorLines = msgs
+                const errorLine = msgs
                   .split('\n')
                   .map(l => l.trim())
-                  .filter(l => l.toUpperCase().includes('ERROR'));
-                const errorLine = errorLines[errorLines.length - 1];
+                  .find(l => l.toUpperCase().includes('ERROR'));
                 if (errorLine) {
                   const arrowIdx = errorLine.indexOf(' -> ');
                   return arrowIdx !== -1 ? errorLine.slice(arrowIdx + 4).trim() : errorLine;
