@@ -308,27 +308,29 @@ function TelemetriaDetail() {
             // Derive last_error reactively from the messages log so that "Último Error"
             // always reflects the most recent ERROR entry in the event history.
             // Supports both array-of-objects and newline-separated string formats.
+            // Uses findLast / the last matching line because event logs are typically
+            // ordered oldest-first (newest entry appended at the end of the array/string).
             last_error: (() => {
+              const getMsgText = m => m.msg ?? m.mensaje ?? m.txt ?? m.message ?? '';
+              const isErrorEntry = m =>
+                (typeof m.type === 'string' && m.type.toUpperCase().includes('ERROR')) ||
+                getMsgText(m).toUpperCase().includes('ERROR');
+
               const msgs = data.diagnostico?.messages ?? data.messages ?? baseTelemetry.messages;
               // --- array format: [{msg, type?, ...}, ...] ---
               if (Array.isArray(msgs)) {
-                const errorEntry = msgs.find(m => {
-                  const text = m.msg ?? m.mensaje ?? m.txt ?? m.message ?? '';
-                  return (
-                    (typeof m.type === 'string' && m.type.toUpperCase().includes('ERROR')) ||
-                    (typeof text === 'string' && text.toUpperCase().includes('ERROR'))
-                  );
-                });
+                const errorEntry = [...msgs].reverse().find(isErrorEntry);
                 if (errorEntry) {
-                  return errorEntry.msg ?? errorEntry.mensaje ?? errorEntry.txt ?? errorEntry.message ?? 'ERROR';
+                  return getMsgText(errorEntry) || 'ERROR';
                 }
               }
               // --- string format: "HH:MM -> Evento\n..." ---
               if (typeof msgs === 'string' && msgs.length > 0) {
-                const errorLine = msgs
+                const errorLines = msgs
                   .split('\n')
                   .map(l => l.trim())
-                  .filter(l => l.toUpperCase().includes('ERROR'))[0];
+                  .filter(l => l.toUpperCase().includes('ERROR'));
+                const errorLine = errorLines[errorLines.length - 1];
                 if (errorLine) {
                   const arrowIdx = errorLine.indexOf(' -> ');
                   return arrowIdx !== -1 ? errorLine.slice(arrowIdx + 4).trim() : errorLine;
