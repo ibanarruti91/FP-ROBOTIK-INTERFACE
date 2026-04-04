@@ -144,7 +144,7 @@ export const MqttStatusProvider = ({ children }) => {
           if (newEvents.length > 0) {
             setEventLog(prev => [...prev, ...newEvents]);
             // Update lastError with the most recent ERROR entry among new events.
-            const latestError = [...newEvents].reverse().find(e =>
+            const latestError = newEvents.findLast(e =>
               e.text.toUpperCase().includes('ERROR')
             );
             if (latestError) {
