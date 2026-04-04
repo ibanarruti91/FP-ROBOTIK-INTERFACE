@@ -4,6 +4,34 @@ import { MqttStatusContext } from './MqttStatusContext.js';
 
 const MAX_STEP_CAPTURE_RECORDS = 50;
 
+/**
+ * Normalises a raw messages value (string or array) into an array of
+ * { time: string, text: string } objects so that the event log is always
+ * stored in a uniform format regardless of what the robot sends.
+ */
+function parseMsgBatch(rawMessages) {
+  if (Array.isArray(rawMessages)) {
+    return rawMessages.map(msg => ({
+      time: msg.hora ?? msg.time ?? '--:--:--',
+      text: msg.msg ?? msg.mensaje ?? msg.txt ?? msg.message ?? '--',
+    }));
+  }
+  if (typeof rawMessages === 'string' && rawMessages) {
+    return rawMessages
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .map(line => {
+        const arrowIdx = line.indexOf(' -> ');
+        if (arrowIdx !== -1) {
+          return { time: line.slice(0, arrowIdx).trim(), text: line.slice(arrowIdx + 4).trim() };
+        }
+        return { time: '', text: line };
+      });
+  }
+  return [];
+}
+
 export const MqttStatusProvider = ({ children }) => {
   const [status, setStatus] = useState('OFFLINE');
   const [lastMessageTime, setLastMessageTime] = useState(null);
@@ -14,6 +42,16 @@ export const MqttStatusProvider = ({ children }) => {
   const [isPausedStepCapture, setIsPausedStepCapture] = useState(false);
   const isPausedStepCaptureRef = useRef(false);
   const clientRef = useRef(null);
+
+  // ── Event log ────────────────────────────────────────────────────────────────
+  // eventLog accumulates incoming events in {time, text} format.
+  // It lives in the context (not in LogPanel) so that:
+  //  • clearing truly empties the buffer, not just the view, and
+  //  • the cleared state survives tab switches (component unmounts).
+  // lastMsgBatchLenRef tracks how many items the last MQTT batch contained so
+  // that only genuinely new events are appended on each message.
+  const [eventLog, setEventLog] = useState([]);
+  const lastMsgBatchLenRef = useRef(0);
 
   // MQTT Connection Effect
   useEffect(() => {
@@ -65,6 +103,26 @@ export const MqttStatusProvider = ({ children }) => {
         setLastMessageTime(now);
         setStatus('ONLINE');
         setTelemetryData(data);
+
+        // Accumulate new events into eventLog.
+        // The robot typically sends the full event history in every MQTT
+        // message, so we only append items beyond the last known batch length
+        // to avoid duplicates.  When the batch shrinks (e.g. robot restart)
+        // we replace the accumulated log with the fresh batch.
+        const rawMessages = data.diagnostico?.messages ?? data.messages ?? null;
+        if (rawMessages !== null && rawMessages !== undefined) {
+          const parsed = parseMsgBatch(rawMessages);
+          const currentLen = parsed.length;
+          const lastLen = lastMsgBatchLenRef.current;
+          if (currentLen > lastLen) {
+            setEventLog(prev => [...prev, ...parsed.slice(lastLen)]);
+          } else if (currentLen < lastLen && currentLen > 0) {
+            // Shorter batch → robot restarted; replace log with new events
+            setEventLog(parsed);
+          }
+          lastMsgBatchLenRef.current = currentLen;
+        }
+
         console.log('Mensaje MQTT recibido en watchdog:', data);
       } catch (error) {
         console.error('Error al parsear mensaje MQTT:', error);
@@ -105,6 +163,13 @@ export const MqttStatusProvider = ({ children }) => {
     setStepCaptureRecords([]);
   }, []);
 
+  // Clears the accumulated event log.  lastMsgBatchLenRef is intentionally
+  // NOT reset here: the next MQTT message will still contain the old events,
+  // and we must not re-add them just because the log was cleared.
+  const clearEventLog = useCallback(() => {
+    setEventLog([]);
+  }, []);
+
   // Watchdog Effect - Check for timeout every second
   useEffect(() => {
     const interval = setInterval(() => {
@@ -134,7 +199,9 @@ export const MqttStatusProvider = ({ children }) => {
     isPausedStepCapture,
     togglePauseStepCapture,
     clearStepCaptureRecords,
-    publishCommand
+    publishCommand,
+    eventLog,
+    clearEventLog
   };
 
   return (
