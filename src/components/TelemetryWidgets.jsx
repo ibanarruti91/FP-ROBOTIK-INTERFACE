@@ -315,7 +315,10 @@ export function DataTable({ label, data, unit, format }) {
  * Panel de logs/mensajes
  */
 export function LogPanel({ messages, className = '', compact = false }) {
-  const [cleared, setCleared] = useState(false);
+  // clearedCount tracks how many rows existed at the moment the user last
+  // pressed "Borrar registros". Only rows that arrive *after* that point are
+  // shown, so the buffer is truly cleared while new events keep streaming in.
+  const [clearedCount, setClearedCount] = useState(0);
 
   // Parse rows from either a newline-separated string or an array of message objects.
   // Each row is { time: string, text: string }.
@@ -346,9 +349,20 @@ export function LogPanel({ messages, className = '', compact = false }) {
     return [];
   }, [messages]);
 
+  // If the data source resets to fewer rows than the cutoff (e.g. MQTT reconnect
+  // sends a fresh, shorter history), reset the cutoff so new events are visible.
+  useEffect(() => {
+    if (clearedCount > rows.length) {
+      setClearedCount(0);
+    }
+  }, [rows.length, clearedCount]);
+
+  // Only show rows that arrived after the last clear.
+  const visibleRows = rows.slice(clearedCount);
+
   const handleExportCsv = () => {
     const csvLines = ['Hora,Evento'];
-    rows.forEach(({ time, text }) => {
+    visibleRows.forEach(({ time, text }) => {
       // Wrap fields in quotes and escape any internal quotes
       const safeTime = `"${String(time).replace(/"/g, '""')}"`;
       const safeText = `"${String(text).replace(/"/g, '""')}"`;
@@ -365,8 +379,6 @@ export function LogPanel({ messages, className = '', compact = false }) {
     URL.revokeObjectURL(url);
   };
 
-  const visibleRows = cleared ? [] : rows;
-
   return (
     <CardGlass className={`log-panel ${compact ? 'log-compact' : ''} ${className}`}>
       <div className="log-header">
@@ -375,23 +387,22 @@ export function LogPanel({ messages, className = '', compact = false }) {
           <button
             className="log-btn log-btn--export"
             onClick={handleExportCsv}
-            disabled={rows.length === 0}
+            disabled={visibleRows.length === 0}
             title="Exportar registro a CSV"
           >
             ⬇ Exportar a Excel
           </button>
           <button
             className="log-btn log-btn--clear"
-            onClick={() => setCleared(prev => !prev)}
-            title={cleared ? 'Mostrar registros' : 'Borrar registros de la pantalla'}
+            onClick={() => setClearedCount(rows.length)}
+            disabled={visibleRows.length === 0}
+            title="Borrar el historial de eventos actual"
           >
-            {cleared ? '↩ Restaurar' : '🗑 Borrar Registros'}
+            🗑 Borrar Registros
           </button>
         </div>
       </div>
-      {cleared ? (
-        <div className="log-empty">Historial borrado de la pantalla</div>
-      ) : visibleRows.length === 0 ? (
+      {visibleRows.length === 0 ? (
         <div className="log-empty">No hay mensajes</div>
       ) : (
         <div className="log-messages">
