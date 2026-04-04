@@ -48,10 +48,21 @@ export const MqttStatusProvider = ({ children }) => {
   // It lives in the context (not in LogPanel) so that:
   //  • clearing truly empties the buffer, not just the view, and
   //  • the cleared state survives tab switches (component unmounts).
-  // lastMsgBatchLenRef tracks how many items the last MQTT batch contained so
-  // that only genuinely new events are appended on each message.
+  //
+  // seenEventKeysRef is a Set of "time|text" fingerprints for every event
+  // that has already been added to eventLog.  This content-based approach
+  // is more reliable than length comparison because it works correctly even
+  // when the robot re-sends a batch of the same size or resends the full
+  // history with new events appended anywhere in the array.
+  //
+  // On clearEventLog() both eventLog and seenEventKeysRef are reset so that:
+  //  • events visible before the clear never reappear (old keys no longer in
+  //    the Set ⟹ they won't be re-added from subsequent MQTT messages that
+  //    might re-send the full history), and
+  //  • genuinely new events (keys not yet seen) are added immediately on the
+  //    next MQTT message.
   const [eventLog, setEventLog] = useState([]);
-  const lastMsgBatchLenRef = useRef(0);
+  const seenEventKeysRef = useRef(new Set());
 
   // MQTT Connection Effect
   useEffect(() => {
@@ -104,23 +115,22 @@ export const MqttStatusProvider = ({ children }) => {
         setStatus('ONLINE');
         setTelemetryData(data);
 
-        // Accumulate new events into eventLog.
-        // The robot typically sends the full event history in every MQTT
-        // message, so we only append items beyond the last known batch length
-        // to avoid duplicates.  When the batch shrinks (e.g. robot restart)
-        // we replace the accumulated log with the fresh batch.
+        // Accumulate new events into eventLog using content-based deduplication.
+        // Each event is fingerprinted as "time|text".  Only events whose
+        // fingerprint is not already in seenEventKeysRef are appended, so the
+        // approach is robust regardless of whether the robot sends the full
+        // cumulative history or only incremental updates on each MQTT message.
         const rawMessages = data.diagnostico?.messages ?? data.messages ?? null;
         if (rawMessages !== null) {
           const parsed = parseMsgBatch(rawMessages);
-          const currentLen = parsed.length;
-          const lastLen = lastMsgBatchLenRef.current;
-          if (currentLen > lastLen) {
-            setEventLog(prev => [...prev, ...parsed.slice(lastLen)]);
-          } else if (currentLen < lastLen) {
-            // Shorter (or empty) batch → robot restarted; replace log with new events
-            setEventLog(parsed);
+          const newEvents = parsed.filter(e => {
+            const key = `${e.time}|${e.text}`;
+            return !seenEventKeysRef.current.has(key);
+          });
+          if (newEvents.length > 0) {
+            newEvents.forEach(e => seenEventKeysRef.current.add(`${e.time}|${e.text}`));
+            setEventLog(prev => [...prev, ...newEvents]);
           }
-          lastMsgBatchLenRef.current = currentLen;
         }
 
         console.log('Mensaje MQTT recibido en watchdog:', data);
@@ -163,11 +173,14 @@ export const MqttStatusProvider = ({ children }) => {
     setStepCaptureRecords([]);
   }, []);
 
-  // Clears the accumulated event log.  lastMsgBatchLenRef is intentionally
-  // NOT reset here: the next MQTT message will still contain the old events,
-  // and we must not re-add them just because the log was cleared.
+  // Clears the accumulated event log and resets the seen-keys Set so that
+  // any genuinely new events arriving after this call are displayed immediately,
+  // while events that were already visible before the clear cannot reappear
+  // (they would need a new fingerprint — i.e. different time or text — to be
+  // shown again, which naturally happens only if the robot emits a new event).
   const clearEventLog = useCallback(() => {
     setEventLog([]);
+    seenEventKeysRef.current.clear();
   }, []);
 
   // Watchdog Effect - Check for timeout every second
