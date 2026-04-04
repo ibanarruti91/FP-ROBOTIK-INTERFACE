@@ -12,5 +12,6 @@ export const MqttStatusContext = createContext({
   clearStepCaptureRecords: () => {},
   publishCommand: () => {},
   eventLog: [],
-  clearEventLog: () => {}
+  clearEventLog: () => {},
+  lastError: null
 });
