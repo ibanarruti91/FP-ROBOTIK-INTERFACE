@@ -110,14 +110,14 @@ export const MqttStatusProvider = ({ children }) => {
         // to avoid duplicates.  When the batch shrinks (e.g. robot restart)
         // we replace the accumulated log with the fresh batch.
         const rawMessages = data.diagnostico?.messages ?? data.messages ?? null;
-        if (rawMessages !== null && rawMessages !== undefined) {
+        if (rawMessages !== null) {
           const parsed = parseMsgBatch(rawMessages);
           const currentLen = parsed.length;
           const lastLen = lastMsgBatchLenRef.current;
           if (currentLen > lastLen) {
             setEventLog(prev => [...prev, ...parsed.slice(lastLen)]);
-          } else if (currentLen < lastLen && currentLen > 0) {
-            // Shorter batch → robot restarted; replace log with new events
+          } else if (currentLen < lastLen) {
+            // Shorter (or empty) batch → robot restarted; replace log with new events
             setEventLog(parsed);
           }
           lastMsgBatchLenRef.current = currentLen;
