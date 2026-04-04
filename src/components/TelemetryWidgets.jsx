@@ -315,54 +315,14 @@ export function DataTable({ label, data, unit, format }) {
  * Panel de logs/mensajes
  */
 export function LogPanel({ messages, className = '', compact = false }) {
-  // clearedCount tracks how many rows existed at the moment the user last
-  // pressed "Borrar registros". Only rows that arrive *after* that point are
-  // shown, so the buffer is truly cleared while new events keep streaming in.
-  const [clearedCount, setClearedCount] = useState(0);
-
-  // Parse rows from either a newline-separated string or an array of message objects.
-  // Each row is { time: string, text: string }.
-  // useMemo ensures rows are re-derived whenever the messages prop changes,
-  // keeping the log panel reactive to incoming data without relying on remounts.
-  const rows = useMemo(() => {
-    if (typeof messages === 'string') {
-      if (!messages) return [];
-      return messages
-        .split('\n')
-        .map(line => line.trim())
-        .filter(line => line.length > 0)
-        .map(line => {
-          // Expected format: "HH:MM -> Evento X" — split at the first " -> "
-          const arrowIdx = line.indexOf(' -> ');
-          if (arrowIdx !== -1) {
-            return { time: line.slice(0, arrowIdx).trim(), text: line.slice(arrowIdx + 4).trim() };
-          }
-          return { time: '', text: line };
-        });
-    }
-    if (Array.isArray(messages)) {
-      return messages.map(msg => ({
-        time: msg.hora ?? msg.time ?? '--:--:--',
-        text: msg.msg ?? msg.mensaje ?? msg.txt ?? msg.message ?? '--',
-      }));
-    }
-    return [];
-  }, [messages]);
-
-  // If the data source resets to fewer rows than the cutoff (e.g. MQTT reconnect
-  // sends a fresh, shorter history), reset the cutoff so new events are visible.
-  useEffect(() => {
-    if (clearedCount > rows.length) {
-      setClearedCount(0);
-    }
-  }, [rows.length, clearedCount]);
-
-  // Only show rows that arrived after the last clear.
-  const visibleRows = rows.slice(clearedCount);
+  // eventLog and clearEventLog come from MqttStatusContext so that:
+  //  • clearing truly empties the in-memory buffer (not just the view), and
+  //  • the cleared state survives tab switches / component remounts.
+  const { eventLog, clearEventLog } = useContext(MqttStatusContext);
 
   const handleExportCsv = () => {
     const csvLines = ['Hora,Evento'];
-    visibleRows.forEach(({ time, text }) => {
+    eventLog.forEach(({ time, text }) => {
       // Wrap fields in quotes and escape any internal quotes
       const safeTime = `"${String(time).replace(/"/g, '""')}"`;
       const safeText = `"${String(text).replace(/"/g, '""')}"`;
@@ -387,26 +347,26 @@ export function LogPanel({ messages, className = '', compact = false }) {
           <button
             className="log-btn log-btn--export"
             onClick={handleExportCsv}
-            disabled={visibleRows.length === 0}
+            disabled={eventLog.length === 0}
             title="Exportar registro a CSV"
           >
             ⬇ Exportar a Excel
           </button>
           <button
             className="log-btn log-btn--clear"
-            onClick={() => setClearedCount(rows.length)}
-            disabled={visibleRows.length === 0}
+            onClick={clearEventLog}
+            disabled={eventLog.length === 0}
             title="Borrar el historial de eventos actual"
           >
             🗑 Borrar Registros
           </button>
         </div>
       </div>
-      {visibleRows.length === 0 ? (
+      {eventLog.length === 0 ? (
         <div className="log-empty">No hay mensajes</div>
       ) : (
         <div className="log-messages">
-          {visibleRows.map((row, index) => (
+          {eventLog.map((row, index) => (
             <div key={index} className="log-message">
               {row.time && <span className="log-time">{row.time}</span>}
               <span className="log-text">{row.text}</span>
