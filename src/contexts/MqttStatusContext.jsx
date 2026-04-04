@@ -57,12 +57,11 @@ export const MqttStatusProvider = ({ children }) => {
   // when the robot re-sends a batch of the same size or resends the full
   // history with new events appended anywhere in the array.
   //
-  // On clearEventLog() both eventLog and seenEventKeysRef are reset so that:
-  //  • events visible before the clear never reappear (old keys no longer in
-  //    the Set ⟹ they won't be re-added from subsequent MQTT messages that
-  //    might re-send the full history), and
-  //  • genuinely new events (keys not yet seen) are added immediately on the
-  //    next MQTT message.
+  // On clearEventLog() only eventLog is reset; seenEventKeysRef is deliberately
+  // kept intact.  This prevents old events from reappearing when the robot
+  // re-sends the full history on the next MQTT message (old fingerprints are
+  // still in the Set so they are skipped), while genuinely new events (new
+  // fingerprints not yet in the Set) are still displayed immediately.
   const [eventLog, setEventLog] = useState([]);
   const seenEventKeysRef = useRef(new Set());
 
@@ -178,14 +177,17 @@ export const MqttStatusProvider = ({ children }) => {
     setStepCaptureRecords([]);
   }, []);
 
-  // Clears the accumulated event log and resets the seen-keys Set so that
-  // any genuinely new events arriving after this call are displayed immediately,
-  // while events that were already visible before the clear cannot reappear
-  // (they would need a new fingerprint — i.e. different time or text — to be
-  // shown again, which naturally happens only if the robot emits a new event).
+  // Clears the accumulated event log.
+  // Intentionally does NOT clear seenEventKeysRef so that old fingerprints
+  // are retained.  The robot typically re-sends its full cumulative history
+  // on every MQTT message; if the Set were emptied here, all those old events
+  // would pass the !has(key) check on the very next message and immediately
+  // refill the log — making the clear appear to have no effect.
+  // By keeping the Set intact, old events stay filtered out forever, while
+  // genuinely new events (new fingerprints) are still displayed as soon as
+  // they arrive.
   const clearEventLog = useCallback(() => {
     setEventLog([]);
-    seenEventKeysRef.current.clear();
   }, []);
 
   // Watchdog Effect - Check for timeout every second
