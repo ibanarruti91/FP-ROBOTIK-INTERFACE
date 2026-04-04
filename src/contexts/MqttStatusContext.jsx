@@ -4,6 +4,8 @@ import { MqttStatusContext } from './MqttStatusContext.js';
 
 const MAX_STEP_CAPTURE_RECORDS = 50;
 
+const ARROW_SEPARATOR = ' -> ';
+
 /**
  * Normalises a raw messages value (string or array) into an array of
  * { time: string, text: string } objects so that the event log is always
@@ -22,9 +24,9 @@ function parseMsgBatch(rawMessages) {
       .map(line => line.trim())
       .filter(line => line.length > 0)
       .map(line => {
-        const arrowIdx = line.indexOf(' -> ');
+        const arrowIdx = line.indexOf(ARROW_SEPARATOR);
         if (arrowIdx !== -1) {
-          return { time: line.slice(0, arrowIdx).trim(), text: line.slice(arrowIdx + 4).trim() };
+          return { time: line.slice(0, arrowIdx).trim(), text: line.slice(arrowIdx + ARROW_SEPARATOR.length).trim() };
         }
         return { time: '', text: line };
       });
@@ -123,12 +125,15 @@ export const MqttStatusProvider = ({ children }) => {
         const rawMessages = data.diagnostico?.messages ?? data.messages ?? null;
         if (rawMessages !== null) {
           const parsed = parseMsgBatch(rawMessages);
-          const newEvents = parsed.filter(e => {
+          const newEvents = [];
+          for (const e of parsed) {
             const key = `${e.time}|${e.text}`;
-            return !seenEventKeysRef.current.has(key);
-          });
+            if (!seenEventKeysRef.current.has(key)) {
+              seenEventKeysRef.current.add(key);
+              newEvents.push(e);
+            }
+          }
           if (newEvents.length > 0) {
-            newEvents.forEach(e => seenEventKeysRef.current.add(`${e.time}|${e.text}`));
             setEventLog(prev => [...prev, ...newEvents]);
           }
         }
