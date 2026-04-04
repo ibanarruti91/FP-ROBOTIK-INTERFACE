@@ -57,12 +57,13 @@ export const MqttStatusProvider = ({ children }) => {
   // when the robot re-sends a batch of the same size or resends the full
   // history with new events appended anywhere in the array.
   //
-  // On clearEventLog() both eventLog and seenEventKeysRef are reset so that:
-  //  • events visible before the clear never reappear (old keys no longer in
-  //    the Set ⟹ they won't be re-added from subsequent MQTT messages that
-  //    might re-send the full history), and
-  //  • genuinely new events (keys not yet seen) are added immediately on the
-  //    next MQTT message.
+  // On clearEventLog() only eventLog is reset; seenEventKeysRef is intentionally
+  // kept intact so that:
+  //  • events visible before the clear never reappear — their fingerprints are
+  //    still in the Set, so subsequent MQTT messages that re-send the full
+  //    cumulative history will have those events filtered out, and
+  //  • genuinely new events (fingerprints not yet in the Set) are added
+  //    immediately on the next MQTT message.
   const [eventLog, setEventLog] = useState([]);
   const seenEventKeysRef = useRef(new Set());
 
@@ -178,14 +179,13 @@ export const MqttStatusProvider = ({ children }) => {
     setStepCaptureRecords([]);
   }, []);
 
-  // Clears the accumulated event log and resets the seen-keys Set so that
-  // any genuinely new events arriving after this call are displayed immediately,
-  // while events that were already visible before the clear cannot reappear
-  // (they would need a new fingerprint — i.e. different time or text — to be
-  // shown again, which naturally happens only if the robot emits a new event).
+  // Clears the visible event log while keeping seenEventKeysRef intact.
+  // Retaining the fingerprints prevents the robot's cumulative MQTT history
+  // from re-populating the list after the user clears it.  Any event the
+  // robot emits with a brand-new fingerprint will still appear immediately.
   const clearEventLog = useCallback(() => {
     setEventLog([]);
-    seenEventKeysRef.current.clear();
+    // seenEventKeysRef is NOT cleared here intentionally — see comment above.
   }, []);
 
   // Watchdog Effect - Check for timeout every second
