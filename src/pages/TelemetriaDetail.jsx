@@ -37,7 +37,7 @@ function TelemetriaDetail() {
   const { centroId } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('principal');
-  const { status, telemetryData, publishCommand, stepCaptureRecords, currentChecksum } = useMqttStatus();
+  const { status, telemetryData, publishCommand, stepCaptureRecords, currentChecksum, lastError } = useMqttStatus();
 
   // ── Control de telemetría ────────────────────────────────────────────────────
   // startRequested tracks whether the user has clicked "Iniciar" without yet
@@ -94,8 +94,8 @@ function TelemetriaDetail() {
   const [rawPayload, setRawPayload] = useState(null);
   const displayRawPayload = status === 'OFFLINE' ? null : rawPayload;
   const displayTelemetry  = status === 'OFFLINE'
-    ? { ...initialTelemetry, step_capture: [] }
-    : { ...telemetry, step_capture: stepCaptureRecords };
+    ? { ...initialTelemetry, step_capture: [], last_error: 'Ninguno' }
+    : { ...telemetry, step_capture: stepCaptureRecords, last_error: lastError ?? 'Ninguno' };
 
   // Calculate loading state based on centro and telemetry
   const loading = !centro || centro.estado === 'PROXIMAMENTE' ? false : !telemetry;

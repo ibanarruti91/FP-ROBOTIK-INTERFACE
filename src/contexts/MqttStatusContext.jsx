@@ -45,6 +45,13 @@ export const MqttStatusProvider = ({ children }) => {
   const isPausedStepCaptureRef = useRef(false);
   const clientRef = useRef(null);
 
+  // ── Last error ───────────────────────────────────────────────────────────────
+  // lastError holds the text of the most recent event whose text contains
+  // "ERROR".  It is reset to null by clearEventLog() so that "Último Error"
+  // shows "Ninguno" immediately after the log is cleared and only updates again
+  // when a genuinely new ERROR event arrives.
+  const [lastError, setLastError] = useState(null);
+
   // ── Event log ────────────────────────────────────────────────────────────────
   // eventLog accumulates incoming events in {time, text} format.
   // It lives in the context (not in LogPanel) so that:
@@ -136,6 +143,13 @@ export const MqttStatusProvider = ({ children }) => {
           }
           if (newEvents.length > 0) {
             setEventLog(prev => [...prev, ...newEvents]);
+            // Update lastError with the most recent ERROR entry among new events.
+            const latestError = [...newEvents].reverse().find(e =>
+              e.text.toUpperCase().includes('ERROR')
+            );
+            if (latestError) {
+              setLastError(latestError.text);
+            }
           }
         }
 
@@ -179,12 +193,13 @@ export const MqttStatusProvider = ({ children }) => {
     setStepCaptureRecords([]);
   }, []);
 
-  // Clears the visible event log while keeping seenEventKeysRef intact.
-  // Retaining the fingerprints prevents the robot's cumulative MQTT history
-  // from re-populating the list after the user clears it.  Any event the
-  // robot emits with a brand-new fingerprint will still appear immediately.
+  // Clears the visible event log and the last error while keeping seenEventKeysRef
+  // intact. Retaining the fingerprints prevents the robot's cumulative MQTT history
+  // from re-populating the list after the user clears it.  Any event the robot
+  // emits with a brand-new fingerprint will still appear immediately.
   const clearEventLog = useCallback(() => {
     setEventLog([]);
+    setLastError(null);
     // seenEventKeysRef is NOT cleared here intentionally — see comment above.
   }, []);
 
@@ -219,7 +234,8 @@ export const MqttStatusProvider = ({ children }) => {
     clearStepCaptureRecords,
     publishCommand,
     eventLog,
-    clearEventLog
+    clearEventLog,
+    lastError
   };
 
   return (
