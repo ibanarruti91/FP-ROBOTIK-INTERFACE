@@ -728,6 +728,8 @@ export function JointsGrid({ data, className = '' }) {
     return '#ff33bb'; // Rojo
   };
   
+  const JOINT_NAMES = ['Base', 'Hombro', 'Codo', 'Muñeca 1', 'Muñeca 2', 'Muñeca 3'];
+
   return (
     <CardGlass className={`joints-grid ${className}`}>
       <div className="joints-grid-container">
@@ -745,7 +747,7 @@ export function JointsGrid({ data, className = '' }) {
               <div className="joint-header">
                 <span className="joint-label">
                   <Settings size={18} className="widget-icon" />
-                  J{index + 1}
+                  {JOINT_NAMES[index] ?? `J${index + 1}`}
                 </span>
               </div>
               <div className="joint-data">
