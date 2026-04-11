@@ -143,11 +143,12 @@ export function getMockTelemetryData(centroConfig = null) {
     },
     // Telemetry sub-object for the Menú Principal dashboard (Node-RED payload.telemetry)
     telemetry: {
-      speed:           null,   // mm/s
-      power:           null,   // W
-      controller_temp: null,   // °C
-      main_voltage:    null,   // V
-      cpu_load:        null,   // %
+      speed:                 null,   // mm/s
+      power:                 null,   // W
+      controller_temp:       null,   // °C
+      main_voltage:          null,   // V
+      cpu_load:              null,   // %
+      tiempo_funcionamiento: null,   // HH:MM:SS string
     },
     // Raw RTDE protocol numeric IDs (before string mapping)
     rtde: {

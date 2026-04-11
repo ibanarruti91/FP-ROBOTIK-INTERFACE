@@ -3,7 +3,7 @@
  */
 
 import { useState, useEffect, useRef, useMemo, useContext } from 'react';
-import { Zap, Thermometer, Settings, Gauge, Activity, Cpu, RefreshCw } from 'lucide-react';
+import { Zap, Thermometer, Settings, Gauge, Activity, Cpu, RefreshCw, Clock } from 'lucide-react';
 import { MqttStatusContext } from '../contexts/MqttStatusContext.js';
 import './TelemetryWidgets.css';
 
@@ -808,6 +808,7 @@ export function SystemMetricCard({ label, value, unit, showBar = false, icon = n
     if (icon === 'power')   return <Zap size={16} />;
     if (icon === 'speed')   return <Gauge size={16} />;
     if (icon === 'cycles')  return <RefreshCw size={16} />;
+    if (icon === 'clock')   return <Clock size={16} />;
     return null;
   };
 
