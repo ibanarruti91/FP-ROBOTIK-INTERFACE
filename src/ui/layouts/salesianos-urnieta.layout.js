@@ -33,8 +33,7 @@ export const SALESIANOS_LAYOUT = {
             { type: "sys-metric", label: "Carga CPU",           path: "telemetry.cpu_load",        unit: "%",    icon: "cpu",    showBar: true },
             { type: "sys-metric", label: "Consumo Actual",      path: "telemetry.power",           unit: "W",    icon: "power" },
             { type: "sys-metric", label: "Velocidad TCP",       path: "telemetry.speed",           unit: "mm/s", icon: "speed" },
-            { type: "sys-metric", label: "Eficiencia (Ciclos)",    path: "telemetry.ciclos",                unit: "",  icon: "cycles" },
-            { type: "sys-metric", label: "Tiempo de Funcionamiento", path: "telemetry.tiempo_funcionamiento", unit: "",  icon: "clock"  }
+            { type: "sys-metric", label: "Tiempo de Robot Encendido", path: "telemetry.tiempo_funcionamiento", unit: "",  icon: "clock"  }
           ]
         }
       ]
