@@ -348,12 +348,15 @@ function TelemetriaDetail() {
                 return isFinite(n) ? n : null;
               };
               return {
-                speed:           toNum(data.telemetry?.speed           ?? data.sistema?.velocidad_tcp),
-                power:           toNum(data.telemetry?.power           ?? data.sistema?.potencia_total),
-                controller_temp: toNum(data.telemetry?.controller_temp ?? data.sistema?.temperatura_control),
-                main_voltage:    toNum(data.telemetry?.main_voltage),
-                cpu_load:        toNum(data.telemetry?.cpu_load),
-                ciclos:          toNum(data.telemetry?.ciclos          ?? data.programa?.ciclos),
+                speed:                 toNum(data.telemetry?.speed           ?? data.sistema?.velocidad_tcp),
+                power:                 toNum(data.telemetry?.power           ?? data.sistema?.potencia_total),
+                controller_temp:       toNum(data.telemetry?.controller_temp ?? data.sistema?.temperatura_control),
+                main_voltage:          toNum(data.telemetry?.main_voltage),
+                cpu_load:              toNum(data.telemetry?.cpu_load),
+                ciclos:                toNum(data.telemetry?.ciclos          ?? data.programa?.ciclos),
+                // tiempo_funcionamiento is a pre-formatted HH:MM:SS string from the backend,
+                // so it is intentionally kept as a string (not converted with toNum()).
+                tiempo_funcionamiento: data.tiempo_funcionamiento ?? data.telemetry?.tiempo_funcionamiento ?? baseTelemetry.telemetry?.tiempo_funcionamiento ?? null,
               };
             })(),
             // Raw RTDE protocol numeric IDs (before string mapping) – consumed by header badges
