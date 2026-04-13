@@ -985,3 +985,205 @@ export function StepCaptureTable({ records = [], className = '' }) {
     </CardGlass>
   );
 }
+
+/**
+ * HardwareIOControlBox – E/S del Controlador (Control Box)
+ * Shows the UR Control Box digital matrix (DI/DO/CI/CO × 8) and
+ * analog channels (AI0/AI1/AO0/AO1) with dynamic V / mA units read from JSON.
+ */
+export function HardwareIOControlBox({ data, className = '' }) {
+  const di = data?.digital?.di  || Array(8).fill(null);
+  const doArr = data?.digital?.do  || Array(8).fill(null);
+  const ci = data?.digital?.ci  || Array(8).fill(null);
+  const co = data?.digital?.co  || Array(8).fill(null);
+
+  const digitalRows = [
+    { label: 'DI', values: di,    colorClass: 'led-input'  },
+    { label: 'CI', values: ci,    colorClass: 'led-input'  },
+    { label: 'DO', values: doArr, colorClass: 'led-output' },
+    { label: 'CO', values: co,    colorClass: 'led-output' },
+  ];
+
+  const analogChannels = [
+    { label: 'AI0', ch: data?.analog?.ai0 },
+    { label: 'AI1', ch: data?.analog?.ai1 },
+    { label: 'AO0', ch: data?.analog?.ao0 },
+    { label: 'AO1', ch: data?.analog?.ao1 },
+  ];
+
+  return (
+    <CardGlass className={`hw-io-card ${className}`}>
+      {/* ── Digital signals ── */}
+      <div className="hw-io-section-label">DIGITALES</div>
+      <div className="io-matrix">
+        <div className="io-matrix-header">
+          <div className="io-row-label-hdr" />
+          {Array.from({ length: 8 }, (_, i) => (
+            <div key={i} className="io-col-hdr">{i}</div>
+          ))}
+        </div>
+        {digitalRows.map((row) => (
+          <div key={row.label} className="io-matrix-row">
+            <div className="io-row-label">{row.label}</div>
+            {row.values.map((active, i) => (
+              <div
+                key={i}
+                className={`io-cell ${row.colorClass}${active ? ' io-active' : ''}${active === null ? ' io-na' : ''}`}
+                title={`${row.label}${i}: ${active === null ? 'N/A' : active ? '1' : '0'}`}
+              >
+                <span className="io-cell-name">{`${row.label}${i}`}</span>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+
+      {/* ── Analog signals ── */}
+      <div className="hw-io-section-label hw-io-section-label--gap">ANALÓGICAS</div>
+      <div className="hw-analog-channels">
+        {analogChannels.map(({ label, ch }) => {
+          const value = ch?.value ?? null;
+          const mode = ch?.mode ?? 'voltage';
+          const isVoltage = mode === 'voltage';
+          const unitLabel = isVoltage ? 'V' : 'mA';
+          const unitColor = isVoltage ? '#00e5ff' : '#ff9500';
+          // Voltage range 0–10 V; current range 0–20 mA
+          const maxVal = isVoltage ? 10 : 20;
+          const isAvailable = value !== null && value !== undefined;
+          const pct = isAvailable ? Math.min(100, Math.max(0, (value / maxVal) * 100)) : 0;
+
+          return (
+            <div key={label} className="hw-analog-bar-row">
+              <span className="analog-label">{label}</span>
+              <div className="analog-bar-track">
+                <div
+                  className="analog-bar-fill"
+                  style={{ width: `${pct}%`, background: unitColor, boxShadow: `0 0 5px ${unitColor}` }}
+                />
+              </div>
+              <div className="hw-analog-value-cell">
+                <span className={`analog-value ${!isAvailable ? 'value-na' : ''}`} style={isAvailable ? { color: unitColor } : {}}>
+                  {isAvailable ? value.toFixed(2) : 'N/A'}
+                </span>
+                {isAvailable && (
+                  <span className="hw-analog-unit" style={{ color: unitColor }}>{unitLabel}</span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </CardGlass>
+  );
+}
+
+/**
+ * HardwareIOTool – E/S de la Herramienta (Tool I/O)
+ * Shows Tool digital signals (TDI/TDO × 2), analog inputs (AI2/AI3 fixed V),
+ * and the tool power supply (voltage / current / wattage).
+ */
+export function HardwareIOTool({ data, className = '' }) {
+  const tdi = data?.digital?.tdi || Array(2).fill(null);
+  const tdo = data?.digital?.tdo || Array(2).fill(null);
+
+  const analogChannels = [
+    { label: 'AI2', ch: data?.analog?.ai2 },
+    { label: 'AI3', ch: data?.analog?.ai3 },
+  ];
+
+  const power = data?.power;
+  const pvoltage = power?.voltage ?? null;
+  const pcurrent = power?.current ?? null;
+  const pwattage = power?.wattage ?? null;
+
+  const TOOL_ANALOG_COLOR = '#00e5ff';
+
+  return (
+    <CardGlass className={`hw-io-card ${className}`}>
+      {/* ── Digital signals ── */}
+      <div className="hw-io-section-label">DIGITALES</div>
+      <div className="tool-digital-grid">
+        <div className="tool-digital-row">
+          <span className="tool-digital-type-label tool-type-input">TDI</span>
+          {tdi.map((active, i) => (
+            <div
+              key={`tdi-${i}`}
+              className={`tool-led-cell led-input${active ? ' io-active' : ''}${active === null ? ' io-na' : ''}`}
+              title={`TDI ${i}: ${active === null ? 'N/A' : active ? '1' : '0'}`}
+            >
+              <span className="io-cell-name">TDI {i}</span>
+            </div>
+          ))}
+        </div>
+        <div className="tool-digital-row">
+          <span className="tool-digital-type-label tool-type-output">TDO</span>
+          {tdo.map((active, i) => (
+            <div
+              key={`tdo-${i}`}
+              className={`tool-led-cell led-output${active ? ' io-active' : ''}${active === null ? ' io-na' : ''}`}
+              title={`TDO ${i}: ${active === null ? 'N/A' : active ? '1' : '0'}`}
+            >
+              <span className="io-cell-name">TDO {i}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Analog inputs (brida) ── */}
+      <div className="hw-io-section-label hw-io-section-label--gap">ANALÓGICAS (Brida)</div>
+      <div className="hw-analog-channels">
+        {analogChannels.map(({ label, ch }) => {
+          const value = ch?.value ?? null;
+          const isAvailable = value !== null && value !== undefined;
+          const pct = isAvailable ? Math.min(100, Math.max(0, (value / 10) * 100)) : 0;
+
+          return (
+            <div key={label} className="hw-analog-bar-row">
+              <span className="analog-label">{label}</span>
+              <div className="analog-bar-track">
+                <div
+                  className="analog-bar-fill"
+                  style={{ width: `${pct}%`, background: TOOL_ANALOG_COLOR, boxShadow: `0 0 5px ${TOOL_ANALOG_COLOR}` }}
+                />
+              </div>
+              <div className="hw-analog-value-cell">
+                <span className={`analog-value ${!isAvailable ? 'value-na' : ''}`} style={isAvailable ? { color: TOOL_ANALOG_COLOR } : {}}>
+                  {isAvailable ? value.toFixed(2) : 'N/A'}
+                </span>
+                {isAvailable && (
+                  <span className="hw-analog-unit" style={{ color: TOOL_ANALOG_COLOR }}>V</span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ── Power supply ── */}
+      <div className="hw-io-section-label hw-io-section-label--gap">ALIMENTACIÓN</div>
+      <div className="tool-power-grid">
+        <div className="tool-power-item">
+          <span className="tool-power-label">Tensión</span>
+          <span className={`tool-power-value ${pvoltage === null ? 'value-na' : ''}`}>
+            {pvoltage !== null ? pvoltage.toFixed(1) : 'N/A'}
+          </span>
+          {pvoltage !== null && <span className="tool-power-unit">V</span>}
+        </div>
+        <div className="tool-power-item">
+          <span className="tool-power-label">Corriente</span>
+          <span className={`tool-power-value ${pcurrent === null ? 'value-na' : ''}`}>
+            {pcurrent !== null ? pcurrent.toFixed(1) : 'N/A'}
+          </span>
+          {pcurrent !== null && <span className="tool-power-unit">mA</span>}
+        </div>
+        <div className="tool-power-item tool-power-wattage">
+          <span className="tool-power-label">Potencia</span>
+          <span className={`tool-power-value ${pwattage === null ? 'value-na' : ''}`}>
+            {pwattage !== null ? pwattage.toFixed(2) : 'N/A'}
+          </span>
+          {pwattage !== null && <span className="tool-power-unit">W</span>}
+        </div>
+      </div>
+    </CardGlass>
+  );
+}

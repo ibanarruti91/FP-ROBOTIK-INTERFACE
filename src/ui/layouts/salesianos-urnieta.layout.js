@@ -51,29 +51,21 @@ export const SALESIANOS_LAYOUT = {
             { type: "camera", path: "camera.stream", dismissible: true, borderColor: "#ffbf00" }
           ]
         },
-        // ── RIGHT COLUMN (50 %) — Compact IO signals grid ───────────────
+        // ── RIGHT COLUMN (50 %) — Control Box card + Tool I/O card ─────
         {
-          title: "MAPEADO E/S DIGITAL",
-          className: "er-digital-io",
+          title: "E/S DEL CONTROLADOR (Control Box)",
+          className: "er-control-box",
           compact: true,
           widgets: [
-            { type: "digital-io", path: "digital_io" }
+            { type: "hardware-io-control-box", path: "hardware_io.control_box" }
           ]
         },
         {
-          title: "ANALÓGICA",
-          className: "er-analog",
+          title: "E/S DE LA HERRAMIENTA (Tool I/O)",
+          className: "er-tool-io",
           compact: true,
           widgets: [
-            { type: "analog-io", path: "analog_io" }
-          ]
-        },
-        {
-          title: "HERRAMIENTA",
-          className: "er-herramienta",
-          compact: true,
-          widgets: [
-            { type: "tool-panel", path: "herramienta" }
+            { type: "hardware-io-tool", path: "hardware_io.tool" }
           ]
         }
       ]
