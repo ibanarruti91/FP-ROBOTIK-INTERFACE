@@ -2,7 +2,7 @@
  * WidgetRenderer - Renderiza widgets basándose en su tipo y configuración
  */
 
-import { KpiCard, StatusPill, StatusDynamic, DataTable, LogPanel, SafetyPanel, DigitalIO, AnalogIO, GestionPanel, SecurityLedsPanel, ToolPanel, TcpPose, JointsGrid, SystemMetricCard, StepCaptureTable } from './TelemetryWidgets';
+import { KpiCard, StatusPill, StatusDynamic, DataTable, LogPanel, SafetyPanel, DigitalIO, AnalogIO, GestionPanel, SecurityLedsPanel, ToolPanel, TcpPose, JointsGrid, SystemMetricCard, StepCaptureTable, HardwareIOControlBox, HardwareIOTool } from './TelemetryWidgets';
 import { CameraWidget } from './CameraWidget';
 import { PerformanceChart } from './PerformanceChart';
 import './WidgetRenderer.css';
@@ -212,6 +212,24 @@ function renderWidget(widget, data, key) {
         />
       );
 
+    case 'hardware-io-control-box':
+      return (
+        <HardwareIOControlBox
+          key={key}
+          data={value}
+          className="full-width"
+        />
+      );
+
+    case 'hardware-io-tool':
+      return (
+        <HardwareIOTool
+          key={key}
+          data={value}
+          className="full-width"
+        />
+      );
+
     default:
       return (
         <div key={key} className="widget-unknown">
@@ -259,14 +277,20 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
     );
   }
 
-  // Estado Robot (HARDWARE E/S): 2-column — Camera (left, full height) | Digital IO + Analog + Tool stacked (right)
+  // Estado Robot (HARDWARE E/S): 2-column — Camera (left, full height) | Control Box + Tool IO stacked (right)
   if (sectionId === 'estado-robot') {
-    const cameraGroups  = groups.filter(g => g.className === 'er-camera');
-    const digitalGroups = groups.filter(g => g.className === 'er-digital-io');
-    const analogGroups  = groups.filter(g => g.className === 'er-analog');
-    const toolGroups    = groups.filter(g => g.className === 'er-herramienta');
-    const d = cameraGroups.length;
-    const di = d + digitalGroups.length;
+    const cameraGroups      = groups.filter(g => g.className === 'er-camera');
+    const controlBoxGroups  = groups.filter(g => g.className === 'er-control-box');
+    const toolIOGroups      = groups.filter(g => g.className === 'er-tool-io');
+    // Legacy group support (kept for backward compatibility)
+    const digitalGroups     = groups.filter(g => g.className === 'er-digital-io');
+    const analogGroups      = groups.filter(g => g.className === 'er-analog');
+    const toolGroups        = groups.filter(g => g.className === 'er-herramienta');
+
+    const d  = cameraGroups.length;
+    const cb = d + controlBoxGroups.length;
+    const ti = cb + toolIOGroups.length;
+    const di = ti + digitalGroups.length;
     const da = di + analogGroups.length;
 
     return (
@@ -275,9 +299,12 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
           {cameraGroups.map((group, i) => renderGroup(group, data, i))}
         </div>
         <div className="er-right-column">
-          {digitalGroups.map((group, i) => renderGroup(group, data, d + i))}
-          {analogGroups.map((group, i) => renderGroup(group, data, di + i))}
-          {toolGroups.map((group, i) => renderGroup(group, data, da + i))}
+          {controlBoxGroups.map((group, i) => renderGroup(group, data, d  + i))}
+          {toolIOGroups.map((group, i)     => renderGroup(group, data, cb + i))}
+          {/* Legacy groups */}
+          {digitalGroups.map((group, i)    => renderGroup(group, data, ti + i))}
+          {analogGroups.map((group, i)     => renderGroup(group, data, di + i))}
+          {toolGroups.map((group, i)       => renderGroup(group, data, da + i))}
         </div>
       </div>
     );

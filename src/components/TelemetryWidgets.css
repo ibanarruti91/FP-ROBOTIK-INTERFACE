@@ -1501,3 +1501,166 @@
 .sct-tr--new td {
   animation: sct-row-flash 0.6s ease-out forwards;
 }
+
+/* ============================================================
+   Hardware IO – Control Box + Tool I/O panels
+   ============================================================ */
+
+/* Big wrapper card for both zones */
+.hw-io-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 1rem 1.2rem 1.1rem;
+}
+
+/* Section label (DIGITALES / ANALÓGICAS / ALIMENTACIÓN) */
+.hw-io-section-label {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #64748b;
+  padding: 0.3rem 0 0.4rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  margin-bottom: 0.6rem;
+}
+
+.hw-io-section-label--gap {
+  margin-top: 1rem;
+}
+
+/* ── Analog bar row (value + unit in last cell) ── */
+.hw-analog-channels {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.hw-analog-bar-row {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr 7rem;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.hw-analog-value-cell {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 0.25rem;
+}
+
+.hw-analog-unit {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  min-width: 1.8rem;
+  text-align: left;
+}
+
+/* ── Tool digital signals (TDI / TDO × 2 LEDs) ── */
+.tool-digital-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 0.25rem;
+}
+
+.tool-digital-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tool-digital-type-label {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  width: 2.8rem;
+  flex-shrink: 0;
+  text-align: right;
+  padding-right: 4px;
+}
+
+.tool-type-input  { color: rgba(110, 160, 255, 0.85); }
+.tool-type-output { color: rgba(220, 80, 160, 0.85);  }
+
+/* Tool LED cell (wider than the Control Box matrix since only 2 per row) */
+.tool-led-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  flex: 1;
+  max-width: 120px;
+  border-radius: 6px;
+  padding: 0 6px;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+  cursor: default;
+  overflow: hidden;
+}
+
+/* Tool power supply grid */
+.tool-power-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.tool-power-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.6rem 0.4rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 8px;
+}
+
+.tool-power-label {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.tool-power-value {
+  font-family: 'Roboto Mono', 'Orbitron', monospace;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #00d1ff;
+  text-shadow: 0 0 8px rgba(0, 209, 255, 0.4);
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.tool-power-unit {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* Wattage item – bolder emphasis */
+.tool-power-wattage .tool-power-value {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #00f3ff;
+  text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+}
+
+.tool-power-wattage .tool-power-unit {
+  color: #00f3ff;
+  font-weight: 700;
+}
+
+.tool-power-wattage {
+  border-color: rgba(0, 243, 255, 0.18);
+}
