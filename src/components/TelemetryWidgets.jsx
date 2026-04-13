@@ -992,16 +992,16 @@ export function StepCaptureTable({ records = [], className = '' }) {
  * analog channels (AI0/AI1/AO0/AO1) with dynamic V / mA units read from JSON.
  */
 export function HardwareIOControlBox({ data, className = '' }) {
-  const di = data?.digital?.di  || Array(8).fill(null);
-  const doArr = data?.digital?.do  || Array(8).fill(null);
-  const ci = data?.digital?.ci  || Array(8).fill(null);
-  const co = data?.digital?.co  || Array(8).fill(null);
+  const di    = data?.digital?.di  || Array(8).fill(null);
+  const doVals = data?.digital?.do  || Array(8).fill(null);
+  const ci    = data?.digital?.ci  || Array(8).fill(null);
+  const co    = data?.digital?.co  || Array(8).fill(null);
 
   const digitalRows = [
-    { label: 'DI', values: di,    colorClass: 'led-input'  },
-    { label: 'CI', values: ci,    colorClass: 'led-input'  },
-    { label: 'DO', values: doArr, colorClass: 'led-output' },
-    { label: 'CO', values: co,    colorClass: 'led-output' },
+    { label: 'DI', values: di,     colorClass: 'led-input'  },
+    { label: 'CI', values: ci,     colorClass: 'led-input'  },
+    { label: 'DO', values: doVals, colorClass: 'led-output' },
+    { label: 'CO', values: co,     colorClass: 'led-output' },
   ];
 
   const analogChannels = [
