@@ -1160,7 +1160,7 @@ export function HardwareIOTool({ data, className = '' }) {
               </div>
               <div className="hw-analog-value-cell">
                 <span className={`analog-value ${!isAvailable ? 'value-na' : ''}`} style={isAvailable ? { color: TOOL_ANALOG_COLOR } : {}}>
-                  {isAvailable ? value.toFixed(2) : 'N/A'}
+                  {isAvailable ? value.toFixed(2) : '—'}
                 </span>
                 {isAvailable && (
                   <span className="hw-analog-unit" style={{ color: TOOL_ANALOG_COLOR }}>V</span>
