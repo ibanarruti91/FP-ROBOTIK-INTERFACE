@@ -354,12 +354,6 @@ function TelemetriaDetail() {
               const normalizedAnalog = normalizeAnalogIO(data);
               const normalizedToolData = normalizeTool(data);
 
-              // DEBUG: log analog source to verify correct mapping (remove before final release)
-              console.log('Analog source:', {
-                raw: data.analog_io,
-                normalized: normalizedAnalog,
-              });
-
               const srcControlBox = data.hardware_io?.control_box;
               const baseControlBox = baseTelemetry.hardware_io?.control_box;
               const srcTool = data.hardware_io?.tool;
