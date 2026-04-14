@@ -987,6 +987,16 @@ export function StepCaptureTable({ records = [], className = '' }) {
 }
 
 /**
+ * Safely converts a value to a finite number, or returns null.
+ * Handles strings, null, undefined, and NaN from MQTT payloads.
+ */
+function toSafeNum(v) {
+  if (v === null || v === undefined) return null;
+  const n = Number(v);
+  return isFinite(n) ? n : null;
+}
+
+/**
  * HardwareIOControlBox – E/S del Controlador (Control Box)
  * Shows the UR Control Box digital matrix (DI/DO/CI/CO × 8) and
  * analog channels (AI0/AI1/AO0/AO1) with dynamic V / mA units read from JSON.
@@ -1043,9 +1053,7 @@ export function HardwareIOControlBox({ data, className = '' }) {
       <div className="hw-io-section-label hw-io-section-label--gap">ANALÓGICAS</div>
       <div className="hw-analog-channels">
         {analogChannels.map(({ label, ch }) => {
-          const rawValue = ch?.value ?? null;
-          const numValue = rawValue !== null && rawValue !== undefined ? Number(rawValue) : null;
-          const value = numValue !== null && isFinite(numValue) ? numValue : null;
+          const value = toSafeNum(ch?.value);
           const mode = ch?.mode ?? 'voltage';
           const isVoltage = mode === 'voltage';
           const unitLabel = isVoltage ? 'V' : 'mA';
@@ -1096,11 +1104,6 @@ export function HardwareIOTool({ data, className = '' }) {
   ];
 
   const power = data?.power;
-  const toSafeNum = (v) => {
-    if (v === null || v === undefined) return null;
-    const n = Number(v);
-    return isFinite(n) ? n : null;
-  };
   const pvoltage = toSafeNum(power?.voltage);
   const pcurrent = toSafeNum(power?.current);
   const pwattage = toSafeNum(power?.wattage);
@@ -1142,9 +1145,7 @@ export function HardwareIOTool({ data, className = '' }) {
       <div className="hw-io-section-label hw-io-section-label--gap">ANALÓGICAS (Brida)</div>
       <div className="hw-analog-channels">
         {analogChannels.map(({ label, ch }) => {
-          const rawValue = ch?.value ?? null;
-          const numValue = rawValue !== null && rawValue !== undefined ? Number(rawValue) : null;
-          const value = numValue !== null && isFinite(numValue) ? numValue : null;
+          const value = toSafeNum(ch?.value);
           const isAvailable = value !== null;
           const pct = isAvailable ? Math.min(100, Math.max(0, (value / 10) * 100)) : 0;
 
