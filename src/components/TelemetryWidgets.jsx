@@ -1114,31 +1114,30 @@ export function HardwareIOTool({ data, className = '' }) {
     <CardGlass className={`hw-io-card ${className}`}>
       {/* ── Digital signals ── */}
       <div className="hw-io-section-label">DIGITALES</div>
-      <div className="tool-digital-grid">
-        <div className="tool-digital-row">
-          <span className="tool-digital-type-label tool-type-input">TDI</span>
-          {tdi.map((active, i) => (
-            <div
-              key={`tdi-${i}`}
-              className={`tool-led-cell led-input${active ? ' io-active' : ''}${active === null ? ' io-na' : ''}`}
-              title={`TDI ${i}: ${active === null ? 'N/A' : active ? '1' : '0'}`}
-            >
-              <span className="io-cell-name">TDI {i}</span>
-            </div>
+      <div className="io-matrix io-matrix--tool">
+        <div className="io-matrix-header io-matrix-header--tool">
+          <div className="io-row-label-hdr" />
+          {Array.from({ length: 2 }, (_, i) => (
+            <div key={i} className="io-col-hdr">{i}</div>
           ))}
         </div>
-        <div className="tool-digital-row">
-          <span className="tool-digital-type-label tool-type-output">TDO</span>
-          {tdo.map((active, i) => (
-            <div
-              key={`tdo-${i}`}
-              className={`tool-led-cell led-output${active ? ' io-active' : ''}${active === null ? ' io-na' : ''}`}
-              title={`TDO ${i}: ${active === null ? 'N/A' : active ? '1' : '0'}`}
-            >
-              <span className="io-cell-name">TDO {i}</span>
-            </div>
-          ))}
-        </div>
+        {[
+          { label: 'TDI', values: tdi, colorClass: 'led-input'  },
+          { label: 'TDO', values: tdo, colorClass: 'led-output' },
+        ].map((row) => (
+          <div key={row.label} className="io-matrix-row io-matrix-row--tool">
+            <div className="io-row-label">{row.label}</div>
+            {row.values.map((active, i) => (
+              <div
+                key={i}
+                className={`io-cell ${row.colorClass}${active ? ' io-active' : ''}${active === null ? ' io-na' : ''}`}
+                title={`${row.label}${i}: ${active === null ? 'N/A' : active ? '1' : '0'}`}
+              >
+                <span className="io-cell-name">{`${row.label}${i}`}</span>
+              </div>
+            ))}
+          </div>
+        ))}
       </div>
 
       {/* ── Analog inputs (brida) ── */}

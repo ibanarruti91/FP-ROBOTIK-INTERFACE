@@ -1603,6 +1603,15 @@
   overflow: hidden;
 }
 
+/* io-matrix variant for Tool I/O – 2 signal columns instead of 8 */
+.io-matrix-header--tool {
+  grid-template-columns: 2.5rem repeat(2, 1fr);
+}
+
+.io-matrix-row--tool {
+  grid-template-columns: 2.5rem repeat(2, 1fr);
+}
+
 /* Tool power supply grid */
 .tool-power-grid {
   display: grid;
