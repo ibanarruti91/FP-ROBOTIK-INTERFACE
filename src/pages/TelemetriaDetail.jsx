@@ -33,6 +33,54 @@ function mapNumericState(map, value) {
   return value;
 }
 
+/**
+ * Normalizes analog I/O channels from both legacy (analog_io.ai[]/ao[] arrays)
+ * and new extended (analog_io.ai0/ai1/ao0/ao1 objects with value/unit/mode)
+ * MQTT payload formats into a unified structure expected by HardwareIOControlBox.
+ */
+function normalizeAnalogIO(data) {
+  return {
+    ai0: data.analog_io?.ai0 ?? {
+      value: data.analog_io?.ai?.[0] ?? 0,
+      unit: 'V',
+      mode: 'voltage',
+    },
+    ai1: data.analog_io?.ai1 ?? {
+      value: data.analog_io?.ai?.[1] ?? 0,
+      unit: 'V',
+      mode: 'voltage',
+    },
+    ao0: data.analog_io?.ao0 ?? {
+      value: data.analog_io?.ao?.[0] ?? 0,
+      unit: 'V',
+      mode: 'voltage',
+    },
+    ao1: data.analog_io?.ao1 ?? {
+      value: data.analog_io?.ao?.[1] ?? 0,
+      unit: 'V',
+      mode: 'voltage',
+    },
+  };
+}
+
+/**
+ * Normalizes tool data from both legacy (herramienta.tension/corriente/potencia)
+ * and new extended (herramienta.analog.ai2/ai3) MQTT payload formats into a
+ * unified structure expected by HardwareIOTool.
+ */
+function normalizeTool(data) {
+  const tension   = data.herramienta?.tension   ?? 0;
+  const corriente = data.herramienta?.corriente ?? 0;
+  return {
+    tension,
+    corriente,
+    potencia: data.herramienta?.potencia ??
+      (tension * corriente / 1000), // corriente in mA × tension in V → mW ÷ 1000 = W
+    ai2: data.herramienta?.analog?.ai2 ?? { value: null, unit: 'V' },
+    ai3: data.herramienta?.analog?.ai3 ?? { value: null, unit: 'V' },
+  };
+}
+
 function TelemetriaDetail() {
   const { centroId } = useParams();
   const navigate = useNavigate();
@@ -300,10 +348,40 @@ function TelemetriaDetail() {
             },
             // Map hardware_io from new UR Polyscope-style JSON structure
             // { control_box: { digital, analog }, tool: { digital, analog, power } }
-            hardware_io: {
-              control_box: data.hardware_io?.control_box ?? baseTelemetry.hardware_io?.control_box ?? null,
-              tool: data.hardware_io?.tool ?? baseTelemetry.hardware_io?.tool ?? null,
-            },
+            // Supports both legacy (analog_io/herramienta) and new extended formats
+            // by merging normalized data so analog channels always have a value.
+            hardware_io: (() => {
+              const normalizedAnalog = normalizeAnalogIO(data);
+              const normalizedToolData = normalizeTool(data);
+
+              const srcControlBox = data.hardware_io?.control_box;
+              const baseControlBox = baseTelemetry.hardware_io?.control_box;
+              const srcTool = data.hardware_io?.tool;
+              const baseTool = baseTelemetry.hardware_io?.tool;
+
+              // Merge control_box: prefer new-format analog, fall back to normalizedAnalog
+              const controlBoxBase = srcControlBox ?? baseControlBox ?? {};
+              const control_box = {
+                ...controlBoxBase,
+                analog: srcControlBox?.analog ?? normalizedAnalog,
+              };
+
+              // Merge tool: prefer new-format analog/power, fall back to herramienta legacy
+              const toolBase = srcTool ?? baseTool ?? {};
+              const tool = {
+                ...toolBase,
+                analog: srcTool?.analog
+                  ?? { ai2: normalizedToolData.ai2, ai3: normalizedToolData.ai3 },
+                power: srcTool?.power
+                  ?? {
+                    voltage: normalizedToolData.tension,
+                    current: normalizedToolData.corriente,
+                    wattage: normalizedToolData.potencia,
+                  },
+              };
+
+              return { control_box, tool };
+            })(),
             // Map diagnostic fields from the new MQTT payload `diagnostico` block,
             // with fallback to root-level fields for backward compatibility.
             robot_power: data.robot_power ?? data.telemetry?.power ?? baseTelemetry.robot_power ?? null,
