@@ -359,10 +359,16 @@ function TelemetriaDetail() {
               const srcTool = data.hardware_io?.tool;
               const baseTool = baseTelemetry.hardware_io?.tool;
 
-              // Merge control_box: prefer new-format analog, fall back to normalizedAnalog
+              // Merge control_box: prefer new-format digital/analog, fall back to digital_io / normalizedAnalog
               const controlBoxBase = srcControlBox ?? baseControlBox ?? {};
               const control_box = {
                 ...controlBoxBase,
+                digital: srcControlBox?.digital ?? {
+                  di: data.digital_io?.inputs               ?? baseControlBox?.digital?.di ?? Array(8).fill(null),
+                  do: data.digital_io?.outputs              ?? baseControlBox?.digital?.do ?? Array(8).fill(null),
+                  ci: data.digital_io?.configurable_inputs  ?? baseControlBox?.digital?.ci ?? Array(8).fill(null),
+                  co: data.digital_io?.configurable_outputs ?? baseControlBox?.digital?.co ?? Array(8).fill(null),
+                },
                 analog: srcControlBox?.analog ?? normalizedAnalog,
               };
 
