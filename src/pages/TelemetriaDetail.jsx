@@ -301,8 +301,8 @@ function TelemetriaDetail() {
             // Map hardware_io from new UR Polyscope-style JSON structure
             // { control_box: { digital, analog }, tool: { digital, analog, power } }
             hardware_io: {
-              control_box: data.control_box ?? baseTelemetry.hardware_io?.control_box ?? null,
-              tool: data.tool ?? baseTelemetry.hardware_io?.tool ?? null,
+              control_box: data.hardware_io?.control_box ?? baseTelemetry.hardware_io?.control_box ?? null,
+              tool: data.hardware_io?.tool ?? baseTelemetry.hardware_io?.tool ?? null,
             },
             // Map diagnostic fields from the new MQTT payload `diagnostico` block,
             // with fallback to root-level fields for backward compatibility.
