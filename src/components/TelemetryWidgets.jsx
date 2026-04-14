@@ -992,10 +992,11 @@ export function StepCaptureTable({ records = [], className = '' }) {
  * analog channels (AI0/AI1/AO0/AO1) with dynamic V / mA units read from JSON.
  */
 export function HardwareIOControlBox({ data, className = '' }) {
-  const di    = data?.digital?.di  || Array(8).fill(null);
-  const doVals = data?.digital?.do  || Array(8).fill(null);
-  const ci    = data?.digital?.ci  || Array(8).fill(null);
-  const co    = data?.digital?.co  || Array(8).fill(null);
+  const EMPTY8 = Array(8).fill(null);
+  const di     = Array.isArray(data?.digital?.di)  ? data.digital.di  : EMPTY8;
+  const doVals = Array.isArray(data?.digital?.do)  ? data.digital.do  : EMPTY8;
+  const ci     = Array.isArray(data?.digital?.ci)  ? data.digital.ci  : EMPTY8;
+  const co     = Array.isArray(data?.digital?.co)  ? data.digital.co  : EMPTY8;
 
   const digitalRows = [
     { label: 'DI', values: di,     colorClass: 'led-input'  },
@@ -1042,14 +1043,16 @@ export function HardwareIOControlBox({ data, className = '' }) {
       <div className="hw-io-section-label hw-io-section-label--gap">ANALÓGICAS</div>
       <div className="hw-analog-channels">
         {analogChannels.map(({ label, ch }) => {
-          const value = ch?.value ?? null;
+          const rawValue = ch?.value ?? null;
+          const numValue = rawValue !== null && rawValue !== undefined ? Number(rawValue) : null;
+          const value = numValue !== null && isFinite(numValue) ? numValue : null;
           const mode = ch?.mode ?? 'voltage';
           const isVoltage = mode === 'voltage';
           const unitLabel = isVoltage ? 'V' : 'mA';
           const unitColor = isVoltage ? '#00e5ff' : '#ff9500';
           // Voltage range 0–10 V; current range 0–20 mA
           const maxVal = isVoltage ? 10 : 20;
-          const isAvailable = value !== null && value !== undefined;
+          const isAvailable = value !== null;
           const pct = isAvailable ? Math.min(100, Math.max(0, (value / maxVal) * 100)) : 0;
 
           return (
@@ -1083,8 +1086,9 @@ export function HardwareIOControlBox({ data, className = '' }) {
  * and the tool power supply (voltage / current / wattage).
  */
 export function HardwareIOTool({ data, className = '' }) {
-  const tdi = data?.digital?.tdi || Array(2).fill(null);
-  const tdo = data?.digital?.tdo || Array(2).fill(null);
+  const EMPTY2 = Array(2).fill(null);
+  const tdi = Array.isArray(data?.digital?.tdi) ? data.digital.tdi : EMPTY2;
+  const tdo = Array.isArray(data?.digital?.tdo) ? data.digital.tdo : EMPTY2;
 
   const analogChannels = [
     { label: 'AI2', ch: data?.analog?.ai2 },
@@ -1092,9 +1096,14 @@ export function HardwareIOTool({ data, className = '' }) {
   ];
 
   const power = data?.power;
-  const pvoltage = power?.voltage ?? null;
-  const pcurrent = power?.current ?? null;
-  const pwattage = power?.wattage ?? null;
+  const toSafeNum = (v) => {
+    if (v === null || v === undefined) return null;
+    const n = Number(v);
+    return isFinite(n) ? n : null;
+  };
+  const pvoltage = toSafeNum(power?.voltage);
+  const pcurrent = toSafeNum(power?.current);
+  const pwattage = toSafeNum(power?.wattage);
 
   const TOOL_ANALOG_COLOR = '#00e5ff';
 
@@ -1133,8 +1142,10 @@ export function HardwareIOTool({ data, className = '' }) {
       <div className="hw-io-section-label hw-io-section-label--gap">ANALÓGICAS (Brida)</div>
       <div className="hw-analog-channels">
         {analogChannels.map(({ label, ch }) => {
-          const value = ch?.value ?? null;
-          const isAvailable = value !== null && value !== undefined;
+          const rawValue = ch?.value ?? null;
+          const numValue = rawValue !== null && rawValue !== undefined ? Number(rawValue) : null;
+          const value = numValue !== null && isFinite(numValue) ? numValue : null;
+          const isAvailable = value !== null;
           const pct = isAvailable ? Math.min(100, Math.max(0, (value / 10) * 100)) : 0;
 
           return (
