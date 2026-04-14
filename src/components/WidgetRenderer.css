@@ -440,19 +440,18 @@
   50% { opacity: 0.5; }
 }
 
-/* Estado Robot layout: 2-column — Camera (left, full height) | Digital IO + Analog + Tool stacked (right) */
+/* Estado Robot layout: 2-column — Camera (left, 16:9) | Digital IO + Analog + Tool stacked (right) */
 .widget-renderer.estado-robot-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
-  align-items: stretch;
+  align-items: start;
 }
 
-/* Left column: Camera — stretches to match right column total height */
+/* Left column: Camera at natural 16:9 aspect ratio */
 .widget-renderer.estado-robot-layout .er-left-column {
   display: flex;
   flex-direction: column;
-  min-height: 0;
 }
 
 /* Right column: Digital IO, Analog, Tool — stacked vertically */
@@ -463,33 +462,26 @@
   min-width: 0;
 }
 
-/* Camera group and widget fill the left column */
+/* Camera group — sized naturally, no stretching */
 .widget-renderer.estado-robot-layout .er-left-column .widget-group {
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
 }
 
 .widget-renderer.estado-robot-layout .er-left-column .widget-grid {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 0;
 }
 
 .widget-renderer.estado-robot-layout .er-left-column .camera-widget.nexus-card {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 0;
 }
 
-/* Remove aspect-ratio lock so camera stretches to match right column height */
+/* Preserve the camera's native 16:9 aspect ratio — do NOT remove or override */
 .widget-renderer.estado-robot-layout .er-left-column .camera-inner--ratio {
-  aspect-ratio: unset;
-  flex: 1;
-  min-height: 180px;
+  aspect-ratio: 16 / 9;
 }
 
 .widget-renderer.estado-robot-layout .er-left-column .camera-inner img,
@@ -537,11 +529,6 @@
     grid-column: 1;
     grid-row: auto;
     align-self: auto;
-  }
-  .widget-renderer.estado-robot-layout .er-left-column .camera-inner--ratio {
-    aspect-ratio: 16 / 9;
-    flex: unset;
-    min-height: unset;
   }
 }
 
