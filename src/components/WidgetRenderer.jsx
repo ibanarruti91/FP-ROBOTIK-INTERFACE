@@ -295,16 +295,20 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
 
     return (
       <div className="widget-renderer estado-robot-layout">
-        <div className="er-left-column">
-          {cameraGroups.map((group, i) => renderGroup(group, data, i))}
+        <div className="er-top-row">
+          <div className="er-camera-col">
+            {cameraGroups.map((group, i) => renderGroup(group, data, i))}
+          </div>
+          <div className="er-control-box-col">
+            {controlBoxGroups.map((group, i) => renderGroup(group, data, d + i))}
+          </div>
         </div>
-        <div className="er-right-column">
-          {controlBoxGroups.map((group, i) => renderGroup(group, data, d  + i))}
-          {toolIOGroups.map((group, i)     => renderGroup(group, data, cb + i))}
+        <div className="er-bottom-row">
+          {toolIOGroups.map((group, i)  => renderGroup(group, data, cb + i))}
           {/* Legacy groups */}
-          {digitalGroups.map((group, i)    => renderGroup(group, data, ti + i))}
-          {analogGroups.map((group, i)     => renderGroup(group, data, di + i))}
-          {toolGroups.map((group, i)       => renderGroup(group, data, da + i))}
+          {digitalGroups.map((group, i) => renderGroup(group, data, ti + i))}
+          {analogGroups.map((group, i)  => renderGroup(group, data, di + i))}
+          {toolGroups.map((group, i)    => renderGroup(group, data, da + i))}
         </div>
       </div>
     );
