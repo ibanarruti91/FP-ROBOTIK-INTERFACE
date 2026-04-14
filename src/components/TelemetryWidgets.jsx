@@ -1092,11 +1092,18 @@ export function HardwareIOControlBox({ data, className = '' }) {
  * HardwareIOTool – E/S de la Herramienta (Tool I/O)
  * Shows Tool digital signals (TDI/TDO × 2), analog inputs (AI2/AI3 fixed V),
  * and the tool power supply (voltage / current / wattage).
+ *
+ * Layout: two-column row — Digital (left) | Analog (right) — then Power below.
+ * Digital cells use the same io-cell style as HardwareIOControlBox.
  */
 export function HardwareIOTool({ data, className = '' }) {
-  const EMPTY2 = Array(2).fill(null);
-  const tdi = Array.isArray(data?.digital?.tdi) ? data.digital.tdi : EMPTY2;
-  const tdo = Array.isArray(data?.digital?.tdo) ? data.digital.tdo : EMPTY2;
+  // If digital.available is explicitly false, show cells in OFF (false) state;
+  // if data is simply missing, show N/A (null) state.
+  const digitalAvailable = data?.digital?.available !== false;
+  const EMPTY2     = Array(2).fill(null);
+  const EMPTY2_OFF = Array(2).fill(false);
+  const tdi = Array.isArray(data?.digital?.tdi) ? data.digital.tdi : (digitalAvailable ? EMPTY2 : EMPTY2_OFF);
+  const tdo = Array.isArray(data?.digital?.tdo) ? data.digital.tdo : (digitalAvailable ? EMPTY2 : EMPTY2_OFF);
 
   const analogChannels = [
     { label: 'AI2', ch: data?.analog?.ai2 },
@@ -1111,64 +1118,73 @@ export function HardwareIOTool({ data, className = '' }) {
   const TOOL_ANALOG_COLOR = '#00e5ff';
 
   return (
-    <CardGlass className={`hw-io-card ${className}`}>
-      {/* ── Digital signals ── */}
-      <div className="hw-io-section-label">DIGITALES</div>
-      <div className="tool-digital-grid">
-        <div className="tool-digital-row">
-          <span className="tool-digital-type-label tool-type-input">TDI</span>
-          {tdi.map((active, i) => (
-            <div
-              key={`tdi-${i}`}
-              className={`tool-led-cell led-input${active ? ' io-active' : ''}${active === null ? ' io-na' : ''}`}
-              title={`TDI ${i}: ${active === null ? 'N/A' : active ? '1' : '0'}`}
-            >
-              <span className="io-cell-name">TDI {i}</span>
-            </div>
-          ))}
-        </div>
-        <div className="tool-digital-row">
-          <span className="tool-digital-type-label tool-type-output">TDO</span>
-          {tdo.map((active, i) => (
-            <div
-              key={`tdo-${i}`}
-              className={`tool-led-cell led-output${active ? ' io-active' : ''}${active === null ? ' io-na' : ''}`}
-              title={`TDO ${i}: ${active === null ? 'N/A' : active ? '1' : '0'}`}
-            >
-              <span className="io-cell-name">TDO {i}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+    <CardGlass className={`hw-io-card hw-io-card--tool ${className}`}>
+      {/* ── Two-column row: Digital (left) | Analog (right) ── */}
+      <div className="tool-io-main-grid">
 
-      {/* ── Analog inputs (brida) ── */}
-      <div className="hw-io-section-label hw-io-section-label--gap">ANALÓGICAS (Brida)</div>
-      <div className="hw-analog-channels">
-        {analogChannels.map(({ label, ch }) => {
-          const value = toSafeNum(ch?.value);
-          const isAvailable = value !== null;
-          const pct = isAvailable ? Math.min(100, Math.max(0, (value / 10) * 100)) : 0;
+        {/* LEFT COLUMN — Digital signals */}
+        <div className="tool-io-digital-col">
+          <div className="hw-io-section-label">DIGITALES HERRAMIENTA (TOOL DIGITAL I/O)</div>
 
-          return (
-            <div key={label} className="hw-analog-bar-row">
-              <span className="analog-label">{label}</span>
-              <div className="analog-bar-track">
-                <div
-                  className="analog-bar-fill"
-                  style={{ width: `${pct}%`, background: TOOL_ANALOG_COLOR, boxShadow: `0 0 5px ${TOOL_ANALOG_COLOR}` }}
-                />
+          <div className="tool-io-sublabel tool-io-sublabel--input">Inputs (TDI)</div>
+          <div className="tool-io-row">
+            {tdi.map((active, i) => (
+              <div
+                key={`tdi-${i}`}
+                className={`io-cell led-input${active ? ' io-active' : ''}${active === null ? ' io-na' : ''}`}
+                title={`TDI${i}: ${active === null ? 'N/A' : active ? '1' : '0'}`}
+              >
+                <span className="io-cell-name">TDI{i}</span>
               </div>
-              <div className="hw-analog-value-cell">
-                <span className={`analog-value ${!isAvailable ? 'value-na' : ''}`} style={isAvailable ? { color: TOOL_ANALOG_COLOR } : {}}>
-                  {isAvailable ? value.toFixed(2) : '—'}
-                </span>
-                {isAvailable && (
-                  <span className="hw-analog-unit" style={{ color: TOOL_ANALOG_COLOR }}>V</span>
-                )}
+            ))}
+          </div>
+
+          <div className="tool-io-sublabel tool-io-sublabel--output">Outputs (TDO)</div>
+          <div className="tool-io-row">
+            {tdo.map((active, i) => (
+              <div
+                key={`tdo-${i}`}
+                className={`io-cell led-output${active ? ' io-active' : ''}${active === null ? ' io-na' : ''}`}
+                title={`TDO${i}: ${active === null ? 'N/A' : active ? '1' : '0'}`}
+              >
+                <span className="io-cell-name">TDO{i}</span>
               </div>
-            </div>
-          );
-        })}
+            ))}
+          </div>
+        </div>
+
+        {/* RIGHT COLUMN — Analog inputs */}
+        <div className="tool-io-analog-col">
+          <div className="hw-io-section-label">ANALÓGICAS HERRAMIENTA (TOOL ANALOG I/O)</div>
+          <div className="hw-analog-channels">
+            {analogChannels.map(({ label, ch }) => {
+              const value = toSafeNum(ch?.value);
+              const isAvailable = value !== null;
+              const pct = isAvailable ? Math.min(100, Math.max(0, (value / 10) * 100)) : 0;
+
+              return (
+                <div key={label} className="hw-analog-bar-row">
+                  <span className="analog-label">{label}</span>
+                  <div className="analog-bar-track">
+                    <div
+                      className="analog-bar-fill"
+                      style={{ width: `${pct}%`, background: TOOL_ANALOG_COLOR, boxShadow: `0 0 5px ${TOOL_ANALOG_COLOR}` }}
+                    />
+                  </div>
+                  <div className="hw-analog-value-cell">
+                    <span className={`analog-value ${!isAvailable ? 'value-na' : ''}`} style={isAvailable ? { color: TOOL_ANALOG_COLOR } : {}}>
+                      {isAvailable ? value.toFixed(2) : '—'}
+                    </span>
+                    {isAvailable && (
+                      <span className="hw-analog-unit" style={{ color: TOOL_ANALOG_COLOR }}>V</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
       </div>
 
       {/* ── Power supply ── */}

@@ -1664,3 +1664,71 @@
 .tool-power-wattage {
   border-color: rgba(0, 243, 255, 0.18);
 }
+
+/* ============================================
+   HardwareIOTool – two-column internal layout
+   LEFT: Digital (TDI / TDO)  |  RIGHT: Analog (AI2 / AI3)
+   ============================================ */
+
+/* Two-column main grid inside the tool I/O card */
+.hw-io-card--tool .tool-io-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+  align-items: start;
+}
+
+/* Column base styles */
+.tool-io-digital-col,
+.tool-io-analog-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+/* Sub-labels: "Inputs (TDI)" / "Outputs (TDO)" */
+.tool-io-sublabel {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 0.45rem;
+  margin-bottom: 0.15rem;
+}
+
+.tool-io-sublabel--input  { color: rgba(110, 160, 255, 0.75); }
+.tool-io-sublabel--output { color: rgba(220, 80,  160, 0.75); }
+
+/* Two-cell row for TDI / TDO – uses io-cell for visual style */
+.tool-io-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+/* Compact analog bars inside the tool analog column */
+.tool-io-analog-col .hw-analog-channels {
+  gap: 0.4rem;
+}
+
+.tool-io-analog-col .hw-analog-bar-row {
+  grid-template-columns: 2.4rem 1fr 5.2rem;
+  gap: 0.45rem;
+}
+
+.tool-io-analog-col .analog-label {
+  font-size: 0.9rem;
+}
+
+.tool-io-analog-col .analog-bar-track {
+  height: 12px;
+}
+
+/* Responsive: stack columns on narrow screens */
+@media (max-width: 700px) {
+  .hw-io-card--tool .tool-io-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
