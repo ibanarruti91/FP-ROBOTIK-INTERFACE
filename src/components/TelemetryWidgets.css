@@ -1666,36 +1666,20 @@
 }
 
 /* ============================================
-   HardwareIOTool – two-column internal layout
-   LEFT: Digital (TDI / TDO)  |  RIGHT: Analog (AI2 / AI3)
+   HardwareIOTool – row-based synchronized layout
+   Each row: Digital (TDI/TDO) | Analog (AI2/AI3)
    ============================================ */
 
-/* Two-column main grid inside the tool I/O card */
-.hw-io-card--tool .tool-io-main-grid {
+/* Section label header row – 2-col grid matching row-pair columns */
+.tool-io-headers {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 32px;
-  align-items: start;
+  column-gap: 32px;
   width: 100%;
 }
 
-/* Column base styles – explicit top-anchoring, no floating, gap-based rhythm */
-.tool-io-digital-col,
-.tool-io-analog-col {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  align-self: start;
-  justify-content: flex-start;
-  text-align: left;
-  gap: 16px;
-  min-width: 0;
-  width: 100%;
-}
-
-/* Section label inside tool columns – single line, no loose margin */
-.tool-io-digital-col .hw-io-section-label,
-.tool-io-analog-col .hw-io-section-label {
+/* Section labels inside the header row */
+.tool-io-headers .hw-io-section-label {
   text-align: left;
   width: 100%;
   margin-bottom: 0;
@@ -1704,11 +1688,20 @@
   text-overflow: ellipsis;
 }
 
-/* Body container for TDI + TDO groups – gap between groups */
-.tool-io-digital-body {
+/* Main grid: stacks row-pairs vertically */
+.hw-io-card--tool .tool-io-main-grid {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Each row-pair: Digital (left) | Analog (right), centers both vertically */
+.tool-io-row-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 32px;
+  align-items: center;
   width: 100%;
 }
 
@@ -1747,41 +1740,35 @@
   width: 100%;
 }
 
-/* Analog bars inside the tool analog column – strict 3-col grid */
-.tool-io-analog-col .hw-analog-channels {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  width: 100%;
-}
-
-.tool-io-analog-col .hw-analog-bar-row {
+/* Analog bar row inside each row-pair – strict 3-col grid */
+.tool-io-row-pair .hw-analog-bar-row {
   display: grid;
-  grid-template-columns: 56px 1fr 72px;
+  grid-template-columns: 56px minmax(0, 1fr) 72px;
   align-items: center;
   column-gap: 12px;
   width: 100%;
 }
 
-.tool-io-analog-col .analog-label {
+.tool-io-row-pair .analog-label {
   font-size: 0.9rem;
   text-align: left;
   white-space: nowrap;
 }
 
-.tool-io-analog-col .analog-bar-track {
+.tool-io-row-pair .analog-bar-track {
   height: 12px;
   width: 100%;
 }
 
-.tool-io-analog-col .hw-analog-value-cell {
+.tool-io-row-pair .hw-analog-value-cell {
   justify-content: flex-end;
   width: 72px;
 }
 
-/* Responsive: stack columns on narrow screens */
+/* Responsive: stack row-pairs vertically on narrow screens */
 @media (max-width: 700px) {
-  .hw-io-card--tool .tool-io-main-grid {
+  .tool-io-headers,
+  .tool-io-row-pair {
     grid-template-columns: 1fr;
   }
 }

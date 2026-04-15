@@ -1117,78 +1117,78 @@ export function HardwareIOTool({ data, className = '' }) {
 
   const TOOL_ANALOG_COLOR = '#00e5ff';
 
+  const renderAnalogBar = ({ label, ch }) => {
+    const value = toSafeNum(ch?.value);
+    const isAvailable = value !== null;
+    const pct = isAvailable ? Math.min(100, Math.max(0, (value / 10) * 100)) : 0;
+    return (
+      <div className="hw-analog-bar-row">
+        <span className="analog-label">{label}</span>
+        <div className="analog-bar-track">
+          <div
+            className="analog-bar-fill"
+            style={{ width: `${pct}%`, background: TOOL_ANALOG_COLOR, boxShadow: `0 0 5px ${TOOL_ANALOG_COLOR}` }}
+          />
+        </div>
+        <div className="hw-analog-value-cell">
+          <span className={`analog-value ${!isAvailable ? 'value-na' : ''}`} style={isAvailable ? { color: TOOL_ANALOG_COLOR } : {}}>
+            {isAvailable ? value.toFixed(2) : '—'}
+          </span>
+          {isAvailable && (
+            <span className="hw-analog-unit" style={{ color: TOOL_ANALOG_COLOR }}>V</span>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <CardGlass className={`hw-io-card hw-io-card--tool ${className}`}>
-      {/* ── Two-column row: Digital (left) | Analog (right) ── */}
+      {/* ── Section label header row ── */}
+      <div className="tool-io-headers">
+        <div className="hw-io-section-label">DIGITALES HERRAMIENTA (TOOL DIGITAL I/O)</div>
+        <div className="hw-io-section-label">ANALÓGICAS HERRAMIENTA (TOOL ANALOG I/O)</div>
+      </div>
+
+      {/* ── Row-based synchronized grid: each row pairs Digital | Analog ── */}
       <div className="tool-io-main-grid">
 
-        {/* LEFT COLUMN — Digital signals */}
-        <div className="tool-io-digital-col">
-          <div className="hw-io-section-label">DIGITALES HERRAMIENTA (TOOL DIGITAL I/O)</div>
-
-          <div className="tool-io-digital-body">
-            <div className="tool-io-signal-group">
-              <div className="tool-io-sublabel tool-io-sublabel--input">Inputs (TDI)</div>
-              <div className="tool-io-row">
-                {tdi.map((active, i) => (
-                  <div
-                    key={`tdi-${i}`}
-                    className={`io-cell led-input${active ? ' io-active' : ''}${active === null ? ' io-na' : ''}`}
-                    title={`TDI${i}: ${active === null ? 'N/A' : active ? '1' : '0'}`}
-                  >
-                    <span className="io-cell-name">TDI{i}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="tool-io-signal-group">
-              <div className="tool-io-sublabel tool-io-sublabel--output">Outputs (TDO)</div>
-              <div className="tool-io-row">
-                {tdo.map((active, i) => (
-                  <div
-                    key={`tdo-${i}`}
-                    className={`io-cell led-output${active ? ' io-active' : ''}${active === null ? ' io-na' : ''}`}
-                    title={`TDO${i}: ${active === null ? 'N/A' : active ? '1' : '0'}`}
-                  >
-                    <span className="io-cell-name">TDO{i}</span>
-                  </div>
-                ))}
-              </div>
+        {/* ROW 1: Inputs (TDI) | AI2 */}
+        <div className="tool-io-row-pair">
+          <div className="tool-io-signal-group">
+            <div className="tool-io-sublabel tool-io-sublabel--input">Inputs (TDI)</div>
+            <div className="tool-io-row">
+              {tdi.map((active, i) => (
+                <div
+                  key={`tdi-${i}`}
+                  className={`io-cell led-input${active ? ' io-active' : ''}${active === null ? ' io-na' : ''}`}
+                  title={`TDI${i}: ${active === null ? 'N/A' : active ? '1' : '0'}`}
+                >
+                  <span className="io-cell-name">TDI{i}</span>
+                </div>
+              ))}
             </div>
           </div>
+          {renderAnalogBar(analogChannels[0])}
         </div>
 
-        {/* RIGHT COLUMN — Analog inputs */}
-        <div className="tool-io-analog-col">
-          <div className="hw-io-section-label">ANALÓGICAS HERRAMIENTA (TOOL ANALOG I/O)</div>
-          <div className="hw-analog-channels">
-            {analogChannels.map(({ label, ch }) => {
-              const value = toSafeNum(ch?.value);
-              const isAvailable = value !== null;
-              const pct = isAvailable ? Math.min(100, Math.max(0, (value / 10) * 100)) : 0;
-
-              return (
-                <div key={label} className="hw-analog-bar-row">
-                  <span className="analog-label">{label}</span>
-                  <div className="analog-bar-track">
-                    <div
-                      className="analog-bar-fill"
-                      style={{ width: `${pct}%`, background: TOOL_ANALOG_COLOR, boxShadow: `0 0 5px ${TOOL_ANALOG_COLOR}` }}
-                    />
-                  </div>
-                  <div className="hw-analog-value-cell">
-                    <span className={`analog-value ${!isAvailable ? 'value-na' : ''}`} style={isAvailable ? { color: TOOL_ANALOG_COLOR } : {}}>
-                      {isAvailable ? value.toFixed(2) : '—'}
-                    </span>
-                    {isAvailable && (
-                      <span className="hw-analog-unit" style={{ color: TOOL_ANALOG_COLOR }}>V</span>
-                    )}
-                  </div>
+        {/* ROW 2: Outputs (TDO) | AI3 */}
+        <div className="tool-io-row-pair">
+          <div className="tool-io-signal-group">
+            <div className="tool-io-sublabel tool-io-sublabel--output">Outputs (TDO)</div>
+            <div className="tool-io-row">
+              {tdo.map((active, i) => (
+                <div
+                  key={`tdo-${i}`}
+                  className={`io-cell led-output${active ? ' io-active' : ''}${active === null ? ' io-na' : ''}`}
+                  title={`TDO${i}: ${active === null ? 'N/A' : active ? '1' : '0'}`}
+                >
+                  <span className="io-cell-name">TDO{i}</span>
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
+          {renderAnalogBar(analogChannels[1])}
         </div>
 
       </div>
