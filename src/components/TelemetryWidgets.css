@@ -1692,12 +1692,15 @@
   width: 100%;
 }
 
-/* Section labels aligned to the left within tool columns */
+/* Section labels aligned to the left within tool columns – prevent wrap-height drift */
 .tool-io-digital-col .hw-io-section-label,
 .tool-io-analog-col .hw-io-section-label {
   text-align: left;
   width: 100%;
   margin-bottom: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Sub-labels: "Inputs (TDI)" / "Outputs (TDO)" */
@@ -1713,12 +1716,8 @@
   width: 100%;
 }
 
-/* First sublabel needs no extra top margin */
-.tool-io-digital-col .tool-io-sublabel:first-of-type {
-  margin-top: 0;
-}
-
-.tool-io-sublabel--input  { color: rgba(110, 160, 255, 0.75); }
+/* First sublabel (Inputs/TDI) needs no extra top margin */
+.tool-io-sublabel--input  { margin-top: 0; color: rgba(110, 160, 255, 0.75); }
 .tool-io-sublabel--output { color: rgba(220, 80,  160, 0.75); }
 
 /* Two-cell row for TDI / TDO – strict equal-width grid */
