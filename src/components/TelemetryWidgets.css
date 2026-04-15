@@ -1676,6 +1676,7 @@
   grid-template-columns: 1fr 1fr;
   column-gap: 32px;
   width: 100%;
+  margin-bottom: 0.6rem;
 }
 
 /* Section labels inside the header row */
@@ -1711,6 +1712,7 @@
   flex-direction: column;
   gap: 8px;
   width: 100%;
+  min-width: 0;
 }
 
 /* Sub-labels: "Inputs (TDI)" / "Outputs (TDO)" – no loose margins */
@@ -1747,6 +1749,7 @@
   align-items: center;
   column-gap: 12px;
   width: 100%;
+  min-width: 0;
 }
 
 .tool-io-row-pair .analog-label {
