@@ -1126,30 +1126,36 @@ export function HardwareIOTool({ data, className = '' }) {
         <div className="tool-io-digital-col">
           <div className="hw-io-section-label">DIGITALES HERRAMIENTA (TOOL DIGITAL I/O)</div>
 
-          <div className="tool-io-sublabel tool-io-sublabel--input">Inputs (TDI)</div>
-          <div className="tool-io-row">
-            {tdi.map((active, i) => (
-              <div
-                key={`tdi-${i}`}
-                className={`io-cell led-input${active ? ' io-active' : ''}${active === null ? ' io-na' : ''}`}
-                title={`TDI${i}: ${active === null ? 'N/A' : active ? '1' : '0'}`}
-              >
-                <span className="io-cell-name">TDI{i}</span>
+          <div className="tool-io-digital-body">
+            <div className="tool-io-signal-group">
+              <div className="tool-io-sublabel tool-io-sublabel--input">Inputs (TDI)</div>
+              <div className="tool-io-row">
+                {tdi.map((active, i) => (
+                  <div
+                    key={`tdi-${i}`}
+                    className={`io-cell led-input${active ? ' io-active' : ''}${active === null ? ' io-na' : ''}`}
+                    title={`TDI${i}: ${active === null ? 'N/A' : active ? '1' : '0'}`}
+                  >
+                    <span className="io-cell-name">TDI{i}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
 
-          <div className="tool-io-sublabel tool-io-sublabel--output">Outputs (TDO)</div>
-          <div className="tool-io-row">
-            {tdo.map((active, i) => (
-              <div
-                key={`tdo-${i}`}
-                className={`io-cell led-output${active ? ' io-active' : ''}${active === null ? ' io-na' : ''}`}
-                title={`TDO${i}: ${active === null ? 'N/A' : active ? '1' : '0'}`}
-              >
-                <span className="io-cell-name">TDO{i}</span>
+            <div className="tool-io-signal-group">
+              <div className="tool-io-sublabel tool-io-sublabel--output">Outputs (TDO)</div>
+              <div className="tool-io-row">
+                {tdo.map((active, i) => (
+                  <div
+                    key={`tdo-${i}`}
+                    className={`io-cell led-output${active ? ' io-active' : ''}${active === null ? ' io-na' : ''}`}
+                    title={`TDO${i}: ${active === null ? 'N/A' : active ? '1' : '0'}`}
+                  >
+                    <span className="io-cell-name">TDO{i}</span>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         </div>
 
