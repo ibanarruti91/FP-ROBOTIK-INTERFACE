@@ -447,12 +447,12 @@
   gap: 1rem;
 }
 
-/* Top row: two equal columns */
+/* Top row: two equal columns — both stretch to the same height */
 .widget-renderer.estado-robot-layout .er-top-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
-  align-items: start;
+  align-items: stretch;
 }
 
 /* Camera column */
@@ -488,12 +488,31 @@
   object-fit: contain;
 }
 
-/* Control Box column */
+/* Control Box column — stretches to match camera height */
 .widget-renderer.estado-robot-layout .er-control-box-col {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   min-width: 0;
+  height: 100%;
+}
+
+/* Propagate height through widget-group → widget-grid → card */
+.widget-renderer.estado-robot-layout .er-control-box-col .widget-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.widget-renderer.estado-robot-layout .er-control-box-col .widget-grid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.widget-renderer.estado-robot-layout .er-control-box-col .hw-io-card {
+  flex: 1;
 }
 
 /* Bottom row: Tool I/O full width */
@@ -522,6 +541,18 @@
   font-size: 0.95rem;
   padding-bottom: 0.4rem;
   border-bottom-width: 2px;
+}
+
+/* Unified top-row group titles — both camera and control-box headers must be
+   pixel-identical: same font-size, padding, border, and margin so their
+   baselines are on the same horizontal line. Placed after the .er-camera-col
+   override so it wins on equal specificity. */
+.widget-renderer.estado-robot-layout .er-top-row .group-title {
+  font-size: 0.95rem;
+  padding-bottom: 0.4rem;
+  border-bottom-width: 2px;
+  border-bottom-color: var(--accent-cyan);
+  margin: 0;
 }
 
 .widget-renderer.estado-robot-layout .card-glass {
