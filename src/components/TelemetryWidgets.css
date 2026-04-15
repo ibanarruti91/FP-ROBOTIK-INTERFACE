@@ -1742,6 +1742,11 @@
   width: 100%;
 }
 
+/* Force each digital cell to fill its grid column (prevents shrink-to-fit) */
+.tool-io-row .io-cell {
+  width: 100%;
+}
+
 /* Analog bars inside the tool analog column – strict 3-col grid */
 .tool-io-analog-col .hw-analog-channels {
   display: flex;
