@@ -1291,7 +1291,11 @@ export function DiagnosticBufferPanel({ className = '' }) {
       {/* ── Event count ── */}
       {derivedDiagnosticBuffer.length > 0 && (
         <div className="diag-buffer-count">
-          {derivedDiagnosticBuffer.length} evento{derivedDiagnosticBuffer.length !== 1 ? 's' : ''} derivado{derivedDiagnosticBuffer.length !== 1 ? 's' : ''}
+          {(() => {
+            const n = derivedDiagnosticBuffer.length;
+            const s = n !== 1 ? 's' : '';
+            return `${n} evento${s} derivado${s}`;
+          })()}
         </div>
       )}
 
@@ -1300,35 +1304,47 @@ export function DiagnosticBufferPanel({ className = '' }) {
         <div className="log-empty">Sin eventos de diagnóstico derivado</div>
       ) : (
         <div className="log-messages diag-buffer-messages">
-          {[...derivedDiagnosticBuffer].reverse().map(event => (
-            <div
-              key={event.id}
-              className={`log-message diag-event-row diag-event-row--${event.level}`}
-            >
-              {/* Severity icon */}
-              <span
-                className={`diag-event-icon diag-event-icon--${event.level}`}
-                title={LEVEL_LABEL[event.level]}
-                aria-label={LEVEL_LABEL[event.level]}
+          {[...derivedDiagnosticBuffer].reverse().map(event => {
+            const { snapshot } = event;
+            const snapshotTip = [
+              `Seguridad:  ${snapshot.safetyStatus  ?? '-'}`,
+              `Modo robot: ${snapshot.robotMode     ?? '-'}`,
+              `Prog. estado: ${snapshot.programState ?? '-'}`,
+              `Prog. nombre: ${snapshot.programName ?? '-'}`,
+              `Prog. ID: ${snapshot.programId       ?? '-'}`,
+              `Frenos: ${snapshot.brakes             ?? '-'}`,
+            ].join('\n');
+
+            return (
+              <div
+                key={event.id}
+                className={`log-message diag-event-row diag-event-row--${event.level}`}
               >
-                {LEVEL_ICON[event.level] ?? '•'}
-              </span>
+                {/* Severity icon */}
+                <span
+                  className={`diag-event-icon diag-event-icon--${event.level}`}
+                  title={LEVEL_LABEL[event.level]}
+                  aria-label={LEVEL_LABEL[event.level]}
+                >
+                  {LEVEL_ICON[event.level] ?? '•'}
+                </span>
 
-              {/* Timestamp */}
-              <span className="log-time">{event.time}</span>
+                {/* Timestamp */}
+                <span className="log-time">{event.time}</span>
 
-              {/* Code pill — hovering shows the state snapshot */}
-              <span
-                className={`diag-event-code diag-event-code--${event.level}`}
-                title={`Snapshot: ${JSON.stringify(event.snapshot, null, 2)}`}
-              >
-                {event.code}
-              </span>
+                {/* Code pill — hovering shows the state snapshot in readable format */}
+                <span
+                  className={`diag-event-code diag-event-code--${event.level}`}
+                  title={`Estado en el momento del evento:\n${snapshotTip}`}
+                >
+                  {event.code}
+                </span>
 
-              {/* Message */}
-              <span className="log-text diag-event-msg">{event.msg}</span>
-            </div>
-          ))}
+                {/* Message */}
+                <span className="log-text diag-event-msg">{event.msg}</span>
+              </div>
+            );
+          })}
         </div>
       )}
 
