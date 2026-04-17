@@ -33,11 +33,59 @@ function mapNumericState(map, value) {
   return value;
 }
 
+/**
+ * Normalizes analog I/O channels from both legacy (analog_io.ai[]/ao[] arrays)
+ * and new extended (analog_io.ai0/ai1/ao0/ao1 objects with value/unit/mode)
+ * MQTT payload formats into a unified structure expected by HardwareIOControlBox.
+ */
+function normalizeAnalogIO(data) {
+  return {
+    ai0: data.analog_io?.ai0 ?? {
+      value: data.analog_io?.ai?.[0] ?? 0,
+      unit: 'V',
+      mode: 'voltage',
+    },
+    ai1: data.analog_io?.ai1 ?? {
+      value: data.analog_io?.ai?.[1] ?? 0,
+      unit: 'V',
+      mode: 'voltage',
+    },
+    ao0: data.analog_io?.ao0 ?? {
+      value: data.analog_io?.ao?.[0] ?? 0,
+      unit: 'V',
+      mode: 'voltage',
+    },
+    ao1: data.analog_io?.ao1 ?? {
+      value: data.analog_io?.ao?.[1] ?? 0,
+      unit: 'V',
+      mode: 'voltage',
+    },
+  };
+}
+
+/**
+ * Normalizes tool data from both legacy (herramienta.tension/corriente/potencia)
+ * and new extended (herramienta.analog.ai2/ai3) MQTT payload formats into a
+ * unified structure expected by HardwareIOTool.
+ */
+function normalizeTool(data) {
+  const tension   = data.herramienta?.tension   ?? 0;
+  const corriente = data.herramienta?.corriente ?? 0;
+  return {
+    tension,
+    corriente,
+    potencia: data.herramienta?.potencia ??
+      (tension * corriente / 1000), // corriente in mA × tension in V → mW ÷ 1000 = W
+    ai2: data.herramienta?.analog?.ai2 ?? { value: null, unit: 'V' },
+    ai3: data.herramienta?.analog?.ai3 ?? { value: null, unit: 'V' },
+  };
+}
+
 function TelemetriaDetail() {
   const { centroId } = useParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('principal');
-  const { status, telemetryData, publishCommand, stepCaptureRecords, currentChecksum } = useMqttStatus();
+  const { status, telemetryData, publishCommand, stepCaptureRecords, currentChecksum, lastError } = useMqttStatus();
 
   // ── Control de telemetría ────────────────────────────────────────────────────
   // startRequested tracks whether the user has clicked "Iniciar" without yet
@@ -94,8 +142,8 @@ function TelemetriaDetail() {
   const [rawPayload, setRawPayload] = useState(null);
   const displayRawPayload = status === 'OFFLINE' ? null : rawPayload;
   const displayTelemetry  = status === 'OFFLINE'
-    ? { ...initialTelemetry, step_capture: [] }
-    : { ...telemetry, step_capture: stepCaptureRecords };
+    ? { ...initialTelemetry, step_capture: [], last_error: 'Ninguno' }
+    : { ...telemetry, step_capture: stepCaptureRecords, last_error: lastError ?? 'Ninguno' };
 
   // Calculate loading state based on centro and telemetry
   const loading = !centro || centro.estado === 'PROXIMAMENTE' ? false : !telemetry;
@@ -298,6 +346,60 @@ function TelemetriaDetail() {
               corriente: data.herramienta?.corriente ?? baseTelemetry.herramienta?.corriente,
               potencia: data.herramienta?.potencia ?? baseTelemetry.herramienta?.potencia
             },
+            // Map hardware_io from new UR Polyscope-style JSON structure
+            // { control_box: { digital, analog }, tool: { digital, analog, power } }
+            // Supports both legacy (analog_io/herramienta) and new extended formats
+            // by merging normalized data so analog channels always have a value.
+            hardware_io: (() => {
+              const normalizedAnalog = normalizeAnalogIO(data);
+              const normalizedToolData = normalizeTool(data);
+
+              const srcControlBox = data.hardware_io?.control_box;
+              const baseControlBox = baseTelemetry.hardware_io?.control_box;
+              const srcTool = data.hardware_io?.tool;
+              const baseTool = baseTelemetry.hardware_io?.tool;
+
+              // Merge control_box: prefer new-format digital/analog, fall back to digital_io / normalizedAnalog
+              const controlBoxBase = srcControlBox ?? baseControlBox ?? {};
+              const control_box = {
+                ...controlBoxBase,
+                digital: srcControlBox?.digital ?? {
+                  di: data.digital_io?.inputs               ?? baseControlBox?.digital?.di ?? Array(8).fill(null),
+                  do: data.digital_io?.outputs              ?? baseControlBox?.digital?.do ?? Array(8).fill(null),
+                  ci: data.digital_io?.configurable_inputs  ?? baseControlBox?.digital?.ci ?? Array(8).fill(null),
+                  co: data.digital_io?.configurable_outputs ?? baseControlBox?.digital?.co ?? Array(8).fill(null),
+                },
+                analog: srcControlBox?.analog ?? normalizedAnalog,
+              };
+
+              // Merge tool: prefer new-format analog/power/digital, fall back to herramienta legacy
+              const toolBase = srcTool ?? baseTool ?? {};
+              const tool = {
+                ...toolBase,
+                digital: {
+                  tdi: Array.isArray(srcTool?.digital?.tdi)           ? srcTool.digital.tdi
+                     : Array.isArray(data.herramienta?.digital?.tdi)  ? data.herramienta.digital.tdi
+                     : Array.isArray(data.digital_io?.tool_inputs)    ? data.digital_io.tool_inputs
+                     : Array.isArray(baseTool?.digital?.tdi)          ? baseTool.digital.tdi
+                     : [false, false],
+                  tdo: Array.isArray(srcTool?.digital?.tdo)           ? srcTool.digital.tdo
+                     : Array.isArray(data.herramienta?.digital?.tdo)  ? data.herramienta.digital.tdo
+                     : Array.isArray(data.digital_io?.tool_outputs)   ? data.digital_io.tool_outputs
+                     : Array.isArray(baseTool?.digital?.tdo)          ? baseTool.digital.tdo
+                     : [false, false],
+                },
+                analog: srcTool?.analog
+                  ?? { ai2: normalizedToolData.ai2, ai3: normalizedToolData.ai3 },
+                power: srcTool?.power
+                  ?? {
+                    voltage: normalizedToolData.tension,
+                    current: normalizedToolData.corriente,
+                    wattage: normalizedToolData.potencia,
+                  },
+              };
+
+              return { control_box, tool };
+            })(),
             // Map diagnostic fields from the new MQTT payload `diagnostico` block,
             // with fallback to root-level fields for backward compatibility.
             robot_power: data.robot_power ?? data.telemetry?.power ?? baseTelemetry.robot_power ?? null,
@@ -348,12 +450,15 @@ function TelemetriaDetail() {
                 return isFinite(n) ? n : null;
               };
               return {
-                speed:           toNum(data.telemetry?.speed           ?? data.sistema?.velocidad_tcp),
-                power:           toNum(data.telemetry?.power           ?? data.sistema?.potencia_total),
-                controller_temp: toNum(data.telemetry?.controller_temp ?? data.sistema?.temperatura_control),
-                main_voltage:    toNum(data.telemetry?.main_voltage),
-                cpu_load:        toNum(data.telemetry?.cpu_load),
-                ciclos:          toNum(data.telemetry?.ciclos          ?? data.programa?.ciclos),
+                speed:                 toNum(data.telemetry?.speed           ?? data.sistema?.velocidad_tcp),
+                power:                 toNum(data.telemetry?.power           ?? data.sistema?.potencia_total),
+                controller_temp:       toNum(data.telemetry?.controller_temp ?? data.sistema?.temperatura_control),
+                main_voltage:          toNum(data.telemetry?.main_voltage),
+                cpu_load:              toNum(data.telemetry?.cpu_load),
+                ciclos:                toNum(data.telemetry?.ciclos          ?? data.programa?.ciclos),
+                // tiempo_funcionamiento is a pre-formatted HH:MM:SS string from the backend,
+                // so it is intentionally kept as a string (not converted with toNum()).
+                tiempo_funcionamiento: data.tiempo_funcionamiento ?? data.telemetry?.tiempo_funcionamiento ?? baseTelemetry.telemetry?.tiempo_funcionamiento ?? null,
               };
             })(),
             // Raw RTDE protocol numeric IDs (before string mapping) – consumed by header badges

@@ -12,5 +12,11 @@ export const MqttStatusContext = createContext({
   clearStepCaptureRecords: () => {},
   publishCommand: () => {},
   eventLog: [],
-  clearEventLog: () => {}
+  clearEventLog: () => {},
+  lastError: null,
+  // ── Derived Diagnostic Buffer ─────────────────────────────────────────────
+  // Buffer de eventos DERIVADOS / INFERIDOS en frontend a partir de transiciones
+  // de estado MQTT.  No es el log nativo del controlador UR.
+  derivedDiagnosticBuffer: [],
+  clearDerivedDiagnosticBuffer: () => {},
 });

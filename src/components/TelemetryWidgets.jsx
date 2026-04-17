@@ -3,7 +3,7 @@
  */
 
 import { useState, useEffect, useRef, useMemo, useContext } from 'react';
-import { Zap, Thermometer, Settings, Gauge, Activity, Cpu, RefreshCw } from 'lucide-react';
+import { Zap, Thermometer, Settings, Gauge, Activity, Cpu, RefreshCw, Clock } from 'lucide-react';
 import { MqttStatusContext } from '../contexts/MqttStatusContext.js';
 import './TelemetryWidgets.css';
 
@@ -728,6 +728,8 @@ export function JointsGrid({ data, className = '' }) {
     return '#ff33bb'; // Rojo
   };
   
+  const JOINT_NAMES = ['Base', 'Hombro', 'Codo', 'Muñeca 1', 'Muñeca 2', 'Muñeca 3'];
+
   return (
     <CardGlass className={`joints-grid ${className}`}>
       <div className="joints-grid-container">
@@ -745,7 +747,7 @@ export function JointsGrid({ data, className = '' }) {
               <div className="joint-header">
                 <span className="joint-label">
                   <Settings size={18} className="widget-icon" />
-                  J{index + 1}
+                  {JOINT_NAMES[index] ?? `J${index + 1}`}
                 </span>
               </div>
               <div className="joint-data">
@@ -808,6 +810,7 @@ export function SystemMetricCard({ label, value, unit, showBar = false, icon = n
     if (icon === 'power')   return <Zap size={16} />;
     if (icon === 'speed')   return <Gauge size={16} />;
     if (icon === 'cycles')  return <RefreshCw size={16} />;
+    if (icon === 'clock')   return <Clock size={16} />;
     return null;
   };
 
@@ -979,6 +982,372 @@ export function StepCaptureTable({ records = [], className = '' }) {
           </table>
         </div>
       )}
+    </CardGlass>
+  );
+}
+
+/**
+ * Safely converts a value to a finite number, or returns null.
+ * Handles strings, null, undefined, and NaN from MQTT payloads.
+ */
+function toSafeNum(v) {
+  if (v === null || v === undefined) return null;
+  const n = Number(v);
+  return isFinite(n) ? n : null;
+}
+
+/**
+ * HardwareIOControlBox – E/S del Controlador (Control Box)
+ * Shows the UR Control Box digital matrix (DI/DO/CI/CO × 8) and
+ * analog channels (AI0/AI1/AO0/AO1) with dynamic V / mA units read from JSON.
+ */
+export function HardwareIOControlBox({ data, className = '' }) {
+  const EMPTY8 = Array(8).fill(null);
+  const di     = Array.isArray(data?.digital?.di)  ? data.digital.di  : EMPTY8;
+  const doVals = Array.isArray(data?.digital?.do)  ? data.digital.do  : EMPTY8;
+  const ci     = Array.isArray(data?.digital?.ci)  ? data.digital.ci  : EMPTY8;
+  const co     = Array.isArray(data?.digital?.co)  ? data.digital.co  : EMPTY8;
+
+  const digitalRows = [
+    { label: 'DI', values: di,     colorClass: 'led-input'  },
+    { label: 'CI', values: ci,     colorClass: 'led-input'  },
+    { label: 'DO', values: doVals, colorClass: 'led-output' },
+    { label: 'CO', values: co,     colorClass: 'led-output' },
+  ];
+
+  const analogChannels = [
+    { label: 'AI0', ch: data?.analog?.ai0 },
+    { label: 'AI1', ch: data?.analog?.ai1 },
+    { label: 'AO0', ch: data?.analog?.ao0 },
+    { label: 'AO1', ch: data?.analog?.ao1 },
+  ];
+
+  return (
+    <CardGlass className={`hw-io-card ${className}`}>
+      {/* ── Digital signals ── */}
+      <div className="hw-io-section-label">DIGITALES</div>
+      <div className="io-matrix">
+        <div className="io-matrix-header">
+          <div className="io-row-label-hdr" />
+          {Array.from({ length: 8 }, (_, i) => (
+            <div key={i} className="io-col-hdr">{i}</div>
+          ))}
+        </div>
+        {digitalRows.map((row) => (
+          <div key={row.label} className="io-matrix-row">
+            <div className="io-row-label">{row.label}</div>
+            {row.values.map((active, i) => (
+              <div
+                key={i}
+                className={`io-cell ${row.colorClass}${active ? ' io-active' : ''}${active === null ? ' io-na' : ''}`}
+                title={`${row.label}${i}: ${active === null ? 'N/A' : active ? '1' : '0'}`}
+              >
+                <span className="io-cell-name">{`${row.label}${i}`}</span>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+
+      {/* ── Analog signals ── */}
+      <div className="hw-io-section-label hw-io-section-label--gap">ANALÓGICAS</div>
+      <div className="hw-analog-channels">
+        {analogChannels.map(({ label, ch }) => {
+          const value = toSafeNum(ch?.value);
+          const mode = ch?.mode ?? 'voltage';
+          const isVoltage = mode === 'voltage';
+          const unitLabel = isVoltage ? 'V' : 'mA';
+          const unitColor = isVoltage ? '#00e5ff' : '#ff9500';
+          // Voltage range 0–10 V; current range 0–20 mA
+          const maxVal = isVoltage ? 10 : 20;
+          const isAvailable = value !== null;
+          const pct = isAvailable ? Math.min(100, Math.max(0, (value / maxVal) * 100)) : 0;
+
+          return (
+            <div key={label} className="hw-analog-bar-row">
+              <span className="analog-label">{label}</span>
+              <div className="analog-bar-track">
+                <div
+                  className="analog-bar-fill"
+                  style={{ width: `${pct}%`, background: unitColor, boxShadow: `0 0 5px ${unitColor}` }}
+                />
+              </div>
+              <div className="hw-analog-value-cell">
+                <span className={`analog-value ${!isAvailable ? 'value-na' : ''}`} style={isAvailable ? { color: unitColor } : {}}>
+                  {isAvailable ? value.toFixed(2) : 'N/A'}
+                </span>
+                {isAvailable && (
+                  <span className="hw-analog-unit" style={{ color: unitColor }}>{unitLabel}</span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </CardGlass>
+  );
+}
+
+/**
+ * HardwareIOTool – E/S de la Herramienta (Tool I/O)
+ * Shows Tool digital signals (TDI/TDO × 2), analog inputs (AI2/AI3 fixed V),
+ * and the tool power supply (voltage / current / wattage).
+ *
+ * Layout: two-column row — Digital (left) | Analog (right) — then Power below.
+ * Digital cells use the same io-cell style as HardwareIOControlBox.
+ */
+export function HardwareIOTool({ data, className = '' }) {
+  // If digital.available is explicitly false, show cells in OFF (false) state;
+  // if data is simply missing, show N/A (null) state.
+  const digitalAvailable = data?.digital?.available !== false;
+  const EMPTY2     = Array(2).fill(null);
+  const EMPTY2_OFF = Array(2).fill(false);
+  const tdi = Array.isArray(data?.digital?.tdi) ? data.digital.tdi : (digitalAvailable ? EMPTY2 : EMPTY2_OFF);
+  const tdo = Array.isArray(data?.digital?.tdo) ? data.digital.tdo : (digitalAvailable ? EMPTY2 : EMPTY2_OFF);
+
+  const analogChannels = [
+    { label: 'AI2', ch: data?.analog?.ai2 },
+    { label: 'AI3', ch: data?.analog?.ai3 },
+  ];
+
+  const power = data?.power;
+  const pvoltage = toSafeNum(power?.voltage);
+  const pcurrent = toSafeNum(power?.current);
+  const pwattage = toSafeNum(power?.wattage);
+
+  const TOOL_ANALOG_COLOR = '#00e5ff';
+
+  const renderAnalogBar = ({ label, ch }) => {
+    const value = toSafeNum(ch?.value);
+    const isAvailable = value !== null;
+    const pct = isAvailable ? Math.min(100, Math.max(0, (value / 10) * 100)) : 0;
+    return (
+      <div className="hw-analog-bar-row">
+        <span className="analog-label">{label}</span>
+        <div className="analog-bar-track">
+          <div
+            className="analog-bar-fill"
+            style={{ width: `${pct}%`, background: TOOL_ANALOG_COLOR, boxShadow: `0 0 5px ${TOOL_ANALOG_COLOR}` }}
+          />
+        </div>
+        <div className="hw-analog-value-cell">
+          <span className={`analog-value ${!isAvailable ? 'value-na' : ''}`} style={isAvailable ? { color: TOOL_ANALOG_COLOR } : {}}>
+            {isAvailable ? value.toFixed(2) : '—'}
+          </span>
+          {isAvailable && (
+            <span className="hw-analog-unit" style={{ color: TOOL_ANALOG_COLOR }}>V</span>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <CardGlass className={`hw-io-card hw-io-card--tool ${className}`}>
+      {/* ── Section label header row ── */}
+      <div className="tool-io-headers">
+        <div className="hw-io-section-label">DIGITALES HERRAMIENTA (TOOL DIGITAL I/O)</div>
+        <div className="hw-io-section-label">ANALÓGICAS HERRAMIENTA (TOOL ANALOG I/O)</div>
+      </div>
+
+      {/* ── Row-based synchronized grid: each row pairs Digital | Analog ── */}
+      <div className="tool-io-main-grid">
+
+        {/* ROW 1: Inputs (TDI) | AI2 */}
+        <div className="tool-io-row-pair">
+          <div className="tool-io-signal-group">
+            <div className="tool-io-sublabel tool-io-sublabel--input">Inputs (TDI)</div>
+            <div className="tool-io-row">
+              {tdi.map((active, i) => (
+                <div
+                  key={`tdi-${i}`}
+                  className={`io-cell led-input${active ? ' io-active' : ''}${active === null ? ' io-na' : ''}`}
+                  title={`TDI${i}: ${active === null ? 'N/A' : active ? '1' : '0'}`}
+                >
+                  <span className="io-cell-name">TDI{i}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          {renderAnalogBar(analogChannels[0])}
+        </div>
+
+        {/* ROW 2: Outputs (TDO) | AI3 */}
+        <div className="tool-io-row-pair">
+          <div className="tool-io-signal-group">
+            <div className="tool-io-sublabel tool-io-sublabel--output">Outputs (TDO)</div>
+            <div className="tool-io-row">
+              {tdo.map((active, i) => (
+                <div
+                  key={`tdo-${i}`}
+                  className={`io-cell led-output${active ? ' io-active' : ''}${active === null ? ' io-na' : ''}`}
+                  title={`TDO${i}: ${active === null ? 'N/A' : active ? '1' : '0'}`}
+                >
+                  <span className="io-cell-name">TDO{i}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          {renderAnalogBar(analogChannels[1])}
+        </div>
+
+      </div>
+
+      {/* ── Power supply ── */}
+      <div className="hw-io-section-label hw-io-section-label--gap">ALIMENTACIÓN</div>
+      <div className="tool-power-grid">
+        <div className="tool-power-item">
+          <span className="tool-power-label">Tensión</span>
+          <span className={`tool-power-value ${pvoltage === null ? 'value-na' : ''}`}>
+            {pvoltage !== null ? pvoltage.toFixed(1) : 'N/A'}
+          </span>
+          {pvoltage !== null && <span className="tool-power-unit">V</span>}
+        </div>
+        <div className="tool-power-item">
+          <span className="tool-power-label">Corriente</span>
+          <span className={`tool-power-value ${pcurrent === null ? 'value-na' : ''}`}>
+            {pcurrent !== null ? pcurrent.toFixed(1) : 'N/A'}
+          </span>
+          {pcurrent !== null && <span className="tool-power-unit">mA</span>}
+        </div>
+        <div className="tool-power-item tool-power-wattage">
+          <span className="tool-power-label">Potencia</span>
+          <span className={`tool-power-value ${pwattage === null ? 'value-na' : ''}`}>
+            {pwattage !== null ? pwattage.toFixed(2) : 'N/A'}
+          </span>
+          {pwattage !== null && <span className="tool-power-unit">W</span>}
+        </div>
+      </div>
+    </CardGlass>
+  );
+}
+
+/**
+ * DiagnosticBufferPanel
+ *
+ * ⚠ BUFFER DE DIAGNÓSTICO DERIVADO — no es el log nativo del robot UR.
+ * Muestra el historial de eventos INFERIDOS en el frontend a partir de
+ * transiciones de estado detectadas en los mensajes MQTT de Node-RED.
+ *
+ * Características:
+ *  • Eventos ordenados de más reciente a más antiguo.
+ *  • Icono y color diferenciados por nivel de severidad (info / warning / error).
+ *  • Columna "code" para identificación rápida del tipo de evento.
+ *  • Instantánea del estado (snapshot) expandible en tooltip del código.
+ *  • Botones de exportar CSV y borrar buffer.
+ */
+export function DiagnosticBufferPanel({ className = '' }) {
+  const { derivedDiagnosticBuffer, clearDerivedDiagnosticBuffer } = useContext(MqttStatusContext);
+
+  const handleExportCsv = () => {
+    const csvLines = ['Hora,Nivel,Código,Título,Mensaje'];
+    derivedDiagnosticBuffer.forEach(({ time, level, code, title, msg }) => {
+      const esc = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+      csvLines.push([esc(time), esc(level), esc(code), esc(title), esc(msg)].join(','));
+    });
+    const blob = new Blob([csvLines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href     = url;
+    link.download = 'buffer_diagnostico_derivado.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const LEVEL_ICON  = { info: 'ℹ', warning: '⚠', error: '✖' };
+  const LEVEL_LABEL = { info: 'INFO', warning: 'AVISO', error: 'ERROR' };
+
+  return (
+    <CardGlass className={`log-panel diag-buffer-panel ${className}`}>
+
+      {/* ── Header ── */}
+      <div className="log-header">
+        <div className="log-title">
+          Buffer de Diagnóstico Derivado
+          <span className="diag-buffer-badge">INFERIDO · NO NATIVO</span>
+        </div>
+        <div className="log-actions">
+          <button
+            className="log-btn log-btn--export"
+            onClick={handleExportCsv}
+            disabled={derivedDiagnosticBuffer.length === 0}
+            title="Exportar buffer de diagnóstico a CSV"
+          >
+            ⬇ Exportar CSV
+          </button>
+          <button
+            className="log-btn log-btn--clear"
+            onClick={clearDerivedDiagnosticBuffer}
+            disabled={derivedDiagnosticBuffer.length === 0}
+            title="Borrar el buffer de diagnóstico derivado"
+          >
+            🗑 Limpiar
+          </button>
+        </div>
+      </div>
+
+      {/* ── Event count ── */}
+      {derivedDiagnosticBuffer.length > 0 && (
+        <div className="diag-buffer-count">
+          {(() => {
+            const n = derivedDiagnosticBuffer.length;
+            const s = n !== 1 ? 's' : '';
+            return `${n} evento${s} derivado${s}`;
+          })()}
+        </div>
+      )}
+
+      {/* ── Events list (newest first) ── */}
+      {derivedDiagnosticBuffer.length === 0 ? (
+        <div className="log-empty">Sin eventos de diagnóstico derivado</div>
+      ) : (
+        <div className="log-messages diag-buffer-messages">
+          {[...derivedDiagnosticBuffer].reverse().map(event => {
+            const { snapshot } = event;
+            const snapshotTip = [
+              `Seguridad:  ${snapshot.safetyStatus  ?? '-'}`,
+              `Modo robot: ${snapshot.robotMode     ?? '-'}`,
+              `Prog. estado: ${snapshot.programState ?? '-'}`,
+              `Prog. nombre: ${snapshot.programName ?? '-'}`,
+              `Prog. ID: ${snapshot.programId       ?? '-'}`,
+              `Frenos: ${snapshot.brakes             ?? '-'}`,
+            ].join('\n');
+
+            return (
+              <div
+                key={event.id}
+                className={`log-message diag-event-row diag-event-row--${event.level}`}
+              >
+                {/* Severity icon */}
+                <span
+                  className={`diag-event-icon diag-event-icon--${event.level}`}
+                  title={LEVEL_LABEL[event.level]}
+                  aria-label={LEVEL_LABEL[event.level]}
+                >
+                  {LEVEL_ICON[event.level] ?? '•'}
+                </span>
+
+                {/* Timestamp */}
+                <span className="log-time">{event.time}</span>
+
+                {/* Code pill — hovering shows the state snapshot in readable format */}
+                <span
+                  className={`diag-event-code diag-event-code--${event.level}`}
+                  title={`Estado en el momento del evento:\n${snapshotTip}`}
+                >
+                  {event.code}
+                </span>
+
+                {/* Message */}
+                <span className="log-text diag-event-msg">{event.msg}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
     </CardGlass>
   );
 }

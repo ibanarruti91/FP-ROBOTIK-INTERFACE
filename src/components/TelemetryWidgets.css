@@ -642,6 +642,117 @@
   font-style: italic;
 }
 
+/* ── Derived Diagnostic Buffer ─────────────────────────────────────────────
+   Componente: DiagnosticBufferPanel
+   ⚠ Estos estilos son para eventos INFERIDOS en frontend — no del robot UR.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* "INFERIDO · NO NATIVO" badge next to the panel title */
+.diag-buffer-badge {
+  display: inline-block;
+  margin-left: 0.6rem;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  font-family: var(--font-display);
+  letter-spacing: 0.04em;
+  border-radius: 4px;
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  color: #a78bfa;
+  vertical-align: middle;
+}
+
+/* Event count subtitle */
+.diag-buffer-count {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+  font-style: italic;
+}
+
+/* Scrollable list — taller than the standard log panel */
+.diag-buffer-messages {
+  max-height: 420px;
+}
+
+/* Base row: reuses .log-message but adds left-border color per severity */
+.diag-event-row {
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.diag-event-row--info {
+  border-left-color: var(--accent-cyan, #00e5ff);
+}
+
+.diag-event-row--warning {
+  border-left-color: #ffbf00;
+  background: rgba(255, 191, 0, 0.04);
+}
+
+.diag-event-row--error {
+  border-left-color: #ef4444;
+  background: rgba(239, 68, 68, 0.06);
+}
+
+.diag-event-row--warning:hover {
+  background: rgba(255, 191, 0, 0.08);
+  border-left-color: #ffd740;
+}
+
+.diag-event-row--error:hover {
+  background: rgba(239, 68, 68, 0.12);
+  border-left-color: #f87171;
+}
+
+/* Severity icon */
+.diag-event-icon {
+  flex-shrink: 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.diag-event-icon--info    { color: var(--accent-cyan, #00e5ff); }
+.diag-event-icon--warning { color: #ffbf00; }
+.diag-event-icon--error   { color: #ef4444; }
+
+/* Machine-readable code pill */
+.diag-event-code {
+  flex-shrink: 0;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  cursor: default;
+  white-space: nowrap;
+}
+
+.diag-event-code--info {
+  background: rgba(0, 229, 255, 0.12);
+  color: var(--accent-cyan, #00e5ff);
+}
+
+.diag-event-code--warning {
+  background: rgba(255, 191, 0, 0.12);
+  color: #ffbf00;
+}
+
+.diag-event-code--error {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+/* Message text */
+.diag-event-msg {
+  flex: 1;
+  color: var(--text-primary);
+}
+
+.diag-event-row--warning .diag-event-msg { color: #ffe082; }
+.diag-event-row--error   .diag-event-msg { color: #fca5a5; }
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .table-grid {
@@ -1500,4 +1611,278 @@
 
 .sct-tr--new td {
   animation: sct-row-flash 0.6s ease-out forwards;
+}
+
+/* ============================================================
+   Hardware IO – Control Box + Tool I/O panels
+   ============================================================ */
+
+/* Big wrapper card for both zones */
+.hw-io-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 1rem 1.2rem 1.1rem 1.2rem;
+}
+
+/* Section label (DIGITALES / ANALÓGICAS / ALIMENTACIÓN) */
+.hw-io-section-label {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #64748b;
+  padding: 0.3rem 0 0.4rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  margin-bottom: 0.6rem;
+}
+
+.hw-io-section-label--gap {
+  margin-top: 20px;
+}
+
+/* ── Analog bar row (value + unit in last cell) ── */
+.hw-analog-channels {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.hw-analog-bar-row {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr 7rem;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.hw-analog-value-cell {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 0.25rem;
+}
+
+.hw-analog-unit {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  min-width: 1.8rem;
+  text-align: left;
+}
+
+/* ── Tool digital signals (TDI / TDO × 2 LEDs) ── */
+.tool-digital-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 0.25rem;
+}
+
+.tool-digital-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tool-digital-type-label {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  width: 2.8rem;
+  flex-shrink: 0;
+  text-align: right;
+  padding-right: 4px;
+}
+
+.tool-type-input  { color: rgba(110, 160, 255, 0.85); }
+.tool-type-output { color: rgba(220, 80, 160, 0.85);  }
+
+/* Tool LED cell (wider than the Control Box matrix since only 2 per row) */
+.tool-led-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  flex: 1;
+  max-width: 120px;
+  border-radius: 6px;
+  padding: 0 6px;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+  cursor: default;
+  overflow: hidden;
+}
+
+/* Tool power supply grid */
+.tool-power-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.tool-power-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.6rem 0.4rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 8px;
+}
+
+.tool-power-label {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.tool-power-value {
+  font-family: 'Roboto Mono', 'Orbitron', monospace;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #00d1ff;
+  text-shadow: 0 0 8px rgba(0, 209, 255, 0.4);
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.tool-power-unit {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* Wattage item – bolder emphasis */
+.tool-power-wattage .tool-power-value {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #00f3ff;
+  text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+}
+
+.tool-power-wattage .tool-power-unit {
+  color: #00f3ff;
+  font-weight: 700;
+}
+
+.tool-power-wattage {
+  border-color: rgba(0, 243, 255, 0.18);
+}
+
+/* ============================================
+   HardwareIOTool – row-based synchronized layout
+   Each row: Digital (TDI/TDO) | Analog (AI2/AI3)
+   ============================================ */
+
+/* Section label header row – 2-col grid matching row-pair columns */
+.tool-io-headers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 32px;
+  width: 100%;
+  margin-bottom: 0.6rem;
+}
+
+/* Section labels inside the header row */
+.tool-io-headers .hw-io-section-label {
+  text-align: left;
+  width: 100%;
+  margin-bottom: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Main grid: stacks row-pairs vertically */
+.hw-io-card--tool .tool-io-main-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Each row-pair: Digital (left) | Analog (right), centers both vertically */
+.tool-io-row-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 32px;
+  align-items: center;
+  width: 100%;
+}
+
+/* Each signal group: sublabel + row pair – gap instead of margins */
+.tool-io-signal-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Sub-labels: "Inputs (TDI)" / "Outputs (TDO)" – no loose margins */
+.tool-io-sublabel {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: left;
+  width: 100%;
+}
+
+.tool-io-sublabel--input  { color: rgba(110, 160, 255, 0.75); }
+.tool-io-sublabel--output { color: rgba(220, 80,  160, 0.75); }
+
+/* Two-cell row for TDI / TDO – strict equal-width grid */
+.tool-io-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+}
+
+/* Force each digital cell to fill its grid column (prevents shrink-to-fit) */
+.tool-io-row .io-cell {
+  width: 100%;
+}
+
+/* Analog bar row inside each row-pair – strict 3-col grid */
+.tool-io-row-pair .hw-analog-bar-row {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) 72px;
+  align-items: center;
+  column-gap: 12px;
+  width: 100%;
+  min-width: 0;
+}
+
+.tool-io-row-pair .analog-label {
+  font-size: 0.9rem;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.tool-io-row-pair .analog-bar-track {
+  height: 12px;
+  width: 100%;
+}
+
+.tool-io-row-pair .hw-analog-value-cell {
+  justify-content: flex-end;
+  width: 72px;
+}
+
+/* Responsive: stack row-pairs vertically on narrow screens */
+@media (max-width: 700px) {
+  .tool-io-headers,
+  .tool-io-row-pair {
+    grid-template-columns: 1fr;
+  }
 }

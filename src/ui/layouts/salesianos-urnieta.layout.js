@@ -33,7 +33,7 @@ export const SALESIANOS_LAYOUT = {
             { type: "sys-metric", label: "Carga CPU",           path: "telemetry.cpu_load",        unit: "%",    icon: "cpu",    showBar: true },
             { type: "sys-metric", label: "Consumo Actual",      path: "telemetry.power",           unit: "W",    icon: "power" },
             { type: "sys-metric", label: "Velocidad TCP",       path: "telemetry.speed",           unit: "mm/s", icon: "speed" },
-            { type: "sys-metric", label: "Eficiencia (Ciclos)", path: "telemetry.ciclos",          unit: "",     icon: "cycles" }
+            { type: "sys-metric", label: "Tiempo de Robot Encendido", path: "telemetry.tiempo_funcionamiento", unit: "",  icon: "clock"  }
           ]
         }
       ]
@@ -51,29 +51,21 @@ export const SALESIANOS_LAYOUT = {
             { type: "camera", path: "camera.stream", dismissible: true, borderColor: "#ffbf00" }
           ]
         },
-        // ── RIGHT COLUMN (50 %) — Compact IO signals grid ───────────────
+        // ── RIGHT COLUMN (50 %) — Control Box card + Tool I/O card ─────
         {
-          title: "MAPEADO E/S DIGITAL",
-          className: "er-digital-io",
+          title: "E/S DEL CONTROLADOR (Control Box)",
+          className: "er-control-box",
           compact: true,
           widgets: [
-            { type: "digital-io", path: "digital_io" }
+            { type: "hardware-io-control-box", path: "hardware_io.control_box" }
           ]
         },
         {
-          title: "ANALÓGICA",
-          className: "er-analog",
+          title: "E/S DE LA HERRAMIENTA (Tool I/O)",
+          className: "er-tool-io",
           compact: true,
           widgets: [
-            { type: "analog-io", path: "analog_io" }
-          ]
-        },
-        {
-          title: "HERRAMIENTA",
-          className: "er-herramienta",
-          compact: true,
-          widgets: [
-            { type: "tool-panel", path: "herramienta" }
+            { type: "hardware-io-tool", path: "hardware_io.tool" }
           ]
         }
       ]
@@ -162,6 +154,15 @@ export const SALESIANOS_LAYOUT = {
           compact: true,
           widgets: [
             { type: "log", label: "Log del Sistema", path: "messages", compact: true, columns: 2 }
+          ]
+        },
+        {
+          title: "Buffer de Diagnóstico Derivado",
+          className: "diag-derived-buffer",
+          widgets: [
+            // ⚠ Eventos INFERIDOS en frontend a partir de transiciones de estado MQTT.
+            // No son el log nativo del controlador UR.
+            { type: "diag-buffer", columns: 2 }
           ]
         }
       ]

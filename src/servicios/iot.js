@@ -141,13 +141,46 @@ export function getMockTelemetryData(centroConfig = null) {
       corriente: null, // mA
       potencia: null   // W
     },
+    // Hardware I/O – new UR Polyscope-style structure (Control Box + Tool)
+    hardware_io: {
+      control_box: {
+        digital: {
+          di: Array(8).fill(null),
+          do: Array(8).fill(null),
+          ci: Array(8).fill(null),
+          co: Array(8).fill(null),
+        },
+        analog: {
+          ai0: { value: null, unit: 'V',  mode: 'voltage'  },
+          ai1: { value: null, unit: 'V',  mode: 'voltage'  },
+          ao0: { value: null, unit: 'V',  mode: 'voltage'  },
+          ao1: { value: null, unit: 'V',  mode: 'voltage'  },
+        },
+      },
+      tool: {
+        digital: {
+          tdi: Array(2).fill(null),
+          tdo: Array(2).fill(null),
+        },
+        analog: {
+          ai2: { value: null, unit: 'V' },
+          ai3: { value: null, unit: 'V' },
+        },
+        power: {
+          voltage: null,  // V
+          current: null,  // mA
+          wattage: null,  // W
+        },
+      },
+    },
     // Telemetry sub-object for the Menú Principal dashboard (Node-RED payload.telemetry)
     telemetry: {
-      speed:           null,   // mm/s
-      power:           null,   // W
-      controller_temp: null,   // °C
-      main_voltage:    null,   // V
-      cpu_load:        null,   // %
+      speed:                 null,   // mm/s
+      power:                 null,   // W
+      controller_temp:       null,   // °C
+      main_voltage:          null,   // V
+      cpu_load:              null,   // %
+      tiempo_funcionamiento: null,   // HH:MM:SS string
     },
     // Raw RTDE protocol numeric IDs (before string mapping)
     rtde: {
