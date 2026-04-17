@@ -1,6 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import mqtt from 'mqtt';
 import { MqttStatusContext } from './MqttStatusContext.js';
+import {
+  MAX_DERIVED_DIAG_EVENTS,
+  EMPTY_DIAG_STATE,
+  normalizeDiagnosticState,
+  deriveDiagnosticEvents,
+} from '../servicios/diagnosticBuffer.js';
 
 const MAX_STEP_CAPTURE_RECORDS = 50;
 
@@ -44,6 +50,12 @@ export const MqttStatusProvider = ({ children }) => {
   const [isPausedStepCapture, setIsPausedStepCapture] = useState(false);
   const isPausedStepCaptureRef = useRef(false);
   const clientRef = useRef(null);
+
+  // ── Derived Diagnostic Buffer ─────────────────────────────────────────────
+  // Buffer de eventos DERIVADOS generados en frontend a partir de transiciones
+  // de estado MQTT.  NO es el log de diagnósticos nativo del controlador UR.
+  const [derivedDiagnosticBuffer, setDerivedDiagnosticBuffer] = useState([]);
+  const prevDiagStateRef = useRef(EMPTY_DIAG_STATE);
 
   // ── Last error ───────────────────────────────────────────────────────────────
   // lastError holds the text of the most recent event whose text contains
@@ -123,6 +135,23 @@ export const MqttStatusProvider = ({ children }) => {
 
         setLastMessageTime(now);
         setStatus('ONLINE');
+
+        // ── Derived Diagnostic Buffer ───────────────────────────────────────
+        // Compara el estado MQTT anterior con el nuevo y genera los eventos que
+        // correspondan.  La lógica de normalización y derivación está en
+        // src/servicios/diagnosticBuffer.js para mantener este archivo limpio.
+        const currDiagState = normalizeDiagnosticState(data, prevDiagStateRef.current);
+        const newDiagEvents = deriveDiagnosticEvents(prevDiagStateRef.current, currDiagState);
+        prevDiagStateRef.current = currDiagState;
+        if (newDiagEvents.length > 0) {
+          setDerivedDiagnosticBuffer(prev => {
+            const updated = [...prev, ...newDiagEvents];
+            return updated.length > MAX_DERIVED_DIAG_EVENTS
+              ? updated.slice(updated.length - MAX_DERIVED_DIAG_EVENTS)
+              : updated;
+          });
+        }
+
         setTelemetryData(data);
 
         // Accumulate new events into eventLog using content-based deduplication.
@@ -203,6 +232,10 @@ export const MqttStatusProvider = ({ children }) => {
     // seenEventKeysRef is NOT cleared here intentionally — see comment above.
   }, []);
 
+  const clearDerivedDiagnosticBuffer = useCallback(() => {
+    setDerivedDiagnosticBuffer([]);
+  }, []);
+
   // Watchdog Effect - Check for timeout every second
   useEffect(() => {
     const interval = setInterval(() => {
@@ -235,7 +268,10 @@ export const MqttStatusProvider = ({ children }) => {
     publishCommand,
     eventLog,
     clearEventLog,
-    lastError
+    lastError,
+    // ── Derived Diagnostic Buffer ─────────────────────────────────────────
+    derivedDiagnosticBuffer,
+    clearDerivedDiagnosticBuffer,
   };
 
   return (

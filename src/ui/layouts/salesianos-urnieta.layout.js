@@ -155,6 +155,15 @@ export const SALESIANOS_LAYOUT = {
           widgets: [
             { type: "log", label: "Log del Sistema", path: "messages", compact: true, columns: 2 }
           ]
+        },
+        {
+          title: "Buffer de Diagnóstico Derivado",
+          className: "diag-derived-buffer",
+          widgets: [
+            // ⚠ Eventos INFERIDOS en frontend a partir de transiciones de estado MQTT.
+            // No son el log nativo del controlador UR.
+            { type: "diag-buffer", columns: 2 }
+          ]
         }
       ]
     },

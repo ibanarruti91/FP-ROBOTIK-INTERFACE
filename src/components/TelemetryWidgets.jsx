@@ -1221,3 +1221,117 @@ export function HardwareIOTool({ data, className = '' }) {
     </CardGlass>
   );
 }
+
+/**
+ * DiagnosticBufferPanel
+ *
+ * ⚠ BUFFER DE DIAGNÓSTICO DERIVADO — no es el log nativo del robot UR.
+ * Muestra el historial de eventos INFERIDOS en el frontend a partir de
+ * transiciones de estado detectadas en los mensajes MQTT de Node-RED.
+ *
+ * Características:
+ *  • Eventos ordenados de más reciente a más antiguo.
+ *  • Icono y color diferenciados por nivel de severidad (info / warning / error).
+ *  • Columna "code" para identificación rápida del tipo de evento.
+ *  • Instantánea del estado (snapshot) expandible en tooltip del código.
+ *  • Botones de exportar CSV y borrar buffer.
+ */
+export function DiagnosticBufferPanel({ className = '' }) {
+  const { derivedDiagnosticBuffer, clearDerivedDiagnosticBuffer } = useContext(MqttStatusContext);
+
+  const handleExportCsv = () => {
+    const csvLines = ['Hora,Nivel,Código,Título,Mensaje'];
+    derivedDiagnosticBuffer.forEach(({ time, level, code, title, msg }) => {
+      const esc = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+      csvLines.push([esc(time), esc(level), esc(code), esc(title), esc(msg)].join(','));
+    });
+    const blob = new Blob([csvLines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href     = url;
+    link.download = 'buffer_diagnostico_derivado.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const LEVEL_ICON  = { info: 'ℹ', warning: '⚠', error: '✖' };
+  const LEVEL_LABEL = { info: 'INFO', warning: 'AVISO', error: 'ERROR' };
+
+  return (
+    <CardGlass className={`log-panel diag-buffer-panel ${className}`}>
+
+      {/* ── Header ── */}
+      <div className="log-header">
+        <div className="log-title">
+          Buffer de Diagnóstico Derivado
+          <span className="diag-buffer-badge">INFERIDO · NO NATIVO</span>
+        </div>
+        <div className="log-actions">
+          <button
+            className="log-btn log-btn--export"
+            onClick={handleExportCsv}
+            disabled={derivedDiagnosticBuffer.length === 0}
+            title="Exportar buffer de diagnóstico a CSV"
+          >
+            ⬇ Exportar CSV
+          </button>
+          <button
+            className="log-btn log-btn--clear"
+            onClick={clearDerivedDiagnosticBuffer}
+            disabled={derivedDiagnosticBuffer.length === 0}
+            title="Borrar el buffer de diagnóstico derivado"
+          >
+            🗑 Limpiar
+          </button>
+        </div>
+      </div>
+
+      {/* ── Event count ── */}
+      {derivedDiagnosticBuffer.length > 0 && (
+        <div className="diag-buffer-count">
+          {derivedDiagnosticBuffer.length} evento{derivedDiagnosticBuffer.length !== 1 ? 's' : ''} derivado{derivedDiagnosticBuffer.length !== 1 ? 's' : ''}
+        </div>
+      )}
+
+      {/* ── Events list (newest first) ── */}
+      {derivedDiagnosticBuffer.length === 0 ? (
+        <div className="log-empty">Sin eventos de diagnóstico derivado</div>
+      ) : (
+        <div className="log-messages diag-buffer-messages">
+          {[...derivedDiagnosticBuffer].reverse().map(event => (
+            <div
+              key={event.id}
+              className={`log-message diag-event-row diag-event-row--${event.level}`}
+            >
+              {/* Severity icon */}
+              <span
+                className={`diag-event-icon diag-event-icon--${event.level}`}
+                title={LEVEL_LABEL[event.level]}
+                aria-label={LEVEL_LABEL[event.level]}
+              >
+                {LEVEL_ICON[event.level] ?? '•'}
+              </span>
+
+              {/* Timestamp */}
+              <span className="log-time">{event.time}</span>
+
+              {/* Code pill — hovering shows the state snapshot */}
+              <span
+                className={`diag-event-code diag-event-code--${event.level}`}
+                title={`Snapshot: ${JSON.stringify(event.snapshot, null, 2)}`}
+              >
+                {event.code}
+              </span>
+
+              {/* Message */}
+              <span className="log-text diag-event-msg">{event.msg}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+    </CardGlass>
+  );
+}
