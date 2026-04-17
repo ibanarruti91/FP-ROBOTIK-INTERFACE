@@ -439,6 +439,9 @@ function TelemetriaDetail() {
               // Fall back to explicit backend field, then 'Ninguno'
               return data.diagnostico?.last_error || data.last_error || 'Ninguno';
             })(),
+            // MQTT broker connectivity indicator: ONLINE if the last message arrived
+            // less than 5 seconds ago, OFFLINE otherwise.
+            mqtt_online_status: (Date.now() - lastDataTimeRef.current) < 5000 ? 'ONLINE' : 'OFFLINE',
             // Map telemetry sub-object for the Menú Principal dashboard widgets.
             // Accepts the new Node-RED `payload.telemetry` format with fallback to
             // existing sistema/estadisticas fields for backward compatibility.

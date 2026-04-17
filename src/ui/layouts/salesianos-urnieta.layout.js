@@ -145,7 +145,7 @@ export const SALESIANOS_LAYOUT = {
           compact: true,
           widgets: [
             { type: "kpi", label: "Tiempo Operación", path: "uptime_hours", unit: "h", format: "1", columns: 1, compact: true },
-            { type: "kpi", label: "Tiempo Ciclo Promedio", path: "cycle_time", unit: "s", format: "1", columns: 1, compact: true }
+            { type: "kpi", label: "Estado Broker", path: "mqtt_online_status", unit: "", format: "text", columns: 1, compact: true }
           ]
         },
         {
