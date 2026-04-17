@@ -642,6 +642,117 @@
   font-style: italic;
 }
 
+/* ── Derived Diagnostic Buffer ─────────────────────────────────────────────
+   Componente: DiagnosticBufferPanel
+   ⚠ Estos estilos son para eventos INFERIDOS en frontend — no del robot UR.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* "INFERIDO · NO NATIVO" badge next to the panel title */
+.diag-buffer-badge {
+  display: inline-block;
+  margin-left: 0.6rem;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  font-family: var(--font-display);
+  letter-spacing: 0.04em;
+  border-radius: 4px;
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  color: #a78bfa;
+  vertical-align: middle;
+}
+
+/* Event count subtitle */
+.diag-buffer-count {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+  font-style: italic;
+}
+
+/* Scrollable list — taller than the standard log panel */
+.diag-buffer-messages {
+  max-height: 420px;
+}
+
+/* Base row: reuses .log-message but adds left-border color per severity */
+.diag-event-row {
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.diag-event-row--info {
+  border-left-color: var(--accent-cyan, #00e5ff);
+}
+
+.diag-event-row--warning {
+  border-left-color: #ffbf00;
+  background: rgba(255, 191, 0, 0.04);
+}
+
+.diag-event-row--error {
+  border-left-color: #ef4444;
+  background: rgba(239, 68, 68, 0.06);
+}
+
+.diag-event-row--warning:hover {
+  background: rgba(255, 191, 0, 0.08);
+  border-left-color: #ffd740;
+}
+
+.diag-event-row--error:hover {
+  background: rgba(239, 68, 68, 0.12);
+  border-left-color: #f87171;
+}
+
+/* Severity icon */
+.diag-event-icon {
+  flex-shrink: 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.diag-event-icon--info    { color: var(--accent-cyan, #00e5ff); }
+.diag-event-icon--warning { color: #ffbf00; }
+.diag-event-icon--error   { color: #ef4444; }
+
+/* Machine-readable code pill */
+.diag-event-code {
+  flex-shrink: 0;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  cursor: default;
+  white-space: nowrap;
+}
+
+.diag-event-code--info {
+  background: rgba(0, 229, 255, 0.12);
+  color: var(--accent-cyan, #00e5ff);
+}
+
+.diag-event-code--warning {
+  background: rgba(255, 191, 0, 0.12);
+  color: #ffbf00;
+}
+
+.diag-event-code--error {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+/* Message text */
+.diag-event-msg {
+  flex: 1;
+  color: var(--text-primary);
+}
+
+.diag-event-row--warning .diag-event-msg { color: #ffe082; }
+.diag-event-row--error   .diag-event-msg { color: #fca5a5; }
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .table-grid {
