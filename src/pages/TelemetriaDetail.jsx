@@ -372,10 +372,18 @@ function TelemetriaDetail() {
                 analog: srcControlBox?.analog ?? normalizedAnalog,
               };
 
-              // Merge tool: prefer new-format analog/power, fall back to herramienta legacy
+              // Merge tool: prefer new-format analog/power/digital, fall back to herramienta legacy
               const toolBase = srcTool ?? baseTool ?? {};
               const tool = {
                 ...toolBase,
+                digital: srcTool?.digital ?? {
+                  tdi: Array.isArray(data.herramienta?.digital?.tdi) ? data.herramienta.digital.tdi
+                     : Array.isArray(data.digital_io?.tool_inputs)   ? data.digital_io.tool_inputs
+                     : baseTool?.digital?.tdi ?? [false, false],
+                  tdo: Array.isArray(data.herramienta?.digital?.tdo) ? data.herramienta.digital.tdo
+                     : Array.isArray(data.digital_io?.tool_outputs)  ? data.digital_io.tool_outputs
+                     : baseTool?.digital?.tdo ?? [false, false],
+                },
                 analog: srcTool?.analog
                   ?? { ai2: normalizedToolData.ai2, ai3: normalizedToolData.ai3 },
                 power: srcTool?.power
