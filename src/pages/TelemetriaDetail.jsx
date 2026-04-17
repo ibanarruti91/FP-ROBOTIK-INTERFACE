@@ -376,13 +376,17 @@ function TelemetriaDetail() {
               const toolBase = srcTool ?? baseTool ?? {};
               const tool = {
                 ...toolBase,
-                digital: srcTool?.digital ?? {
-                  tdi: Array.isArray(data.herramienta?.digital?.tdi) ? data.herramienta.digital.tdi
-                     : Array.isArray(data.digital_io?.tool_inputs)   ? data.digital_io.tool_inputs
-                     : baseTool?.digital?.tdi ?? [false, false],
-                  tdo: Array.isArray(data.herramienta?.digital?.tdo) ? data.herramienta.digital.tdo
-                     : Array.isArray(data.digital_io?.tool_outputs)  ? data.digital_io.tool_outputs
-                     : baseTool?.digital?.tdo ?? [false, false],
+                digital: {
+                  tdi: Array.isArray(srcTool?.digital?.tdi)           ? srcTool.digital.tdi
+                     : Array.isArray(data.herramienta?.digital?.tdi)  ? data.herramienta.digital.tdi
+                     : Array.isArray(data.digital_io?.tool_inputs)    ? data.digital_io.tool_inputs
+                     : Array.isArray(baseTool?.digital?.tdi)          ? baseTool.digital.tdi
+                     : [false, false],
+                  tdo: Array.isArray(srcTool?.digital?.tdo)           ? srcTool.digital.tdo
+                     : Array.isArray(data.herramienta?.digital?.tdo)  ? data.herramienta.digital.tdo
+                     : Array.isArray(data.digital_io?.tool_outputs)   ? data.digital_io.tool_outputs
+                     : Array.isArray(baseTool?.digital?.tdo)          ? baseTool.digital.tdo
+                     : [false, false],
                 },
                 analog: srcTool?.analog
                   ?? { ai2: normalizedToolData.ai2, ai3: normalizedToolData.ai3 },
