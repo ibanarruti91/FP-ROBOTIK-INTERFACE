@@ -193,7 +193,7 @@ Ejemplo:
 |---------------|----------------------|--------|
 | Potencia Robot | `robot_power` | W |
 | Temperatura Controlador | `ctrl_temp` | °C |
-| Tiempo de Operación | `uptime_hours` | h |
+| Tiempo de Robot Encendido | `telemetry.tiempo_funcionamiento` | string `HH:MM:SS` |
 | Tiempo Ciclo Promedio | `cycle_time` | s |
 | Último Error | `last_error` | string |
 | Log del sistema | `messages` | array de objetos `{ "time": "HH:MM:SS", "msg": "string" }` |
