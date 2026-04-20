@@ -24,7 +24,7 @@ export const ROBOT_MODE_LABELS = {
 export const PROGRAM_STATE_LABELS = {
   0: 'NO INICIALIZADO',
   1: 'DETENIDO',
-  2: 'EN EJECUCIÓN',
+  2: 'EN MARCHA',
   3: 'PAUSANDO…',
   4: 'EN PAUSA',
   5: 'REANUDANDO…',
@@ -47,8 +47,8 @@ export const SAFETY_STATUS_LABELS = {
 
 const STATE_CHANGE_DEFS = {
   'robot_mode.changed':    { name: 'robot_mode',    displayName: 'Modo robot',    labels: ROBOT_MODE_LABELS },
-  'program_state.changed': { name: 'program_state', displayName: 'Estado prog.',  labels: PROGRAM_STATE_LABELS },
-  'safety.changed':        { name: 'safety',        displayName: 'Seguridad',     labels: SAFETY_STATUS_LABELS },
+  'program_state.changed': { name: 'program_state', displayName: 'Estado programa', labels: PROGRAM_STATE_LABELS },
+  'safety.changed':        { name: 'safety',        displayName: 'Safety',          labels: SAFETY_STATUS_LABELS },
 };
 
 // ── Public API ────────────────────────────────────────────────────────────────

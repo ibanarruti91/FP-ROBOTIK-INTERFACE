@@ -347,10 +347,41 @@
 /* Primary line: state transition rendered as "name: [from] label → [to] label" */
 .diag-transition-main {
   font-weight: 600;
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   color: var(--text-primary, #fff);
   margin: 0;
   word-break: break-word;
+  background: rgba(0, 229, 255, 0.05);
+  border-left: 3px solid var(--accent-cyan, #00e5ff);
+  border-radius: 0 4px 4px 0;
+  padding: 4px 8px;
+}
+
+/* State type label: "Modo robot:", "Estado programa:", "Safety:" */
+.diag-tr-name {
+  color: var(--text-secondary, #94a3b8);
+  font-weight: 500;
+}
+
+/* Numeric value in brackets: [3], [5] */
+.diag-tr-val {
+  color: var(--accent-cyan, #00e5ff);
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.85rem;
+}
+
+/* Human-readable label: MOTORES APAGADOS, ARRANCANDO */
+.diag-tr-label {
+  color: var(--text-primary, #fff);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* Arrow between from and to */
+.diag-tr-arrow {
+  color: #f59e0b;
+  font-size: 1rem;
+  font-weight: 700;
 }
 
 /* Secondary line: original event.text, small and muted */

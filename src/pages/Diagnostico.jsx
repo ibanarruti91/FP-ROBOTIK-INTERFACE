@@ -78,11 +78,25 @@ function formatTs(ts) {
 // ── Transition label formatter ────────────────────────────────────────────────
 
 /**
- * Builds the primary display string for a state-change event.
- * e.g. "Modo robot: [7] OPERATIVO → [3] MOTORES APAGADOS"
+ * Renders the primary transition line as structured JSX so each part can be
+ * styled independently.
+ * e.g. "Modo robot: [3] MOTORES APAGADOS → [5] ARRANCANDO"
  */
-function formatTransition(t) {
-  return `${t.displayName}: [${t.fromValue}] ${t.fromLabel} → [${t.toValue}] ${t.toLabel}`;
+function TransitionMain({ t }) {
+  return (
+    <p className="diag-event-text diag-transition-main">
+      <span className="diag-tr-name">{t.displayName}: </span>
+      <span className="diag-tr-val">[{t.fromValue}]</span>
+      {' '}
+      <span className="diag-tr-label">{t.fromLabel}</span>
+      {' '}
+      <span className="diag-tr-arrow">→</span>
+      {' '}
+      <span className="diag-tr-val">[{t.toValue}]</span>
+      {' '}
+      <span className="diag-tr-label">{t.toLabel}</span>
+    </p>
+  );
 }
 
 // ── Single event row ──────────────────────────────────────────────────────────
@@ -99,9 +113,7 @@ function EventRow({ event }) {
       </div>
       {transition ? (
         <>
-          <p className="diag-event-text diag-transition-main">
-            {formatTransition(transition)}
-          </p>
+          <TransitionMain t={transition} />
           {event.text && (
             <p className="diag-event-text diag-transition-secondary">{event.text}</p>
           )}
@@ -254,10 +266,10 @@ function Diagnostico() {
           </div>
           <div className="diag-last-states">
             <div className="diag-last-states-grid">
-              <LastStateItem label="Modo robot"    event={lastRobotModeEvent} />
-              <LastStateItem label="Estado prog."  event={lastProgramStateEvent} />
-              <LastStateItem label="Seguridad"     event={lastSafetyEvent} />
-              <LastStateItem label="Último error"  event={lastErrorEvent} isError />
+              <LastStateItem label="Modo robot"      event={lastRobotModeEvent} />
+              <LastStateItem label="Estado programa" event={lastProgramStateEvent} />
+              <LastStateItem label="Safety"          event={lastSafetyEvent} />
+              <LastStateItem label="Último error"    event={lastErrorEvent} isError />
             </div>
           </div>
         </div>
