@@ -19,21 +19,21 @@ export const SALESIANOS_LAYOUT = {
           ]
         },
         {
-          title: "RENDIMIENTO DINÁMICO",
-          className: "principal-chart",
+          title: "PARÁMETROS DEL SISTEMA",
+          className: "principal-params",
+          compact: true,
           widgets: [
-            { type: "performance-chart", path: "telemetry" }
-          ]
-        },
-        {
-          className: "principal-sys-cards",
-          widgets: [
-            { type: "sys-metric", label: "Temperatura Sistema", path: "telemetry.controller_temp", unit: "ºC",   icon: "temp" },
-            { type: "sys-metric", label: "Tensión Principal",   path: "telemetry.main_voltage",    unit: "V",    icon: "voltage" },
-            { type: "sys-metric", label: "Carga CPU",           path: "telemetry.cpu_load",        unit: "%",    icon: "cpu",    showBar: true },
-            { type: "sys-metric", label: "Consumo Actual",      path: "telemetry.power",           unit: "W",    icon: "power" },
-            { type: "sys-metric", label: "Velocidad TCP",       path: "telemetry.speed",           unit: "mm/s", icon: "speed" },
-            { type: "sys-metric", label: "Tiempo de Robot Encendido", path: "telemetry.tiempo_funcionamiento", unit: "",  icon: "clock"  }
+            {
+              type: "params-table",
+              items: [
+                { label: "Temp. Controlador",  path: "telemetry.controller_temp",        unit: "°C"   },
+                { label: "Tensión Principal",   path: "telemetry.main_voltage",           unit: "V"    },
+                { label: "Carga CPU",           path: "telemetry.cpu_load",               unit: "%"    },
+                { label: "Consumo Actual",      path: "telemetry.power",                  unit: "W"    },
+                { label: "Velocidad TCP",       path: "telemetry.speed",                  unit: "mm/s" },
+                { label: "Robot Encendido",     path: "telemetry.tiempo_funcionamiento",  unit: ""     }
+              ]
+            }
           ]
         }
       ]
