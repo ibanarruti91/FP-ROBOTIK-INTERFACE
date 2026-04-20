@@ -6,6 +6,7 @@ import { useState, useEffect, useRef, useMemo, useContext } from 'react';
 import { Zap, Thermometer, Settings, Gauge, Activity, Cpu, RefreshCw, Clock } from 'lucide-react';
 import ExcelJS from 'exceljs';
 import { MqttStatusContext } from '../contexts/MqttStatusContext.js';
+import { getStateTransition } from '../servicios/rtdeLabels.js';
 import './TelemetryWidgets.css';
 
 /**
@@ -1263,6 +1264,13 @@ function EventLevelBadge({ level }) {
  * Muestra el buffer de eventos publicado por Node-RED en los topics
  * events_buffer y events_derived.  Lee directamente del contexto MQTT.
  */
+// ── Transition type definitions (mirrors Diagnostico.jsx) ────────────────────
+const NR_TRANSITION_TYPE_LABELS = {
+  'robot_mode.changed':    'Modo robot',
+  'program_state.changed': 'Estado programa',
+  'safety.changed':        'Safety',
+};
+
 export function NodeRedEventsPanel({ className = '' }) {
   const {
     nodeRedEventsBuffer,
@@ -1271,13 +1279,17 @@ export function NodeRedEventsPanel({ className = '' }) {
     publishCommand,
   } = useContext(MqttStatusContext);
 
-  const sortedEvents = useMemo(
-    () => [...nodeRedEventsBuffer].reverse(),
+  // ── Single source of truth: filter hidden events, keep newest-first order ──
+  // nodeRedEventsBuffer is already sorted newest-first by MqttStatusContext.
+  // We only filter out visible===false; no .reverse() is applied here.
+  const renderedBufferEvents = useMemo(
+    () => nodeRedEventsBuffer.filter(e => e.visible !== false),
     [nodeRedEventsBuffer],
   );
 
+  // Counters derived from the same filtered source.
   const { errorCount, warnCount, infoCount } = useMemo(
-    () => nodeRedEventsBuffer.reduce(
+    () => renderedBufferEvents.reduce(
       (acc, e) => {
         const lvl = (e.level ?? '').toLowerCase();
         if (lvl === 'error') acc.errorCount++;
@@ -1287,26 +1299,28 @@ export function NodeRedEventsPanel({ className = '' }) {
       },
       { errorCount: 0, warnCount: 0, infoCount: 0 },
     ),
-    [nodeRedEventsBuffer],
+    [renderedBufferEvents],
   );
 
+  // ── Excel export: same source and same order as the visible list ─────────
   const handleExportExcel = async () => {
     const workbook = new ExcelJS.Workbook();
     workbook.creator = 'FP-ROBOTIK-INTERFACE';
     workbook.created = new Date();
     const sheet = workbook.addWorksheet('Buffer Eventos');
     sheet.columns = [
-      { header: 'id',     key: 'id',     width: 36 },
-      { header: 'ts',     key: 'ts',     width: 24 },
-      { header: 'source', key: 'source', width: 20 },
-      { header: 'level',  key: 'level',  width: 10 },
-      { header: 'type',   key: 'type',   width: 20 },
-      { header: 'text',   key: 'text',   width: 60 },
-      { header: 'data',   key: 'data',   width: 40 },
+      { header: 'id',          key: 'id',          width: 36 },
+      { header: 'ts',          key: 'ts',          width: 24 },
+      { header: 'source',      key: 'source',      width: 20 },
+      { header: 'level',       key: 'level',       width: 10 },
+      { header: 'type',        key: 'type',        width: 20 },
+      { header: 'text',        key: 'text',        width: 60 },
+      { header: 'transition',  key: 'transition',  width: 60 },
+      { header: 'data',        key: 'data',        width: 40 },
     ];
-    // Style header row
     sheet.getRow(1).font = { bold: true };
-    nodeRedEventsBuffer.forEach(event => {
+    // Iterate renderedBufferEvents so the Excel row order matches the UI order.
+    renderedBufferEvents.forEach(event => {
       let tsValue = '';
       if (event.ts != null) {
         try {
@@ -1316,14 +1330,19 @@ export function NodeRedEventsPanel({ className = '' }) {
           tsValue = String(event.ts);
         }
       }
+      const tr = getStateTransition(event);
+      const transitionText = tr
+        ? `${tr.displayName}: [${tr.fromValue}] ${tr.fromLabel} → [${tr.toValue}] ${tr.toLabel}`
+        : '';
       sheet.addRow({
-        id:     event.id     ?? '',
-        ts:     tsValue,
-        source: event.source ?? '',
-        level:  event.level  ?? '',
-        type:   event.type   ?? '',
-        text:   event.text   ?? '',
-        data:   event.data   != null ? JSON.stringify(event.data) : '',
+        id:         event.id     ?? '',
+        ts:         tsValue,
+        source:     event.source ?? '',
+        level:      event.level  ?? '',
+        type:       event.type   ?? '',
+        text:       event.text   ?? '',
+        transition: transitionText,
+        data:       event.data   != null ? JSON.stringify(event.data) : '',
       });
     });
     const buffer = await workbook.xlsx.writeBuffer();
@@ -1358,8 +1377,8 @@ export function NodeRedEventsPanel({ className = '' }) {
       <div className="log-header">
         <div className="log-title">
           <span aria-hidden="true">📡</span> Buffer de eventos del sistema / RTDE
-          {nodeRedEventsBuffer.length > 0 && (
-            <span className="nr-count-badge">{nodeRedEventsBuffer.length}</span>
+          {renderedBufferEvents.length > 0 && (
+            <span className="nr-count-badge">{renderedBufferEvents.length}</span>
           )}
           {nodeRedEventsBufferLimit != null && (
             <span className="nr-meta">límite: {nodeRedEventsBufferLimit}</span>
@@ -1369,18 +1388,12 @@ export function NodeRedEventsPanel({ className = '' }) {
           <button
             className="log-btn log-btn--export"
             onClick={handleExportExcel}
-            disabled={nodeRedEventsBuffer.length === 0}
-            aria-label={nodeRedEventsBuffer.length === 0 ? 'Exportar a Excel (buffer vacío)' : 'Exportar buffer de eventos a Excel'}
+            disabled={renderedBufferEvents.length === 0}
+            aria-label={renderedBufferEvents.length === 0 ? 'Exportar a Excel (buffer vacío)' : 'Exportar buffer de eventos a Excel'}
             title="Exportar buffer de eventos a Excel"
           >
             <span aria-hidden="true">⬇</span> Exportar a Excel
           </button>
-          {console.log('[CLEAR BUTTON]', {
-            CLEAR_BUFFER_BACKEND_READY,
-            hasPublishCommand: !!publishCommand,
-            bufferLength: nodeRedEventsBuffer?.length,
-            disabledComputed: !CLEAR_BUFFER_BACKEND_READY,
-          })}
           <button
             className="log-btn log-btn--clear"
             onClick={handleClearBuffer}
@@ -1414,13 +1427,34 @@ export function NodeRedEventsPanel({ className = '' }) {
         </div>
       )}
 
-      {sortedEvents.length === 0 ? (
+      {renderedBufferEvents.length === 0 ? (
         <div className="log-empty">Sin eventos en el buffer</div>
       ) : (
         <div className="log-messages nr-events-messages">
-          {sortedEvents.map((event, i) => {
+          {renderedBufferEvents.map((event, i) => {
             const lvl = (event.level ?? 'info').toLowerCase();
             const rowMod = lvl === 'error' ? 'error' : lvl.startsWith('warn') ? 'warning' : 'info';
+            const transition = getStateTransition(event);
+            const isTransitionType = Object.prototype.hasOwnProperty.call(
+              NR_TRANSITION_TYPE_LABELS, event.type ?? '',
+            );
+            const hasFromTo = event.data?.from != null && event.data?.to != null;
+
+            // Build primary line: transition if available, else event.text
+            let mainText;
+            if (transition && hasFromTo) {
+              mainText = `${transition.displayName}: [${transition.fromValue}] ${transition.fromLabel} → [${transition.toValue}] ${transition.toLabel}`;
+            } else if (isTransitionType && hasFromTo) {
+              // Defensive fallback: never show generic text for a real state-change event
+              const name = NR_TRANSITION_TYPE_LABELS[event.type];
+              mainText = `${name}: [${event.data.from}] ${event.data.from} → [${event.data.to}] ${event.data.to}`;
+            } else {
+              mainText = event.text ?? '—';
+            }
+
+            const showSecondaryText =
+              (transition != null || (isTransitionType && hasFromTo)) && event.text;
+
             return (
               <div
                 key={event.id ?? i}
@@ -1434,7 +1468,12 @@ export function NodeRedEventsPanel({ className = '' }) {
                 {event.source && (
                   <span className="nr-event-source">{event.source}</span>
                 )}
-                <span className="log-text diag-event-msg">{event.text ?? '—'}</span>
+                <span className="log-text diag-event-msg">{mainText}</span>
+                {showSecondaryText && (
+                  <span className="log-text diag-event-msg diag-transition-secondary">
+                    {event.text}
+                  </span>
+                )}
               </div>
             );
           })}
