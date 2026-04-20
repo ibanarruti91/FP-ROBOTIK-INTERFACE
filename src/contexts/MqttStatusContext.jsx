@@ -170,8 +170,12 @@ export const MqttStatusProvider = ({ children }) => {
           // Node-RED already limits the payload to buffer_limit items, so we
           // store the list as-is without further slicing.
           const events = Array.isArray(data.events) ? data.events : [];
+          console.log('[MQTT] topic:', topic);
+          console.log('[MQTT] events_buffer payload:', data);
+          console.log('[MQTT] events_buffer events.length:', events.length);
           nodeRedEventIdsRef.current = new Set(events.map(e => e.id).filter(Boolean));
           setNodeRedEventsBuffer(events);
+          console.log('[MQTT] nodeRedEventsBuffer state set to length:', events.length);
           if (typeof data.total === 'number') setNodeRedEventsTotal(data.total);
           if (data.buffer_limit != null) {
             nodeRedEventsBufferLimitRef.current = data.buffer_limit;
@@ -180,7 +184,11 @@ export const MqttStatusProvider = ({ children }) => {
         } else if (topic === 'salesianos/robot/iban/events_derived') {
           // ── events_derived: incremental events from Node-RED ─────────────
           const incoming = Array.isArray(data.events) ? data.events : [];
+          console.log('[MQTT] topic:', topic);
+          console.log('[MQTT] events_derived payload:', data);
+          console.log('[MQTT] events_derived incoming.length:', incoming.length);
           const newEvents = incoming.filter(e => e.id && !nodeRedEventIdsRef.current.has(e.id));
+          console.log('[MQTT] events_derived newEvents (after dedup):', newEvents.length);
           if (newEvents.length > 0) {
             newEvents.forEach(e => nodeRedEventIdsRef.current.add(e.id));
             setNodeRedEventsBuffer(prev => {
@@ -189,10 +197,11 @@ export const MqttStatusProvider = ({ children }) => {
               // nodeRedEventsBufferLimitRef is always current (updated in the
               // events_buffer handler before state setter to avoid stale closure).
               const limit = nodeRedEventsBufferLimitRef.current;
-              if (limit != null && merged.length > limit) {
-                return merged.slice(merged.length - limit);
-              }
-              return merged;
+              const next = (limit != null && merged.length > limit)
+                ? merged.slice(merged.length - limit)
+                : merged;
+              console.log('[MQTT] nodeRedEventsBuffer state after events_derived merge, length:', next.length);
+              return next;
             });
             if (typeof data.count === 'number') setNodeRedEventsTotal(data.count);
           }

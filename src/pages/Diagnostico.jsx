@@ -103,6 +103,11 @@ function Diagnostico() {
     nodeRedEventsBufferLimit,
   } = useMqttStatus();
 
+  // ── Debug: confirm context values on every render ─────────────────────────
+  console.log('[Diagnostico] render — nodeRedEventsBuffer.length:', nodeRedEventsBuffer.length);
+  console.log('[Diagnostico] render — nodeRedEventsTotal:', nodeRedEventsTotal);
+  console.log('[Diagnostico] render — first event type:', nodeRedEventsBuffer[0]?.type ?? '(none)');
+
   // Diagnóstico messages from the principal topic
   const diagMessages = eventLog;
 
