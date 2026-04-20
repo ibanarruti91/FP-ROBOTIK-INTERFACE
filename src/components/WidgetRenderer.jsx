@@ -2,7 +2,7 @@
  * WidgetRenderer - Renderiza widgets basándose en su tipo y configuración
  */
 
-import { KpiCard, StatusPill, StatusDynamic, DataTable, LogPanel, SafetyPanel, DigitalIO, AnalogIO, GestionPanel, SecurityLedsPanel, ToolPanel, TcpPose, JointsGrid, SystemMetricCard, StepCaptureTable, HardwareIOControlBox, HardwareIOTool, DiagnosticBufferPanel, NodeRedEventsPanel, NodeRedDiagMessagesPanel } from './TelemetryWidgets';
+import { KpiCard, StatusPill, StatusDynamic, DataTable, LogPanel, SafetyPanel, DigitalIO, AnalogIO, GestionPanel, SecurityLedsPanel, ToolPanel, TcpPose, JointsGrid, SystemMetricCard, StepCaptureTable, HardwareIOControlBox, HardwareIOTool, DiagnosticBufferPanel, NodeRedEventsPanel, NodeRedDiagMessagesPanel, ParameterTable } from './TelemetryWidgets';
 import { CameraWidget } from './CameraWidget';
 import { PerformanceChart } from './PerformanceChart';
 import './WidgetRenderer.css';
@@ -255,6 +255,15 @@ function renderWidget(widget, data, key) {
         />
       );
 
+    case 'params-table':
+      return (
+        <ParameterTable
+          key={key}
+          items={widget.items || []}
+          data={data}
+        />
+      );
+
     default:
       return (
         <div key={key} className="widget-unknown">
@@ -384,13 +393,29 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
     );
   }
 
-  // Principal: top row (camera 75-80% | sys-cards 20-25%) + bottom row (chart 100%)
+  // Principal: config-screen layout (camera | params-table) — no decorative chart
   if (sectionId === 'principal') {
     const cameraGroups   = groups.filter(g => g.className === 'principal-camera');
+    const paramsGroups   = groups.filter(g => g.className === 'principal-params');
     const chartGroups    = groups.filter(g => g.className === 'principal-chart');
     const sysCardsGroups = groups.filter(g => g.className === 'principal-sys-cards');
 
-    // New layout: top row (camera + cards) + bottom row (chart)
+    // New config-screen layout: camera (left) + parameter table (right), no chart
+    if (paramsGroups.length > 0) {
+      const paramsOffset = cameraGroups.length;
+      return (
+        <div className="widget-renderer principal-config-layout">
+          <div className="principal-camera-col">
+            {cameraGroups.map((group, i) => renderGroup(group, data, i))}
+          </div>
+          <div className="principal-params-col">
+            {paramsGroups.map((group, i) => renderGroup(group, data, paramsOffset + i))}
+          </div>
+        </div>
+      );
+    }
+
+    // Legacy chart layout (top row: camera + sys-cards; bottom row: chart)
     if (chartGroups.length > 0 || sysCardsGroups.length > 0) {
       const chartOffset    = cameraGroups.length;
       const sysCardsOffset = chartOffset + chartGroups.length;
