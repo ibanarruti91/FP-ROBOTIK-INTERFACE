@@ -1327,16 +1327,54 @@
   min-height: 250px;
 }
 
+.tcp-pose-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid rgba(0, 123, 255, 0.3);
+}
+
+.tcp-pose-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
 .tcp-pose-title {
   font-family: var(--font-display);
   font-size: 1.2rem;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid rgba(0, 123, 255, 0.3);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+.tcp-pose-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+}
+
+.tcp-pose-unit-toggle {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.3rem 0.65rem;
+  border-radius: 5px;
+  border: 1px solid rgba(0, 209, 255, 0.4);
+  background: rgba(0, 209, 255, 0.07);
+  color: var(--accent-cyan);
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+
+.tcp-pose-unit-toggle:hover,
+.tcp-pose-unit-toggle.active {
+  background: rgba(0, 209, 255, 0.18);
+  border-color: rgba(0, 209, 255, 0.7);
 }
 
 .tcp-pose-grid {
