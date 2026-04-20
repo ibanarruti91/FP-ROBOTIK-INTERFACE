@@ -74,6 +74,12 @@ export const MqttStatusProvider = ({ children }) => {
   // Reflects Node-RED's own last_error field directly — no frontend inference.
   const [diagnosticoLastError, setDiagnosticoLastError] = useState(null);
 
+  // ── Diagnóstico messages (from principal.diagnostico.messages) ───────────
+  // Stores the latest normalized batch from Node-RED.  Node-RED publishes the
+  // full cumulative history on every message, so we replace on each update.
+  // Never inferred or derived in the frontend — only what Node-RED sends.
+  const [diagnosticoMessages, setDiagnosticoMessages] = useState([]);
+
   // ── Node-RED Events ───────────────────────────────────────────────────────
   // Populated from events_derived (incremental) and events_buffer (authoritative).
   // The web never calculates these; it only consumes what Node-RED publishes.
@@ -224,6 +230,14 @@ export const MqttStatusProvider = ({ children }) => {
             setDiagnosticoLastError(data.diagnostico.last_error);
           }
 
+          // ── Diagnóstico messages (direct from Node-RED payload) ───────────
+          // Replace with the latest full batch.  Node-RED sends cumulative
+          // history on every message so there is no need to accumulate here.
+          const rawDiagMessages = data.diagnostico?.messages ?? data.messages ?? null;
+          if (rawDiagMessages !== null) {
+            setDiagnosticoMessages(parseMsgBatch(rawDiagMessages));
+          }
+
           setTelemetryData(data);
 
           // Accumulate new events into eventLog using content-based deduplication.
@@ -354,6 +368,7 @@ export const MqttStatusProvider = ({ children }) => {
     nodeRedEventsBufferLimit,
     // ── Diagnóstico ───────────────────────────────────────────────────────
     diagnosticoLastError,
+    diagnosticoMessages,
   };
 
   return (

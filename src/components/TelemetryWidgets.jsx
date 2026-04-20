@@ -1228,7 +1228,8 @@ export function HardwareIOTool({ data, className = '' }) {
  *  be hidden from the UI. Currently suppresses "URControl..." lines that
  *  contain no useful user-facing information. */
 function isNoisyDiagMessage(msg) {
-  const text = String(msg?.text ?? '').trim();
+  // Check both the raw Node-RED field (msg.msg) and the normalized field (msg.text).
+  const text = String(msg?.msg ?? msg?.text ?? '').trim();
   return /^URControl/i.test(text);
 }
 
@@ -1358,11 +1359,11 @@ export function NodeRedEventsPanel({ className = '' }) {
  * filtrando las líneas ruidosas de URControl que no aportan información útil.
  */
 export function NodeRedDiagMessagesPanel({ className = '' }) {
-  const { eventLog, diagnosticoLastError, clearEventLog } = useContext(MqttStatusContext);
+  const { diagnosticoMessages, diagnosticoLastError } = useContext(MqttStatusContext);
 
   const visibleMessages = useMemo(
-    () => [...eventLog].reverse().filter(msg => !isNoisyDiagMessage(msg)),
-    [eventLog],
+    () => [...diagnosticoMessages].reverse().filter(msg => !isNoisyDiagMessage(msg)),
+    [diagnosticoMessages],
   );
 
   return (
@@ -1373,16 +1374,6 @@ export function NodeRedDiagMessagesPanel({ className = '' }) {
           {visibleMessages.length > 0 && (
             <span className="nr-count-badge">{visibleMessages.length}</span>
           )}
-        </div>
-        <div className="log-actions">
-          <button
-            className="log-btn log-btn--clear"
-            onClick={clearEventLog}
-            disabled={eventLog.length === 0}
-            title="Limpiar historial de mensajes"
-          >
-            🗑 Limpiar
-          </button>
         </div>
       </div>
 

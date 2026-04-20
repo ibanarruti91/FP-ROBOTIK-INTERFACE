@@ -149,14 +149,6 @@ export const SALESIANOS_LAYOUT = {
           ]
         },
         {
-          title: "Historial de Eventos",
-          className: "diag-log",
-          compact: true,
-          widgets: [
-            { type: "log", label: "Log del Sistema", path: "messages", compact: true, columns: 2 }
-          ]
-        },
-        {
           title: "Diagnóstico / Mensajes Node-RED",
           className: "diag-nr-messages",
           widgets: [
@@ -168,15 +160,6 @@ export const SALESIANOS_LAYOUT = {
           className: "diag-nr-events",
           widgets: [
             { type: "nodered-events", columns: 2 }
-          ]
-        },
-        {
-          title: "Buffer de Diagnóstico Derivado",
-          className: "diag-derived-buffer",
-          widgets: [
-            // ⚠ Eventos INFERIDOS en frontend a partir de transiciones de estado MQTT.
-            // No son el log nativo del controlador UR.
-            { type: "diag-buffer", columns: 2 }
           ]
         }
       ]
