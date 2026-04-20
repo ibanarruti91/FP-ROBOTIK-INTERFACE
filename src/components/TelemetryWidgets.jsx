@@ -1482,53 +1482,59 @@ export function NodeRedEventsPanel({ className = '' }) {
 /**
  * NodeRedDiagMessagesPanel
  *
- * Muestra los mensajes de principal.diagnostico.messages publicados por Node-RED,
- * filtrando las líneas ruidosas de URControl que no aportan información útil.
+ * Muestra los eventos de nivel ERROR del buffer de eventos de Node-RED
+ * (misma fuente que NodeRedEventsPanel, el buffer inferior).
+ * Así el cuadro superior y el buffer inferior siempre son coherentes.
  */
 export function NodeRedDiagMessagesPanel({ className = '' }) {
-  const { diagnosticoMessages, diagnosticoLastError } = useContext(MqttStatusContext);
+  const { nodeRedEventsBuffer } = useContext(MqttStatusContext);
 
-  const visibleMessages = useMemo(
-    () => [...diagnosticoMessages].reverse().filter(msg => !isNoisyDiagMessage(msg)),
-    [diagnosticoMessages],
+  // Same filtering as NodeRedEventsPanel — hidden events never shown.
+  const visibleEvents = useMemo(
+    () => nodeRedEventsBuffer.filter(e => e.visible !== false),
+    [nodeRedEventsBuffer],
   );
+
+  // Only the 3 most recent error-level events (newest first, same buffer order).
+  const diagnosticErrorEvents = useMemo(
+    () => visibleEvents.filter(e => (e.level ?? '').toLowerCase() === 'error').slice(0, 3),
+    [visibleEvents],
+  );
+
+  const lastErrorEvent = diagnosticErrorEvents[0] ?? null;
 
   return (
     <CardGlass className={`log-panel nr-messages-panel ${className}`}>
       <div className="log-header">
         <div className="log-title">
           📋 Diagnóstico / mensajes
-          {visibleMessages.length > 0 && (
-            <span className="nr-count-badge">{visibleMessages.length}</span>
+          {diagnosticErrorEvents.length > 0 && (
+            <span className="nr-count-badge">{diagnosticErrorEvents.length}</span>
           )}
         </div>
       </div>
 
-      {diagnosticoLastError && (
+      {lastErrorEvent && (
         <div className="nr-last-error">
           <span className="nr-badge nr-badge--error">ÚLTIMO ERROR</span>
-          <span className="nr-last-error-text">{diagnosticoLastError}</span>
+          <span className="nr-last-error-text">{lastErrorEvent.text ?? '—'}</span>
         </div>
       )}
 
-      {visibleMessages.length === 0 ? (
+      {diagnosticErrorEvents.length === 0 ? (
         <div className="log-empty">Sin mensajes de diagnóstico</div>
       ) : (
         <div className="log-messages nr-msg-messages">
-          {visibleMessages.map((msg, i) => {
-            const lvlMod = (msg.level ?? '').toLowerCase() === 'error' ? 'error' : 'default';
-            return (
-              <div key={i} className="log-message">
-                {msg.level && (
-                  <span className={`nr-msg-level nr-msg-level--${lvlMod}`}>
-                    {String(msg.level).toUpperCase()}
-                  </span>
-                )}
-                {msg.time && <span className="log-time">{msg.time}</span>}
-                <span className="log-text">{msg.text}</span>
-              </div>
-            );
-          })}
+          {diagnosticErrorEvents.map((event, i) => (
+            <div key={event.id ?? i} className="log-message diag-event-row diag-event-row--error">
+              <EventLevelBadge level={event.level} />
+              {event.type && (
+                <span className="nr-event-type">{event.type}</span>
+              )}
+              <span className="log-time">{formatEventTs(event.ts)}</span>
+              <span className="log-text">{event.text ?? '—'}</span>
+            </div>
+          ))}
         </div>
       )}
     </CardGlass>
