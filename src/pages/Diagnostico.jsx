@@ -77,6 +77,7 @@ function formatTs(ts) {
 // ── Single event row ──────────────────────────────────────────────────────────
 
 function EventRow({ event }) {
+  console.log('[EventRow] render — event.id:', event.id, '| event.type:', event.type);
   return (
     <div className="diag-event-row">
       <div className="diag-event-header">
@@ -114,6 +115,7 @@ function Diagnostico() {
 
   // Events from Node-RED sorted newest first
   const sortedEvents = [...nodeRedEventsBuffer].reverse();
+  console.log('[Diagnostico] sortedEvents.length:', sortedEvents.length);
 
   // Level breakdown for the counter card — single pass
   const { errorCount, warnCount, infoCount } = nodeRedEventsBuffer.reduce(
@@ -201,9 +203,10 @@ function Diagnostico() {
               <p className="diag-empty">Sin eventos en el buffer</p>
             ) : (
               <div className="diag-events-list">
-                {sortedEvents.map((event, i) => (
-                  <EventRow key={event.id ?? i} event={event} />
-                ))}
+                {sortedEvents.map((event, i) => {
+                  console.log('[Diagnostico] rendering EventRow — id:', event.id, '| type:', event.type);
+                  return <EventRow key={event.id ?? i} event={event} />;
+                })}
               </div>
             )}
           </div>
