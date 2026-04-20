@@ -1628,7 +1628,7 @@ export function ParameterTable({ items = [], data }) {
       {items.map((item, i) => {
         const raw      = resolveParamValue(data, item.path);
         const isAvail  = raw !== null && raw !== undefined;
-        const numVal   = typeof raw === 'number' && isFinite(raw) ? raw : null;
+        const numVal   = typeof raw === 'number' && Number.isFinite(raw) ? raw : null;
         let display;
         if (!isAvail) {
           display = '—';
