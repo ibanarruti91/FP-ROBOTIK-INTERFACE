@@ -100,6 +100,33 @@
   word-break: break-word;
 }
 
+/* ── Diagnostico message level tag ──────────────────────────────────────────
+   principal.diagnostico.messages uses its own level vocabulary ("error",
+   "evento", etc.) — rendered as plain text labels, not as severity badges.    */
+
+.diag-msg-level {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border-radius: 3px;
+  padding: 1px 6px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.diag-msg-level--error {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.diag-msg-level--default {
+  background: rgba(148, 163, 184, 0.12);
+  color: var(--text-secondary, #94a3b8);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+}
+
 /* ── Messages card ───────────────────────────────────────────────────────── */
 
 .diag-msg-list {
