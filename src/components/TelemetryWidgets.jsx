@@ -6,7 +6,7 @@ import { useState, useEffect, useRef, useMemo, useContext } from 'react';
 import { Zap, Thermometer, Settings, Gauge, Activity, Cpu, RefreshCw, Clock } from 'lucide-react';
 import ExcelJS from 'exceljs';
 import { MqttStatusContext } from '../contexts/MqttStatusContext.js';
-import { getStateTransition } from '../servicios/rtdeLabels.js';
+import { getStateTransition, normalizeEventData } from '../servicios/rtdeLabels.js';
 import './TelemetryWidgets.css';
 
 /**
@@ -1434,11 +1434,15 @@ export function NodeRedEventsPanel({ className = '' }) {
           {renderedBufferEvents.map((event, i) => {
             const lvl = (event.level ?? 'info').toLowerCase();
             const rowMod = lvl === 'error' ? 'error' : lvl.startsWith('warn') ? 'warning' : 'info';
-            const transition = getStateTransition(event);
+            const normalizedData = normalizeEventData(event.data);
+            const normalizedEvent = normalizedData !== event.data
+              ? { ...event, data: normalizedData }
+              : event;
+            const transition = getStateTransition(normalizedEvent);
             const isTransitionType = Object.prototype.hasOwnProperty.call(
               NR_TRANSITION_TYPE_LABELS, event.type ?? '',
             );
-            const hasFromTo = event.data?.from != null && event.data?.to != null;
+            const hasFromTo = normalizedData?.from != null && normalizedData?.to != null;
 
             // Build primary line: transition if available, else event.text
             let mainText;
@@ -1447,13 +1451,10 @@ export function NodeRedEventsPanel({ className = '' }) {
             } else if (isTransitionType && hasFromTo) {
               // Defensive fallback: never show generic text for a real state-change event
               const name = NR_TRANSITION_TYPE_LABELS[event.type];
-              mainText = `${name}: [${event.data.from}] ${event.data.from} → [${event.data.to}] ${event.data.to}`;
+              mainText = `${name}: [${normalizedData.from}] ${normalizedData.from} → [${normalizedData.to}] ${normalizedData.to}`;
             } else {
               mainText = event.text ?? '—';
             }
-
-            const showSecondaryText =
-              (transition != null || (isTransitionType && hasFromTo)) && event.text;
 
             return (
               <div
@@ -1469,11 +1470,6 @@ export function NodeRedEventsPanel({ className = '' }) {
                   <span className="nr-event-source">{event.source}</span>
                 )}
                 <span className="log-text diag-event-msg">{mainText}</span>
-                {showSecondaryText && (
-                  <span className="log-text diag-event-msg diag-transition-secondary">
-                    {event.text}
-                  </span>
-                )}
               </div>
             );
           })}
