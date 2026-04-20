@@ -13,6 +13,27 @@ const MAX_STEP_CAPTURE_RECORDS = 50;
 const ARROW_SEPARATOR = ' -> ';
 
 /**
+ * Normalises the `data` field of a single event.
+ * Node-RED sometimes publishes event.data as a JSON string instead of an
+ * already-parsed object.  Parsing it here — at the point events enter state —
+ * ensures every consumer always sees a plain object (or the original value
+ * when it is not a JSON string).
+ */
+function normalizeEventData(rawData) {
+  if (rawData == null || typeof rawData !== 'string') return rawData;
+  try { return JSON.parse(rawData); } catch { return rawData; }
+}
+
+/** Applies normalizeEventData to an array of events (returns a new array). */
+function normalizeEvents(events) {
+  return events.map(e =>
+    e.data != null && typeof e.data === 'string'
+      ? { ...e, data: normalizeEventData(e.data) }
+      : e,
+  );
+}
+
+/**
  * Normalises a raw messages value (string or array) into an array of
  * { time, text, level } objects so that the event log is always stored in a
  * uniform format regardless of what the robot sends.
@@ -184,7 +205,7 @@ export const MqttStatusProvider = ({ children }) => {
             // Sort newest first; break ts ties by priority (higher = more
             // important).  The backend usually sends it already sorted, but
             // re-sorting here guarantees the tiebreaker rule is always applied.
-            const sorted = [...events].sort((a, b) => {
+            const sorted = [...normalizeEvents(events)].sort((a, b) => {
               const tsDiff = (b.ts ?? 0) - (a.ts ?? 0);
               if (tsDiff !== 0) return tsDiff;
               return (b.priority ?? 0) - (a.priority ?? 0);
@@ -202,7 +223,7 @@ export const MqttStatusProvider = ({ children }) => {
           }
         } else if (topic === 'salesianos/robot/iban/events_derived') {
           // ── events_derived: incremental events from Node-RED ─────────────
-          const incoming = Array.isArray(data.events) ? data.events : [];
+          const incoming = normalizeEvents(Array.isArray(data.events) ? data.events : []);
           const newEvents = incoming.filter(e => e.id && !nodeRedEventIdsRef.current.has(e.id));
           if (newEvents.length > 0) {
             newEvents.forEach(e => nodeRedEventIdsRef.current.add(e.id));
