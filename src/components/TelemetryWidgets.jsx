@@ -1342,6 +1342,12 @@ export function NodeRedEventsPanel({ className = '' }) {
     URL.revokeObjectURL(url);
   };
 
+  // Clear-buffer command is prepared but kept disabled until the Node-RED
+  // backend implements the salesianos/robot/iban/events_control handler.
+  // When the backend is ready, remove the `CLEAR_BUFFER_BACKEND_READY` flag.
+  // TODO: set to true once Node-RED honours { command: "clear_buffer", target: "events_buffer" }
+  const CLEAR_BUFFER_BACKEND_READY = false;
+
   const handleClearBuffer = () => {
     publishCommand?.('salesianos/robot/iban/events_control', {
       command:   'clear_buffer',
@@ -1376,8 +1382,9 @@ export function NodeRedEventsPanel({ className = '' }) {
           <button
             className="log-btn log-btn--clear"
             onClick={handleClearBuffer}
-            aria-label="Enviar comando al backend para borrar el buffer de eventos"
-            title="Enviar comando al backend para borrar el buffer de eventos"
+            disabled={!CLEAR_BUFFER_BACKEND_READY}
+            aria-label={CLEAR_BUFFER_BACKEND_READY ? 'Enviar comando al backend para borrar el buffer de eventos' : 'Borrar buffer (pendiente de soporte en backend)'}
+            title={CLEAR_BUFFER_BACKEND_READY ? 'Enviar comando al backend para borrar el buffer de eventos' : 'Pendiente: el backend aún no implementa este comando'}
           >
             <span aria-hidden="true">🗑</span> Borrar buffer
           </button>
