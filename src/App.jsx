@@ -8,7 +8,6 @@ import Conversor from './pages/Conversor';
 import Monitor from './pages/Monitor';
 import SelectorCentros from './pages/SelectorCentros';
 import Informacion from './pages/Informacion';
-import Diagnostico from './pages/Diagnostico';
 import { MqttStatusProvider } from './contexts/MqttStatusContext.jsx';
 import './App.css';
 
@@ -26,7 +25,6 @@ function App() {
             <Route path="/monitor" element={<Monitor />} />
             <Route path="/selector-centros" element={<SelectorCentros />} />
             <Route path="/informacion" element={<Informacion />} />
-            <Route path="/diagnostico" element={<Diagnostico />} />
           </Routes>
         </Layout>
       </Router>

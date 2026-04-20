@@ -157,6 +157,20 @@ export const SALESIANOS_LAYOUT = {
           ]
         },
         {
+          title: "Diagnóstico / Mensajes Node-RED",
+          className: "diag-nr-messages",
+          widgets: [
+            { type: "nodered-messages", columns: 2 }
+          ]
+        },
+        {
+          title: "Buffer de Eventos del Sistema / RTDE",
+          className: "diag-nr-events",
+          widgets: [
+            { type: "nodered-events", columns: 2 }
+          ]
+        },
+        {
           title: "Buffer de Diagnóstico Derivado",
           className: "diag-derived-buffer",
           widgets: [

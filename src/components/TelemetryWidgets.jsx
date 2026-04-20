@@ -1222,6 +1222,194 @@ export function HardwareIOTool({ data, className = '' }) {
   );
 }
 
+// ── Helpers shared by the Node-RED panels ────────────────────────────────────
+
+/** Returns true if the diagnostic message text is considered noisy and should
+ *  be hidden from the UI. Currently suppresses "URControl..." lines that
+ *  contain no useful user-facing information. */
+function isNoisyDiagMessage(msg) {
+  const text = String(msg?.text ?? '').trim();
+  return /^URControl/i.test(text);
+}
+
+function formatEventTs(ts) {
+  if (!ts) return '—';
+  try {
+    return new Date(ts).toLocaleTimeString('es-ES', {
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+    });
+  } catch {
+    return String(ts);
+  }
+}
+
+function EventLevelBadge({ level }) {
+  const n = (level ?? '').toLowerCase();
+  const cls =
+    n === 'error'                        ? 'nr-badge nr-badge--error' :
+    n === 'warn' || n === 'warning'      ? 'nr-badge nr-badge--warn'  :
+                                           'nr-badge nr-badge--info';
+  const label =
+    n === 'error'                        ? 'ERROR' :
+    n === 'warn' || n === 'warning'      ? 'WARN'  : 'INFO';
+  return <span className={cls}>{label}</span>;
+}
+
+/**
+ * NodeRedEventsPanel
+ *
+ * Muestra el buffer de eventos publicado por Node-RED en los topics
+ * events_buffer y events_derived.  Lee directamente del contexto MQTT.
+ */
+export function NodeRedEventsPanel({ className = '' }) {
+  const {
+    nodeRedEventsBuffer,
+    nodeRedEventsTotal,
+    nodeRedEventsBufferLimit,
+  } = useContext(MqttStatusContext);
+
+  const sortedEvents = useMemo(
+    () => [...nodeRedEventsBuffer].reverse(),
+    [nodeRedEventsBuffer],
+  );
+
+  const { errorCount, warnCount, infoCount } = useMemo(
+    () => nodeRedEventsBuffer.reduce(
+      (acc, e) => {
+        const lvl = (e.level ?? '').toLowerCase();
+        if (lvl === 'error') acc.errorCount++;
+        else if (lvl === 'warn' || lvl === 'warning') acc.warnCount++;
+        else acc.infoCount++;
+        return acc;
+      },
+      { errorCount: 0, warnCount: 0, infoCount: 0 },
+    ),
+    [nodeRedEventsBuffer],
+  );
+
+  return (
+    <CardGlass className={`log-panel nr-events-panel ${className}`}>
+      <div className="log-header">
+        <div className="log-title">
+          📡 Buffer de eventos del sistema / RTDE
+          {nodeRedEventsBuffer.length > 0 && (
+            <span className="nr-count-badge">{nodeRedEventsBuffer.length}</span>
+          )}
+          {nodeRedEventsBufferLimit != null && (
+            <span className="nr-meta">límite: {nodeRedEventsBufferLimit}</span>
+          )}
+        </div>
+        <div className="nr-counter-chips">
+          <span className="nr-chip nr-chip--error">
+            <span className="nr-badge nr-badge--error">ERROR</span>
+            {errorCount}
+          </span>
+          <span className="nr-chip nr-chip--warn">
+            <span className="nr-badge nr-badge--warn">WARN</span>
+            {warnCount}
+          </span>
+          <span className="nr-chip nr-chip--info">
+            <span className="nr-badge nr-badge--info">INFO</span>
+            {infoCount}
+          </span>
+        </div>
+      </div>
+
+      {nodeRedEventsTotal > 0 && (
+        <div className="diag-buffer-count">
+          Total acumulado (Node-RED): {nodeRedEventsTotal}
+        </div>
+      )}
+
+      {sortedEvents.length === 0 ? (
+        <div className="log-empty">Sin eventos en el buffer</div>
+      ) : (
+        <div className="log-messages nr-events-messages">
+          {sortedEvents.map((event, i) => (
+            <div
+              key={event.id ?? i}
+              className={`log-message diag-event-row diag-event-row--${(event.level ?? 'info').toLowerCase() === 'error' ? 'error' : (event.level ?? 'info').toLowerCase().startsWith('warn') ? 'warning' : 'info'}`}
+            >
+              <EventLevelBadge level={event.level} />
+              {event.type && (
+                <span className="nr-event-type">{event.type}</span>
+              )}
+              <span className="log-time">{formatEventTs(event.ts)}</span>
+              {event.source && (
+                <span className="nr-event-source">{event.source}</span>
+              )}
+              <span className="log-text diag-event-msg">{event.text ?? '—'}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </CardGlass>
+  );
+}
+
+/**
+ * NodeRedDiagMessagesPanel
+ *
+ * Muestra los mensajes de principal.diagnostico.messages publicados por Node-RED,
+ * filtrando las líneas ruidosas de URControl que no aportan información útil.
+ */
+export function NodeRedDiagMessagesPanel({ className = '' }) {
+  const { eventLog, diagnosticoLastError, clearEventLog } = useContext(MqttStatusContext);
+
+  const visibleMessages = useMemo(
+    () => [...eventLog].reverse().filter(msg => !isNoisyDiagMessage(msg)),
+    [eventLog],
+  );
+
+  return (
+    <CardGlass className={`log-panel nr-messages-panel ${className}`}>
+      <div className="log-header">
+        <div className="log-title">
+          📋 Diagnóstico / mensajes
+          {visibleMessages.length > 0 && (
+            <span className="nr-count-badge">{visibleMessages.length}</span>
+          )}
+        </div>
+        <div className="log-actions">
+          <button
+            className="log-btn log-btn--clear"
+            onClick={clearEventLog}
+            disabled={eventLog.length === 0}
+            title="Limpiar historial de mensajes"
+          >
+            🗑 Limpiar
+          </button>
+        </div>
+      </div>
+
+      {diagnosticoLastError && (
+        <div className="nr-last-error">
+          <span className="nr-badge nr-badge--error">ÚLTIMO ERROR</span>
+          <span className="nr-last-error-text">{diagnosticoLastError}</span>
+        </div>
+      )}
+
+      {visibleMessages.length === 0 ? (
+        <div className="log-empty">Sin mensajes de diagnóstico</div>
+      ) : (
+        <div className="log-messages nr-msg-messages">
+          {visibleMessages.map((msg, i) => (
+            <div key={i} className="log-message">
+              {msg.level && (
+                <span className={`nr-msg-level nr-msg-level--${(msg.level ?? '').toLowerCase() === 'error' ? 'error' : 'default'}`}>
+                  {msg.level.toUpperCase()}
+                </span>
+              )}
+              {msg.time && <span className="log-time">{msg.time}</span>}
+              <span className="log-text">{msg.text}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </CardGlass>
+  );
+}
+
 /**
  * DiagnosticBufferPanel
  *
