@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMqttStatus } from '../hooks/useMqttStatus';
+import { getStateTransition } from '../servicios/rtdeLabels.js';
 import './Diagnostico.css';
 
 // ── Level badge (for events_buffer / events_derived) ─────────────────────────
@@ -74,9 +75,20 @@ function formatTs(ts) {
   }
 }
 
+// ── Transition label formatter ────────────────────────────────────────────────
+
+/**
+ * Builds the primary display string for a state-change event.
+ * e.g. "Modo robot: [7] OPERATIVO → [3] MOTORES APAGADOS"
+ */
+function formatTransition(t) {
+  return `${t.displayName}: [${t.fromValue}] ${t.fromLabel} → [${t.toValue}] ${t.toLabel}`;
+}
+
 // ── Single event row ──────────────────────────────────────────────────────────
 
 function EventRow({ event }) {
+  const transition = getStateTransition(event);
   return (
     <div className="diag-event-row">
       <div className="diag-event-header">
@@ -85,8 +97,55 @@ function EventRow({ event }) {
         <span className="diag-event-ts">{formatTs(event.ts)}</span>
         {event.source && <span className="diag-event-source">{event.source}</span>}
       </div>
-      <p className="diag-event-text">{event.text ?? '—'}</p>
+      {transition ? (
+        <>
+          <p className="diag-event-text diag-transition-main">
+            {formatTransition(transition)}
+          </p>
+          {event.text && (
+            <p className="diag-event-text diag-transition-secondary">{event.text}</p>
+          )}
+        </>
+      ) : (
+        <p className="diag-event-text">{event.text ?? '—'}</p>
+      )}
       {event.data != null && <DataInspector data={event.data} />}
+    </div>
+  );
+}
+
+// ── Last state summary item ───────────────────────────────────────────────────
+
+function LastStateItem({ label, event, isError }) {
+  if (!event) {
+    return (
+      <div className="diag-last-state-item">
+        <span className="diag-last-state-label">{label}</span>
+        <span className="diag-last-state-value diag-last-state-value--empty">Ninguno</span>
+      </div>
+    );
+  }
+  if (isError) {
+    return (
+      <div className="diag-last-state-item">
+        <span className="diag-last-state-label">{label}</span>
+        <span className="diag-last-state-value diag-last-state-value--error">
+          {event.text ?? '—'}
+          <span className="diag-last-state-ts"> {formatTs(event.ts)}</span>
+        </span>
+      </div>
+    );
+  }
+  const transition = getStateTransition(event);
+  return (
+    <div className="diag-last-state-item">
+      <span className="diag-last-state-label">{label}</span>
+      <span className="diag-last-state-value">
+        {transition
+          ? `[${transition.toValue}] ${transition.toLabel}`
+          : (event.text ?? '—')}
+        <span className="diag-last-state-ts"> {formatTs(event.ts)}</span>
+      </span>
     </div>
   );
 }
@@ -106,11 +165,12 @@ function Diagnostico() {
   // Diagnóstico messages from the principal topic
   const diagMessages = eventLog;
 
-  // Events from Node-RED sorted newest first
-  const sortedEvents = [...nodeRedEventsBuffer].reverse();
+  // Filter events: never show events marked visible === false.
+  // The buffer is already sorted newest-first by MqttStatusContext.
+  const visibleEvents = nodeRedEventsBuffer.filter(e => e.visible !== false);
 
-  // Level breakdown for the counter card — single pass
-  const { errorCount, warnCount, infoCount } = nodeRedEventsBuffer.reduce(
+  // Level breakdown — computed on visible events only (hidden events never count).
+  const { errorCount, warnCount, infoCount } = visibleEvents.reduce(
     (acc, e) => {
       const lvl = (e.level ?? '').toLowerCase();
       if (lvl === 'error') acc.errorCount++;
@@ -120,6 +180,12 @@ function Diagnostico() {
     },
     { errorCount: 0, warnCount: 0, infoCount: 0 },
   );
+
+  // Derive "last state" summaries from visible events (buffer is newest-first).
+  const lastRobotModeEvent    = visibleEvents.find(e => e.type === 'robot_mode.changed');
+  const lastProgramStateEvent = visibleEvents.find(e => e.type === 'program_state.changed');
+  const lastSafetyEvent       = visibleEvents.find(e => e.type === 'safety.changed');
+  const lastErrorEvent        = visibleEvents.find(e => (e.level ?? '').toLowerCase() === 'error');
 
   // last_error comes directly from principal.diagnostico.last_error via context.
   // Never infer it from message text or events.
@@ -180,22 +246,38 @@ function Diagnostico() {
           </div>
         </div>
 
-        {/* ── 3. Buffer de eventos ─────────────────────────────────────── */}
+        {/* ── 3. Últimos cambios relevantes ────────────────────────── */}
+        <div className="diag-card diag-card--last-states diag-card--full-width">
+          <div className="diag-card-header">
+            <span className="diag-card-icon">🔍</span>
+            <h2 className="diag-card-title">Últimos cambios relevantes</h2>
+          </div>
+          <div className="diag-last-states">
+            <div className="diag-last-states-grid">
+              <LastStateItem label="Modo robot"    event={lastRobotModeEvent} />
+              <LastStateItem label="Estado prog."  event={lastProgramStateEvent} />
+              <LastStateItem label="Seguridad"     event={lastSafetyEvent} />
+              <LastStateItem label="Último error"  event={lastErrorEvent} isError />
+            </div>
+          </div>
+        </div>
+
+        {/* ── 4. Buffer de eventos ─────────────────────────────────────── */}
         <div className="diag-card diag-card--events diag-card--full-width">
           <div className="diag-card-header">
             <span className="diag-card-icon">📡</span>
             <h2 className="diag-card-title">Buffer de eventos del sistema / RTDE</h2>
-            <span className="diag-card-count">{nodeRedEventsBuffer.length}</span>
+            <span className="diag-card-count">{visibleEvents.length}</span>
             {nodeRedEventsBufferLimit != null && (
               <span className="diag-card-meta">límite: {nodeRedEventsBufferLimit}</span>
             )}
           </div>
           <div className="diag-card-body diag-card-body--scroll">
-            {sortedEvents.length === 0 ? (
+            {visibleEvents.length === 0 ? (
               <p className="diag-empty">Sin eventos en el buffer</p>
             ) : (
               <div className="diag-events-list">
-                {sortedEvents.map((event, i) => (
+                {visibleEvents.map((event, i) => (
                   <EventRow key={event.id ?? i} event={event} />
                 ))}
               </div>
@@ -203,7 +285,7 @@ function Diagnostico() {
           </div>
         </div>
 
-        {/* ── 4. Contador de eventos ───────────────────────────────────── */}
+        {/* ── 5. Contador de eventos ───────────────────────────────────── */}
         <div className="diag-card diag-card--counter">
           <div className="diag-card-header">
             <span className="diag-card-icon">📊</span>
@@ -211,8 +293,8 @@ function Diagnostico() {
           </div>
           <div className="diag-card-body diag-counter-body">
             <div className="diag-counter-row">
-              <span className="diag-counter-label">Almacenados en buffer</span>
-              <span className="diag-counter-value">{nodeRedEventsBuffer.length}</span>
+              <span className="diag-counter-label">Visibles en buffer</span>
+              <span className="diag-counter-value">{visibleEvents.length}</span>
             </div>
             {nodeRedEventsTotal > 0 && (
               <div className="diag-counter-row">
