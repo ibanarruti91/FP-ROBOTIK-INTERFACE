@@ -1394,7 +1394,7 @@ export function NodeRedDiagMessagesPanel({ className = '' }) {
               <div key={i} className="log-message">
                 {msg.level && (
                   <span className={`nr-msg-level nr-msg-level--${lvlMod}`}>
-                    {msg.level.toUpperCase()}
+                    {String(msg.level).toUpperCase()}
                   </span>
                 )}
                 {msg.time && <span className="log-time">{msg.time}</span>}
