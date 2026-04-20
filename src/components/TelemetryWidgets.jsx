@@ -6,6 +6,7 @@ import { useState, useEffect, useRef, useMemo, useContext } from 'react';
 import { Zap, Thermometer, Settings, Gauge, Activity, Cpu, RefreshCw, Clock } from 'lucide-react';
 import ExcelJS from 'exceljs';
 import { MqttStatusContext } from '../contexts/MqttStatusContext.js';
+import { getStateTransition } from '../servicios/rtdeLabels.js';
 import './TelemetryWidgets.css';
 
 /**
@@ -1434,7 +1435,25 @@ export function NodeRedEventsPanel({ className = '' }) {
                 {event.source && (
                   <span className="nr-event-source">{event.source}</span>
                 )}
-                <span className="log-text diag-event-msg">{event.text ?? '—'}</span>
+                {(() => {
+                  const transition = getStateTransition(event);
+                  if (!transition) {
+                    return <span className="log-text diag-event-msg">{event.text ?? '—'}</span>;
+                  }
+                  return (
+                    <span className="log-text diag-event-msg nr-event-transition">
+                      <span className="nr-transition-state-name">{transition.stateName}:</span>
+                      {transition.fromLabel != null && (
+                        <><span className="nr-transition-from">{transition.fromLabel}</span>
+                        <span className="nr-transition-arrow">→</span></>
+                      )}
+                      <span className="nr-transition-to">{transition.toLabel}</span>
+                      {event.text && (
+                        <span className="nr-transition-secondary">{event.text}</span>
+                      )}
+                    </span>
+                  );
+                })()}
               </div>
             );
           })}

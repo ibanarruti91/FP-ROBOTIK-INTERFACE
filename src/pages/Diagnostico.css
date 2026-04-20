@@ -240,6 +240,43 @@
   margin: 0;
 }
 
+/* Transition line — primary, prominent */
+.diag-event-text--transition {
+  font-size: 0.88rem;
+  font-weight: 600;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.diag-event-state-name {
+  color: var(--accent-purple, #a855f7);
+  font-family: 'Roboto Mono', monospace, sans-serif;
+}
+
+.diag-event-state-from {
+  color: var(--text-secondary, #94a3b8);
+}
+
+.diag-event-state-arrow {
+  color: var(--accent-cyan, #00e5ff);
+  font-size: 1rem;
+}
+
+.diag-event-state-to {
+  color: var(--text-primary, #fff);
+}
+
+/* Secondary line — dimmer, below the transition */
+.diag-event-text--secondary {
+  font-size: 0.78rem;
+  color: var(--text-secondary, #94a3b8);
+  word-break: break-word;
+  margin: 4px 0 0;
+}
+
 /* ── Data inspector ──────────────────────────────────────────────────────── */
 
 .diag-data-inspector {

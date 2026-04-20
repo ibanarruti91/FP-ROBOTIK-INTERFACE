@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMqttStatus } from '../hooks/useMqttStatus';
+import { getStateTransition } from '../servicios/rtdeLabels';
 import './Diagnostico.css';
 
 // ── Level badge (for events_buffer / events_derived) ─────────────────────────
@@ -77,6 +78,7 @@ function formatTs(ts) {
 // ── Single event row ──────────────────────────────────────────────────────────
 
 function EventRow({ event }) {
+  const transition = getStateTransition(event);
   return (
     <div className="diag-event-row">
       <div className="diag-event-header">
@@ -85,7 +87,23 @@ function EventRow({ event }) {
         <span className="diag-event-ts">{formatTs(event.ts)}</span>
         {event.source && <span className="diag-event-source">{event.source}</span>}
       </div>
-      <p className="diag-event-text">{event.text ?? '—'}</p>
+      {transition ? (
+        <>
+          <p className="diag-event-text diag-event-text--transition">
+            <span className="diag-event-state-name">{transition.stateName}:</span>
+            {transition.fromLabel != null && (
+              <><span className="diag-event-state-from">{transition.fromLabel}</span>
+              <span className="diag-event-state-arrow">→</span></>
+            )}
+            <span className="diag-event-state-to">{transition.toLabel}</span>
+          </p>
+          {event.text && (
+            <p className="diag-event-text diag-event-text--secondary">{event.text}</p>
+          )}
+        </>
+      ) : (
+        <p className="diag-event-text">{event.text ?? '—'}</p>
+      )}
       {event.data != null && <DataInspector data={event.data} />}
     </div>
   );

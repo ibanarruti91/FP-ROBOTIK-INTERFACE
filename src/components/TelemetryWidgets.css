@@ -753,6 +753,47 @@
 .diag-event-row--warning .diag-event-msg { color: #ffe082; }
 .diag-event-row--error   .diag-event-msg { color: #fca5a5; }
 
+/* ── State-transition display inside an event row ───────────────────────────
+   Applied when event.data carries `from` and `to` fields.                   */
+
+.nr-event-transition {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  font-weight: 600;
+}
+
+.nr-transition-state-name {
+  color: #a855f7;
+  font-family: 'Roboto Mono', monospace, sans-serif;
+  font-size: 0.8rem;
+}
+
+.nr-transition-from {
+  color: var(--text-secondary, #94a3b8);
+  font-size: 0.82rem;
+}
+
+.nr-transition-arrow {
+  color: var(--accent-cyan, #00e5ff);
+  font-size: 0.9rem;
+}
+
+.nr-transition-to {
+  color: var(--text-primary, #e2e8f0);
+  font-size: 0.82rem;
+}
+
+.nr-transition-secondary {
+  color: var(--text-secondary, #94a3b8);
+  font-size: 0.75rem;
+  font-weight: 400;
+  padding-left: 4px;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  margin-left: 2px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .table-grid {
