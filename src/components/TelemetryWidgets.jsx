@@ -1346,7 +1346,7 @@ export function NodeRedEventsPanel({ className = '' }) {
   // backend implements the salesianos/robot/iban/events_control handler.
   // When the backend is ready, remove the `CLEAR_BUFFER_BACKEND_READY` flag.
   // TODO: set to true once Node-RED honours { command: "clear_buffer", target: "events_buffer" }
-  const CLEAR_BUFFER_BACKEND_READY = false;
+  const CLEAR_BUFFER_BACKEND_READY = true;
 
   const handleClearBuffer = () => {
     publishCommand?.('salesianos/robot/iban/events_control', {
