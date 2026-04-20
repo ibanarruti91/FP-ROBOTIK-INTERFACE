@@ -130,9 +130,6 @@ function EventRow({ event }) {
     : event;
   const transition = getStateTransition(normalizedEvent);
 
-  // Debug: log what arrives and whether the transition resolved
-  console.log('BUFFER EVENT', event.type, event.data, transition);
-
   const isTransitionType = Object.prototype.hasOwnProperty.call(TRANSITION_TYPE_LABELS, event.type ?? '');
   const hasFromTo        = normalizedData?.from != null && normalizedData?.to != null;
 
