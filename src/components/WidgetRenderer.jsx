@@ -361,16 +361,12 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
   if (sectionId === 'diagnostico') {
     const cameraGroups   = groups.filter(g => g.className === 'diag-camera');
     const dataGroups     = groups.filter(g => g.className === 'diag-data');
-    const logGroups      = groups.filter(g => g.className === 'diag-log');
     const nrMessGroups   = groups.filter(g => g.className === 'diag-nr-messages');
     const nrEventsGroups = groups.filter(g => g.className === 'diag-nr-events');
-    const derivedGroups  = groups.filter(g => g.className === 'diag-derived-buffer');
 
-    const dataOffset      = cameraGroups.length;
-    const logOffset       = dataOffset + dataGroups.length;
-    const nrMessOffset    = logOffset + logGroups.length;
-    const nrEventsOffset  = nrMessOffset + nrMessGroups.length;
-    const derivedOffset   = nrEventsOffset + nrEventsGroups.length;
+    const dataOffset     = cameraGroups.length;
+    const nrMessOffset   = dataOffset + dataGroups.length;
+    const nrEventsOffset = nrMessOffset + nrMessGroups.length;
 
     return (
       <div className="widget-renderer diagnostico-layout">
@@ -381,10 +377,8 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
           {dataGroups.map((group, i) => renderGroup(group, data, dataOffset + i))}
         </div>
         <div className="diag-log-row">
-          {logGroups.map((group, i)      => renderGroup(group, data, logOffset + i))}
           {nrMessGroups.map((group, i)   => renderGroup(group, data, nrMessOffset + i))}
           {nrEventsGroups.map((group, i) => renderGroup(group, data, nrEventsOffset + i))}
-          {derivedGroups.map((group, i)  => renderGroup(group, data, derivedOffset + i))}
         </div>
       </div>
     );
