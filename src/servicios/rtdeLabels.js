@@ -53,6 +53,21 @@ const STATE_CHANGE_DEFS = {
 
 // ── Public API ────────────────────────────────────────────────────────────────
 
+/**
+ * normalizeEventData(rawData)
+ *
+ * event.data can arrive as an already-parsed object OR as a JSON string.
+ * Always returns a plain object (or null on failure / missing data).
+ */
+export function normalizeEventData(rawData) {
+  if (rawData == null) return null;
+  if (typeof rawData === 'object') return rawData;
+  if (typeof rawData === 'string') {
+    try { return JSON.parse(rawData); } catch { return null; }
+  }
+  return null;
+}
+
 /** Resolves a numeric/string value to a human label using the given map. */
 function resolveLabel(map, value) {
   if (value == null) return '?';

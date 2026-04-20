@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMqttStatus } from '../hooks/useMqttStatus';
-import { getStateTransition } from '../servicios/rtdeLabels.js';
+import { getStateTransition, normalizeEventData } from '../servicios/rtdeLabels.js';
 import './Diagnostico.css';
 
 // ── Level badge (for events_buffer / events_derived) ─────────────────────────
@@ -99,19 +99,6 @@ function TransitionMain({ t }) {
   );
 }
 
-// ── Data normaliser ───────────────────────────────────────────────────────────
-// event.data can arrive as an already-parsed object OR as a JSON string.
-// This helper always returns a plain object (or null on failure).
-
-function normalizeEventData(rawData) {
-  if (rawData == null) return null;
-  if (typeof rawData === 'object') return rawData;
-  if (typeof rawData === 'string') {
-    try { return JSON.parse(rawData); } catch { return null; }
-  }
-  return null;
-}
-
 // ── Transition event type definitions ─────────────────────────────────────────
 
 const TRANSITION_TYPE_LABELS = {
@@ -155,8 +142,6 @@ function EventRow({ event }) {
     mainContent = <p className="diag-event-text">{event.text ?? '—'}</p>;
   }
 
-  const showSecondary = (transition != null || (isTransitionType && hasFromTo)) && event.text;
-
   return (
     <div className="diag-event-row">
       <div className="diag-event-header">
@@ -166,9 +151,6 @@ function EventRow({ event }) {
         {event.source && <span className="diag-event-source">{event.source}</span>}
       </div>
       {mainContent}
-      {showSecondary && (
-        <p className="diag-event-text diag-transition-secondary">{event.text}</p>
-      )}
       {event.data != null && <DataInspector data={event.data} />}
     </div>
   );
