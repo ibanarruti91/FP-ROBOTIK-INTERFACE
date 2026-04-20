@@ -617,23 +617,47 @@ export function ToolPanel({ data, className = '' }) {
 export function TcpPose({ data, className = '' }) {
   const pos = data?.position || {};
   const orient = data?.orientation || {};
-  
+  const [angleUnit, setAngleUnit] = useState('deg'); // 'deg' | 'rad'
+
   const formatValue = (val, decimals = 2) => {
     if (val === null || val === undefined) return 'N/A';
     return typeof val === 'number' ? val.toFixed(decimals) : val;
   };
-  
+
+  const formatAngle = (val) => {
+    if (val === null || val === undefined) return 'N/A';
+    if (typeof val !== 'number') return val;
+    if (angleUnit === 'rad') {
+      return (val * (Math.PI / 180)).toFixed(4);
+    }
+    return val.toFixed(3);
+  };
+
   // Pre-compute formatted values to avoid redundant calls
   const posX = formatValue(pos.x, 2);
   const posY = formatValue(pos.y, 2);
   const posZ = formatValue(pos.z, 2);
-  const orientRx = formatValue(orient.rx, 3);
-  const orientRy = formatValue(orient.ry, 3);
-  const orientRz = formatValue(orient.rz, 3);
-  
+  const orientRx = formatAngle(orient.rx);
+  const orientRy = formatAngle(orient.ry);
+  const orientRz = formatAngle(orient.rz);
+
+  const angleUnitLabel = angleUnit === 'deg' ? '°' : 'rad';
+
   return (
     <CardGlass className={`tcp-pose ${className}`}>
-      <div className="tcp-pose-title">TCP Pose</div>
+      <div className="tcp-pose-header">
+        <div className="tcp-pose-title-block">
+          <div className="tcp-pose-title">TCP Pose</div>
+          <div className="tcp-pose-subtitle">respecto a la base</div>
+        </div>
+        <button
+          className={`tcp-pose-unit-toggle ${angleUnit === 'rad' ? 'active' : ''}`}
+          onClick={() => setAngleUnit(u => u === 'deg' ? 'rad' : 'deg')}
+          title="Cambiar unidad de ángulo"
+        >
+          {angleUnit === 'deg' ? '° → rad' : 'rad → °'}
+        </button>
+      </div>
       <div className="tcp-pose-grid">
         <div className="tcp-pose-section">
           <div className="tcp-pose-section-label">POSICIÓN CARTESIANA [mm]</div>
@@ -656,22 +680,22 @@ export function TcpPose({ data, className = '' }) {
           </div>
         </div>
         <div className="tcp-pose-section">
-          <div className="tcp-pose-section-label">ORIENTACIÓN ANGULAR [°]</div>
+          <div className="tcp-pose-section-label">ORIENTACIÓN ANGULAR [{angleUnitLabel}]</div>
           <div className="tcp-pose-values">
             <div className="tcp-pose-item">
               <span className="tcp-pose-axis">RX</span>
               <span className={`tcp-pose-value ${orientRx === 'N/A' ? 'value-na' : ''}`}>{orientRx}</span>
-              {orientRx !== 'N/A' && <span className="tcp-pose-unit">°</span>}
+              {orientRx !== 'N/A' && <span className="tcp-pose-unit">{angleUnitLabel}</span>}
             </div>
             <div className="tcp-pose-item">
               <span className="tcp-pose-axis">RY</span>
               <span className={`tcp-pose-value ${orientRy === 'N/A' ? 'value-na' : ''}`}>{orientRy}</span>
-              {orientRy !== 'N/A' && <span className="tcp-pose-unit">°</span>}
+              {orientRy !== 'N/A' && <span className="tcp-pose-unit">{angleUnitLabel}</span>}
             </div>
             <div className="tcp-pose-item">
               <span className="tcp-pose-axis">RZ</span>
               <span className={`tcp-pose-value ${orientRz === 'N/A' ? 'value-na' : ''}`}>{orientRz}</span>
-              {orientRz !== 'N/A' && <span className="tcp-pose-unit">°</span>}
+              {orientRz !== 'N/A' && <span className="tcp-pose-unit">{angleUnitLabel}</span>}
             </div>
           </div>
         </div>
