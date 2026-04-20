@@ -99,10 +99,67 @@ function TransitionMain({ t }) {
   );
 }
 
+// ── Data normaliser ───────────────────────────────────────────────────────────
+// event.data can arrive as an already-parsed object OR as a JSON string.
+// This helper always returns a plain object (or null on failure).
+
+function normalizeEventData(rawData) {
+  if (rawData == null) return null;
+  if (typeof rawData === 'object') return rawData;
+  if (typeof rawData === 'string') {
+    try { return JSON.parse(rawData); } catch { return null; }
+  }
+  return null;
+}
+
+// ── Transition event type definitions ─────────────────────────────────────────
+
+const TRANSITION_TYPE_LABELS = {
+  'robot_mode.changed':    'Modo robot',
+  'program_state.changed': 'Estado programa',
+  'safety.changed':        'Safety',
+};
+
 // ── Single event row ──────────────────────────────────────────────────────────
 
 function EventRow({ event }) {
-  const transition = getStateTransition(event);
+  const normalizedData  = normalizeEventData(event.data);
+  // Pass a normalised copy so getStateTransition can always read .from / .to
+  const normalizedEvent = normalizedData !== event.data
+    ? { ...event, data: normalizedData }
+    : event;
+  const transition = getStateTransition(normalizedEvent);
+
+  // Debug: log what arrives and whether the transition resolved
+  console.log('BUFFER EVENT', event.type, event.data, transition);
+
+  const isTransitionType = Object.prototype.hasOwnProperty.call(TRANSITION_TYPE_LABELS, event.type ?? '');
+  const hasFromTo        = normalizedData?.from != null && normalizedData?.to != null;
+
+  // Decide primary content:
+  //   1. Preferred path: transition resolved AND from/to present → TransitionMain
+  //   2. Defensive path: recognised *.changed type with from/to but helper returned
+  //      null (e.g. unmapped label) → build minimal inline transition from raw values
+  //   3. Fallback: render event.text as before
+  let mainContent;
+  if (transition && hasFromTo) {
+    mainContent = <TransitionMain t={transition} />;
+  } else if (isTransitionType && hasFromTo) {
+    // Defensive fallback: never show generic text for a real state-change event
+    const minimalTransition = {
+      displayName: TRANSITION_TYPE_LABELS[event.type],
+      fromValue:   normalizedData.from,
+      toValue:     normalizedData.to,
+      fromLabel:   String(normalizedData.from),
+      toLabel:     String(normalizedData.to),
+    };
+    mainContent = <TransitionMain t={minimalTransition} />;
+  } else {
+    mainContent = <p className="diag-event-text">{event.text ?? '—'}</p>;
+  }
+
+  const showSecondary = (transition != null || (isTransitionType && hasFromTo)) && event.text;
+
   return (
     <div className="diag-event-row">
       <div className="diag-event-header">
@@ -111,15 +168,9 @@ function EventRow({ event }) {
         <span className="diag-event-ts">{formatTs(event.ts)}</span>
         {event.source && <span className="diag-event-source">{event.source}</span>}
       </div>
-      {transition ? (
-        <>
-          <TransitionMain t={transition} />
-          {event.text && (
-            <p className="diag-event-text diag-transition-secondary">{event.text}</p>
-          )}
-        </>
-      ) : (
-        <p className="diag-event-text">{event.text ?? '—'}</p>
+      {mainContent}
+      {showSecondary && (
+        <p className="diag-event-text diag-transition-secondary">{event.text}</p>
       )}
       {event.data != null && <DataInspector data={event.data} />}
     </div>
