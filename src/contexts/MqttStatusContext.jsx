@@ -10,21 +10,24 @@ import {
 
 const MAX_STEP_CAPTURE_RECORDS = 50;
 
-/** Maximum number of Node-RED events kept in the frontend buffer. */
-const MAX_NODERED_EVENTS = 500;
-
 const ARROW_SEPARATOR = ' -> ';
 
 /**
  * Normalises a raw messages value (string or array) into an array of
- * { time: string, text: string } objects so that the event log is always
- * stored in a uniform format regardless of what the robot sends.
+ * { time, text, level } objects so that the event log is always stored in a
+ * uniform format regardless of what the robot sends.
+ *
+ * Note: principal.diagnostico.messages uses its own level vocabulary
+ * ("error", "evento", etc.) which is different from the info/warn/error
+ * semantics used by events_buffer / events_derived.  The level field is
+ * passed through as-is so the UI can render it with an appropriate label.
  */
 function parseMsgBatch(rawMessages) {
   if (Array.isArray(rawMessages)) {
     return rawMessages.map(msg => ({
-      time: msg.hora ?? msg.time ?? '--:--:--',
-      text: msg.msg ?? msg.mensaje ?? msg.txt ?? msg.message ?? '--',
+      time:  msg.hora    ?? msg.time    ?? '--:--:--',
+      text:  msg.msg     ?? msg.mensaje ?? msg.txt ?? msg.message ?? '--',
+      level: msg.level   ?? msg.nivel   ?? null,
     }));
   }
   if (typeof rawMessages === 'string' && rawMessages) {
@@ -35,9 +38,9 @@ function parseMsgBatch(rawMessages) {
       .map(line => {
         const arrowIdx = line.indexOf(ARROW_SEPARATOR);
         if (arrowIdx !== -1) {
-          return { time: line.slice(0, arrowIdx).trim(), text: line.slice(arrowIdx + ARROW_SEPARATOR.length).trim() };
+          return { time: line.slice(0, arrowIdx).trim(), text: line.slice(arrowIdx + ARROW_SEPARATOR.length).trim(), level: null };
         }
-        return { time: '', text: line };
+        return { time: '', text: line, level: null };
       });
   }
   return [];
@@ -79,6 +82,9 @@ export const MqttStatusProvider = ({ children }) => {
   const [nodeRedEventsBufferLimit, setNodeRedEventsBufferLimit] = useState(null);
   // Tracks event IDs already in the buffer to prevent duplicates from events_derived.
   const nodeRedEventIdsRef = useRef(new Set());
+  // Mirrors nodeRedEventsBufferLimit in a ref so it is always current inside
+  // MQTT message callbacks (avoids stale-closure reads of the state value).
+  const nodeRedEventsBufferLimitRef = useRef(null);
 
   // ── Event log ────────────────────────────────────────────────────────────────
   // eventLog accumulates incoming events in {time, text} format.
@@ -161,11 +167,16 @@ export const MqttStatusProvider = ({ children }) => {
         } else if (topic === 'salesianos/robot/iban/events_buffer') {
           // ── events_buffer: authoritative resync from Node-RED ───────────
           // Replace the buffer with the authoritative set from Node-RED.
+          // Node-RED already limits the payload to buffer_limit items, so we
+          // store the list as-is without further slicing.
           const events = Array.isArray(data.events) ? data.events : [];
           nodeRedEventIdsRef.current = new Set(events.map(e => e.id).filter(Boolean));
-          setNodeRedEventsBuffer(events.slice(-MAX_NODERED_EVENTS));
+          setNodeRedEventsBuffer(events);
           if (typeof data.total === 'number') setNodeRedEventsTotal(data.total);
-          if (data.buffer_limit != null) setNodeRedEventsBufferLimit(data.buffer_limit);
+          if (data.buffer_limit != null) {
+            nodeRedEventsBufferLimitRef.current = data.buffer_limit;
+            setNodeRedEventsBufferLimit(data.buffer_limit);
+          }
         } else if (topic === 'salesianos/robot/iban/events_derived') {
           // ── events_derived: incremental events from Node-RED ─────────────
           const incoming = Array.isArray(data.events) ? data.events : [];
@@ -174,9 +185,14 @@ export const MqttStatusProvider = ({ children }) => {
             newEvents.forEach(e => nodeRedEventIdsRef.current.add(e.id));
             setNodeRedEventsBuffer(prev => {
               const merged = [...prev, ...newEvents];
-              return merged.length > MAX_NODERED_EVENTS
-                ? merged.slice(merged.length - MAX_NODERED_EVENTS)
-                : merged;
+              // Use the buffer_limit published by Node-RED via events_buffer.
+              // nodeRedEventsBufferLimitRef is always current (updated in the
+              // events_buffer handler before state setter to avoid stale closure).
+              const limit = nodeRedEventsBufferLimitRef.current;
+              if (limit != null && merged.length > limit) {
+                return merged.slice(merged.length - limit);
+              }
+              return merged;
             });
             if (typeof data.count === 'number') setNodeRedEventsTotal(data.count);
           }

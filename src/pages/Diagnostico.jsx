@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useMqttStatus } from '../hooks/useMqttStatus';
 import './Diagnostico.css';
 
-// ── Level badge ───────────────────────────────────────────────────────────────
+// ── Level badge (for events_buffer / events_derived) ─────────────────────────
+// Expects the info/warn/error vocabulary used by Node-RED RTDE events.
 
 function LevelBadge({ level }) {
   const normalized = (level ?? '').toLowerCase();
@@ -16,6 +17,21 @@ function LevelBadge({ level }) {
     normalized === 'warn' || normalized === 'warning' ? 'WARN' :
     'INFO';
   return <span className={cls}>{label}</span>;
+}
+
+// ── Diagnostico message level tag ────────────────────────────────────────────
+// principal.diagnostico.messages uses its own level vocabulary ("error",
+// "evento", etc.) that is distinct from the info/warn/error semantics of
+// events_buffer.  Rendered as a plain text label so no false severity mapping
+// is implied.
+
+function DiagMsgLevelTag({ level }) {
+  if (!level) return null;
+  const normalized = (level ?? '').toLowerCase();
+  const cls =
+    normalized === 'error' ? 'diag-msg-level diag-msg-level--error' :
+    'diag-msg-level diag-msg-level--default';
+  return <span className={cls}>{level.toUpperCase()}</span>;
 }
 
 // ── Collapsible data inspector ────────────────────────────────────────────────
@@ -80,7 +96,6 @@ function EventRow({ event }) {
 function Diagnostico() {
   const navigate = useNavigate();
   const {
-    telemetryData,
     diagnosticoLastError,
     eventLog,
     nodeRedEventsBuffer,
@@ -106,8 +121,9 @@ function Diagnostico() {
     { errorCount: 0, warnCount: 0, infoCount: 0 },
   );
 
-  // last_error: prefer the Node-RED direct field, fall back to diagnosticoLastError
-  const lastError = telemetryData?.diagnostico?.last_error ?? diagnosticoLastError ?? null;
+  // last_error comes directly from principal.diagnostico.last_error via context.
+  // Never infer it from message text or events.
+  const lastError = diagnosticoLastError;
 
   return (
     <div className="page-container diag-page">
@@ -154,6 +170,7 @@ function Diagnostico() {
               <ul className="diag-msg-list">
                 {[...diagMessages].reverse().map((msg, i) => (
                   <li key={i} className="diag-msg-item">
+                    {msg.level && <DiagMsgLevelTag level={msg.level} />}
                     {msg.time && <span className="diag-msg-time">{msg.time}</span>}
                     <span className="diag-msg-text">{msg.text}</span>
                   </li>
