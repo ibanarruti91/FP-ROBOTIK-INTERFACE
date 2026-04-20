@@ -627,10 +627,12 @@ export function TcpPose({ data, className = '' }) {
   const formatAngle = (val) => {
     if (val === null || val === undefined) return 'N/A';
     if (typeof val !== 'number') return val;
+    // Data arrives sign-inverted from Node-RED; apply one correction to match UR/Polyscope convention
+    const v = -val;
     if (angleUnit === 'rad') {
-      return (val * (Math.PI / 180)).toFixed(4);
+      return (v * (Math.PI / 180)).toFixed(4);
     }
-    return val.toFixed(3);
+    return v.toFixed(3);
   };
 
   // Pre-compute formatted values to avoid redundant calls
@@ -648,15 +650,24 @@ export function TcpPose({ data, className = '' }) {
       <div className="tcp-pose-header">
         <div className="tcp-pose-title-block">
           <div className="tcp-pose-title">TCP Pose</div>
-          <div className="tcp-pose-subtitle">respecto a la base</div>
+          <div className="tcp-pose-ref-badge">
+            <span className="tcp-pose-ref-icon">⊙</span>
+            REFERENCIA ACTIVA: BASE
+          </div>
+          <div className="tcp-pose-ref-note">Todos los valores TCP se expresan respecto al sistema Base del robot</div>
         </div>
-        <button
-          className={`tcp-pose-unit-toggle ${angleUnit === 'rad' ? 'active' : ''}`}
-          onClick={() => setAngleUnit(u => u === 'deg' ? 'rad' : 'deg')}
-          title="Cambiar unidad de ángulo"
-        >
-          {angleUnit === 'deg' ? '° → rad' : 'rad → °'}
-        </button>
+        <div className="tcp-pose-unit-segmented">
+          <button
+            className={`tcp-pose-seg-btn ${angleUnit === 'deg' ? 'active' : ''}`}
+            onClick={() => setAngleUnit('deg')}
+            title="Mostrar orientación en grados"
+          >DEG</button>
+          <button
+            className={`tcp-pose-seg-btn ${angleUnit === 'rad' ? 'active' : ''}`}
+            onClick={() => setAngleUnit('rad')}
+            title="Mostrar orientación en radianes"
+          >RAD</button>
+        </div>
       </div>
       <div className="tcp-pose-grid">
         <div className="tcp-pose-section">
