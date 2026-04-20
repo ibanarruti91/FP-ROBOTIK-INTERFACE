@@ -105,8 +105,9 @@ function Diagnostico() {
 
   // ── Debug: confirm context values on every render ─────────────────────────
   console.log('[Diagnostico] render — nodeRedEventsBuffer.length:', nodeRedEventsBuffer.length);
+  console.log('[Diagnostico] render — nodeRedEventsBuffer (full):', nodeRedEventsBuffer);
   console.log('[Diagnostico] render — nodeRedEventsTotal:', nodeRedEventsTotal);
-  console.log('[Diagnostico] render — first event type:', nodeRedEventsBuffer[0]?.type ?? '(none)');
+  console.log('[Diagnostico] render — first event (full):', nodeRedEventsBuffer[0] ?? null);
 
   // Diagnóstico messages from the principal topic
   const diagMessages = eventLog;
