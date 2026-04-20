@@ -1325,22 +1325,26 @@ export function NodeRedEventsPanel({ className = '' }) {
         <div className="log-empty">Sin eventos en el buffer</div>
       ) : (
         <div className="log-messages nr-events-messages">
-          {sortedEvents.map((event, i) => (
-            <div
-              key={event.id ?? i}
-              className={`log-message diag-event-row diag-event-row--${(event.level ?? 'info').toLowerCase() === 'error' ? 'error' : (event.level ?? 'info').toLowerCase().startsWith('warn') ? 'warning' : 'info'}`}
-            >
-              <EventLevelBadge level={event.level} />
-              {event.type && (
-                <span className="nr-event-type">{event.type}</span>
-              )}
-              <span className="log-time">{formatEventTs(event.ts)}</span>
-              {event.source && (
-                <span className="nr-event-source">{event.source}</span>
-              )}
-              <span className="log-text diag-event-msg">{event.text ?? '—'}</span>
-            </div>
-          ))}
+          {sortedEvents.map((event, i) => {
+            const lvl = (event.level ?? 'info').toLowerCase();
+            const rowMod = lvl === 'error' ? 'error' : lvl.startsWith('warn') ? 'warning' : 'info';
+            return (
+              <div
+                key={event.id ?? i}
+                className={`log-message diag-event-row diag-event-row--${rowMod}`}
+              >
+                <EventLevelBadge level={event.level} />
+                {event.type && (
+                  <span className="nr-event-type">{event.type}</span>
+                )}
+                <span className="log-time">{formatEventTs(event.ts)}</span>
+                {event.source && (
+                  <span className="nr-event-source">{event.source}</span>
+                )}
+                <span className="log-text diag-event-msg">{event.text ?? '—'}</span>
+              </div>
+            );
+          })}
         </div>
       )}
     </CardGlass>
@@ -1393,17 +1397,20 @@ export function NodeRedDiagMessagesPanel({ className = '' }) {
         <div className="log-empty">Sin mensajes de diagnóstico</div>
       ) : (
         <div className="log-messages nr-msg-messages">
-          {visibleMessages.map((msg, i) => (
-            <div key={i} className="log-message">
-              {msg.level && (
-                <span className={`nr-msg-level nr-msg-level--${(msg.level ?? '').toLowerCase() === 'error' ? 'error' : 'default'}`}>
-                  {msg.level.toUpperCase()}
-                </span>
-              )}
-              {msg.time && <span className="log-time">{msg.time}</span>}
-              <span className="log-text">{msg.text}</span>
-            </div>
-          ))}
+          {visibleMessages.map((msg, i) => {
+            const lvlMod = (msg.level ?? '').toLowerCase() === 'error' ? 'error' : 'default';
+            return (
+              <div key={i} className="log-message">
+                {msg.level && (
+                  <span className={`nr-msg-level nr-msg-level--${lvlMod}`}>
+                    {msg.level.toUpperCase()}
+                  </span>
+                )}
+                {msg.time && <span className="log-time">{msg.time}</span>}
+                <span className="log-text">{msg.text}</span>
+              </div>
+            );
+          })}
         </div>
       )}
     </CardGlass>
