@@ -172,15 +172,30 @@ export const MqttStatusProvider = ({ children }) => {
           }
         } else if (topic === 'salesianos/robot/iban/events_buffer') {
           // ── events_buffer: authoritative resync from Node-RED ───────────
-          // Replace the buffer with the authoritative set from Node-RED.
-          // Node-RED already limits the payload to buffer_limit items, so we
-          // store the list as-is without further slicing.
+          // Node-RED sends the full snapshot; use it as the source of truth.
           const events = Array.isArray(data.events) ? data.events : [];
-          nodeRedEventIdsRef.current = new Set(events.map(e => e.id).filter(Boolean));
-          setNodeRedEventsBuffer(events);
-          if (typeof data.total === 'number') {
-            setNodeRedEventsTotal(data.total);
+
+          if (data.action === 'cleared') {
+            // Backend cleared the buffer — empty everything.
+            nodeRedEventIdsRef.current = new Set();
+            setNodeRedEventsBuffer([]);
+            setNodeRedEventsTotal(0);
+          } else {
+            // Sort newest first; break ts ties by priority (higher = more
+            // important).  The backend usually sends it already sorted, but
+            // re-sorting here guarantees the tiebreaker rule is always applied.
+            const sorted = [...events].sort((a, b) => {
+              const tsDiff = (b.ts ?? 0) - (a.ts ?? 0);
+              if (tsDiff !== 0) return tsDiff;
+              return (b.priority ?? 0) - (a.priority ?? 0);
+            });
+            nodeRedEventIdsRef.current = new Set(sorted.map(e => e.id).filter(Boolean));
+            setNodeRedEventsBuffer(sorted);
+            if (typeof data.total === 'number') {
+              setNodeRedEventsTotal(data.total);
+            }
           }
+
           if (data.buffer_limit != null) {
             nodeRedEventsBufferLimitRef.current = data.buffer_limit;
             setNodeRedEventsBufferLimit(data.buffer_limit);
@@ -192,15 +207,19 @@ export const MqttStatusProvider = ({ children }) => {
           if (newEvents.length > 0) {
             newEvents.forEach(e => nodeRedEventIdsRef.current.add(e.id));
             setNodeRedEventsBuffer(prev => {
-              const merged = [...prev, ...newEvents];
+              // Prepend new events, then re-sort to maintain newest-first order
+              // with priority as the tiebreaker for identical timestamps.
+              const merged = [...newEvents, ...prev];
+              merged.sort((a, b) => {
+                const tsDiff = (b.ts ?? 0) - (a.ts ?? 0);
+                if (tsDiff !== 0) return tsDiff;
+                return (b.priority ?? 0) - (a.priority ?? 0);
+              });
               // Use the buffer_limit published by Node-RED via events_buffer.
-              // nodeRedEventsBufferLimitRef is always current (updated in the
-              // events_buffer handler before state setter to avoid stale closure).
               const limit = nodeRedEventsBufferLimitRef.current;
-              const next = (limit != null && merged.length > limit)
-                ? merged.slice(merged.length - limit)
+              return (limit != null && merged.length > limit)
+                ? merged.slice(0, limit)
                 : merged;
-              return next;
             });
             if (typeof data.count === 'number') setNodeRedEventsTotal(data.count);
           }
