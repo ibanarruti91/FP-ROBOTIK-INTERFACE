@@ -176,10 +176,14 @@ export const MqttStatusProvider = ({ children }) => {
           nodeRedEventIdsRef.current = new Set(events.map(e => e.id).filter(Boolean));
           setNodeRedEventsBuffer(events);
           console.log('[MQTT] nodeRedEventsBuffer state set to length:', events.length);
-          if (typeof data.total === 'number') setNodeRedEventsTotal(data.total);
+          if (typeof data.total === 'number') {
+            setNodeRedEventsTotal(data.total);
+            console.log('[MQTT] nodeRedEventsTotal set to:', data.total);
+          }
           if (data.buffer_limit != null) {
             nodeRedEventsBufferLimitRef.current = data.buffer_limit;
             setNodeRedEventsBufferLimit(data.buffer_limit);
+            console.log('[MQTT] nodeRedEventsBufferLimit set to:', data.buffer_limit);
           }
         } else if (topic === 'salesianos/robot/iban/events_derived') {
           // ── events_derived: incremental events from Node-RED ─────────────
