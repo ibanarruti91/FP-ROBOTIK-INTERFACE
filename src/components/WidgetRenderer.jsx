@@ -2,7 +2,7 @@
  * WidgetRenderer - Renderiza widgets basándose en su tipo y configuración
  */
 
-import { KpiCard, StatusPill, StatusDynamic, DataTable, LogPanel, SafetyPanel, DigitalIO, AnalogIO, GestionPanel, SecurityLedsPanel, ToolPanel, TcpPose, JointsGrid, SystemMetricCard, StepCaptureTable, HardwareIOControlBox, HardwareIOTool, DiagnosticBufferPanel } from './TelemetryWidgets';
+import { KpiCard, StatusPill, StatusDynamic, DataTable, LogPanel, SafetyPanel, DigitalIO, AnalogIO, GestionPanel, SecurityLedsPanel, ToolPanel, TcpPose, JointsGrid, SystemMetricCard, StepCaptureTable, HardwareIOControlBox, HardwareIOTool, DiagnosticBufferPanel, NodeRedEventsPanel, NodeRedDiagMessagesPanel } from './TelemetryWidgets';
 import { CameraWidget } from './CameraWidget';
 import { PerformanceChart } from './PerformanceChart';
 import './WidgetRenderer.css';
@@ -239,6 +239,22 @@ function renderWidget(widget, data, key) {
         />
       );
 
+    case 'nodered-events':
+      return (
+        <NodeRedEventsPanel
+          key={key}
+          className="full-width"
+        />
+      );
+
+    case 'nodered-messages':
+      return (
+        <NodeRedDiagMessagesPanel
+          key={key}
+          className="full-width"
+        />
+      );
+
     default:
       return (
         <div key={key} className="widget-unknown">
@@ -341,13 +357,20 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
     );
   }
 
-  // Diagnóstico: camera (left 50%) | data panels (right 50%) — same height; log full-width below
+  // Diagnóstico: camera (left 50%) | data panels (right 50%) — same height; full-width rows below
   if (sectionId === 'diagnostico') {
-    const cameraGroups = groups.filter(g => g.className === 'diag-camera');
-    const dataGroups   = groups.filter(g => g.className === 'diag-data');
-    const logGroups    = groups.filter(g => g.className === 'diag-log');
-    const dataOffset   = cameraGroups.length;
-    const logOffset    = dataOffset + dataGroups.length;
+    const cameraGroups   = groups.filter(g => g.className === 'diag-camera');
+    const dataGroups     = groups.filter(g => g.className === 'diag-data');
+    const logGroups      = groups.filter(g => g.className === 'diag-log');
+    const nrMessGroups   = groups.filter(g => g.className === 'diag-nr-messages');
+    const nrEventsGroups = groups.filter(g => g.className === 'diag-nr-events');
+    const derivedGroups  = groups.filter(g => g.className === 'diag-derived-buffer');
+
+    const dataOffset      = cameraGroups.length;
+    const logOffset       = dataOffset + dataGroups.length;
+    const nrMessOffset    = logOffset + logGroups.length;
+    const nrEventsOffset  = nrMessOffset + nrMessGroups.length;
+    const derivedOffset   = nrEventsOffset + nrEventsGroups.length;
 
     return (
       <div className="widget-renderer diagnostico-layout">
@@ -358,7 +381,10 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
           {dataGroups.map((group, i) => renderGroup(group, data, dataOffset + i))}
         </div>
         <div className="diag-log-row">
-          {logGroups.map((group, i) => renderGroup(group, data, logOffset + i))}
+          {logGroups.map((group, i)      => renderGroup(group, data, logOffset + i))}
+          {nrMessGroups.map((group, i)   => renderGroup(group, data, nrMessOffset + i))}
+          {nrEventsGroups.map((group, i) => renderGroup(group, data, nrEventsOffset + i))}
+          {derivedGroups.map((group, i)  => renderGroup(group, data, derivedOffset + i))}
         </div>
       </div>
     );
