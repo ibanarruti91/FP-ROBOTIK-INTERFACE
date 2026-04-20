@@ -19,4 +19,12 @@ export const MqttStatusContext = createContext({
   // de estado MQTT.  No es el log nativo del controlador UR.
   derivedDiagnosticBuffer: [],
   clearDerivedDiagnosticBuffer: () => {},
+  // ── Node-RED Events (from events_derived + events_buffer topics) ──────────
+  // Eventos publicados por Node-RED.  La web solo los consume y visualiza;
+  // no los calcula ni deriva en frontend.
+  nodeRedEventsBuffer: [],
+  nodeRedEventsTotal: 0,
+  nodeRedEventsBufferLimit: null,
+  // ── Diagnóstico (from principal.diagnostico) ──────────────────────────────
+  diagnosticoLastError: null,
 });

@@ -29,6 +29,12 @@ function Sidebar() {
       title: 'Cámara en Directo Multicentros',
       path: '/selector-centros',
       icon: '📹'
+    },
+    {
+      id: 4,
+      title: 'Diagnóstico del sistema',
+      path: '/diagnostico',
+      icon: '🔍'
     }
   ];
 
