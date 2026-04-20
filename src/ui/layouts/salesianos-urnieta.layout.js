@@ -132,14 +132,6 @@ export const SALESIANOS_LAYOUT = {
           ]
         },
         {
-          title: "Diagnóstico de Errores",
-          className: "diag-data",
-          compact: true,
-          widgets: [
-            { type: "kpi", label: "Último Error", path: "last_error", unit: "", format: "text", columns: 2, compact: true }
-          ]
-        },
-        {
           title: "Información del Sistema",
           className: "diag-data",
           compact: true,

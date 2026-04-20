@@ -4,6 +4,7 @@
 
 import { useState, useEffect, useRef, useMemo, useContext } from 'react';
 import { Zap, Thermometer, Settings, Gauge, Activity, Cpu, RefreshCw, Clock } from 'lucide-react';
+import ExcelJS from 'exceljs';
 import { MqttStatusContext } from '../contexts/MqttStatusContext.js';
 import './TelemetryWidgets.css';
 
@@ -1267,6 +1268,7 @@ export function NodeRedEventsPanel({ className = '' }) {
     nodeRedEventsBuffer,
     nodeRedEventsTotal,
     nodeRedEventsBufferLimit,
+    publishCommand,
   } = useContext(MqttStatusContext);
 
   const sortedEvents = useMemo(
@@ -1288,6 +1290,56 @@ export function NodeRedEventsPanel({ className = '' }) {
     [nodeRedEventsBuffer],
   );
 
+  const handleExportExcel = async () => {
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = 'FP-ROBOTIK-INTERFACE';
+    workbook.created = new Date();
+    const sheet = workbook.addWorksheet('Buffer Eventos');
+    sheet.columns = [
+      { header: 'id',     key: 'id',     width: 36 },
+      { header: 'ts',     key: 'ts',     width: 24 },
+      { header: 'source', key: 'source', width: 20 },
+      { header: 'level',  key: 'level',  width: 10 },
+      { header: 'type',   key: 'type',   width: 20 },
+      { header: 'text',   key: 'text',   width: 60 },
+      { header: 'data',   key: 'data',   width: 40 },
+    ];
+    // Style header row
+    sheet.getRow(1).font = { bold: true };
+    nodeRedEventsBuffer.forEach(event => {
+      sheet.addRow({
+        id:     event.id     ?? '',
+        ts:     event.ts     != null ? new Date(event.ts).toISOString() : '',
+        source: event.source ?? '',
+        level:  event.level  ?? '',
+        type:   event.type   ?? '',
+        text:   event.text   ?? '',
+        data:   event.data   != null ? JSON.stringify(event.data) : '',
+      });
+    });
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    const url  = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href     = url;
+    link.download = `buffer_eventos_${Date.now()}.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleClearBuffer = () => {
+    publishCommand?.('salesianos/robot/iban/events_control', {
+      command:   'clear_buffer',
+      target:    'events_buffer',
+      source:    'web',
+      ts_client: Date.now(),
+    });
+  };
+
   return (
     <CardGlass className={`log-panel nr-events-panel ${className}`}>
       <div className="log-header">
@@ -1300,20 +1352,38 @@ export function NodeRedEventsPanel({ className = '' }) {
             <span className="nr-meta">límite: {nodeRedEventsBufferLimit}</span>
           )}
         </div>
-        <div className="nr-counter-chips">
-          <span className="nr-chip nr-chip--error">
-            <span className="nr-badge nr-badge--error">ERROR</span>
-            {errorCount}
-          </span>
-          <span className="nr-chip nr-chip--warn">
-            <span className="nr-badge nr-badge--warn">WARN</span>
-            {warnCount}
-          </span>
-          <span className="nr-chip nr-chip--info">
-            <span className="nr-badge nr-badge--info">INFO</span>
-            {infoCount}
-          </span>
+        <div className="log-actions">
+          <button
+            className="log-btn log-btn--export"
+            onClick={handleExportExcel}
+            disabled={nodeRedEventsBuffer.length === 0}
+            title="Exportar buffer de eventos a Excel"
+          >
+            ⬇ Exportar a Excel
+          </button>
+          <button
+            className="log-btn log-btn--clear"
+            onClick={handleClearBuffer}
+            title="Enviar comando al backend para borrar el buffer de eventos"
+          >
+            🗑 Borrar buffer
+          </button>
         </div>
+      </div>
+
+      <div className="nr-counter-chips">
+        <span className="nr-chip nr-chip--error">
+          <span className="nr-badge nr-badge--error">ERROR</span>
+          {errorCount}
+        </span>
+        <span className="nr-chip nr-chip--warn">
+          <span className="nr-badge nr-badge--warn">WARN</span>
+          {warnCount}
+        </span>
+        <span className="nr-chip nr-chip--info">
+          <span className="nr-badge nr-badge--info">INFO</span>
+          {infoCount}
+        </span>
       </div>
 
       {nodeRedEventsTotal > 0 && (
