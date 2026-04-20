@@ -198,18 +198,21 @@ function Diagnostico() {
   const navigate = useNavigate();
   const {
     diagnosticoLastError,
-    eventLog,
     nodeRedEventsBuffer,
     nodeRedEventsTotal,
     nodeRedEventsBufferLimit,
   } = useMqttStatus();
 
-  // Diagnóstico messages from the principal topic
-  const diagMessages = eventLog;
-
   // Filter events: never show events marked visible === false.
   // The buffer is already sorted newest-first by MqttStatusContext.
   const visibleEvents = nodeRedEventsBuffer.filter(e => e.visible !== false);
+
+  // Upper panel: only error-level events, newest first, max 3.
+  // Source is nodeRedEventsBuffer (same as the lower buffer) so errors always
+  // appear in both panels simultaneously.
+  const diagnosticErrorEvents = visibleEvents
+    .filter(e => (e.level ?? '').toLowerCase() === 'error')
+    .slice(0, 3);
 
   // Level breakdown — computed on visible events only (hidden events never count).
   const { errorCount, warnCount, infoCount } = visibleEvents.reduce(
@@ -269,21 +272,17 @@ function Diagnostico() {
           <div className="diag-card-header">
             <span className="diag-card-icon">📋</span>
             <h2 className="diag-card-title">Diagnóstico / mensajes</h2>
-            <span className="diag-card-count">{diagMessages.length}</span>
+            <span className="diag-card-count">{diagnosticErrorEvents.length}</span>
           </div>
           <div className="diag-card-body diag-card-body--scroll">
-            {diagMessages.length === 0 ? (
+            {diagnosticErrorEvents.length === 0 ? (
               <p className="diag-empty">Sin mensajes de diagnóstico</p>
             ) : (
-              <ul className="diag-msg-list">
-                {[...diagMessages].reverse().map((msg, i) => (
-                  <li key={i} className="diag-msg-item">
-                    {msg.level && <DiagMsgLevelTag level={msg.level} />}
-                    {msg.time && <span className="diag-msg-time">{msg.time}</span>}
-                    <span className="diag-msg-text">{msg.text}</span>
-                  </li>
+              <div className="diag-events-list">
+                {diagnosticErrorEvents.map((event, i) => (
+                  <EventRow key={event.id ?? i} event={event} />
                 ))}
-              </ul>
+              </div>
             )}
           </div>
         </div>
