@@ -1307,9 +1307,18 @@ export function NodeRedEventsPanel({ className = '' }) {
     // Style header row
     sheet.getRow(1).font = { bold: true };
     nodeRedEventsBuffer.forEach(event => {
+      let tsValue = '';
+      if (event.ts != null) {
+        try {
+          const d = new Date(event.ts);
+          tsValue = isNaN(d.getTime()) ? String(event.ts) : d.toISOString();
+        } catch {
+          tsValue = String(event.ts);
+        }
+      }
       sheet.addRow({
         id:     event.id     ?? '',
-        ts:     event.ts     != null ? new Date(event.ts).toISOString() : '',
+        ts:     tsValue,
         source: event.source ?? '',
         level:  event.level  ?? '',
         type:   event.type   ?? '',
@@ -1324,7 +1333,9 @@ export function NodeRedEventsPanel({ className = '' }) {
     const url  = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href     = url;
-    link.download = `buffer_eventos_${Date.now()}.xlsx`;
+    const now = new Date();
+    const dateTag = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}-${String(now.getSeconds()).padStart(2, '0')}`;
+    link.download = `buffer_eventos_${dateTag}.xlsx`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -1344,7 +1355,7 @@ export function NodeRedEventsPanel({ className = '' }) {
     <CardGlass className={`log-panel nr-events-panel ${className}`}>
       <div className="log-header">
         <div className="log-title">
-          📡 Buffer de eventos del sistema / RTDE
+          <span aria-hidden="true">📡</span> Buffer de eventos del sistema / RTDE
           {nodeRedEventsBuffer.length > 0 && (
             <span className="nr-count-badge">{nodeRedEventsBuffer.length}</span>
           )}
@@ -1357,16 +1368,18 @@ export function NodeRedEventsPanel({ className = '' }) {
             className="log-btn log-btn--export"
             onClick={handleExportExcel}
             disabled={nodeRedEventsBuffer.length === 0}
+            aria-label={nodeRedEventsBuffer.length === 0 ? 'Exportar a Excel (buffer vacío)' : 'Exportar buffer de eventos a Excel'}
             title="Exportar buffer de eventos a Excel"
           >
-            ⬇ Exportar a Excel
+            <span aria-hidden="true">⬇</span> Exportar a Excel
           </button>
           <button
             className="log-btn log-btn--clear"
             onClick={handleClearBuffer}
+            aria-label="Enviar comando al backend para borrar el buffer de eventos"
             title="Enviar comando al backend para borrar el buffer de eventos"
           >
-            🗑 Borrar buffer
+            <span aria-hidden="true">🗑</span> Borrar buffer
           </button>
         </div>
       </div>
