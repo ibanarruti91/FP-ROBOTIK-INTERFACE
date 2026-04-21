@@ -2107,19 +2107,19 @@ export function TcpFlangeSchematic({ data, className = '' }) {
             {/* Offset dashed line */}
             <line x1="118" y1="100" x2="144.5" y2="100"
               stroke="#9ca3af" strokeWidth="1" strokeDasharray="3 2"/>
-            {/* X axis — red, pointing right */}
-            <line x1="148" y1="100" x2="188" y2="100" stroke="#ef4444" strokeWidth="2.5"/>
-            <polygon points="188,95.5 196,100 188,104.5" fill="#ef4444"/>
-            <text x="185" y="94" fill="#ef4444" fontSize="10" fontFamily="var(--font-display,'Orbitron',sans-serif)" fontWeight="700">X</text>
-            {/* Z axis — blue, pointing up */}
-            <line x1="148" y1="100" x2="148" y2="54" stroke="#3b82f6" strokeWidth="2.5"/>
-            <polygon points="143.5,54 148,46 152.5,54" fill="#3b82f6"/>
-            <text x="152" y="44" fill="#3b82f6" fontSize="10" fontFamily="var(--font-display,'Orbitron',sans-serif)" fontWeight="700">Z</text>
-            {/* Y axis — green, into/out of plane marker */}
-            <circle cx="148" cy="100" r="7" fill="none" stroke="#22c55e" strokeWidth="1.5" strokeDasharray="3 2"/>
-            <line x1="143" y1="95" x2="153" y2="105" stroke="#22c55e" strokeWidth="1.25"/>
-            <line x1="153" y1="95" x2="143" y2="105" stroke="#22c55e" strokeWidth="1.25"/>
-            <text x="134" y="136" fill="#22c55e" fontSize="9" fontFamily="var(--font-display,'Orbitron',sans-serif)" fontWeight="700">Y</text>
+            {/* Y axis — green, pointing UP */}
+            <line x1="148" y1="100" x2="148" y2="54" stroke="#22c55e" strokeWidth="2.5"/>
+            <polygon points="143.5,54 148,46 152.5,54" fill="#22c55e"/>
+            <text x="152" y="44" fill="#22c55e" fontSize="10" fontFamily="var(--font-display,'Orbitron',sans-serif)" fontWeight="700">Y</text>
+            {/* Z axis — blue, pointing LEFT */}
+            <line x1="148" y1="100" x2="108" y2="100" stroke="#3b82f6" strokeWidth="2.5"/>
+            <polygon points="108,95.5 100,100 108,104.5" fill="#3b82f6"/>
+            <text x="88" y="95" fill="#3b82f6" fontSize="10" fontFamily="var(--font-display,'Orbitron',sans-serif)" fontWeight="700">Z</text>
+            {/* X axis — red, into/out of plane marker */}
+            <circle cx="148" cy="100" r="7" fill="none" stroke="#ef4444" strokeWidth="1.5" strokeDasharray="3 2"/>
+            <line x1="143" y1="95" x2="153" y2="105" stroke="#ef4444" strokeWidth="1.25"/>
+            <line x1="153" y1="95" x2="143" y2="105" stroke="#ef4444" strokeWidth="1.25"/>
+            <text x="158" y="120" fill="#ef4444" fontSize="9" fontFamily="var(--font-display,'Orbitron',sans-serif)" fontWeight="700">X</text>
             {/* Labels */}
             <text x="20" y="148" fill="#6b7280" fontSize="8" fontFamily="var(--font-display,'Orbitron',sans-serif)">BRIDA</text>
             <text x="126" y="155" fill="#9ca3af" fontSize="8" fontFamily="var(--font-display,'Orbitron',sans-serif)" fontWeight="700">TCP</text>
