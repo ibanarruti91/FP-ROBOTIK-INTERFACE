@@ -623,7 +623,7 @@ export function ToolPanel({ data, className = '' }) {
  * @param {number} rz
  * @returns {[number, number, number]} transformed [rx, ry, rz]
  */
-function polysopeEquivTransform(rx, ry, rz) {
+function polyscopeEquivTransform(rx, ry, rz) {
   const theta = Math.sqrt(rx * rx + ry * ry + rz * rz);
   if (theta < 1e-10) return [rx, ry, rz];
   const scale = 1 - (2 * Math.PI / theta);
@@ -649,7 +649,7 @@ export function TcpPose({ data, className = '' }) {
 
   let dispRx = rawRx, dispRy = rawRy, dispRz = rawRz;
   if (rawRx !== null && rawRy !== null && rawRz !== null) {
-    [dispRx, dispRy, dispRz] = polysopeEquivTransform(rawRx, rawRy, rawRz);
+    [dispRx, dispRy, dispRz] = polyscopeEquivTransform(rawRx, rawRy, rawRz);
     console.log('[LIVE TCP POSE] raw MQTT rx/ry/rz:', rawRx, rawRy, rawRz);
     console.log('[LIVE TCP POSE] transformed display rx/ry/rz:', dispRx, dispRy, dispRz);
   }
