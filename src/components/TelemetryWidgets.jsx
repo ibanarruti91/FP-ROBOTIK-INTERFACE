@@ -612,17 +612,34 @@ export function ToolPanel({ data, className = '' }) {
 }
 
 /**
- * Applies the PolyScope-equivalent rotation-vector alternate representation.
- * PolyScope displays the axis-angle alternate form: r_display = r * (1 - 2π/θ)
- * This must ONLY be applied to the live TCP pose, never to the TCP configuration.
+ * Returns the PolyScope display rotation vector for a live TCP pose.
+ * The alternate form r_display = r * (1 - 2π/θ) is applied ONLY when the
+ * first significant component of the raw vector is negative, matching the
+ * convention PolyScope uses to pick between the two equivalent representations.
+ *
+ * Decision rule (first non-near-zero component wins):
+ *   1. |rx| > EPS  →  apply transform iff rx < 0
+ *   2. |ry| > EPS  →  apply transform iff ry < 0
+ *   3. otherwise   →  apply transform iff rz < 0
+ *
+ * This must ONLY be used for the live TCP pose, never for TCP configuration.
  * @param {number} rx
  * @param {number} ry
  * @param {number} rz
- * @returns {[number, number, number]} transformed [rx, ry, rz]
+ * @returns {[number, number, number]} display [rx, ry, rz]
  */
-function polyscopeEquivTransform(rx, ry, rz) {
+function polyscopeDisplayRotvec(rx, ry, rz) {
+  const EPS = 1e-9;
   const theta = Math.sqrt(rx * rx + ry * ry + rz * rz);
-  if (theta < 1e-10) return [rx, ry, rz];
+  if (theta < EPS) return [rx, ry, rz];
+
+  const useAlt =
+    (Math.abs(rx) > EPS && rx < 0) ||
+    (Math.abs(rx) <= EPS && Math.abs(ry) > EPS && ry < 0) ||
+    (Math.abs(rx) <= EPS && Math.abs(ry) <= EPS && rz < 0);
+
+  if (!useAlt) return [rx, ry, rz];
+
   const scale = 1 - (2 * Math.PI / theta);
   return [rx * scale, ry * scale, rz * scale];
 }
@@ -641,15 +658,16 @@ export function TcpPose({ data, className = '' }) {
     return typeof val === 'number' ? val.toFixed(decimals) : val;
   };
 
-  // Apply PolyScope-equivalent rotation-vector transform to the raw live TCP orientation.
-  // DEG mode is derived from the transformed RAD values (NOT from the raw *_deg MQTT fields).
+  // Select display rotation vector: apply PolyScope conditional transform only when the
+  // first significant component of the raw vector is negative (see polyscopeDisplayRotvec).
+  // DEG mode is derived from these display RAD values (NOT from the raw *_deg MQTT fields).
   const rawRx = typeof rawOrient.rx === 'number' ? rawOrient.rx : null;
   const rawRy = typeof rawOrient.ry === 'number' ? rawOrient.ry : null;
   const rawRz = typeof rawOrient.rz === 'number' ? rawOrient.rz : null;
 
   let dispRx = rawRx, dispRy = rawRy, dispRz = rawRz;
   if (rawRx !== null && rawRy !== null && rawRz !== null) {
-    [dispRx, dispRy, dispRz] = polyscopeEquivTransform(rawRx, rawRy, rawRz);
+    [dispRx, dispRy, dispRz] = polyscopeDisplayRotvec(rawRx, rawRy, rawRz);
   }
 
   // Format orientation angle from the PolyScope-transformed display value.
