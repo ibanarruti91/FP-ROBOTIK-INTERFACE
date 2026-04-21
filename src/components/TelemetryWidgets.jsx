@@ -612,10 +612,28 @@ export function ToolPanel({ data, className = '' }) {
 }
 
 /**
+ * Applies the PolyScope-equivalent rotation-vector alternate representation.
+ * PolyScope displays the axis-angle alternate form: r_display = r * (1 - 2π/θ)
+ * This must ONLY be applied to the live TCP pose, never to the TCP configuration.
+ * @param {number} rx
+ * @param {number} ry
+ * @param {number} rz
+ * @returns {[number, number, number]} transformed [rx, ry, rz]
+ */
+function polyscopeEquivTransform(rx, ry, rz) {
+  const theta = Math.sqrt(rx * rx + ry * ry + rz * rz);
+  if (theta < 1e-10) return [rx, ry, rz];
+  const scale = 1 - (2 * Math.PI / theta);
+  return [rx * scale, ry * scale, rz * scale];
+}
+
+/**
  * TCP Pose - Tarjeta específica para mostrar posición y orientación TCP
  */
 export function TcpPose({ data, className = '' }) {
   const pos = data?.position || {};
+  // Raw RTDE orientation (radians) — kept unmodified as source of truth.
+  const rawOrient = data?.orientation || {};
   const [angleUnit, setAngleUnit] = useState('rad'); // 'rad' | 'deg'
 
   const formatValue = (val, decimals = 2) => {
@@ -623,25 +641,32 @@ export function TcpPose({ data, className = '' }) {
     return typeof val === 'number' ? val.toFixed(decimals) : val;
   };
 
-  // Use backend-provided values directly — no frontend transformation.
-  const o = data?.orientation || {};
-  const displayOrientation =
-    angleUnit === 'rad'
-      ? { rx: o.rx, ry: o.ry, rz: o.rz }
-      : { rx: o.rx_deg, ry: o.ry_deg, rz: o.rz_deg };
+  // Apply PolyScope-equivalent rotation-vector transform to the raw live TCP orientation.
+  // DEG mode is derived from the transformed RAD values (NOT from the raw *_deg MQTT fields).
+  const rawRx = typeof rawOrient.rx === 'number' ? rawOrient.rx : null;
+  const rawRy = typeof rawOrient.ry === 'number' ? rawOrient.ry : null;
+  const rawRz = typeof rawOrient.rz === 'number' ? rawOrient.rz : null;
 
-  const formatAngle = (val, decimals = 4) => {
-    if (val === null || val === undefined) return 'N/A';
-    return typeof val === 'number' ? val.toFixed(decimals) : val;
+  let dispRx = rawRx, dispRy = rawRy, dispRz = rawRz;
+  if (rawRx !== null && rawRy !== null && rawRz !== null) {
+    [dispRx, dispRy, dispRz] = polyscopeEquivTransform(rawRx, rawRy, rawRz);
+  }
+
+  // Format orientation angle from the PolyScope-transformed display value.
+  // In RAD mode: show the transformed value. In DEG mode: convert the transformed RAD to degrees.
+  const formatAngle = (dispVal) => {
+    if (dispVal === null || dispVal === undefined) return 'N/A';
+    if (angleUnit === 'deg') return (dispVal * (180 / Math.PI)).toFixed(3);
+    return dispVal.toFixed(4);
   };
 
   // Pre-compute formatted values to avoid redundant calls
   const posX = formatValue(pos.x, 2);
   const posY = formatValue(pos.y, 2);
   const posZ = formatValue(pos.z, 2);
-  const orientRx = formatAngle(displayOrientation.rx);
-  const orientRy = formatAngle(displayOrientation.ry);
-  const orientRz = formatAngle(displayOrientation.rz);
+  const orientRx = formatAngle(dispRx);
+  const orientRy = formatAngle(dispRy);
+  const orientRz = formatAngle(dispRz);
 
   const angleUnitLabel = angleUnit === 'deg' ? '°' : 'rad';
 
