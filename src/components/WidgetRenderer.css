@@ -810,53 +810,148 @@
   }
 }
 
-/* ── CONFIGURACIÓN TCP TAB: left (Camera) | right (TcpConfigPanel) ── */
+/* ── CONFIGURACIÓN TCP TAB: 2×2 grid — camera | main | payload | schematic ── */
 .widget-renderer.config-tcp-layout {
   display: grid;
-  grid-template-columns: 42% 58%;
-  gap: 20px;
-  align-items: start;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 1rem;
+  align-items: stretch;
 }
 
-.widget-renderer.config-tcp-layout .ctcp-left-column {
+/* Cell placement */
+.widget-renderer.config-tcp-layout .ctcp-camera-cell {
+  grid-column: 1;
+  grid-row: 1;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  min-height: 0;
 }
 
-.widget-renderer.config-tcp-layout .ctcp-right-column {
+.widget-renderer.config-tcp-layout .ctcp-main-cell {
+  grid-column: 2;
+  grid-row: 1;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  min-height: 0;
+}
+
+.widget-renderer.config-tcp-layout .ctcp-payload-cell {
+  grid-column: 1;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.widget-renderer.config-tcp-layout .ctcp-schematic-cell {
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Camera stretches to fill its cell height */
+.widget-renderer.config-tcp-layout .ctcp-camera-cell .widget-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.widget-renderer.config-tcp-layout .ctcp-camera-cell .widget-grid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.widget-renderer.config-tcp-layout .ctcp-camera-cell .camera-widget.nexus-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Preserve 16:9 for camera */
+.widget-renderer.config-tcp-layout .ctcp-camera-cell .camera-inner--ratio {
+  aspect-ratio: 16 / 9;
+  min-height: 220px;
+}
+
+/* Propagate flex through all other cells */
+.widget-renderer.config-tcp-layout .ctcp-main-cell .widget-group,
+.widget-renderer.config-tcp-layout .ctcp-payload-cell .widget-group,
+.widget-renderer.config-tcp-layout .ctcp-schematic-cell .widget-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.widget-renderer.config-tcp-layout .ctcp-main-cell .widget-grid,
+.widget-renderer.config-tcp-layout .ctcp-payload-cell .widget-grid,
+.widget-renderer.config-tcp-layout .ctcp-schematic-cell .widget-grid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 /* Compact group & title tweaks */
 .widget-renderer.config-tcp-layout .widget-group {
-  gap: 0.4rem;
+  gap: 0.5rem;
 }
 
 .widget-renderer.config-tcp-layout .group-title {
-  font-size: 0.72rem;
-  padding-bottom: 0.3rem;
-  border-bottom-width: 1px;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding-bottom: 0.45rem;
+  border-bottom-width: 2px;
   border-bottom-color: #ff7c00;
   margin-bottom: 0;
-}
-
-/* Preserve camera 16:9 */
-.widget-renderer.config-tcp-layout .ctcp-left-column .camera-inner--ratio {
-  aspect-ratio: 16 / 9;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 /* Tighten card padding */
 .widget-renderer.config-tcp-layout .card-glass {
-  padding: 1rem;
+  padding: 1.25rem;
   background: rgba(15, 23, 42, 0.95);
 }
 
-/* Responsive: stack columns on narrow screens */
+/* Responsive: stack to single column on narrow screens */
 @media (max-width: 1100px) {
   .widget-renderer.config-tcp-layout {
     grid-template-columns: 1fr;
   }
+  .widget-renderer.config-tcp-layout .ctcp-camera-cell,
+  .widget-renderer.config-tcp-layout .ctcp-main-cell,
+  .widget-renderer.config-tcp-layout .ctcp-payload-cell,
+  .widget-renderer.config-tcp-layout .ctcp-schematic-cell {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .widget-renderer.config-tcp-layout .ctcp-camera-cell .camera-inner--ratio {
+    aspect-ratio: 16 / 9;
+    min-height: unset;
+  }
+}
+
+/* Legacy 2-column fallback */
+.widget-renderer.config-tcp-layout.config-tcp-legacy .ctcp-left-column {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.widget-renderer.config-tcp-layout.config-tcp-legacy .ctcp-right-column {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }

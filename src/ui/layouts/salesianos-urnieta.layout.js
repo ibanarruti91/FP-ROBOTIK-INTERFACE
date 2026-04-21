@@ -183,10 +183,24 @@ export const SALESIANOS_LAYOUT = {
           ]
         },
         {
-          title: "CONFIGURACIÓN DE HERRAMIENTA",
-          className: "ctcp-data",
+          title: "PUNTO CENTRAL DE LA HERRAMIENTA",
+          className: "ctcp-main",
           widgets: [
-            { type: "tcp-config", path: "config_herramienta" }
+            { type: "tcp-config-main", path: "config_herramienta" }
+          ]
+        },
+        {
+          title: "CARGA Y CENTRO DE GRAVEDAD",
+          className: "ctcp-payload",
+          widgets: [
+            { type: "tcp-payload", path: "config_herramienta" }
+          ]
+        },
+        {
+          title: "DIAGRAMA DE REFERENCIA — BRIDA / HERRAMIENTA",
+          className: "ctcp-schematic",
+          widgets: [
+            { type: "tcp-schematic", path: "config_herramienta" }
           ]
         }
       ]
