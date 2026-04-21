@@ -1894,7 +1894,7 @@ export function TcpConfigMain({ data, className = '' }) {
       {/* Header: name badge + toggle */}
       <div className="tcp-cfgm-header">
         <div className="tcp-cfgm-title-block">
-          <div className="tcp-cfgm-title">PUNTO CENTRAL DE LA HERRAMIENTA</div>
+          <div className="tcp-cfgm-title">HERRAMIENTA ACTIVA</div>
           <div className="tcp-cfgm-name-badge">
             <span className="tcp-cfgm-name-icon" aria-hidden="true">⚙</span>
             <span className="tcp-cfgm-name-label">{displayName}</span>
