@@ -2085,26 +2085,29 @@ export function TcpFlangeSchematic({ data, className = '' }) {
         </div>
       </div>
 
-      {/* Current offset summary */}
-      <div className="tcp-schematic-summary">
-        <div className="tcp-schematic-summary-item">
-          <span className="tcp-schematic-summary-axis" style={{ color: '#ef4444' }}>X</span>
-          <span className="tcp-schematic-summary-val">{xVal}</span>
-          <span className="tcp-schematic-summary-unit">mm</span>
-        </div>
-        <div className="tcp-schematic-summary-item">
-          <span className="tcp-schematic-summary-axis" style={{ color: '#22c55e' }}>Y</span>
-          <span className="tcp-schematic-summary-val">{yVal}</span>
-          <span className="tcp-schematic-summary-unit">mm</span>
-        </div>
-        <div className="tcp-schematic-summary-item">
-          <span className="tcp-schematic-summary-axis" style={{ color: '#60a5fa' }}>Z</span>
-          <span className="tcp-schematic-summary-val">{zVal}</span>
-          <span className="tcp-schematic-summary-unit">mm</span>
-        </div>
-        <div className="tcp-schematic-summary-item tcp-schematic-summary-item--mass">
-          <span className="tcp-schematic-summary-axis" style={{ color: '#ff7c00' }}>M</span>
-          <span className="tcp-schematic-summary-val">{massVal}</span>
+      {/* Configured offset summary — values come exclusively from config_herramienta, NOT live pose */}
+      <div className="tcp-schematic-summary-block">
+        <div className="tcp-schematic-summary-header">OFFSET CONFIGURADO (BRIDA → TCP)</div>
+        <div className="tcp-schematic-summary">
+          <div className="tcp-schematic-summary-item">
+            <span className="tcp-schematic-summary-axis" style={{ color: '#ef4444' }}>ΔX</span>
+            <span className="tcp-schematic-summary-val">{xVal}</span>
+            <span className="tcp-schematic-summary-unit">mm</span>
+          </div>
+          <div className="tcp-schematic-summary-item">
+            <span className="tcp-schematic-summary-axis" style={{ color: '#22c55e' }}>ΔY</span>
+            <span className="tcp-schematic-summary-val">{yVal}</span>
+            <span className="tcp-schematic-summary-unit">mm</span>
+          </div>
+          <div className="tcp-schematic-summary-item">
+            <span className="tcp-schematic-summary-axis" style={{ color: '#60a5fa' }}>ΔZ</span>
+            <span className="tcp-schematic-summary-val">{zVal}</span>
+            <span className="tcp-schematic-summary-unit">mm</span>
+          </div>
+          <div className="tcp-schematic-summary-item tcp-schematic-summary-item--mass">
+            <span className="tcp-schematic-summary-axis" style={{ color: '#ff7c00' }}>M</span>
+            <span className="tcp-schematic-summary-val">{massVal}</span>
+          </div>
         </div>
       </div>
     </CardGlass>
