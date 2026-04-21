@@ -1,6 +1,5 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import mqtt from 'mqtt';
 import { CENTROS } from '../config/centros';
 import { getMockTelemetryData } from '../servicios/iot';
 import { SALESIANOS_LAYOUT } from '../ui/layouts/salesianos-urnieta.layout';
@@ -97,9 +96,7 @@ function TelemetriaDetail() {
   const [startRequested, setStartRequested] = useState(false);
   const [stopRequested, setStopRequested] = useState(false);
 
-  // Server ONLINE/OFFLINE indicator – true if MQTT data received within the last 5 s
-  const lastDataTimeRef = useRef(null);
-  const [mqttOnline, setMqttOnline] = useState(false);
+  // Server ONLINE/OFFLINE indicator – driven by MqttStatusContext (status === 'ONLINE')
 
   // Smart Button state: 'inactive' | 'connecting' | 'active' | 'disconnecting'
   // When the MQTT connection is offline the button always shows as 'inactive'
@@ -136,11 +133,11 @@ function TelemetriaDetail() {
   );
   const [telemetry, setTelemetry] = useState(initialTelemetry);
   // Raw MQTT payload – passed directly to TelemetryMiniHeader.
+  // Uses the context's telemetryData which is updated by the shared MQTT connection.
   // When the connection is offline, display null (no header) and initial mock data
   // rather than stale live data.  These are computed during render to avoid
   // synchronous setState inside effects (react-hooks/set-state-in-effect).
-  const [rawPayload, setRawPayload] = useState(null);
-  const displayRawPayload = status === 'OFFLINE' ? null : rawPayload;
+  const displayRawPayload = status === 'OFFLINE' ? null : telemetryData;
   const displayTelemetry  = status === 'OFFLINE'
     ? { ...initialTelemetry, step_capture: [], last_error: 'Ninguno' }
     : { ...telemetry, step_capture: stepCaptureRecords, last_error: lastError ?? 'Ninguno' };
@@ -155,340 +152,296 @@ function TelemetriaDetail() {
     }
   }, [centroId, centro, navigate]);
 
-  // Interval effect: mark server ONLINE if data arrived within the last 5 s.
-  // Checked every 2 s – sub-second precision is unnecessary for a 5 s threshold.
+  // Button state reset: synchronise with backend-confirmed telemetria_activa flag.
+  // Isolated in its own effect so it has a minimal dependency and avoids mixing
+  // concerns with the heavier telemetry normalization below.
+  const telemetriaActiva = telemetryData?.telemetria_activa;
   useEffect(() => {
-    const interval = setInterval(() => {
-      const online = lastDataTimeRef.current !== null && Date.now() - lastDataTimeRef.current < 5000;
-      setMqttOnline(online);
-    }, 2000);
-    return () => clearInterval(interval);
-  }, []);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (telemetriaActiva === true) setStartRequested(false);
+    if (telemetriaActiva === false) setStopRequested(false);
+  }, [telemetriaActiva]);
 
-  // MQTT Connection Effect
+  // Telemetry normalization effect – reacts to new MQTT data from the shared context.
+  // Applies the same normalization as the previous local MQTT handler so that all
+  // widgets receive the correctly-shaped object regardless of the payload format.
   useEffect(() => {
-    if (!centro) {
+    if (!telemetryData || !centro) {
       return;
     }
+    const data = telemetryData;
 
-    // Connect to MQTT broker (as specified in requirements)
-    // Note: broker URL and topic are configured per the project requirements
-    const client = mqtt.connect('wss://broker.emqx.io:8084/mqtt');
+    // Update telemetry state with incoming data
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setTelemetry((prevTelemetry) => {
+      // Create a new telemetry object based on previous state or mock data
+      const baseTelemetry = prevTelemetry || getMockTelemetryData(centro);
 
-    client.on('connect', () => {
-      console.log('Conectado al broker MQTT');
-      // Subscribe to the topic (iban is the user identifier, not a bank account)
-      client.subscribe('salesianos/robot/iban/principal', (err) => {
-        if (err) {
-          console.error('Error al suscribirse al topic:', err);
-        } else {
-          console.log('Suscrito al topic: salesianos/robot/iban/principal');
-        }
-      });
-    });
+      // Resolve safety from new path (seguridad.safety) with fallback to estado.safety
+      const rawSafety = data.seguridad?.safety ?? data.estado?.safety;
+      const resolvedSafety = mapNumericState(SAFETY_STATUS_MAP, rawSafety) ?? baseTelemetry.seguridad?.safety ?? baseTelemetry.estado?.safety;
 
-    client.on('message', (topic, message) => {
-      try {
-        // Parse the JSON message
-        const data = JSON.parse(message.toString());
-        console.log('Mensaje MQTT recibido:', data);
+      // Capture raw RTDE numeric IDs before string mapping (used by the header badges)
+      // Supports new MQTT format (rtde.robot_mode / rtde.safety_status / rtde.program_state)
+      // and legacy formats with _id suffix or top-level keys
+      const rawRobotMode    = data.rtde?.robot_mode       ?? data.rtde?.robot_mode_id    ?? data.robot_mode_id    ?? data.sistema?.estado_maquina;
+      const rawProgramState = data.rtde?.program_state    ?? data.rtde?.program_state_id ?? data.program_state_id ?? data.programa?.estado;
+      const rawSafetyId     = data.rtde?.safety_status    ?? data.rtde?.safety_status_id ?? data.safety_status_id ?? rawSafety;
 
-        // Reset pending button state flags when the backend confirms the new state.
-        // This is done inside the message callback (not synchronously in an effect body)
-        // so that the linter rule react-hooks/set-state-in-effect is satisfied.
-        if (data.telemetria_activa === true) setStartRequested(false);
-        if (data.telemetria_activa === false) setStopRequested(false);
+      // Map incoming MQTT data to telemetry structure.
+      // program_name / program_id are the new top-level fields from Node-RED.
+      return {
+        ...baseTelemetry,
+        timestamp: new Date().toISOString(),
+        // Map programa data.
+        // `programa.id` is the new consolidated path; `programa.status_id` is the legacy path.
+        // Both are kept for backward compatibility with existing widgets.
+        programa: {
+          nombre: data.program_name ?? data.programa?.nombre ?? baseTelemetry.programa?.nombre ?? '',
+          // legacy field used by TelemetryMiniHeader; defaults to 0 (no program)
+          status_id: data.program_id ?? data.programa?.status_id ?? data.programa?.id ?? baseTelemetry.programa?.status_id ?? 0,
+          // new consolidated field; null means not provided
+          id: data.program_id ?? data.programa?.id ?? data.programa?.status_id ?? baseTelemetry.programa?.id ?? null,
+          ciclos: data.telemetry?.ciclos ?? data.programa?.ciclos ?? baseTelemetry.programa?.ciclos ?? null,
+          estado: mapNumericState(RUNTIME_STATE_MAP, data.programa?.estado) ?? baseTelemetry.programa?.estado ?? null
+        },
+        // Map sistema data – apply numeric→string mappings
+        sistema: {
+          modo_operacion: mapNumericState(ROBOT_MODE_MAP, data.sistema?.modo_operacion) ?? baseTelemetry.sistema?.modo_operacion ?? '',
+          estado_maquina: mapNumericState(ROBOT_STATUS_MAP, data.sistema?.estado_maquina) ?? baseTelemetry.sistema?.estado_maquina ?? '',
+          potencia_total: data.sistema?.potencia_total ?? baseTelemetry.sistema?.potencia_total ?? 0,
+          temperatura_control: data.sistema?.temperatura_control ?? baseTelemetry.sistema?.temperatura_control ?? 0,
+          velocidad_tcp: data.sistema?.velocidad_tcp ?? data.telemetry?.speed ?? baseTelemetry.sistema?.velocidad_tcp ?? null
+        },
+        // Map estadisticas data
+        estadisticas: {
+          tiempo_ciclo: data.estadisticas?.tiempo_ciclo ?? baseTelemetry.estadisticas?.tiempo_ciclo ?? 0,
+          horas_operacion: data.estadisticas?.horas_operacion ?? baseTelemetry.estadisticas?.horas_operacion ?? 0
+        },
+        // Map eventos array
+        eventos: data.eventos ?? baseTelemetry.eventos ?? [],
+        // Map seguridad (new consolidated path: seguridad.safety)
+        seguridad: {
+          safety: resolvedSafety
+        },
+        // Map estado with safety/security fields (legacy + new path support)
+        estado: {
+          ...baseTelemetry.estado,
+          online: data.estado?.online ?? baseTelemetry.estado?.online,
+          mode: data.estado?.mode ?? baseTelemetry.estado?.mode,
+          safety: resolvedSafety,
+          emergencia_parada: data.estado?.emergencia_parada ?? baseTelemetry.estado?.emergencia_parada,
+          proteccion: data.estado?.proteccion ?? baseTelemetry.estado?.proteccion,
+          analogas: data.estado?.analogas ?? baseTelemetry.estado?.analogas
+        },
+        // Map tcp data
+        tcp: {
+          ...baseTelemetry.tcp,
+          position: data.tcp?.position ?? baseTelemetry.tcp?.position,
+          orientation: data.tcp?.orientation ?? baseTelemetry.tcp?.orientation,
+          speed: data.tcp?.speed ?? baseTelemetry.tcp?.speed,
+          velocity: data.tcp?.velocity ?? baseTelemetry.tcp?.velocity
+        },
+        joints: (() => {
+          const j = data.joints ?? baseTelemetry.joints;
+          if (!j) return baseTelemetry.joints;
 
-        // Store raw payload for TelemetryMiniHeader (reads new MQTT structure directly)
-        setRawPayload(data);
-
-        // Record the time of the last received message (used by the ONLINE/OFFLINE indicator)
-        lastDataTimeRef.current = Date.now();
-
-        // Update telemetry state with incoming data
-        setTelemetry((prevTelemetry) => {
-          // Create a new telemetry object based on previous state or mock data
-          const baseTelemetry = prevTelemetry || getMockTelemetryData(centro);
-
-          // Resolve safety from new path (seguridad.safety) with fallback to estado.safety
-          const rawSafety = data.seguridad?.safety ?? data.estado?.safety;
-          const resolvedSafety = mapNumericState(SAFETY_STATUS_MAP, rawSafety) ?? baseTelemetry.seguridad?.safety ?? baseTelemetry.estado?.safety;
-
-          // Capture raw RTDE numeric IDs before string mapping (used by the header badges)
-          // Supports new MQTT format (rtde.robot_mode / rtde.safety_status / rtde.program_state)
-          // and legacy formats with _id suffix or top-level keys
-          const rawRobotMode    = data.rtde?.robot_mode       ?? data.rtde?.robot_mode_id    ?? data.robot_mode_id    ?? data.sistema?.estado_maquina;
-          const rawProgramState = data.rtde?.program_state    ?? data.rtde?.program_state_id ?? data.program_state_id ?? data.programa?.estado;
-          const rawSafetyId     = data.rtde?.safety_status    ?? data.rtde?.safety_status_id ?? data.safety_status_id ?? rawSafety;
-
-          // Map incoming MQTT data to telemetry structure.
-          // program_name / program_id are the new top-level fields from Node-RED.
-          return {
-            ...baseTelemetry,
-            timestamp: new Date().toISOString(),
-            // Map programa data.
-            // `programa.id` is the new consolidated path; `programa.status_id` is the legacy path.
-            // Both are kept for backward compatibility with existing widgets.
-            programa: {
-              nombre: data.program_name ?? data.programa?.nombre ?? baseTelemetry.programa?.nombre ?? '',
-              // legacy field used by TelemetryMiniHeader; defaults to 0 (no program)
-              status_id: data.program_id ?? data.programa?.status_id ?? data.programa?.id ?? baseTelemetry.programa?.status_id ?? 0,
-              // new consolidated field; null means not provided
-              id: data.program_id ?? data.programa?.id ?? data.programa?.status_id ?? baseTelemetry.programa?.id ?? null,
-              ciclos: data.telemetry?.ciclos ?? data.programa?.ciclos ?? baseTelemetry.programa?.ciclos ?? null,
-              estado: mapNumericState(RUNTIME_STATE_MAP, data.programa?.estado) ?? baseTelemetry.programa?.estado ?? null
-            },
-            // Map sistema data – apply numeric→string mappings
-            sistema: {
-              modo_operacion: mapNumericState(ROBOT_MODE_MAP, data.sistema?.modo_operacion) ?? baseTelemetry.sistema?.modo_operacion ?? '',
-              estado_maquina: mapNumericState(ROBOT_STATUS_MAP, data.sistema?.estado_maquina) ?? baseTelemetry.sistema?.estado_maquina ?? '',
-              potencia_total: data.sistema?.potencia_total ?? baseTelemetry.sistema?.potencia_total ?? 0,
-              temperatura_control: data.sistema?.temperatura_control ?? baseTelemetry.sistema?.temperatura_control ?? 0,
-              velocidad_tcp: data.sistema?.velocidad_tcp ?? data.telemetry?.speed ?? baseTelemetry.sistema?.velocidad_tcp ?? null
-            },
-            // Map estadisticas data
-            estadisticas: {
-              tiempo_ciclo: data.estadisticas?.tiempo_ciclo ?? baseTelemetry.estadisticas?.tiempo_ciclo ?? 0,
-              horas_operacion: data.estadisticas?.horas_operacion ?? baseTelemetry.estadisticas?.horas_operacion ?? 0
-            },
-            // Map eventos array
-            eventos: data.eventos ?? baseTelemetry.eventos ?? [],
-            // Map seguridad (new consolidated path: seguridad.safety)
-            seguridad: {
-              safety: resolvedSafety
-            },
-            // Map estado with safety/security fields (legacy + new path support)
-            estado: {
-              ...baseTelemetry.estado,
-              online: data.estado?.online ?? baseTelemetry.estado?.online,
-              mode: data.estado?.mode ?? baseTelemetry.estado?.mode,
-              safety: resolvedSafety,
-              emergencia_parada: data.estado?.emergencia_parada ?? baseTelemetry.estado?.emergencia_parada,
-              proteccion: data.estado?.proteccion ?? baseTelemetry.estado?.proteccion,
-              analogas: data.estado?.analogas ?? baseTelemetry.estado?.analogas
-            },
-            // Map tcp data
-            tcp: {
-              ...baseTelemetry.tcp,
-              position: data.tcp?.position ?? baseTelemetry.tcp?.position,
-              orientation: data.tcp?.orientation ?? baseTelemetry.tcp?.orientation,
-              speed: data.tcp?.speed ?? baseTelemetry.tcp?.speed,
-              velocity: data.tcp?.velocity ?? baseTelemetry.tcp?.velocity
-            },
-            joints: (() => {
-              const j = data.joints ?? baseTelemetry.joints;
-              if (!j) return baseTelemetry.joints;
-
-              // New format: data.joints is an array of {id, current_a, temperature_c}
-              // Transform into the internal object format {currents, temperatures, positions, power}
-              if (Array.isArray(j)) {
-                const sorted = [...j].sort((a, b) => Number(a.id ?? 0) - Number(b.id ?? 0));
-                const currents = sorted.map(jt => Number(jt.current_a) || 0);
-                const temperatures = sorted.map(jt => jt.temperature_c ?? null);
-                const positions = sorted.map((jt, i) =>
-                  jt.position_deg ?? baseTelemetry.joints?.positions?.[i] ?? null
-                );
-                const hasNonZeroCurrents = currents.some(c => c !== 0);
-                if (!hasNonZeroCurrents) {
-                  if (baseTelemetry.joints) return { ...baseTelemetry.joints, positions };
-                  return { currents, temperatures, positions, power: null, potencia_total: null, consumo_movimiento: null };
-                }
-                const power = parseFloat(
-                  currents.reduce((s, c) => s + c * DC_BUS_VOLTAGE, 0).toFixed(2)
-                );
-                return { currents, temperatures, positions, power, potencia_total: power, consumo_movimiento: power };
-              }
-
-              // Legacy format: data.joints is an object with currents/temperatures/positions arrays
-              // Compute total joint power from currents (24 V DC bus) on the frontend.
-              // This avoids relying on Node-RED's pre-computed `power` field, which can
-              // be zero when the assembler runs before the cinematica change node has
-              // updated the global context (race condition).
-              const currents = Array.isArray(j.currents) ? j.currents : [];
-              // Guard: if every current is zero the Node-RED global ur_joint_currents
-              // was not populated yet when the assembler ran (race condition on restart).
-              // Keep the previous joints snapshot so the display does not flicker to 0 W.
-              const hasNonZeroCurrents = currents.some(c => (Number(c) || 0) !== 0);
-              if (!hasNonZeroCurrents) {
-                // If previous joints state is available, keep it; otherwise return
-                // a null-power structure so the widget shows N/A instead of 0 W.
-                if (baseTelemetry.joints) return baseTelemetry.joints;
-                return { ...j, power: null, potencia_total: null, consumo_movimiento: null };
-              }
-              const power = parseFloat(
-                currents.reduce((s, c) => s + (Number(c) || 0) * DC_BUS_VOLTAGE, 0).toFixed(2)
-              );
-              return { ...j, power, potencia_total: power, consumo_movimiento: power };
-            })(),
-            // Map digital I/O from MQTT data – four independent 8-element arrays
-            digital_io: {
-              inputs:               data.digital_io?.inputs               ?? baseTelemetry.digital_io?.inputs,
-              outputs:              data.digital_io?.outputs              ?? baseTelemetry.digital_io?.outputs,
-              configurable_inputs:  data.digital_io?.configurable_inputs  ?? baseTelemetry.digital_io?.configurable_inputs,
-              configurable_outputs: data.digital_io?.configurable_outputs ?? baseTelemetry.digital_io?.configurable_outputs,
-            },
-            // Map analog I/O from MQTT data
-            // Supports both analog_io.ai/ao and estado.analogas [AI0,AI1,AO0,AO1]
-            analog_io: {
-              ai: data.analog_io?.ai
-                ?? (Array.isArray(data.estado?.analogas) ? data.estado.analogas.slice(0, 2) : undefined)
-                ?? baseTelemetry.analog_io?.ai,
-              ao: data.analog_io?.ao
-                ?? (Array.isArray(data.estado?.analogas) ? data.estado.analogas.slice(2, 4) : undefined)
-                ?? baseTelemetry.analog_io?.ao,
-            },
-            camera: {
-              stream: data.camera?.stream ?? baseTelemetry.camera?.stream ?? ''
-            },
-            // Map herramienta data
-            herramienta: {
-              tension: data.herramienta?.tension ?? baseTelemetry.herramienta?.tension,
-              corriente: data.herramienta?.corriente ?? baseTelemetry.herramienta?.corriente,
-              potencia: data.herramienta?.potencia ?? baseTelemetry.herramienta?.potencia
-            },
-            // Map tool configuration from MQTT config_herramienta block (static config, not live RTDE)
-            config_herramienta: data.config_herramienta ?? baseTelemetry.config_herramienta ?? null,
-            // Map hardware_io from new UR Polyscope-style JSON structure
-            // { control_box: { digital, analog }, tool: { digital, analog, power } }
-            // Supports both legacy (analog_io/herramienta) and new extended formats
-            // by merging normalized data so analog channels always have a value.
-            hardware_io: (() => {
-              const normalizedAnalog = normalizeAnalogIO(data);
-              const normalizedToolData = normalizeTool(data);
-
-              const srcControlBox = data.hardware_io?.control_box;
-              const baseControlBox = baseTelemetry.hardware_io?.control_box;
-              const srcTool = data.hardware_io?.tool;
-              const baseTool = baseTelemetry.hardware_io?.tool;
-
-              // Merge control_box: prefer new-format digital/analog, fall back to digital_io / normalizedAnalog
-              const controlBoxBase = srcControlBox ?? baseControlBox ?? {};
-              const control_box = {
-                ...controlBoxBase,
-                digital: srcControlBox?.digital ?? {
-                  di: data.digital_io?.inputs               ?? baseControlBox?.digital?.di ?? Array(8).fill(null),
-                  do: data.digital_io?.outputs              ?? baseControlBox?.digital?.do ?? Array(8).fill(null),
-                  ci: data.digital_io?.configurable_inputs  ?? baseControlBox?.digital?.ci ?? Array(8).fill(null),
-                  co: data.digital_io?.configurable_outputs ?? baseControlBox?.digital?.co ?? Array(8).fill(null),
-                },
-                analog: srcControlBox?.analog ?? normalizedAnalog,
-              };
-
-              // Merge tool: prefer new-format analog/power/digital, fall back to herramienta legacy
-              const toolBase = srcTool ?? baseTool ?? {};
-              const tool = {
-                ...toolBase,
-                digital: {
-                  tdi: Array.isArray(srcTool?.digital?.tdi)           ? srcTool.digital.tdi
-                     : Array.isArray(data.herramienta?.digital?.tdi)  ? data.herramienta.digital.tdi
-                     : Array.isArray(data.digital_io?.tool_inputs)    ? data.digital_io.tool_inputs
-                     : Array.isArray(baseTool?.digital?.tdi)          ? baseTool.digital.tdi
-                     : [false, false],
-                  tdo: Array.isArray(srcTool?.digital?.tdo)           ? srcTool.digital.tdo
-                     : Array.isArray(data.herramienta?.digital?.tdo)  ? data.herramienta.digital.tdo
-                     : Array.isArray(data.digital_io?.tool_outputs)   ? data.digital_io.tool_outputs
-                     : Array.isArray(baseTool?.digital?.tdo)          ? baseTool.digital.tdo
-                     : [false, false],
-                },
-                analog: srcTool?.analog
-                  ?? { ai2: normalizedToolData.ai2, ai3: normalizedToolData.ai3 },
-                power: srcTool?.power
-                  ?? {
-                    voltage: normalizedToolData.tension,
-                    current: normalizedToolData.corriente,
-                    wattage: normalizedToolData.potencia,
-                  },
-              };
-
-              return { control_box, tool };
-            })(),
-            // Map diagnostic fields from the new MQTT payload `diagnostico` block,
-            // with fallback to root-level fields for backward compatibility.
-            robot_power: data.robot_power ?? data.telemetry?.power ?? baseTelemetry.robot_power ?? null,
-            ctrl_temp: data.ctrl_temp ?? data.telemetry?.controller_temp ?? baseTelemetry.ctrl_temp ?? null,
-            uptime_hours: data.diagnostico?.uptime_hours ?? data.uptime_hours ?? baseTelemetry.uptime_hours ?? null,
-            cycle_time: data.diagnostico?.cycle_time ?? data.cycle_time ?? baseTelemetry.cycle_time ?? null,
-            messages: data.diagnostico?.messages ?? data.messages ?? baseTelemetry.messages ?? 'No hay mensajes',
-            // Derive last_error reactively from the messages log so that "Último Error"
-            // always reflects the most recent ERROR entry in the event history.
-            // Supports both array-of-objects and newline-separated string formats.
-            // The array/string is newest-first, so index [0] is the most recent entry.
-            last_error: (() => {
-              const getMsgText = m => m.msg ?? m.mensaje ?? m.txt ?? m.message ?? '';
-              const isErrorEntry = m =>
-                (typeof m.type === 'string' && m.type.toUpperCase().includes('ERROR')) ||
-                getMsgText(m).toUpperCase().includes('ERROR');
-
-              const msgs = data.diagnostico?.messages ?? data.messages ?? baseTelemetry.messages;
-              // --- array format: [{msg, type?, ...}, ...] ---
-              if (Array.isArray(msgs)) {
-                const errorEntry = msgs.find(isErrorEntry);
-                if (errorEntry) {
-                  return getMsgText(errorEntry) || 'ERROR';
-                }
-              }
-              // --- string format: "HH:MM -> Evento\n..." ---
-              if (typeof msgs === 'string' && msgs.length > 0) {
-                const errorLine = msgs
-                  .split('\n')
-                  .map(l => l.trim())
-                  .find(l => l.toUpperCase().includes('ERROR'));
-                if (errorLine) {
-                  const arrowIdx = errorLine.indexOf(' -> ');
-                  return arrowIdx !== -1 ? errorLine.slice(arrowIdx + 4).trim() : errorLine;
-                }
-              }
-              // Fall back to explicit backend field, then 'Ninguno'
-              return data.diagnostico?.last_error || data.last_error || 'Ninguno';
-            })(),
-            // MQTT broker connectivity indicator: ONLINE if the last message arrived
-            // less than 5 seconds ago, OFFLINE otherwise.
-            mqtt_online_status: (Date.now() - lastDataTimeRef.current) < 5000 ? 'ONLINE' : 'OFFLINE',
-            // Map telemetry sub-object for the Menú Principal dashboard widgets.
-            // Accepts the new Node-RED `payload.telemetry` format with fallback to
-            // existing sistema/estadisticas fields for backward compatibility.
-            // toNum() ensures all values are either a finite Number or null.
-            telemetry: (() => {
-              const toNum = (v) => {
-                if (v === null || v === undefined) return null;
-                const n = Number(v);
-                return isFinite(n) ? n : null;
-              };
-              return {
-                speed:                 toNum(data.telemetry?.speed           ?? data.sistema?.velocidad_tcp),
-                power:                 toNum(data.telemetry?.power           ?? data.sistema?.potencia_total),
-                controller_temp:       toNum(data.telemetry?.controller_temp ?? data.sistema?.temperatura_control),
-                main_voltage:          toNum(data.telemetry?.main_voltage),
-                cpu_load:              toNum(data.telemetry?.cpu_load),
-                ciclos:                toNum(data.telemetry?.ciclos          ?? data.programa?.ciclos),
-                // tiempo_funcionamiento is a pre-formatted HH:MM:SS string from the backend,
-                // so it is intentionally kept as a string (not converted with toNum()).
-                tiempo_funcionamiento: data.tiempo_funcionamiento ?? data.telemetry?.tiempo_funcionamiento ?? baseTelemetry.telemetry?.tiempo_funcionamiento ?? null,
-              };
-            })(),
-            // Raw RTDE protocol numeric IDs (before string mapping) – consumed by header badges
-            rtde: {
-              safety_status_id: typeof rawSafetyId === 'number' ? rawSafetyId : (baseTelemetry.rtde?.safety_status_id ?? null),
-              robot_mode_id: typeof rawRobotMode === 'number' ? rawRobotMode : (baseTelemetry.rtde?.robot_mode_id ?? null),
-              program_state_id: typeof rawProgramState === 'number' ? rawProgramState : (baseTelemetry.rtde?.program_state_id ?? null),
+          // New format: data.joints is an array of {id, current_a, temperature_c}
+          // Transform into the internal object format {currents, temperatures, positions, power}
+          if (Array.isArray(j)) {
+            const sorted = [...j].sort((a, b) => Number(a.id ?? 0) - Number(b.id ?? 0));
+            const currents = sorted.map(jt => Number(jt.current_a) || 0);
+            const temperatures = sorted.map(jt => jt.temperature_c ?? null);
+            const positions = sorted.map((jt, i) =>
+              jt.position_deg ?? baseTelemetry.joints?.positions?.[i] ?? null
+            );
+            const hasNonZeroCurrents = currents.some(c => c !== 0);
+            if (!hasNonZeroCurrents) {
+              if (baseTelemetry.joints) return { ...baseTelemetry.joints, positions };
+              return { currents, temperatures, positions, power: null, potencia_total: null, consumo_movimiento: null };
             }
+            const power = parseFloat(
+              currents.reduce((s, c) => s + c * DC_BUS_VOLTAGE, 0).toFixed(2)
+            );
+            return { currents, temperatures, positions, power, potencia_total: power, consumo_movimiento: power };
+          }
+
+          // Legacy format: data.joints is an object with currents/temperatures/positions arrays
+          // Compute total joint power from currents (24 V DC bus) on the frontend.
+          // This avoids relying on Node-RED's pre-computed `power` field, which can
+          // be zero when the assembler runs before the cinematica change node has
+          // updated the global context (race condition).
+          const currents = Array.isArray(j.currents) ? j.currents : [];
+          // Guard: if every current is zero the Node-RED global ur_joint_currents
+          // was not populated yet when the assembler ran (race condition on restart).
+          // Keep the previous joints snapshot so the display does not flicker to 0 W.
+          const hasNonZeroCurrents = currents.some(c => (Number(c) || 0) !== 0);
+          if (!hasNonZeroCurrents) {
+            // If previous joints state is available, keep it; otherwise return
+            // a null-power structure so the widget shows N/A instead of 0 W.
+            if (baseTelemetry.joints) return baseTelemetry.joints;
+            return { ...j, power: null, potencia_total: null, consumo_movimiento: null };
+          }
+          const power = parseFloat(
+            currents.reduce((s, c) => s + (Number(c) || 0) * DC_BUS_VOLTAGE, 0).toFixed(2)
+          );
+          return { ...j, power, potencia_total: power, consumo_movimiento: power };
+        })(),
+        // Map digital I/O from MQTT data – four independent 8-element arrays
+        digital_io: {
+          inputs:               data.digital_io?.inputs               ?? baseTelemetry.digital_io?.inputs,
+          outputs:              data.digital_io?.outputs              ?? baseTelemetry.digital_io?.outputs,
+          configurable_inputs:  data.digital_io?.configurable_inputs  ?? baseTelemetry.digital_io?.configurable_inputs,
+          configurable_outputs: data.digital_io?.configurable_outputs ?? baseTelemetry.digital_io?.configurable_outputs,
+        },
+        // Map analog I/O from MQTT data
+        // Supports both analog_io.ai/ao and estado.analogas [AI0,AI1,AO0,AO1]
+        analog_io: {
+          ai: data.analog_io?.ai
+            ?? (Array.isArray(data.estado?.analogas) ? data.estado.analogas.slice(0, 2) : undefined)
+            ?? baseTelemetry.analog_io?.ai,
+          ao: data.analog_io?.ao
+            ?? (Array.isArray(data.estado?.analogas) ? data.estado.analogas.slice(2, 4) : undefined)
+            ?? baseTelemetry.analog_io?.ao,
+        },
+        camera: {
+          stream: data.camera?.stream ?? baseTelemetry.camera?.stream ?? ''
+        },
+        // Map herramienta data
+        herramienta: {
+          tension: data.herramienta?.tension ?? baseTelemetry.herramienta?.tension,
+          corriente: data.herramienta?.corriente ?? baseTelemetry.herramienta?.corriente,
+          potencia: data.herramienta?.potencia ?? baseTelemetry.herramienta?.potencia
+        },
+        // Map tool configuration from MQTT config_herramienta block (static config, not live RTDE)
+        config_herramienta: data.config_herramienta ?? baseTelemetry.config_herramienta ?? null,
+        // Map hardware_io from new UR Polyscope-style JSON structure
+        // { control_box: { digital, analog }, tool: { digital, analog, power } }
+        // Supports both legacy (analog_io/herramienta) and new extended formats
+        // by merging normalized data so analog channels always have a value.
+        hardware_io: (() => {
+          const normalizedAnalog = normalizeAnalogIO(data);
+          const normalizedToolData = normalizeTool(data);
+
+          const srcControlBox = data.hardware_io?.control_box;
+          const baseControlBox = baseTelemetry.hardware_io?.control_box;
+          const srcTool = data.hardware_io?.tool;
+          const baseTool = baseTelemetry.hardware_io?.tool;
+
+          // Merge control_box: prefer new-format digital/analog, fall back to digital_io / normalizedAnalog
+          const controlBoxBase = srcControlBox ?? baseControlBox ?? {};
+          const control_box = {
+            ...controlBoxBase,
+            digital: srcControlBox?.digital ?? {
+              di: data.digital_io?.inputs               ?? baseControlBox?.digital?.di ?? Array(8).fill(null),
+              do: data.digital_io?.outputs              ?? baseControlBox?.digital?.do ?? Array(8).fill(null),
+              ci: data.digital_io?.configurable_inputs  ?? baseControlBox?.digital?.ci ?? Array(8).fill(null),
+              co: data.digital_io?.configurable_outputs ?? baseControlBox?.digital?.co ?? Array(8).fill(null),
+            },
+            analog: srcControlBox?.analog ?? normalizedAnalog,
           };
-        });
-      } catch (error) {
-        console.error('Error al parsear mensaje MQTT:', error);
-      }
-    });
 
-    client.on('error', (error) => {
-      console.error('Error en conexión MQTT:', error);
-    });
+          // Merge tool: prefer new-format analog/power/digital, fall back to herramienta legacy
+          const toolBase = srcTool ?? baseTool ?? {};
+          const tool = {
+            ...toolBase,
+            digital: {
+              tdi: Array.isArray(srcTool?.digital?.tdi)           ? srcTool.digital.tdi
+                 : Array.isArray(data.herramienta?.digital?.tdi)  ? data.herramienta.digital.tdi
+                 : Array.isArray(data.digital_io?.tool_inputs)    ? data.digital_io.tool_inputs
+                 : Array.isArray(baseTool?.digital?.tdi)          ? baseTool.digital.tdi
+                 : [false, false],
+              tdo: Array.isArray(srcTool?.digital?.tdo)           ? srcTool.digital.tdo
+                 : Array.isArray(data.herramienta?.digital?.tdo)  ? data.herramienta.digital.tdo
+                 : Array.isArray(data.digital_io?.tool_outputs)   ? data.digital_io.tool_outputs
+                 : Array.isArray(baseTool?.digital?.tdo)          ? baseTool.digital.tdo
+                 : [false, false],
+            },
+            analog: srcTool?.analog
+              ?? { ai2: normalizedToolData.ai2, ai3: normalizedToolData.ai3 },
+            power: srcTool?.power
+              ?? {
+                voltage: normalizedToolData.tension,
+                current: normalizedToolData.corriente,
+                wattage: normalizedToolData.potencia,
+              },
+          };
 
-    // Cleanup on unmount
-    return () => {
-      client.end();
-      console.log('Desconectado del broker MQTT');
-    };
-  }, [centro]);
+          return { control_box, tool };
+        })(),
+        // Map diagnostic fields from the new MQTT payload `diagnostico` block,
+        // with fallback to root-level fields for backward compatibility.
+        robot_power: data.robot_power ?? data.telemetry?.power ?? baseTelemetry.robot_power ?? null,
+        ctrl_temp: data.ctrl_temp ?? data.telemetry?.controller_temp ?? baseTelemetry.ctrl_temp ?? null,
+        uptime_hours: data.diagnostico?.uptime_hours ?? data.uptime_hours ?? baseTelemetry.uptime_hours ?? null,
+        cycle_time: data.diagnostico?.cycle_time ?? data.cycle_time ?? baseTelemetry.cycle_time ?? null,
+        messages: data.diagnostico?.messages ?? data.messages ?? baseTelemetry.messages ?? 'No hay mensajes',
+        // Derive last_error reactively from the messages log so that "Último Error"
+        // always reflects the most recent ERROR entry in the event history.
+        // Supports both array-of-objects and newline-separated string formats.
+        // The array/string is newest-first, so index [0] is the most recent entry.
+        last_error: (() => {
+          const getMsgText = m => m.msg ?? m.mensaje ?? m.txt ?? m.message ?? '';
+          const isErrorEntry = m =>
+            (typeof m.type === 'string' && m.type.toUpperCase().includes('ERROR')) ||
+            getMsgText(m).toUpperCase().includes('ERROR');
+
+          const msgs = data.diagnostico?.messages ?? data.messages ?? baseTelemetry.messages;
+          // --- array format: [{msg, type?, ...}, ...] ---
+          if (Array.isArray(msgs)) {
+            const errorEntry = msgs.find(isErrorEntry);
+            if (errorEntry) {
+              return getMsgText(errorEntry) || 'ERROR';
+            }
+          }
+          // --- string format: "HH:MM -> Evento\n..." ---
+          if (typeof msgs === 'string' && msgs.length > 0) {
+            const errorLine = msgs
+              .split('\n')
+              .map(l => l.trim())
+              .find(l => l.toUpperCase().includes('ERROR'));
+            if (errorLine) {
+              const arrowIdx = errorLine.indexOf(' -> ');
+              return arrowIdx !== -1 ? errorLine.slice(arrowIdx + 4).trim() : errorLine;
+            }
+          }
+          // Fall back to explicit backend field, then 'Ninguno'
+          return data.diagnostico?.last_error || data.last_error || 'Ninguno';
+        })(),
+        // MQTT broker connectivity indicator: always ONLINE here since this effect
+        // only runs when the context has live data (status is ONLINE).
+        mqtt_online_status: 'ONLINE',
+        // Map telemetry sub-object for the Menú Principal dashboard widgets.
+        // Accepts the new Node-RED `payload.telemetry` format with fallback to
+        // existing sistema/estadisticas fields for backward compatibility.
+        // toNum() ensures all values are either a finite Number or null.
+        telemetry: (() => {
+          const toNum = (v) => {
+            if (v === null || v === undefined) return null;
+            const n = Number(v);
+            return isFinite(n) ? n : null;
+          };
+          return {
+            speed:                 toNum(data.telemetry?.speed           ?? data.sistema?.velocidad_tcp),
+            power:                 toNum(data.telemetry?.power           ?? data.sistema?.potencia_total),
+            controller_temp:       toNum(data.telemetry?.controller_temp ?? data.sistema?.temperatura_control),
+            main_voltage:          toNum(data.telemetry?.main_voltage),
+            cpu_load:              toNum(data.telemetry?.cpu_load),
+            ciclos:                toNum(data.telemetry?.ciclos          ?? data.programa?.ciclos),
+            // tiempo_funcionamiento is a pre-formatted HH:MM:SS string from the backend,
+            // so it is intentionally kept as a string (not converted with toNum()).
+            tiempo_funcionamiento: data.tiempo_funcionamiento ?? data.telemetry?.tiempo_funcionamiento ?? baseTelemetry.telemetry?.tiempo_funcionamiento ?? null,
+          };
+        })(),
+        // Raw RTDE protocol numeric IDs (before string mapping) – consumed by header badges
+        rtde: {
+          safety_status_id: typeof rawSafetyId === 'number' ? rawSafetyId : (baseTelemetry.rtde?.safety_status_id ?? null),
+          robot_mode_id: typeof rawRobotMode === 'number' ? rawRobotMode : (baseTelemetry.rtde?.robot_mode_id ?? null),
+          program_state_id: typeof rawProgramState === 'number' ? rawProgramState : (baseTelemetry.rtde?.program_state_id ?? null),
+        }
+      };
+    });
+  }, [telemetryData, centro]);
 
   if (!centro) {
     return null;
@@ -526,9 +479,9 @@ function TelemetriaDetail() {
           <div>
             <h1 className="universal-title">{centro.nombre}</h1>
             <p className="universal-description">Telemetría en tiempo real</p>
-            <div className={`server-status-indicator server-status-indicator--${mqttOnline ? 'online' : 'offline'}`}>
+            <div className={`server-status-indicator server-status-indicator--${status === 'ONLINE' ? 'online' : 'offline'}`}>
               <span className="server-status-dot" aria-hidden="true"></span>
-              {mqttOnline ? 'ONLINE' : 'OFFLINE'}
+              {status}
             </div>
           </div>
         </div>
