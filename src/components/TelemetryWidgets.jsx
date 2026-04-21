@@ -1632,7 +1632,8 @@ function ParameterTableSection({ items, data }) {
       {items.map((item, i) => {
         const raw     = resolveParamValue(data, item.path);
         // Guard: treat NaN as unavailable so it never renders as "NaN"
-        const isAvail = raw !== null && raw !== undefined && !Number.isNaN(raw);
+        const isAvail = raw !== null && raw !== undefined &&
+                        !(typeof raw === 'number' && Number.isNaN(raw));
         const numVal  = typeof raw === 'number' && Number.isFinite(raw) ? raw : null;
         let display;
         if (!isAvail) {
