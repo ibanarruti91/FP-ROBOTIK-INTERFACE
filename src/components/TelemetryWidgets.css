@@ -2146,3 +2146,158 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ── TcpConfigPanel – CONFIGURACIÓN TCP tab widget ── */
+
+.tcp-cfg-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+/* TCP name badge */
+.tcp-cfg-name-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.9rem;
+  background: rgba(255, 124, 0, 0.12);
+  border: 1px solid rgba(255, 124, 0, 0.45);
+  border-radius: 8px;
+  align-self: flex-start;
+}
+
+.tcp-cfg-name-icon {
+  font-size: 0.85rem;
+}
+
+.tcp-cfg-name-label {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #ff7c00;
+}
+
+/* Section card */
+.tcp-cfg-section {
+  padding: 1rem 1.25rem !important;
+  border-color: rgba(255, 124, 0, 0.2) !important;
+}
+
+.tcp-cfg-section:hover {
+  border-color: rgba(255, 124, 0, 0.5) !important;
+  box-shadow: 0 0 18px rgba(255, 124, 0, 0.12) !important;
+}
+
+.tcp-cfg-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid rgba(255, 124, 0, 0.25);
+}
+
+.tcp-cfg-section-icon {
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.tcp-cfg-section-title {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #ff7c00;
+}
+
+/* Data grid: two columns (position/load group + orientation/CoG group) */
+.tcp-cfg-data-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.tcp-cfg-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.tcp-cfg-group-label {
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+  padding-bottom: 0.2rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+}
+
+/* Single data row */
+.tcp-cfg-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+.tcp-cfg-row:hover {
+  background: rgba(255, 124, 0, 0.06);
+}
+
+.tcp-cfg-row--single {
+  padding: 0.55rem 0.5rem;
+}
+
+.tcp-cfg-axis {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #ff7c00;
+  min-width: 2rem;
+}
+
+.tcp-cfg-axis--label {
+  min-width: 3.5rem;
+  font-size: 0.68rem;
+}
+
+.tcp-cfg-value {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+  text-align: right;
+}
+
+.tcp-cfg-unit {
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  min-width: 1.8rem;
+}
+
+/* N/A state */
+.tcp-cfg-value.value-na {
+  color: #6b7280 !important;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+/* Responsive: stack groups on narrow viewports */
+@media (max-width: 480px) {
+  .tcp-cfg-data-grid {
+    grid-template-columns: 1fr;
+  }
+}

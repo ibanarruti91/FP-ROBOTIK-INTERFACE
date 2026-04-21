@@ -88,6 +88,24 @@
   color: #10b981;
 }
 
+.tab-button[data-section="config-tcp"].active {
+  border-color: #ff7c00;
+  background: rgba(255, 124, 0, 0.15);
+  box-shadow: 0 0 15px rgba(255, 124, 0, 0.3);
+  color: #ff7c00;
+}
+
+.tab-button[data-section="config-tcp"]:hover {
+  color: #ff7c00;
+  border-color: rgba(255, 124, 0, 0.3);
+  background: rgba(255, 124, 0, 0.05);
+}
+
+.tab-content[data-section="config-tcp"] .card-glass:hover {
+  border-color: #ff7c00;
+  box-shadow: 0 0 20px rgba(255, 124, 0, 0.2);
+}
+
 
 .tab-content {
   margin-top: 0.5rem;

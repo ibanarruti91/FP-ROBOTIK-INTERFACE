@@ -2,7 +2,7 @@
  * WidgetRenderer - Renderiza widgets basándose en su tipo y configuración
  */
 
-import { KpiCard, StatusPill, StatusDynamic, DataTable, LogPanel, SafetyPanel, DigitalIO, AnalogIO, GestionPanel, SecurityLedsPanel, ToolPanel, TcpPose, JointsGrid, SystemMetricCard, StepCaptureTable, HardwareIOControlBox, HardwareIOTool, DiagnosticBufferPanel, NodeRedEventsPanel, NodeRedDiagMessagesPanel } from './TelemetryWidgets';
+import { KpiCard, StatusPill, StatusDynamic, DataTable, LogPanel, SafetyPanel, DigitalIO, AnalogIO, GestionPanel, SecurityLedsPanel, ToolPanel, TcpPose, JointsGrid, SystemMetricCard, StepCaptureTable, HardwareIOControlBox, HardwareIOTool, DiagnosticBufferPanel, NodeRedEventsPanel, NodeRedDiagMessagesPanel, TcpConfigPanel } from './TelemetryWidgets';
 import { CameraWidget } from './CameraWidget';
 import { PerformanceChart } from './PerformanceChart';
 import './WidgetRenderer.css';
@@ -255,6 +255,15 @@ function renderWidget(widget, data, key) {
         />
       );
 
+    case 'tcp-config':
+      return (
+        <TcpConfigPanel
+          key={key}
+          data={value}
+          className="full-width"
+        />
+      );
+
     default:
       return (
         <div key={key} className="widget-unknown">
@@ -379,6 +388,23 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
         <div className="diag-log-row">
           {nrMessGroups.map((group, i)   => renderGroup(group, data, nrMessOffset + i))}
           {nrEventsGroups.map((group, i) => renderGroup(group, data, nrEventsOffset + i))}
+        </div>
+      </div>
+    );
+  }
+
+  // CONFIGURACIÓN TCP: camera (left 42%) | config panel (right 58%)
+  if (sectionId === 'config-tcp') {
+    const cameraGroups = groups.filter(g => g.className === 'ctcp-camera');
+    const dataGroups   = groups.filter(g => g.className === 'ctcp-data');
+
+    return (
+      <div className="widget-renderer config-tcp-layout">
+        <div className="ctcp-left-column">
+          {cameraGroups.map((group, i) => renderGroup(group, data, i))}
+        </div>
+        <div className="ctcp-right-column">
+          {dataGroups.map((group, i) => renderGroup(group, data, cameraGroups.length + i))}
         </div>
       </div>
     );
