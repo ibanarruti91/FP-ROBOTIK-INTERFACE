@@ -2,7 +2,7 @@
  * WidgetRenderer - Renderiza widgets basándose en su tipo y configuración
  */
 
-import { KpiCard, StatusPill, StatusDynamic, DataTable, LogPanel, SafetyPanel, DigitalIO, AnalogIO, GestionPanel, SecurityLedsPanel, ToolPanel, TcpPose, JointsGrid, SystemMetricCard, StepCaptureTable, HardwareIOControlBox, HardwareIOTool, DiagnosticBufferPanel, NodeRedEventsPanel, NodeRedDiagMessagesPanel, TcpConfigPanel } from './TelemetryWidgets';
+import { KpiCard, StatusPill, StatusDynamic, DataTable, LogPanel, SafetyPanel, DigitalIO, AnalogIO, GestionPanel, SecurityLedsPanel, ToolPanel, TcpPose, JointsGrid, SystemMetricCard, StepCaptureTable, HardwareIOControlBox, HardwareIOTool, DiagnosticBufferPanel, NodeRedEventsPanel, NodeRedDiagMessagesPanel, TcpConfigPanel, TcpConfigMain, TcpPayloadPanel, TcpFlangeSchematic } from './TelemetryWidgets';
 import { CameraWidget } from './CameraWidget';
 import { PerformanceChart } from './PerformanceChart';
 import './WidgetRenderer.css';
@@ -264,6 +264,33 @@ function renderWidget(widget, data, key) {
         />
       );
 
+    case 'tcp-config-main':
+      return (
+        <TcpConfigMain
+          key={key}
+          data={value}
+          className="full-width"
+        />
+      );
+
+    case 'tcp-payload':
+      return (
+        <TcpPayloadPanel
+          key={key}
+          data={value}
+          className="full-width"
+        />
+      );
+
+    case 'tcp-schematic':
+      return (
+        <TcpFlangeSchematic
+          key={key}
+          data={value}
+          className="full-width"
+        />
+      );
+
     default:
       return (
         <div key={key} className="widget-unknown">
@@ -393,13 +420,37 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
     );
   }
 
-  // CONFIGURACIÓN TCP: camera (left 42%) | config panel (right 58%)
+  // CONFIGURACIÓN TCP: 2×2 grid — camera (top-left) | config (top-right) | payload (bottom-left) | schematic (bottom-right)
   if (sectionId === 'config-tcp') {
-    const cameraGroups = groups.filter(g => g.className === 'ctcp-camera');
-    const dataGroups   = groups.filter(g => g.className === 'ctcp-data');
+    const cameraGroups    = groups.filter(g => g.className === 'ctcp-camera');
+    const mainGroups      = groups.filter(g => g.className === 'ctcp-main');
+    const payloadGroups   = groups.filter(g => g.className === 'ctcp-payload');
+    const schematicGroups = groups.filter(g => g.className === 'ctcp-schematic');
+    // Legacy single-column support
+    const dataGroups      = groups.filter(g => g.className === 'ctcp-data');
 
+    if (mainGroups.length > 0 || schematicGroups.length > 0) {
+      return (
+        <div className="widget-renderer config-tcp-layout">
+          <div className="ctcp-camera-cell">
+            {cameraGroups.map((group, i) => renderGroup(group, data, i))}
+          </div>
+          <div className="ctcp-main-cell">
+            {mainGroups.map((group, i) => renderGroup(group, data, cameraGroups.length + i))}
+          </div>
+          <div className="ctcp-payload-cell">
+            {payloadGroups.map((group, i) => renderGroup(group, data, cameraGroups.length + mainGroups.length + i))}
+          </div>
+          <div className="ctcp-schematic-cell">
+            {schematicGroups.map((group, i) => renderGroup(group, data, cameraGroups.length + mainGroups.length + payloadGroups.length + i))}
+          </div>
+        </div>
+      );
+    }
+
+    // Legacy 2-column fallback
     return (
-      <div className="widget-renderer config-tcp-layout">
+      <div className="widget-renderer config-tcp-layout config-tcp-legacy">
         <div className="ctcp-left-column">
           {cameraGroups.map((group, i) => renderGroup(group, data, i))}
         </div>

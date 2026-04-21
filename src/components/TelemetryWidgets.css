@@ -2147,7 +2147,7 @@
   }
 }
 
-/* ── TcpConfigPanel – CONFIGURACIÓN TCP tab widget ── */
+/* ── TcpConfigPanel – CONFIGURACIÓN TCP tab widget (legacy / full-panel) ── */
 
 .tcp-cfg-panel {
   display: flex;
@@ -2298,6 +2298,385 @@
 /* Responsive: stack groups on narrow viewports */
 @media (max-width: 480px) {
   .tcp-cfg-data-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── TcpConfigMain – Position / Orientation block (new large-scale variant) ── */
+
+.tcp-cfgm-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  border-color: rgba(255, 124, 0, 0.25) !important;
+}
+
+.tcp-cfgm-card:hover {
+  border-color: rgba(255, 124, 0, 0.5) !important;
+  box-shadow: 0 0 20px rgba(255, 124, 0, 0.12) !important;
+}
+
+/* Header */
+.tcp-cfgm-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-bottom: 0.85rem;
+  border-bottom: 2px solid rgba(255, 124, 0, 0.35);
+}
+
+.tcp-cfgm-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.tcp-cfgm-title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tcp-cfgm-name-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.65rem;
+  background: rgba(255, 124, 0, 0.15);
+  border: 1px solid rgba(255, 124, 0, 0.55);
+  border-radius: 4px;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #ff7c00;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-shadow: 0 0 6px rgba(255, 124, 0, 0.7);
+  box-shadow: 0 0 8px rgba(255, 124, 0, 0.2);
+  white-space: nowrap;
+}
+
+.tcp-cfgm-name-icon {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.tcp-cfgm-ref-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.65rem;
+  background: rgba(255, 124, 0, 0.1);
+  border: 1px solid rgba(255, 124, 0, 0.35);
+  border-radius: 4px;
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: rgba(255, 124, 0, 0.8);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  align-self: flex-start;
+}
+
+/* Two-column data grid */
+.tcp-cfgm-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.tcp-cfgm-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.tcp-cfgm-section-label {
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ff7c00;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.tcp-cfgm-values {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tcp-cfgm-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  background: rgba(255, 124, 0, 0.05);
+  border: 1px solid rgba(255, 124, 0, 0.2);
+  border-radius: 6px;
+  transition: all 0.25s ease;
+}
+
+.tcp-cfgm-item:hover {
+  background: rgba(255, 124, 0, 0.1);
+  border-color: rgba(255, 124, 0, 0.4);
+  transform: translateX(4px);
+}
+
+.tcp-cfgm-axis {
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ff7c00;
+  min-width: 2.5rem;
+  letter-spacing: 0.04em;
+}
+
+.tcp-cfgm-value {
+  font-family: 'Roboto Mono', 'Orbitron', 'Courier New', monospace;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #ffb347;
+  flex: 1;
+  text-shadow: 0 0 8px rgba(255, 124, 0, 0.5), 0 0 12px rgba(255, 124, 0, 0.3);
+  transition: all 0.25s ease;
+}
+
+.tcp-cfgm-unit {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* N/A state */
+.tcp-cfgm-value.value-na {
+  color: #6b7280 !important;
+  font-style: italic;
+  opacity: 0.7;
+  text-shadow: none !important;
+}
+
+@media (max-width: 600px) {
+  .tcp-cfgm-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── TcpPayloadPanel – Payload / Centre-of-Gravity block ── */
+
+.tcp-payload-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  border-color: rgba(255, 124, 0, 0.25) !important;
+  flex: 1;
+}
+
+.tcp-payload-card:hover {
+  border-color: rgba(255, 124, 0, 0.5) !important;
+  box-shadow: 0 0 20px rgba(255, 124, 0, 0.12) !important;
+}
+
+.tcp-payload-header {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid rgba(255, 124, 0, 0.35);
+}
+
+.tcp-payload-icon {
+  font-size: 1.1rem;
+}
+
+.tcp-payload-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tcp-payload-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.tcp-payload-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tcp-payload-section-label {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #ff7c00;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Big mass value */
+.tcp-payload-big-value {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.9rem 1rem;
+  background: rgba(255, 124, 0, 0.07);
+  border: 1px solid rgba(255, 124, 0, 0.25);
+  border-radius: 8px;
+}
+
+.tcp-payload-value-num {
+  font-family: 'Roboto Mono', 'Orbitron', 'Courier New', monospace;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #ffb347;
+  text-shadow: 0 0 10px rgba(255, 124, 0, 0.55), 0 0 16px rgba(255, 124, 0, 0.3);
+}
+
+.tcp-payload-value-num.value-na {
+  color: #6b7280 !important;
+  text-shadow: none !important;
+}
+
+.tcp-payload-value-unit {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.tcp-payload-cog-values {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+@media (max-width: 600px) {
+  .tcp-payload-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── TcpFlangeSchematic – SVG technical diagram ── */
+
+.tcp-schematic-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border-color: rgba(255, 124, 0, 0.2) !important;
+  flex: 1;
+}
+
+.tcp-schematic-card:hover {
+  border-color: rgba(255, 124, 0, 0.45) !important;
+  box-shadow: 0 0 18px rgba(255, 124, 0, 0.1) !important;
+}
+
+.tcp-schematic-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 2px solid rgba(255, 124, 0, 0.3);
+}
+
+.tcp-schematic-title {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.tcp-schematic-subtitle {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.03em;
+}
+
+/* Two-view layout */
+.tcp-schematic-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  flex: 1;
+}
+
+.tcp-schematic-view {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.tcp-schematic-view-label {
+  font-family: var(--font-display);
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+
+.tcp-schematic-svg {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  filter: drop-shadow(0 0 6px rgba(255, 124, 0, 0.15));
+}
+
+/* Summary row */
+.tcp-schematic-summary {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  border-top: 1px solid rgba(255, 124, 0, 0.15);
+  padding-top: 0.75rem;
+  justify-content: space-around;
+}
+
+.tcp-schematic-summary-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+
+.tcp-schematic-summary-axis {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.tcp-schematic-summary-val {
+  font-family: 'Roboto Mono', 'Orbitron', 'Courier New', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.tcp-schematic-summary-unit {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+}
+
+.tcp-schematic-summary-item--mass .tcp-schematic-summary-val {
+  color: #ff7c00;
+}
+
+@media (max-width: 600px) {
+  .tcp-schematic-body {
     grid-template-columns: 1fr;
   }
 }

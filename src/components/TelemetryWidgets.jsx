@@ -1742,6 +1742,7 @@ export function DiagnosticBufferPanel({ className = '' }) {
 /**
  * TcpConfigPanel – Displays tool configuration data from config_herramienta MQTT block.
  * Shows TCP name, position (X/Y/Z), orientation (RX/RY/RZ), load (kg) and center of gravity (CX/CY/CZ).
+ * Legacy full-panel kept for backward compatibility.
  */
 export function TcpConfigPanel({ data, className = '' }) {
   const tcp = data?.punto_central_herramienta ?? {};
@@ -1841,5 +1842,271 @@ export function TcpConfigPanel({ data, className = '' }) {
         </div>
       </CardGlass>
     </div>
+  );
+}
+
+/**
+ * TcpConfigMain – Position + orientation block for the CONFIGURACIÓN TCP tab (top-right cell).
+ * Uses the same typographic scale as TcpPose for visual consistency.
+ */
+export function TcpConfigMain({ data, className = '' }) {
+  const tcp = data?.punto_central_herramienta ?? {};
+  const pos = tcp.posicion ?? {};
+  const ori = tcp.orientacion ?? {};
+  const oriUnits = ori.unidades ?? 'rad';
+
+  const tcpNombre = tcp.tcp_nombre;
+  const displayName =
+    !tcpNombre || tcpNombre === 'no_disponible_por_rtde'
+      ? 'TCP Activo'
+      : tcpNombre;
+
+  const fmtNum = (v) => {
+    if (v === null || v === undefined) return '—';
+    const n = Number(v);
+    return isFinite(n) ? n.toFixed(4) : String(v);
+  };
+
+  return (
+    <CardGlass className={`tcp-cfgm-card ${className}`}>
+      {/* Header: name badge */}
+      <div className="tcp-cfgm-header">
+        <div className="tcp-cfgm-title-block">
+          <div className="tcp-cfgm-title">HERRAMIENTA ACTIVA</div>
+          <div className="tcp-cfgm-name-badge">
+            <span className="tcp-cfgm-name-icon" aria-hidden="true">⚙</span>
+            <span className="tcp-cfgm-name-label">{displayName}</span>
+          </div>
+        </div>
+        <div className="tcp-cfgm-ref-badge">
+          <span>⊙</span>
+          <span>REF: BRIDA</span>
+        </div>
+      </div>
+
+      {/* Data grid */}
+      <div className="tcp-cfgm-grid">
+        {/* Position column */}
+        <div className="tcp-cfgm-section">
+          <div className="tcp-cfgm-section-label">POSICIÓN [mm]</div>
+          <div className="tcp-cfgm-values">
+            {[
+              { axis: 'X', value: pos.X_mm, unit: 'mm' },
+              { axis: 'Y', value: pos.Y_mm, unit: 'mm' },
+              { axis: 'Z', value: pos.Z_mm, unit: 'mm' },
+            ].map(({ axis, value, unit }) => (
+              <div key={axis} className="tcp-cfgm-item">
+                <span className="tcp-cfgm-axis">{axis}</span>
+                <span className={`tcp-cfgm-value ${value === null || value === undefined ? 'value-na' : ''}`}>{fmtNum(value)}</span>
+                <span className="tcp-cfgm-unit">{unit}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Orientation column */}
+        <div className="tcp-cfgm-section">
+          <div className="tcp-cfgm-section-label">ORIENTACIÓN [{oriUnits}]</div>
+          <div className="tcp-cfgm-values">
+            {[
+              { axis: 'RX', value: ori.RX },
+              { axis: 'RY', value: ori.RY },
+              { axis: 'RZ', value: ori.RZ },
+            ].map(({ axis, value }) => (
+              <div key={axis} className="tcp-cfgm-item">
+                <span className="tcp-cfgm-axis">{axis}</span>
+                <span className={`tcp-cfgm-value ${value === null || value === undefined ? 'value-na' : ''}`}>{fmtNum(value)}</span>
+                <span className="tcp-cfgm-unit">{oriUnits}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </CardGlass>
+  );
+}
+
+/**
+ * TcpPayloadPanel – Payload mass and centre-of-gravity block for the CONFIGURACIÓN TCP tab (bottom-left cell).
+ */
+export function TcpPayloadPanel({ data, className = '' }) {
+  const load = data?.carga_y_centro_de_gravedad ?? {};
+  const cog  = load.centro_de_gravedad ?? {};
+
+  const fmtNum = (v) => {
+    if (v === null || v === undefined) return '—';
+    const n = Number(v);
+    return isFinite(n) ? n.toFixed(4) : String(v);
+  };
+
+  return (
+    <CardGlass className={`tcp-payload-card ${className}`}>
+      <div className="tcp-payload-header">
+        <span className="tcp-payload-icon" aria-hidden="true">⚖</span>
+        <span className="tcp-payload-title">CARGA Y CENTRO DE GRAVEDAD</span>
+      </div>
+
+      <div className="tcp-payload-grid">
+        {/* Load */}
+        <div className="tcp-payload-section">
+          <div className="tcp-payload-section-label">MASA [kg]</div>
+          <div className="tcp-payload-big-value">
+            <span className={`tcp-payload-value-num ${load.carga_kg === null || load.carga_kg === undefined ? 'value-na' : ''}`}>
+              {fmtNum(load.carga_kg)}
+            </span>
+            <span className="tcp-payload-value-unit">kg</span>
+          </div>
+        </div>
+
+        {/* CoG */}
+        <div className="tcp-payload-section">
+          <div className="tcp-payload-section-label">CENTRO DE GRAVEDAD [mm]</div>
+          <div className="tcp-payload-cog-values">
+            {[
+              { axis: 'CX', value: cog.CX_mm },
+              { axis: 'CY', value: cog.CY_mm },
+              { axis: 'CZ', value: cog.CZ_mm },
+            ].map(({ axis, value }) => (
+              <div key={axis} className="tcp-cfgm-item">
+                <span className="tcp-cfgm-axis">{axis}</span>
+                <span className={`tcp-cfgm-value ${value === null || value === undefined ? 'value-na' : ''}`}>{fmtNum(value)}</span>
+                <span className="tcp-cfgm-unit">mm</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </CardGlass>
+  );
+}
+
+/**
+ * TcpFlangeSchematic – SVG technical diagram of the tool flange reference frame.
+ * Shows front view (flange face with bolt pattern) and side view (arm end with X/Y/Z axes).
+ * Inspired by the Polyscope tool configuration visualisation.
+ */
+export function TcpFlangeSchematic({ data, className = '' }) {
+  const tcp  = data?.punto_central_herramienta ?? {};
+  const pos  = tcp.posicion ?? {};
+  const load = data?.carga_y_centro_de_gravedad ?? {};
+
+  const xVal = pos.X_mm != null ? Number(pos.X_mm).toFixed(2) : '—';
+  const yVal = pos.Y_mm != null ? Number(pos.Y_mm).toFixed(2) : '—';
+  const zVal = pos.Z_mm != null ? Number(pos.Z_mm).toFixed(2) : '—';
+  const massVal = load.carga_kg != null ? `${Number(load.carga_kg).toFixed(3)} kg` : '—';
+
+  return (
+    <CardGlass className={`tcp-schematic-card ${className}`}>
+      <div className="tcp-schematic-header">
+        <span className="tcp-schematic-title">MARCO DE REFERENCIA — BRIDA / HERRAMIENTA</span>
+        <span className="tcp-schematic-subtitle">Sistema de coordenadas relativo a la brida del robot</span>
+      </div>
+
+      <div className="tcp-schematic-body">
+        {/* Front view: flange face */}
+        <div className="tcp-schematic-view">
+          <div className="tcp-schematic-view-label">VISTA FRONTAL — BRIDA</div>
+          <svg viewBox="0 0 200 200" className="tcp-schematic-svg" aria-label="Vista frontal de la brida">
+            {/* Outer flange ring */}
+            <circle cx="100" cy="100" r="80" fill="none" stroke="#ff7c00" strokeWidth="2.5" opacity="0.9"/>
+            {/* Inner bore */}
+            <circle cx="100" cy="100" r="18" fill="none" stroke="#ff7c00" strokeWidth="1.5" opacity="0.7"/>
+            {/* Bolt-circle holes — 6 bolts */}
+            {[0, 60, 120, 180, 240, 300].map((deg) => {
+              const rad = (deg * Math.PI) / 180;
+              const bx = 100 + 58 * Math.cos(rad);
+              const by = 100 + 58 * Math.sin(rad);
+              return (
+                <circle key={deg} cx={bx} cy={by} r="7" fill="none"
+                  stroke="#ff7c00" strokeWidth="1.5" opacity="0.75"/>
+              );
+            })}
+            {/* Alignment notch */}
+            <line x1="100" y1="18" x2="100" y2="2" stroke="#ff7c00" strokeWidth="2" opacity="0.6"/>
+            {/* Origin cross */}
+            <line x1="86" y1="100" x2="114" y2="100" stroke="rgba(255,255,255,0.35)" strokeWidth="1"/>
+            <line x1="100" y1="86" x2="100" y2="114" stroke="rgba(255,255,255,0.35)" strokeWidth="1"/>
+            {/* Origin dot */}
+            <circle cx="100" cy="100" r="3.5" fill="#ff7c00" opacity="0.95"/>
+            {/* X axis arrow */}
+            <line x1="100" y1="100" x2="140" y2="100" stroke="#ef4444" strokeWidth="2"/>
+            <polygon points="140,95 150,100 140,105" fill="#ef4444"/>
+            <text x="154" y="104" fill="#ef4444" fontSize="11" fontFamily="Orbitron,sans-serif" fontWeight="700">X</text>
+            {/* Y axis arrow */}
+            <line x1="100" y1="100" x2="100" y2="60" stroke="#22c55e" strokeWidth="2"/>
+            <polygon points="95,60 100,50 105,60" fill="#22c55e"/>
+            <text x="104" y="48" fill="#22c55e" fontSize="11" fontFamily="Orbitron,sans-serif" fontWeight="700">Y</text>
+            {/* Z axis dot (pointing out of plane) */}
+            <circle cx="100" cy="100" r="7" fill="none" stroke="#60a5fa" strokeWidth="1.5" strokeDasharray="3 2" opacity="0.85"/>
+            <circle cx="100" cy="100" r="2.5" fill="#60a5fa" opacity="0.85"/>
+            <text x="110" y="88" fill="#60a5fa" fontSize="10" fontFamily="Orbitron,sans-serif" fontWeight="700">Z</text>
+          </svg>
+        </div>
+
+        {/* Side view: arm + TCP offset */}
+        <div className="tcp-schematic-view">
+          <div className="tcp-schematic-view-label">VISTA LATERAL — OFFSET TCP</div>
+          <svg viewBox="0 0 200 200" className="tcp-schematic-svg" aria-label="Vista lateral del offset TCP">
+            {/* Wrist tube */}
+            <rect x="30" y="80" width="90" height="40" rx="6"
+              fill="none" stroke="rgba(148,163,184,0.45)" strokeWidth="2"/>
+            {/* Wrist end cap */}
+            <ellipse cx="120" cy="100" rx="5" ry="20" fill="none"
+              stroke="rgba(148,163,184,0.55)" strokeWidth="1.5"/>
+            {/* Flange face */}
+            <rect x="128" y="84" width="12" height="32" rx="3"
+              fill="none" stroke="#ff7c00" strokeWidth="2" opacity="0.9"/>
+            {/* Tool body */}
+            <rect x="140" y="88" width="22" height="24" rx="4"
+              fill="none" stroke="#ff7c00" strokeWidth="1.5" strokeDasharray="4 2" opacity="0.7"/>
+            {/* TCP origin */}
+            <circle cx="162" cy="100" r="4" fill="#ff7c00" opacity="0.95"/>
+            {/* Offset line */}
+            <line x1="134" y1="100" x2="158" y2="100"
+              stroke="#ff7c00" strokeWidth="1" strokeDasharray="3 2" opacity="0.6"/>
+            {/* X axis */}
+            <line x1="162" y1="100" x2="190" y2="100" stroke="#ef4444" strokeWidth="2"/>
+            <polygon points="190,95 198,100 190,105" fill="#ef4444"/>
+            <text x="188" y="95" fill="#ef4444" fontSize="10" fontFamily="Orbitron,sans-serif" fontWeight="700">X</text>
+            {/* Z axis */}
+            <line x1="162" y1="100" x2="162" y2="60" stroke="#60a5fa" strokeWidth="2"/>
+            <polygon points="157,60 162,50 167,60" fill="#60a5fa"/>
+            <text x="166" y="50" fill="#60a5fa" fontSize="10" fontFamily="Orbitron,sans-serif" fontWeight="700">Z</text>
+            {/* Y axis dot (into plane) */}
+            <circle cx="162" cy="100" r="6" fill="none" stroke="#22c55e" strokeWidth="1.5" strokeDasharray="3 2" opacity="0.85"/>
+            <line x1="157" y1="95" x2="167" y2="105" stroke="#22c55e" strokeWidth="1.5" opacity="0.6"/>
+            <line x1="167" y1="95" x2="157" y2="105" stroke="#22c55e" strokeWidth="1.5" opacity="0.6"/>
+            <text x="148" y="130" fill="#22c55e" fontSize="10" fontFamily="Orbitron,sans-serif" fontWeight="700">Y</text>
+            {/* Base label */}
+            <text x="30" y="140" fill="rgba(148,163,184,0.55)" fontSize="9" fontFamily="Orbitron,sans-serif">BASE MUÑECA</text>
+            {/* TCP label */}
+            <text x="140" y="152" fill="#ff7c00" fontSize="9" fontFamily="Orbitron,sans-serif" fontWeight="700">TCP</text>
+          </svg>
+        </div>
+      </div>
+
+      {/* Current offset summary */}
+      <div className="tcp-schematic-summary">
+        <div className="tcp-schematic-summary-item">
+          <span className="tcp-schematic-summary-axis" style={{ color: '#ef4444' }}>X</span>
+          <span className="tcp-schematic-summary-val">{xVal}</span>
+          <span className="tcp-schematic-summary-unit">mm</span>
+        </div>
+        <div className="tcp-schematic-summary-item">
+          <span className="tcp-schematic-summary-axis" style={{ color: '#22c55e' }}>Y</span>
+          <span className="tcp-schematic-summary-val">{yVal}</span>
+          <span className="tcp-schematic-summary-unit">mm</span>
+        </div>
+        <div className="tcp-schematic-summary-item">
+          <span className="tcp-schematic-summary-axis" style={{ color: '#60a5fa' }}>Z</span>
+          <span className="tcp-schematic-summary-val">{zVal}</span>
+          <span className="tcp-schematic-summary-unit">mm</span>
+        </div>
+        <div className="tcp-schematic-summary-item tcp-schematic-summary-item--mass">
+          <span className="tcp-schematic-summary-axis" style={{ color: '#ff7c00' }}>M</span>
+          <span className="tcp-schematic-summary-val">{massVal}</span>
+        </div>
+      </div>
+    </CardGlass>
   );
 }
