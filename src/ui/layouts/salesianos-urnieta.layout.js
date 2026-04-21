@@ -138,21 +138,12 @@ export const SALESIANOS_LAYOUT = {
             { type: "camera", path: "camera.stream", dismissible: true, borderColor: "#f97316" }
           ]
         },
-        // ── RIGHT COLUMN — Live TCP state as configuration reference ─────
+        // ── RIGHT COLUMN — Active tool configuration (TCP offset + payload + CoG)
         {
-          title: "POSICIÓN / ORIENTACIÓN TCP (referencia en vivo)",
-          className: "ctcp-pose",
+          title: "CONFIGURACIÓN ACTIVA DE LA HERRAMIENTA",
+          className: "ctcp-config",
           widgets: [
-            { type: "tcp-pose", path: "tcp" }
-          ]
-        },
-        // ── BOTTOM FULL-WIDTH — Tool power supply parameters ─────────────
-        {
-          title: "ALIMENTACIÓN DE LA HERRAMIENTA",
-          className: "ctcp-tool",
-          compact: true,
-          widgets: [
-            { type: "hardware-io-tool", path: "hardware_io.tool" }
+            { type: "tcp-config", path: "config_herramienta" }
           ]
         }
       ]
