@@ -77,9 +77,9 @@ const PROGRAM_STATE_LABELS = {
 const SAFETY_SEVERITY = {
   1:  'info',     // NORMAL
   2:  'warning',  // REDUCIDO
-  3:  'warning',  // PARADA PROTECTORA
+  3:  'error',    // PARADA PROTECTORA
   4:  'error',    // PARADA EMERGENCIA
-  5:  'warning',  // PARADA SALVAGUARDA
+  5:  'error',    // PARADA SALVAGUARDA
   6:  'error',    // EMERGENCIA SISTEMA EXTERNO
   7:  'error',    // EMERGENCIA ROBOT
   8:  'error',    // VIOLACIÓN DE LÍMITES
@@ -87,7 +87,10 @@ const SAFETY_SEVERITY = {
   11: 'warning',  // DETENIDO
 };
 
-/** program_state ID → nivel de severidad */
+/** safety_status level → buffer priority (higher = more urgent) */
+const SAFETY_PRIORITY = { error: 10, warning: 5, info: 1 };
+
+
 const PROGRAM_STATE_SEVERITY = {
   0: 'info',     // NO INICIALIZADO
   1: 'warning',  // DETENIDO
@@ -164,6 +167,8 @@ export const EMPTY_DIAG_STATE = Object.freeze({
  * @property {string}                       msg       — descripción completa
  * @property {'derived'}                    source    — siempre 'derived': no es un log nativo del robot
  * @property {DiagState}                    snapshot  — instantánea del estado en el momento del evento
+ * @property {number}                       priority  — prioridad de visualización (mayor = más urgente); default 0
+ * @property {boolean}                      visible   — si el evento debe mostrarse en el buffer; default true
  */
 
 // ── Step 1 — Normalise incoming MQTT payload into DiagState ──────────────────
@@ -229,8 +234,16 @@ export function deriveDiagnosticEvents(prev, curr) {
   const snapshot = { ...curr };
   const events   = [];
 
-  /** Factoría interna de eventos. */
-  const make = (code, title, msg, level) => ({
+  /**
+   * Factoría interna de eventos.
+   * @param {string} code
+   * @param {string} title
+   * @param {string} msg
+   * @param {'info'|'warning'|'error'} level
+   * @param {number} [priority=0]  — mayor valor = mayor urgencia en el buffer
+   * @param {boolean} [visible=true]
+   */
+  const make = (code, title, msg, level, priority = 0, visible = true) => ({
     id:       makeEventId(code, ts),
     ts,
     time,
@@ -240,27 +253,79 @@ export function deriveDiagnosticEvents(prev, curr) {
     msg,
     source:   'derived',
     snapshot,
+    priority,
+    visible,
   });
 
   // ── SAFETY STATUS ──────────────────────────────────────────────────────────
   if (curr.safetyStatus !== prev.safetyStatus && curr.safetyStatus !== null) {
-    const label = SAFETY_STATUS_LABELS[curr.safetyStatus] ?? `ID ${curr.safetyStatus}`;
-    const level = SAFETY_SEVERITY[curr.safetyStatus] ?? 'info';
+    const level    = SAFETY_SEVERITY[curr.safetyStatus] ?? 'warning';
+    const priority = SAFETY_PRIORITY[level] ?? 1;
 
-    let code;
-    switch (curr.safetyStatus) {
-      case 1:  code = 'SAFETY_NORMAL';                break;
-      case 3:  code = 'SAFETY_PROTECTIVE_STOP';       break;
-      case 4:  code = 'SAFETY_EMERGENCY_STOP';        break;
-      case 5:  code = 'SAFETY_SAFEGUARD_STOP';        break;
-      case 6:  code = 'SAFETY_SYSTEM_EMERGENCY_STOP'; break;
-      case 7:  code = 'SAFETY_ROBOT_EMERGENCY_STOP';  break;
-      case 8:  code = 'SAFETY_VIOLATION';             break;
-      case 9:  code = 'SAFETY_FAULT';                 break;
-      default: code = `SAFETY_STATUS_${curr.safetyStatus}`;
+    let code, title, msg;
+
+    if (curr.safetyStatus === 1) {
+      // Robot returns to normal — always info regardless of what it was before
+      code  = 'SAFETY_NORMAL';
+      title = 'Seguridad normalizada';
+      msg   = 'Estado de seguridad normalizado';
+    } else {
+      switch (curr.safetyStatus) {
+        case 3:
+          code  = 'SAFETY_PROTECTIVE_STOP';
+          title = 'Protective stop activado';
+          msg   = 'Parada de seguridad activada (Protective Stop)';
+          break;
+        case 4:
+          code  = 'SAFETY_EMERGENCY_STOP';
+          title = 'Parada de emergencia';
+          msg   = 'Parada de emergencia activada';
+          break;
+        case 5:
+          code  = 'SAFETY_SAFEGUARD_STOP';
+          title = 'Parada de salvaguarda';
+          msg   = 'Parada de salvaguarda activada (Safeguard Stop)';
+          break;
+        case 6:
+          code  = 'SAFETY_SYSTEM_EMERGENCY_STOP';
+          title = 'Emergencia sistema externo';
+          msg   = 'Parada de emergencia por sistema externo';
+          break;
+        case 7:
+          code  = 'SAFETY_ROBOT_EMERGENCY_STOP';
+          title = 'Emergencia robot';
+          msg   = 'Parada de emergencia del robot activada';
+          break;
+        case 8:
+          code  = 'SAFETY_VIOLATION';
+          title = 'Violación de límites';
+          msg   = 'Violación de límites de seguridad detectada';
+          break;
+        case 9:
+          code  = 'SAFETY_FAULT';
+          title = 'Fallo de hardware';
+          msg   = 'Fallo de hardware de seguridad detectado';
+          break;
+        case 2:
+          code  = 'SAFETY_REDUCED';
+          title = 'Velocidad reducida';
+          msg   = 'Robot operando en modo de velocidad reducida';
+          break;
+        case 11:
+          code  = 'SAFETY_STOPPED';
+          title = 'Robot detenido (seguridad)';
+          msg   = 'Robot detenido por condición de seguridad';
+          break;
+        default: {
+          const label = SAFETY_STATUS_LABELS[curr.safetyStatus] ?? `ID ${curr.safetyStatus}`;
+          code  = `SAFETY_STATUS_${curr.safetyStatus}`;
+          title = `Seguridad: ${label}`;
+          msg   = `Estado de seguridad cambiado a ${label}`;
+        }
+      }
     }
 
-    events.push(make(code, `Seguridad: ${label}`, `Estado de seguridad cambiado a ${label}`, level));
+    events.push(make(code, title, msg, level, priority, true));
   }
 
   // ── ROBOT MODE ─────────────────────────────────────────────────────────────

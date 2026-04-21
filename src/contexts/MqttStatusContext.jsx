@@ -267,6 +267,16 @@ export const MqttStatusProvider = ({ children }) => {
                 ? updated.slice(updated.length - MAX_DERIVED_DIAG_EVENTS)
                 : updated;
             });
+
+            // Surface safety error events immediately in the last-error cache
+            // so the UI (Diagnóstico page) can show them without waiting for
+            // Node-RED to publish a diagnostico.last_error value.
+            const safetyError = newDiagEvents.findLast(
+              e => e.level === 'error' && e.code.startsWith('SAFETY_'),
+            );
+            if (safetyError) {
+              setDiagnosticoLastError(safetyError.msg);
+            }
           }
 
           // ── Diagnóstico last_error (direct from Node-RED payload) ─────────
