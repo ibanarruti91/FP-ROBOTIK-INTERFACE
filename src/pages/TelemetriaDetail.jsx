@@ -469,7 +469,52 @@ function TelemetriaDetail() {
               safety_status_id: typeof rawSafetyId === 'number' ? rawSafetyId : (baseTelemetry.rtde?.safety_status_id ?? null),
               robot_mode_id: typeof rawRobotMode === 'number' ? rawRobotMode : (baseTelemetry.rtde?.robot_mode_id ?? null),
               program_state_id: typeof rawProgramState === 'number' ? rawProgramState : (baseTelemetry.rtde?.program_state_id ?? null),
-            }
+            },
+            // Active tool configuration from Polyscope/RTDE.
+            // config_herramienta.punto_central_herramienta → active TCP offset (position + orientation)
+            // config_herramienta.carga_y_centro_de_gravedad → active payload & center-of-gravity
+            config_herramienta: (() => {
+              const toNum = (v) => {
+                if (v === null || v === undefined) return null;
+                const n = Number(v);
+                return isFinite(n) ? n : null;
+              };
+              const src = data.config_herramienta ?? {};
+              const baseCfg = baseTelemetry.config_herramienta ?? {};
+
+              const srcPCH  = src.punto_central_herramienta  ?? {};
+              const basePCH = baseCfg.punto_central_herramienta ?? {};
+              const srcCoG  = src.carga_y_centro_de_gravedad  ?? {};
+              const baseCoG = baseCfg.carga_y_centro_de_gravedad ?? {};
+
+              const srcPos  = srcPCH.posicion    ?? {};
+              const basePos = basePCH.posicion   ?? {};
+              const srcOri  = srcPCH.orientacion ?? {};
+              const baseOri = basePCH.orientacion ?? {};
+
+              return {
+                punto_central_herramienta: {
+                  posicion: {
+                    x: toNum(srcPos.x  ?? basePos.x),
+                    y: toNum(srcPos.y  ?? basePos.y),
+                    z: toNum(srcPos.z  ?? basePos.z),
+                  },
+                  orientacion: {
+                    rx: toNum(srcOri.rx ?? baseOri.rx),
+                    ry: toNum(srcOri.ry ?? baseOri.ry),
+                    rz: toNum(srcOri.rz ?? baseOri.rz),
+                  },
+                },
+                carga_y_centro_de_gravedad: {
+                  carga_kg: toNum(srcCoG.carga_kg ?? baseCoG.carga_kg),
+                  centro_de_gravedad: {
+                    cx: toNum(srcCoG.centro_de_gravedad?.cx ?? baseCoG.centro_de_gravedad?.cx),
+                    cy: toNum(srcCoG.centro_de_gravedad?.cy ?? baseCoG.centro_de_gravedad?.cy),
+                    cz: toNum(srcCoG.centro_de_gravedad?.cz ?? baseCoG.centro_de_gravedad?.cz),
+                  },
+                },
+              };
+            })(),
           };
         });
       } catch (error) {

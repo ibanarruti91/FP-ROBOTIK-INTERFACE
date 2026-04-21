@@ -2,7 +2,7 @@
  * WidgetRenderer - Renderiza widgets basándose en su tipo y configuración
  */
 
-import { KpiCard, StatusPill, StatusDynamic, DataTable, LogPanel, SafetyPanel, DigitalIO, AnalogIO, GestionPanel, SecurityLedsPanel, ToolPanel, TcpPose, JointsGrid, SystemMetricCard, StepCaptureTable, HardwareIOControlBox, HardwareIOTool, DiagnosticBufferPanel, NodeRedEventsPanel, NodeRedDiagMessagesPanel, ParameterTable } from './TelemetryWidgets';
+import { KpiCard, StatusPill, StatusDynamic, DataTable, LogPanel, SafetyPanel, DigitalIO, AnalogIO, GestionPanel, SecurityLedsPanel, ToolPanel, TcpPose, JointsGrid, SystemMetricCard, StepCaptureTable, HardwareIOControlBox, HardwareIOTool, DiagnosticBufferPanel, NodeRedEventsPanel, NodeRedDiagMessagesPanel, ParameterTable, TcpConfigPanel } from './TelemetryWidgets';
 import { CameraWidget } from './CameraWidget';
 import { PerformanceChart } from './PerformanceChart';
 import './WidgetRenderer.css';
@@ -255,6 +255,15 @@ function renderWidget(widget, data, key) {
         />
       );
 
+    case 'tcp-config':
+      return (
+        <TcpConfigPanel
+          key={key}
+          data={value}
+          className={widget.columns ? `span-${widget.columns}` : ''}
+        />
+      );
+
     case 'params-table':
       return (
         <ParameterTable
@@ -394,14 +403,11 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
     );
   }
 
-  // Configuración TCP: camera (left 50%) | tcp-pose (right 50%), tool-io full-width below
+  // Configuración TCP: camera (left 50%) | active tool config panel (right 50%)
   if (sectionId === 'configuracion-tcp') {
     const cameraGroups  = groups.filter(g => g.className === 'ctcp-camera');
-    const poseGroups    = groups.filter(g => g.className === 'ctcp-pose');
-    const toolGroups    = groups.filter(g => g.className === 'ctcp-tool');
-
-    const poseOffset    = cameraGroups.length;
-    const toolOffset    = poseOffset + poseGroups.length;
+    const configGroups  = groups.filter(g => g.className === 'ctcp-config');
+    const configOffset  = cameraGroups.length;
 
     return (
       <div className="widget-renderer configuracion-tcp-layout">
@@ -409,12 +415,9 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
           <div className="ctcp-camera-col">
             {cameraGroups.map((group, i) => renderGroup(group, data, i))}
           </div>
-          <div className="ctcp-pose-col">
-            {poseGroups.map((group, i) => renderGroup(group, data, poseOffset + i))}
+          <div className="ctcp-config-col">
+            {configGroups.map((group, i) => renderGroup(group, data, configOffset + i))}
           </div>
-        </div>
-        <div className="ctcp-bottom-row">
-          {toolGroups.map((group, i) => renderGroup(group, data, toolOffset + i))}
         </div>
       </div>
     );
