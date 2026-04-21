@@ -473,14 +473,6 @@ function TelemetriaDetail() {
             // Active tool configuration from Polyscope/RTDE.
             // config_herramienta.punto_central_herramienta → active TCP offset (position + orientation)
             // config_herramienta.carga_y_centro_de_gravedad → active payload & center-of-gravity
-            //
-            // The MQTT backend sends uppercase / _mm-suffixed field names:
-            //   posicion:          { X_mm, Y_mm, Z_mm }
-            //   orientacion:       { RX, RY, RZ }
-            //   centro_de_gravedad:{ CX_mm, CY_mm, CZ_mm }
-            //
-            // These are normalised here into a lowercase frontend shape (x/y/z, rx/ry/rz, cx/cy/cz)
-            // so the rest of the UI never has to know about backend key casing.
             config_herramienta: (() => {
               const toNum = (v) => {
                 if (v === null || v === undefined) return null;
@@ -500,31 +492,25 @@ function TelemetriaDetail() {
               const srcOri  = srcPCH.orientacion ?? {};
               const baseOri = basePCH.orientacion ?? {};
 
-              const srcCog   = srcCoG.centro_de_gravedad  ?? {};
-              const baseCogC = baseCoG.centro_de_gravedad ?? {};
-
               return {
                 punto_central_herramienta: {
                   posicion: {
-                    // Backend: X_mm / Y_mm / Z_mm  (fallback: lowercase x/y/z)
-                    x: toNum(srcPos.X_mm  ?? srcPos.x  ?? basePos.X_mm  ?? basePos.x),
-                    y: toNum(srcPos.Y_mm  ?? srcPos.y  ?? basePos.Y_mm  ?? basePos.y),
-                    z: toNum(srcPos.Z_mm  ?? srcPos.z  ?? basePos.Z_mm  ?? basePos.z),
+                    x: toNum(srcPos.x  ?? basePos.x),
+                    y: toNum(srcPos.y  ?? basePos.y),
+                    z: toNum(srcPos.z  ?? basePos.z),
                   },
                   orientacion: {
-                    // Backend: RX / RY / RZ  (fallback: lowercase rx/ry/rz)
-                    rx: toNum(srcOri.RX ?? srcOri.rx ?? baseOri.RX ?? baseOri.rx),
-                    ry: toNum(srcOri.RY ?? srcOri.ry ?? baseOri.RY ?? baseOri.ry),
-                    rz: toNum(srcOri.RZ ?? srcOri.rz ?? baseOri.RZ ?? baseOri.rz),
+                    rx: toNum(srcOri.rx ?? baseOri.rx),
+                    ry: toNum(srcOri.ry ?? baseOri.ry),
+                    rz: toNum(srcOri.rz ?? baseOri.rz),
                   },
                 },
                 carga_y_centro_de_gravedad: {
                   carga_kg: toNum(srcCoG.carga_kg ?? baseCoG.carga_kg),
                   centro_de_gravedad: {
-                    // Backend: CX_mm / CY_mm / CZ_mm  (fallback: lowercase cx/cy/cz)
-                    cx: toNum(srcCog.CX_mm ?? srcCog.cx ?? baseCogC.CX_mm ?? baseCogC.cx),
-                    cy: toNum(srcCog.CY_mm ?? srcCog.cy ?? baseCogC.CY_mm ?? baseCogC.cy),
-                    cz: toNum(srcCog.CZ_mm ?? srcCog.cz ?? baseCogC.CZ_mm ?? baseCogC.cz),
+                    cx: toNum(srcCoG.centro_de_gravedad?.cx ?? baseCoG.centro_de_gravedad?.cx),
+                    cy: toNum(srcCoG.centro_de_gravedad?.cy ?? baseCoG.centro_de_gravedad?.cy),
+                    cz: toNum(srcCoG.centro_de_gravedad?.cz ?? baseCoG.centro_de_gravedad?.cz),
                   },
                 },
               };
