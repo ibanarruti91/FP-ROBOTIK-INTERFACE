@@ -2208,3 +2208,21 @@
   font-size: 0.72rem;
   color: var(--text-secondary, #94a3b8);
 }
+
+/* Multi-section wrapper inside the table */
+.param-table-section + .param-table-section {
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+/* Section title row — acts as a group header inside the table */
+.param-table-section-title {
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary, #94a3b8);
+  padding: 7px 14px 4px;
+  background: rgba(148, 163, 184, 0.06);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+}
