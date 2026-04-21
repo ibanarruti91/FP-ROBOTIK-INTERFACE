@@ -800,11 +800,21 @@ export function JointsGrid({ data, className = '' }) {
   
   const JOINT_NAMES = ['Base', 'Hombro', 'Codo', 'Muñeca 1', 'Muñeca 2', 'Muñeca 3'];
 
+  // Display-only normalization for Wrist 3 (index 5).
+  // Wraps any angle to the [0, 360) range to match Polyscope's convention.
+  // The raw joint value is never modified.
+  const wrapTo360 = (deg) => {
+    let v = deg % 360;
+    if (v < 0) v += 360;
+    return v;
+  };
+
   return (
     <CardGlass className={`joints-grid ${className}`}>
       <div className="joints-grid-container">
         {positions.map((pos, index) => {
-          const posValue = formatValue(pos, 3);
+          const displayPos = (index === 5 && typeof pos === 'number') ? wrapTo360(pos) : pos;
+          const posValue = formatValue(displayPos, 3);
           const currentValue = formatValue(currents[index], 2);
           const tempValue = formatValue(temperatures[index], 1);
           const isPosNA = posValue === 'N/A';
