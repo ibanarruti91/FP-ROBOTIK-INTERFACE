@@ -135,7 +135,7 @@ export const MqttStatusProvider = ({ children }) => {
 
   // MQTT Connection Effect
   useEffect(() => {
-    const mqttHost = import.meta.env.VITE_MQTT_HOST || '192.168.1.50';
+    const mqttHost = import.meta.env.VITE_MQTT_HOST || '10.20.250.120';
     const client = mqtt.connect(`ws://${mqttHost}:9001`, {
       username: 'urvisual',
       password: 'root',
