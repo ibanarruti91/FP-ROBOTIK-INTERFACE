@@ -6,6 +6,7 @@ import {
   EMPTY_DIAG_STATE,
   normalizeDiagnosticState,
   deriveDiagnosticEvents,
+  reclassifyNodeRedSafetyEvent,
 } from '../servicios/diagnosticBuffer.js';
 
 const MAX_STEP_CAPTURE_RECORDS = 50;
@@ -206,14 +207,18 @@ export const MqttStatusProvider = ({ children }) => {
             setNodeRedEventsBuffer([]);
             setNodeRedEventsTotal(0);
           } else {
+            // Normalize data fields (JSON strings → objects) then re-classify
+            // safety events so Node-RED level fallbacks ('info') are corrected.
             // Sort newest first; break ts ties by priority (higher = more
             // important).  The backend usually sends it already sorted, but
             // re-sorting here guarantees the tiebreaker rule is always applied.
-            const sorted = [...normalizeEvents(events)].sort((a, b) => {
-              const tsDiff = (b.ts ?? 0) - (a.ts ?? 0);
-              if (tsDiff !== 0) return tsDiff;
-              return (b.priority ?? 0) - (a.priority ?? 0);
-            });
+            const sorted = [...normalizeEvents(events)]
+              .map(reclassifyNodeRedSafetyEvent)
+              .sort((a, b) => {
+                const tsDiff = (b.ts ?? 0) - (a.ts ?? 0);
+                if (tsDiff !== 0) return tsDiff;
+                return (b.priority ?? 0) - (a.priority ?? 0);
+              });
             nodeRedEventIdsRef.current = new Set(sorted.map(e => e.id).filter(Boolean));
             setNodeRedEventsBuffer(sorted);
             if (typeof data.total === 'number') {
@@ -227,7 +232,10 @@ export const MqttStatusProvider = ({ children }) => {
           }
         } else if (topic === 'salesianos/robot/iban/events_derived') {
           // ── events_derived: incremental events from Node-RED ─────────────
-          const incoming = normalizeEvents(Array.isArray(data.events) ? data.events : []);
+          // Normalize data fields then re-classify safety events so Node-RED
+          // level fallbacks ('info') are corrected before adding to the buffer.
+          const incoming = normalizeEvents(Array.isArray(data.events) ? data.events : [])
+            .map(reclassifyNodeRedSafetyEvent);
           const newEvents = incoming.filter(e => e.id && !nodeRedEventIdsRef.current.has(e.id));
           if (newEvents.length > 0) {
             newEvents.forEach(e => nodeRedEventIdsRef.current.add(e.id));
