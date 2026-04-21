@@ -39,33 +39,36 @@ export const SALESIANOS_LAYOUT = {
       ]
     },
     {
-      id: "estado-robot",
-      label: "ESTADO HARDWARE E/S",
-      color: "#ffbf00", // Amber
+      id: "config-tcp",
+      label: "Configuración TCP",
+      color: "#ff7c00", // Orange
       groups: [
-        // ── LEFT COLUMN (50 %) — Camera stretches to match right column ──
         {
           title: "CÁMARA EN VIVO",
-          className: "er-camera",
+          className: "ctcp-camera",
           widgets: [
-            { type: "camera", path: "camera.stream", dismissible: true, borderColor: "#ffbf00" }
-          ]
-        },
-        // ── RIGHT COLUMN (50 %) — Control Box card + Tool I/O card ─────
-        {
-          title: "E/S DEL CONTROLADOR (Control Box)",
-          className: "er-control-box",
-          compact: true,
-          widgets: [
-            { type: "hardware-io-control-box", path: "hardware_io.control_box" }
+            { type: "camera", path: "camera.stream", dismissible: true, borderColor: "#ff7c00" }
           ]
         },
         {
-          title: "E/S DE LA HERRAMIENTA (Tool I/O)",
-          className: "er-tool-io",
-          compact: true,
+          title: "PUNTO CENTRAL DE LA HERRAMIENTA",
+          className: "ctcp-main",
           widgets: [
-            { type: "hardware-io-tool", path: "hardware_io.tool" }
+            { type: "tcp-config-main", path: "config_herramienta" }
+          ]
+        },
+        {
+          title: "CARGA Y CENTRO DE GRAVEDAD",
+          className: "ctcp-payload",
+          widgets: [
+            { type: "tcp-payload", path: "config_herramienta" }
+          ]
+        },
+        {
+          title: "DIAGRAMA DE REFERENCIA — BRIDA / HERRAMIENTA",
+          className: "ctcp-schematic",
+          widgets: [
+            { type: "tcp-schematic", path: "config_herramienta" }
           ]
         }
       ]
@@ -105,6 +108,38 @@ export const SALESIANOS_LAYOUT = {
           className: "cin-joints",
           widgets: [
             { type: "joints-grid", label: "Articulaciones", path: "joints" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "estado-robot",
+      label: "Estado Hardware E/S",
+      color: "#ffbf00", // Amber
+      groups: [
+        // ── LEFT COLUMN (50 %) — Camera stretches to match right column ──
+        {
+          title: "CÁMARA EN VIVO",
+          className: "er-camera",
+          widgets: [
+            { type: "camera", path: "camera.stream", dismissible: true, borderColor: "#ffbf00" }
+          ]
+        },
+        // ── RIGHT COLUMN (50 %) — Control Box card + Tool I/O card ─────
+        {
+          title: "E/S DEL CONTROLADOR (Control Box)",
+          className: "er-control-box",
+          compact: true,
+          widgets: [
+            { type: "hardware-io-control-box", path: "hardware_io.control_box" }
+          ]
+        },
+        {
+          title: "E/S DE LA HERRAMIENTA (Tool I/O)",
+          className: "er-tool-io",
+          compact: true,
+          widgets: [
+            { type: "hardware-io-tool", path: "hardware_io.tool" }
           ]
         }
       ]
@@ -170,40 +205,5 @@ export const SALESIANOS_LAYOUT = {
         }
       ]
     },
-    {
-      id: "config-tcp",
-      label: "CONFIGURACIÓN TCP",
-      color: "#ff7c00", // Orange
-      groups: [
-        {
-          title: "CÁMARA EN VIVO",
-          className: "ctcp-camera",
-          widgets: [
-            { type: "camera", path: "camera.stream", dismissible: true, borderColor: "#ff7c00" }
-          ]
-        },
-        {
-          title: "PUNTO CENTRAL DE LA HERRAMIENTA",
-          className: "ctcp-main",
-          widgets: [
-            { type: "tcp-config-main", path: "config_herramienta" }
-          ]
-        },
-        {
-          title: "CARGA Y CENTRO DE GRAVEDAD",
-          className: "ctcp-payload",
-          widgets: [
-            { type: "tcp-payload", path: "config_herramienta" }
-          ]
-        },
-        {
-          title: "DIAGRAMA DE REFERENCIA — BRIDA / HERRAMIENTA",
-          className: "ctcp-schematic",
-          widgets: [
-            { type: "tcp-schematic", path: "config_herramienta" }
-          ]
-        }
-      ]
-    }
   ]
 };
