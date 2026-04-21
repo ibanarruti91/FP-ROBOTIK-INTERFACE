@@ -12,63 +12,6 @@
   gap: 1rem;
 }
 
-/* ── PRINCIPAL TAB (CONFIG-SCREEN): two-column layout — camera | parameter table ── */
-
-.widget-renderer.principal-config-layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  align-items: start;
-}
-
-/* Camera column */
-.widget-renderer.principal-config-layout .principal-camera-col {
-  display: flex;
-  flex-direction: column;
-}
-
-.widget-renderer.principal-config-layout .principal-camera-col .widget-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.widget-renderer.principal-config-layout .principal-camera-col .widget-grid {
-  display: flex;
-  flex-direction: column;
-}
-
-.widget-renderer.principal-config-layout .principal-camera-col .camera-inner--ratio {
-  aspect-ratio: 16 / 9;
-  min-height: 260px;
-}
-
-/* Params column */
-.widget-renderer.principal-config-layout .principal-params-col {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-/* No hover lift on the group title in the params column */
-.widget-renderer.principal-config-layout .principal-params-col .group-title {
-  font-size: 0.75rem;
-  padding-bottom: 0.4rem;
-  border-bottom-width: 1px;
-  border-bottom-color: rgba(0, 229, 255, 0.35);
-  margin-bottom: 0.25rem;
-}
-
-/* Responsive: stack on narrow screens */
-@media (max-width: 1100px) {
-  .widget-renderer.principal-config-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .widget-renderer.principal-config-layout .principal-camera-col .camera-inner--ratio {
-    min-height: unset;
-  }
-}
-
 /* ── PRINCIPAL TAB (NEW): top row (camera 75-80% | sys-cards 20-25%) + bottom row (chart 100%) ── */
 
 .widget-renderer.principal-new-layout {

@@ -1610,53 +1610,6 @@ export function NodeRedDiagMessagesPanel({ className = '' }) {
 }
 
 /**
- * ParameterTable – Clean machine-configuration parameter list for the Principal tab.
- * Displays a flat table of labeled parameters with their current values and units.
- * Prioritizes clarity: no glassmorphism, no hover lift, no animated counting.
- * Each item specifies { label, path, unit?, decimals? }.
- * Values are resolved from the `data` prop using dot-separated paths.
- */
-
-function resolveParamValue(data, path) {
-  if (!data || !path) return undefined;
-  return path.split('.').reduce((cur, key) => cur?.[key], data);
-}
-
-export function ParameterTable({ items = [], data }) {
-  return (
-    <div className="param-table-container">
-      {items.map((item, i) => {
-        const raw      = resolveParamValue(data, item.path);
-        const isAvail  = raw !== null && raw !== undefined;
-        const numVal   = typeof raw === 'number' && isFinite(raw) ? raw : null;
-        let display;
-        if (!isAvail) {
-          display = '—';
-        } else if (numVal !== null) {
-          const decimals = item.decimals ?? (numVal % 1 === 0 ? 0 : 1);
-          display = numVal.toFixed(decimals);
-        } else {
-          display = String(raw);
-        }
-        return (
-          <div key={i} className="param-table-row">
-            <span className="param-table-label">{item.label}</span>
-            <span className="param-table-value-cell">
-              <span className={`param-table-value${!isAvail ? ' param-table-value--na' : ''}`}>
-                {display}
-              </span>
-              {isAvail && item.unit && (
-                <span className="param-table-unit">{item.unit}</span>
-              )}
-            </span>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-/**
  * DiagnosticBufferPanel
  *
  * ⚠ BUFFER DE DIAGNÓSTICO DERIVADO — no es el log nativo del robot UR.
