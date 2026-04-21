@@ -612,28 +612,6 @@ export function ToolPanel({ data, className = '' }) {
 }
 
 /**
- * Converts a raw RTDE rotation vector (radians) to the Polyscope display
- * representation.  This is a presentation-only transformation: the raw RTDE
- * values are never mutated.
- *
- * Polyscope normalises any rotation vector whose magnitude exceeds π by
- * subtracting a full 2π turn along the same axis, which yields the equivalent
- * rotation with magnitude (θ − 2π).  The resulting scale factor is
- * (1 − 2π / θ), identical to multiplying each component by that scalar.
- *
- * @param {number} rx - Raw RTDE rotation vector X component (rad)
- * @param {number} ry - Raw RTDE rotation vector Y component (rad)
- * @param {number} rz - Raw RTDE rotation vector Z component (rad)
- * @returns {{ rx: number, ry: number, rz: number }} Polyscope-style rotvec (rad)
- */
-function toPolyscopeRotvec(rx, ry, rz) {
-  const theta = Math.sqrt(rx * rx + ry * ry + rz * rz);
-  if (theta < 1e-9) return { rx, ry, rz };
-  const scale = 1 - (2 * Math.PI / theta);
-  return { rx: rx * scale, ry: ry * scale, rz: rz * scale };
-}
-
-/**
  * TCP Pose - Tarjeta específica para mostrar posición y orientación TCP
  */
 export function TcpPose({ data, className = '' }) {
@@ -642,39 +620,32 @@ export function TcpPose({ data, className = '' }) {
   const rawOrient = data?.orientation || {};
   const [angleUnit, setAngleUnit] = useState('rad'); // 'rad' | 'deg'
 
-  // Derived display-only orientation: apply Polyscope rotvec conversion to the
-  // raw RTDE values.  This object is used solely for rendering; the raw data in
-  // `data.orientation` is never touched.
-  const orient = (() => {
-    const { rx, ry, rz } = rawOrient;
-    if (typeof rx !== 'number' || typeof ry !== 'number' || typeof rz !== 'number') {
-      return rawOrient;
-    }
-    return toPolyscopeRotvec(rx, ry, rz);
-  })();
-
   const formatValue = (val, decimals = 2) => {
     if (val === null || val === undefined) return 'N/A';
     return typeof val === 'number' ? val.toFixed(decimals) : val;
   };
 
-  // val is the Polyscope-converted value, already in radians.
-  const formatAngle = (val) => {
-    if (val === null || val === undefined) return 'N/A';
-    if (typeof val !== 'number') return val;
+  // Format orientation angle for display.
+  // In RAD mode: render raw radian values as received.
+  // In DEG mode: use pre-computed _deg fields if present, otherwise convert from raw radians.
+  const formatAngle = (radVal, degVal) => {
     if (angleUnit === 'deg') {
-      return (val * (180 / Math.PI)).toFixed(3);
+      const v = typeof degVal === 'number' ? degVal : (typeof radVal === 'number' ? radVal * (180 / Math.PI) : null);
+      if (v === null || v === undefined) return 'N/A';
+      return v.toFixed(3);
     }
-    return val.toFixed(4);
+    if (radVal === null || radVal === undefined) return 'N/A';
+    if (typeof radVal !== 'number') return radVal;
+    return radVal.toFixed(4);
   };
 
   // Pre-compute formatted values to avoid redundant calls
   const posX = formatValue(pos.x, 2);
   const posY = formatValue(pos.y, 2);
   const posZ = formatValue(pos.z, 2);
-  const orientRx = formatAngle(orient.rx);
-  const orientRy = formatAngle(orient.ry);
-  const orientRz = formatAngle(orient.rz);
+  const orientRx = formatAngle(rawOrient.rx, rawOrient.rx_deg);
+  const orientRy = formatAngle(rawOrient.ry, rawOrient.ry_deg);
+  const orientRz = formatAngle(rawOrient.rz, rawOrient.rz_deg);
 
   const angleUnitLabel = angleUnit === 'deg' ? '°' : 'rad';
 
