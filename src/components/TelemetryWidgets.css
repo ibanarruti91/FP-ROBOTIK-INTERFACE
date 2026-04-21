@@ -2211,7 +2211,7 @@
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #ff7c00;
+  color: #EAF7FF;
 }
 
 /* Data grid: two columns (position/load group + orientation/CoG group) */
@@ -2233,7 +2233,7 @@
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--text-secondary);
+  color: #00E5FF;
   margin-bottom: 0.25rem;
   padding-bottom: 0.2rem;
   border-bottom: 1px solid rgba(148, 163, 184, 0.08);
@@ -2262,7 +2262,7 @@
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.05em;
-  color: #ff7c00;
+  color: #A9BED1;
   min-width: 2rem;
 }
 
@@ -2275,7 +2275,7 @@
   font-family: var(--font-display);
   font-size: 1rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #00E5FF;
   flex: 1;
   text-align: right;
 }
@@ -2284,7 +2284,7 @@
   font-family: var(--font-display);
   font-size: 0.65rem;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: #8C9DB0;
   min-width: 1.8rem;
 }
 
@@ -2378,7 +2378,7 @@
 .tcp-cfgm-fallback {
   font-family: var(--font-display);
   font-size: 0.85rem;
-  color: var(--text-secondary);
+  color: #6F8093;
   text-align: center;
   padding: 1.5rem 0;
   opacity: 0.7;
@@ -2394,7 +2394,7 @@
   font-family: var(--font-display);
   font-size: 1.05rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #EAF7FF;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -2456,7 +2456,7 @@
   font-family: var(--font-display);
   font-size: 0.82rem;
   font-weight: 700;
-  color: #ff7c00;
+  color: #00E5FF;
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
@@ -2488,7 +2488,7 @@
   font-family: var(--font-display);
   font-size: 0.82rem;
   font-weight: 700;
-  color: #ff7c00;
+  color: #A9BED1;
   min-width: 2.5rem;
   letter-spacing: 0.04em;
 }
@@ -2497,14 +2497,14 @@
   font-family: 'Roboto Mono', 'Courier New', monospace;
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #00E5FF;
   flex: 1;
   transition: all 0.25s ease;
 }
 
 .tcp-cfgm-unit {
   font-size: 0.82rem;
-  color: var(--text-secondary);
+  color: #8C9DB0;
   font-weight: 500;
 }
 
@@ -2553,7 +2553,7 @@
   font-family: var(--font-display);
   font-size: 1rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #EAF7FF;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -2574,7 +2574,7 @@
   font-family: var(--font-display);
   font-size: 0.78rem;
   font-weight: 700;
-  color: #ff7c00;
+  color: #00E5FF;
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
@@ -2594,7 +2594,7 @@
   font-family: 'Roboto Mono', 'Courier New', monospace;
   font-size: 1.8rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #00E5FF;
 }
 
 .tcp-payload-value-num.value-na {
@@ -2605,7 +2605,7 @@
 .tcp-payload-value-unit {
   font-family: var(--font-display);
   font-size: 0.9rem;
-  color: var(--text-secondary);
+  color: #8C9DB0;
   font-weight: 500;
 }
 
@@ -2648,14 +2648,14 @@
   font-family: var(--font-display);
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #EAF7FF;
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
 
 .tcp-schematic-subtitle {
   font-size: 0.7rem;
-  color: var(--text-secondary);
+  color: #6F8093;
   letter-spacing: 0.03em;
 }
 
@@ -2678,7 +2678,7 @@
   font-family: var(--font-display);
   font-size: 0.62rem;
   font-weight: 700;
-  color: var(--text-secondary);
+  color: #6F8093;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   text-align: center;
@@ -2705,7 +2705,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--text-secondary);
+  color: #6F8093;
 }
 
 /* Summary row */
@@ -2733,16 +2733,16 @@
   font-family: 'Roboto Mono', 'Orbitron', 'Courier New', monospace;
   font-size: 1rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #00E5FF;
 }
 
 .tcp-schematic-summary-unit {
   font-size: 0.7rem;
-  color: var(--text-secondary);
+  color: #8C9DB0;
 }
 
 .tcp-schematic-summary-item--mass .tcp-schematic-summary-val {
-  color: #ff7c00;
+  color: #00E5FF;
 }
 
 @media (max-width: 600px) {
