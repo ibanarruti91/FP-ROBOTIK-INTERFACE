@@ -260,6 +260,7 @@ function renderWidget(widget, data, key) {
         <ParameterTable
           key={key}
           items={widget.items || []}
+          sections={widget.sections}
           data={data}
         />
       );
@@ -388,6 +389,32 @@ export default function WidgetRenderer({ groups, data, sectionId }) {
         <div className="diag-log-row">
           {nrMessGroups.map((group, i)   => renderGroup(group, data, nrMessOffset + i))}
           {nrEventsGroups.map((group, i) => renderGroup(group, data, nrEventsOffset + i))}
+        </div>
+      </div>
+    );
+  }
+
+  // Configuración TCP: camera (left 50%) | tcp-pose (right 50%), tool-io full-width below
+  if (sectionId === 'configuracion-tcp') {
+    const cameraGroups  = groups.filter(g => g.className === 'ctcp-camera');
+    const poseGroups    = groups.filter(g => g.className === 'ctcp-pose');
+    const toolGroups    = groups.filter(g => g.className === 'ctcp-tool');
+
+    const poseOffset    = cameraGroups.length;
+    const toolOffset    = poseOffset + poseGroups.length;
+
+    return (
+      <div className="widget-renderer configuracion-tcp-layout">
+        <div className="ctcp-top-row">
+          <div className="ctcp-camera-col">
+            {cameraGroups.map((group, i) => renderGroup(group, data, i))}
+          </div>
+          <div className="ctcp-pose-col">
+            {poseGroups.map((group, i) => renderGroup(group, data, poseOffset + i))}
+          </div>
+        </div>
+        <div className="ctcp-bottom-row">
+          {toolGroups.map((group, i) => renderGroup(group, data, toolOffset + i))}
         </div>
       </div>
     );

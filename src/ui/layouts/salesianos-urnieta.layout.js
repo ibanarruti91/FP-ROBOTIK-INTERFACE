@@ -19,19 +19,35 @@ export const SALESIANOS_LAYOUT = {
           ]
         },
         {
-          title: "PARÁMETROS DEL SISTEMA",
+          title: "VISIÓN GENERAL DEL SISTEMA",
           className: "principal-params",
           compact: true,
           widgets: [
             {
               type: "params-table",
-              items: [
-                { label: "Temp. Controlador",  path: "telemetry.controller_temp",        unit: "°C"   },
-                { label: "Tensión Principal",   path: "telemetry.main_voltage",           unit: "V"    },
-                { label: "Carga CPU",           path: "telemetry.cpu_load",               unit: "%"    },
-                { label: "Consumo Actual",      path: "telemetry.power",                  unit: "W"    },
-                { label: "Velocidad TCP",       path: "telemetry.speed",                  unit: "mm/s" },
-                { label: "Robot Encendido",     path: "telemetry.tiempo_funcionamiento",  unit: ""     }
+              // Two logical sections: live machine state + technical readings
+              sections: [
+                {
+                  title: "ESTADO EN TIEMPO REAL",
+                  items: [
+                    { label: "Programa activo",  path: "programa.nombre"        },
+                    { label: "Estado programa",  path: "programa.estado"        },
+                    { label: "Modo robot",       path: "sistema.modo_operacion" },
+                    { label: "Safety",           path: "seguridad.safety"       },
+                    { label: "Conexión broker",  path: "mqtt_online_status"     }
+                  ]
+                },
+                {
+                  title: "PARÁMETROS TÉCNICOS",
+                  items: [
+                    { label: "Temp. Controlador", path: "telemetry.controller_temp",       unit: "°C"   },
+                    { label: "Tensión Principal",  path: "telemetry.main_voltage",          unit: "V"    },
+                    { label: "Carga CPU",          path: "telemetry.cpu_load",              unit: "%"    },
+                    { label: "Consumo Actual",     path: "telemetry.power",                 unit: "W"    },
+                    { label: "Velocidad TCP",      path: "telemetry.speed",                 unit: "mm/s" },
+                    { label: "Robot Encendido",    path: "telemetry.tiempo_funcionamiento"              }
+                  ]
+                }
               ]
             }
           ]
@@ -105,6 +121,38 @@ export const SALESIANOS_LAYOUT = {
           className: "cin-joints",
           widgets: [
             { type: "joints-grid", label: "Articulaciones", path: "joints" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "configuracion-tcp",
+      label: "Configuración TCP",
+      color: "#f97316", // Orange
+      groups: [
+        // ── LEFT COLUMN — Camera ──────────────────────────────────────────
+        {
+          title: "CÁMARA EN VIVO",
+          className: "ctcp-camera",
+          widgets: [
+            { type: "camera", path: "camera.stream", dismissible: true, borderColor: "#f97316" }
+          ]
+        },
+        // ── RIGHT COLUMN — Live TCP state as configuration reference ─────
+        {
+          title: "POSICIÓN / ORIENTACIÓN TCP (referencia en vivo)",
+          className: "ctcp-pose",
+          widgets: [
+            { type: "tcp-pose", path: "tcp" }
+          ]
+        },
+        // ── BOTTOM FULL-WIDTH — Tool power supply parameters ─────────────
+        {
+          title: "ALIMENTACIÓN DE LA HERRAMIENTA",
+          className: "ctcp-tool",
+          compact: true,
+          widgets: [
+            { type: "hardware-io-tool", path: "hardware_io.tool" }
           ]
         }
       ]
