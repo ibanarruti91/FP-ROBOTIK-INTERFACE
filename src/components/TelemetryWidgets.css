@@ -2323,6 +2323,65 @@
   justify-content: space-between;
   padding-bottom: 0.85rem;
   border-bottom: 2px solid rgba(255, 124, 0, 0.35);
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.tcp-cfgm-header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+/* RAD / DEG segmented toggle — orange accent to match the tab identity */
+.tcp-cfgm-unit-segmented {
+  display: flex;
+  flex-direction: row;
+  border: 1px solid rgba(255, 124, 0, 0.4);
+  border-radius: 5px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+}
+
+.tcp-cfgm-seg-btn {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.3rem 0.75rem;
+  border: none;
+  background: transparent;
+  color: rgba(255, 124, 0, 0.45);
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  transition: background 0.18s, color 0.18s;
+  white-space: nowrap;
+}
+
+.tcp-cfgm-seg-btn + .tcp-cfgm-seg-btn {
+  border-left: 1px solid rgba(255, 124, 0, 0.25);
+}
+
+.tcp-cfgm-seg-btn.active {
+  background: rgba(255, 124, 0, 0.2);
+  color: #ff7c00;
+}
+
+.tcp-cfgm-seg-btn:hover:not(.active) {
+  background: rgba(255, 124, 0, 0.08);
+  color: rgba(255, 124, 0, 0.75);
+}
+
+/* Fallback state */
+.tcp-cfgm-fallback {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 1.5rem 0;
+  opacity: 0.7;
 }
 
 .tcp-cfgm-title-block {
@@ -2333,7 +2392,7 @@
 
 .tcp-cfgm-title {
   font-family: var(--font-display);
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--text-primary);
   text-transform: uppercase;
@@ -2345,8 +2404,8 @@
   align-items: center;
   gap: 0.35rem;
   padding: 0.2rem 0.65rem;
-  background: rgba(255, 124, 0, 0.15);
-  border: 1px solid rgba(255, 124, 0, 0.55);
+  background: rgba(255, 124, 0, 0.12);
+  border: 1px solid rgba(255, 124, 0, 0.45);
   border-radius: 4px;
   font-family: var(--font-display);
   font-size: 0.72rem;
@@ -2354,8 +2413,6 @@
   color: #ff7c00;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  text-shadow: 0 0 6px rgba(255, 124, 0, 0.7);
-  box-shadow: 0 0 8px rgba(255, 124, 0, 0.2);
   white-space: nowrap;
 }
 
@@ -2437,12 +2494,11 @@
 }
 
 .tcp-cfgm-value {
-  font-family: 'Roboto Mono', 'Orbitron', 'Courier New', monospace;
-  font-size: 1.35rem;
+  font-family: 'Roboto Mono', 'Courier New', monospace;
+  font-size: 1.25rem;
   font-weight: 700;
-  color: #ffb347;
+  color: var(--text-primary);
   flex: 1;
-  text-shadow: 0 0 8px rgba(255, 124, 0, 0.5), 0 0 12px rgba(255, 124, 0, 0.3);
   transition: all 0.25s ease;
 }
 
@@ -2535,11 +2591,10 @@
 }
 
 .tcp-payload-value-num {
-  font-family: 'Roboto Mono', 'Orbitron', 'Courier New', monospace;
+  font-family: 'Roboto Mono', 'Courier New', monospace;
   font-size: 1.8rem;
   font-weight: 700;
-  color: #ffb347;
-  text-shadow: 0 0 10px rgba(255, 124, 0, 0.55), 0 0 16px rgba(255, 124, 0, 0.3);
+  color: var(--text-primary);
 }
 
 .tcp-payload-value-num.value-na {
@@ -2633,7 +2688,6 @@
   width: 100%;
   max-width: 200px;
   height: auto;
-  filter: drop-shadow(0 0 6px rgba(255, 124, 0, 0.15));
 }
 
 /* Summary block wrapper — configured offset only, not live pose */
@@ -2647,11 +2701,11 @@
 
 .tcp-schematic-summary-header {
   font-family: var(--font-display);
-  font-size: 0.62rem;
+  font-size: 0.68rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: rgba(255, 124, 0, 0.7);
+  color: var(--text-secondary);
 }
 
 /* Summary row */
