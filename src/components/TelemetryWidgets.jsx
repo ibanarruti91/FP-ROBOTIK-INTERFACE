@@ -614,6 +614,22 @@ export function ToolPanel({ data, className = '' }) {
 /**
  * TCP Pose - Tarjeta específica para mostrar posición y orientación TCP
  */
+/**
+ * Applies the PolyScope-equivalent rotation-vector alternate representation.
+ * PolyScope displays the axis-angle alternate form: r_display = r * (1 - 2π/θ)
+ * This must ONLY be applied to the live TCP pose, never to the TCP configuration.
+ * @param {number} rx
+ * @param {number} ry
+ * @param {number} rz
+ * @returns {[number, number, number]} transformed [rx, ry, rz]
+ */
+function polysopeEquivTransform(rx, ry, rz) {
+  const theta = Math.sqrt(rx * rx + ry * ry + rz * rz);
+  if (theta < 1e-10) return [rx, ry, rz];
+  const scale = 1 - (2 * Math.PI / theta);
+  return [rx * scale, ry * scale, rz * scale];
+}
+
 export function TcpPose({ data, className = '' }) {
   const pos = data?.position || {};
   // Raw RTDE orientation (radians) — kept unmodified as source of truth.
@@ -625,27 +641,34 @@ export function TcpPose({ data, className = '' }) {
     return typeof val === 'number' ? val.toFixed(decimals) : val;
   };
 
-  // Format orientation angle for display.
-  // In RAD mode: render raw radian values as received.
-  // In DEG mode: use pre-computed _deg fields if present, otherwise convert from raw radians.
-  const formatAngle = (radVal, degVal) => {
-    if (angleUnit === 'deg') {
-      const v = typeof degVal === 'number' ? degVal : (typeof radVal === 'number' ? radVal * (180 / Math.PI) : null);
-      if (v === null || v === undefined) return 'N/A';
-      return v.toFixed(3);
-    }
-    if (radVal === null || radVal === undefined) return 'N/A';
-    if (typeof radVal !== 'number') return radVal;
-    return radVal.toFixed(4);
+  // Apply PolyScope-equivalent rotation-vector transform to the raw live TCP orientation.
+  // DEG mode is derived from the transformed RAD values (NOT from the raw *_deg MQTT fields).
+  const rawRx = typeof rawOrient.rx === 'number' ? rawOrient.rx : null;
+  const rawRy = typeof rawOrient.ry === 'number' ? rawOrient.ry : null;
+  const rawRz = typeof rawOrient.rz === 'number' ? rawOrient.rz : null;
+
+  let dispRx = rawRx, dispRy = rawRy, dispRz = rawRz;
+  if (rawRx !== null && rawRy !== null && rawRz !== null) {
+    [dispRx, dispRy, dispRz] = polysopeEquivTransform(rawRx, rawRy, rawRz);
+    console.log('[LIVE TCP POSE] raw MQTT rx/ry/rz:', rawRx, rawRy, rawRz);
+    console.log('[LIVE TCP POSE] transformed display rx/ry/rz:', dispRx, dispRy, dispRz);
+  }
+
+  // Format orientation angle from the PolyScope-transformed display value.
+  // In RAD mode: show the transformed value. In DEG mode: convert the transformed RAD to degrees.
+  const formatAngle = (dispVal) => {
+    if (dispVal === null || dispVal === undefined) return 'N/A';
+    if (angleUnit === 'deg') return (dispVal * (180 / Math.PI)).toFixed(3);
+    return dispVal.toFixed(4);
   };
 
   // Pre-compute formatted values to avoid redundant calls
   const posX = formatValue(pos.x, 2);
   const posY = formatValue(pos.y, 2);
   const posZ = formatValue(pos.z, 2);
-  const orientRx = formatAngle(rawOrient.rx, rawOrient.rx_deg);
-  const orientRy = formatAngle(rawOrient.ry, rawOrient.ry_deg);
-  const orientRz = formatAngle(rawOrient.rz, rawOrient.rz_deg);
+  const orientRx = formatAngle(dispRx);
+  const orientRy = formatAngle(dispRy);
+  const orientRz = formatAngle(dispRz);
 
   const angleUnitLabel = angleUnit === 'deg' ? '°' : 'rad';
 
@@ -1850,7 +1873,8 @@ export function TcpConfigMain({ data, className = '' }) {
     return isFinite(n) ? n.toFixed(4) : String(v);
   };
 
-  // Orientation display: convert rad→deg when toggle is DEG (display-only)
+  // Orientation display: raw MQTT values in RAD mode, simple rad→deg in DEG mode.
+  // NO PolyScope-equivalent transform — this is the static tool offset, not the live pose.
   const fmtAngle = (v) => {
     if (v === null || v === undefined) return '—';
     const n = Number(v);
@@ -1858,6 +1882,9 @@ export function TcpConfigMain({ data, className = '' }) {
     if (angleUnit === 'deg') return (n * (180 / Math.PI)).toFixed(3);
     return n.toFixed(4);
   };
+
+  console.log('[TCP CONFIGURATION] raw config RX/RY/RZ:', ori.RX, ori.RY, ori.RZ);
+  console.log('[TCP CONFIGURATION] displayed RX/RY/RZ:', fmtAngle(ori.RX), fmtAngle(ori.RY), fmtAngle(ori.RZ));
 
   const angleUnitLabel = angleUnit === 'deg' ? '°' : 'rad';
 
