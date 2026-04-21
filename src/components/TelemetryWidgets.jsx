@@ -1622,19 +1622,13 @@ function resolveParamValue(data, path) {
   return path.split('.').reduce((cur, key) => cur?.[key], data);
 }
 
-/**
- * Renders a single ParameterTable section.
- * items: Array of { label, path, unit?, decimals? }
- */
-function ParameterTableSection({ items, data }) {
+export function ParameterTable({ items = [], data }) {
   return (
-    <>
+    <div className="param-table-container">
       {items.map((item, i) => {
-        const raw     = resolveParamValue(data, item.path);
-        // Guard: treat NaN as unavailable so it never renders as "NaN"
-        const isAvail = raw !== null && raw !== undefined &&
-                        !(typeof raw === 'number' && Number.isNaN(raw));
-        const numVal  = typeof raw === 'number' && Number.isFinite(raw) ? raw : null;
+        const raw      = resolveParamValue(data, item.path);
+        const isAvail  = raw !== null && raw !== undefined;
+        const numVal   = typeof raw === 'number' && Number.isFinite(raw) ? raw : null;
         let display;
         if (!isAvail) {
           display = '—';
@@ -1658,31 +1652,6 @@ function ParameterTableSection({ items, data }) {
           </div>
         );
       })}
-    </>
-  );
-}
-
-/**
- * ParameterTable – Clean machine-configuration parameter list.
- * Accepts either a flat `items` array or a `sections` array for logical grouping.
- * sections: Array of { title?, items: [...] }
- * items:    Array of { label, path, unit?, decimals? }   (shorthand — single section)
- */
-export function ParameterTable({ items = [], sections, data }) {
-  // Normalise: if sections is provided, use it; otherwise wrap items in one section
-  const resolvedSections = sections ?? [{ items }];
-  const multiSection = resolvedSections.length > 1;
-
-  return (
-    <div className="param-table-container">
-      {resolvedSections.map((section, si) => (
-        <div key={si} className={multiSection ? 'param-table-section' : ''}>
-          {section.title && (
-            <div className="param-table-section-title">{section.title}</div>
-          )}
-          <ParameterTableSection items={section.items ?? []} data={data} />
-        </div>
-      ))}
     </div>
   );
 }
