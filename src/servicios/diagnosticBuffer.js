@@ -90,6 +90,13 @@ const SAFETY_SEVERITY = {
 /** safety_status level → buffer priority (higher = more urgent) */
 const SAFETY_PRIORITY = { error: 10, warning: 5, info: 1 };
 
+/**
+ * Priority assigned to a transition INTO safety_status 7 (EMERGENCIA ROBOT).
+ * Higher than the default error priority so this event always surfaces first
+ * in the buffer when multiple events arrive in the same tick.
+ */
+const SAFETY_ROBOT_EMERGENCY_PRIORITY = 20;
+
 
 const PROGRAM_STATE_SEVERITY = {
   0: 'info',     // NO INICIALIZADO
@@ -434,4 +441,48 @@ export function deriveDiagnosticEvents(prev, curr) {
   events.sort((a, b) => (SEVERITY_ORDER[a.level] ?? 2) - (SEVERITY_ORDER[b.level] ?? 2));
 
   return events;
+}
+
+// ── Step 3 — Re-classify Node-RED safety events ───────────────────────────────
+
+/**
+ * reclassifyNodeRedSafetyEvent
+ *
+ * Node-RED sometimes publishes `safety.changed` events with `level: 'info'`
+ * because its internal severity map is empty or incomplete.  This function
+ * corrects the classification on the frontend using the same SAFETY_SEVERITY
+ * table used for derived events, ensuring emergencies are always surfaced at
+ * the right severity level.
+ *
+ * Rules (driven by the SAFETY_SEVERITY table):
+ *  • Transition INTO status 7 (EMERGENCIA ROBOT) → error, priority 20, visible
+ *  • Transition INTO any other error-level status → error, priority 10, visible
+ *  • Transition back to status 1 (NORMAL) → info (SAFETY_SEVERITY[1]), priority 1
+ *  • All other safety transitions → use SAFETY_SEVERITY table
+ *
+ * The function is a pure transform: it returns a new object and never mutates
+ * the input.  Non-safety events are returned unchanged.
+ *
+ * ⚠ Call this AFTER data has been parsed from JSON (i.e. after normalizeEvents).
+ *
+ * @param {Object} event — raw (but data-parsed) Node-RED event
+ * @returns {Object} — event with corrected level / priority / visible
+ */
+export function reclassifyNodeRedSafetyEvent(event) {
+  if (event?.type !== 'safety.changed') return event;
+
+  const to = event?.data?.to;
+  if (to == null) return event;
+
+  // SAFETY_SEVERITY[1] = 'info' handles the "back to NORMAL" case.
+  // SAFETY_SEVERITY[7] = 'error' handles the "EMERGENCIA ROBOT" case.
+  // All other statuses are also mapped; unknown IDs fall back to 'warning'.
+  const level    = SAFETY_SEVERITY[to] ?? 'warning';
+  // Status 7 gets a priority above the standard error level so it always
+  // surfaces first in the buffer when multiple events arrive simultaneously.
+  const priority = to === 7
+    ? SAFETY_ROBOT_EMERGENCY_PRIORITY
+    : (SAFETY_PRIORITY[level] ?? 1);
+
+  return { ...event, level, priority, visible: true };
 }
