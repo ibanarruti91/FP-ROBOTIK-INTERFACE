@@ -1738,3 +1738,108 @@ export function DiagnosticBufferPanel({ className = '' }) {
     </CardGlass>
   );
 }
+
+/**
+ * TcpConfigPanel – Displays tool configuration data from config_herramienta MQTT block.
+ * Shows TCP name, position (X/Y/Z), orientation (RX/RY/RZ), load (kg) and center of gravity (CX/CY/CZ).
+ */
+export function TcpConfigPanel({ data, className = '' }) {
+  const tcp = data?.punto_central_herramienta ?? {};
+  const load = data?.carga_y_centro_de_gravedad ?? {};
+  const pos = tcp.posicion ?? {};
+  const ori = tcp.orientacion ?? {};
+  const cog = load.centro_de_gravedad ?? {};
+  const oriUnits = ori.unidades ?? 'rad';
+
+  const tcpNombre = tcp.tcp_nombre;
+  const displayName =
+    !tcpNombre || tcpNombre === 'no_disponible_por_rtde'
+      ? 'TCP activo'
+      : tcpNombre;
+
+  const fmtNum = (v) => {
+    if (v === null || v === undefined) return '—';
+    const n = Number(v);
+    return isFinite(n) ? n.toFixed(4) : String(v);
+  };
+
+  return (
+    <div className={`tcp-cfg-panel ${className}`}>
+      {/* TCP Name Banner */}
+      <div className="tcp-cfg-name-badge">
+        <span className="tcp-cfg-name-icon" aria-hidden="true">⚙</span>
+        <span className="tcp-cfg-name-label">{displayName}</span>
+      </div>
+
+      {/* Section 1: Punto central de la herramienta */}
+      <CardGlass className="tcp-cfg-section">
+        <div className="tcp-cfg-section-header">
+          <span className="tcp-cfg-section-icon" aria-hidden="true">📍</span>
+          <span className="tcp-cfg-section-title">PUNTO CENTRAL DE LA HERRAMIENTA</span>
+        </div>
+        <div className="tcp-cfg-data-grid">
+          <div className="tcp-cfg-group">
+            <div className="tcp-cfg-group-label">POSICIÓN</div>
+            {[
+              { axis: 'X', value: pos.X_mm, unit: 'mm' },
+              { axis: 'Y', value: pos.Y_mm, unit: 'mm' },
+              { axis: 'Z', value: pos.Z_mm, unit: 'mm' },
+            ].map(({ axis, value, unit }) => (
+              <div key={axis} className="tcp-cfg-row">
+                <span className="tcp-cfg-axis">{axis}</span>
+                <span className={`tcp-cfg-value ${value == null ? 'value-na' : ''}`}>{fmtNum(value)}</span>
+                <span className="tcp-cfg-unit">{unit}</span>
+              </div>
+            ))}
+          </div>
+          <div className="tcp-cfg-group">
+            <div className="tcp-cfg-group-label">ORIENTACIÓN</div>
+            {[
+              { axis: 'RX', value: ori.RX },
+              { axis: 'RY', value: ori.RY },
+              { axis: 'RZ', value: ori.RZ },
+            ].map(({ axis, value }) => (
+              <div key={axis} className="tcp-cfg-row">
+                <span className="tcp-cfg-axis">{axis}</span>
+                <span className={`tcp-cfg-value ${value == null ? 'value-na' : ''}`}>{fmtNum(value)}</span>
+                <span className="tcp-cfg-unit">{oriUnits}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </CardGlass>
+
+      {/* Section 2: Carga y centro de gravedad */}
+      <CardGlass className="tcp-cfg-section">
+        <div className="tcp-cfg-section-header">
+          <span className="tcp-cfg-section-icon" aria-hidden="true">⚖</span>
+          <span className="tcp-cfg-section-title">CARGA Y CENTRO DE GRAVEDAD</span>
+        </div>
+        <div className="tcp-cfg-data-grid">
+          <div className="tcp-cfg-group">
+            <div className="tcp-cfg-group-label">CARGA</div>
+            <div className="tcp-cfg-row tcp-cfg-row--single">
+              <span className="tcp-cfg-axis tcp-cfg-axis--label">Carga</span>
+              <span className={`tcp-cfg-value ${load.carga_kg == null ? 'value-na' : ''}`}>{fmtNum(load.carga_kg)}</span>
+              <span className="tcp-cfg-unit">kg</span>
+            </div>
+          </div>
+          <div className="tcp-cfg-group">
+            <div className="tcp-cfg-group-label">CENTRO DE GRAVEDAD</div>
+            {[
+              { axis: 'CX', value: cog.CX_mm },
+              { axis: 'CY', value: cog.CY_mm },
+              { axis: 'CZ', value: cog.CZ_mm },
+            ].map(({ axis, value }) => (
+              <div key={axis} className="tcp-cfg-row">
+                <span className="tcp-cfg-axis">{axis}</span>
+                <span className={`tcp-cfg-value ${value == null ? 'value-na' : ''}`}>{fmtNum(value)}</span>
+                <span className="tcp-cfg-unit">mm</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </CardGlass>
+    </div>
+  );
+}

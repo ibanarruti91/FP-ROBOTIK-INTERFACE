@@ -169,6 +169,27 @@ export const SALESIANOS_LAYOUT = {
           ]
         }
       ]
+    },
+    {
+      id: "config-tcp",
+      label: "CONFIGURACIÓN TCP",
+      color: "#ff7c00", // Orange
+      groups: [
+        {
+          title: "CÁMARA EN VIVO",
+          className: "ctcp-camera",
+          widgets: [
+            { type: "camera", path: "camera.stream", dismissible: true, borderColor: "#ff7c00" }
+          ]
+        },
+        {
+          title: "CONFIGURACIÓN DE HERRAMIENTA",
+          className: "ctcp-data",
+          widgets: [
+            { type: "tcp-config", path: "config_herramienta" }
+          ]
+        }
+      ]
     }
   ]
 };

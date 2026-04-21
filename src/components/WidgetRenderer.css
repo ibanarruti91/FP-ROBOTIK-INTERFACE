@@ -809,3 +809,54 @@
     grid-column: span 1;
   }
 }
+
+/* ── CONFIGURACIÓN TCP TAB: left (Camera) | right (TcpConfigPanel) ── */
+.widget-renderer.config-tcp-layout {
+  display: grid;
+  grid-template-columns: 42% 58%;
+  gap: 20px;
+  align-items: start;
+}
+
+.widget-renderer.config-tcp-layout .ctcp-left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.widget-renderer.config-tcp-layout .ctcp-right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Compact group & title tweaks */
+.widget-renderer.config-tcp-layout .widget-group {
+  gap: 0.4rem;
+}
+
+.widget-renderer.config-tcp-layout .group-title {
+  font-size: 0.72rem;
+  padding-bottom: 0.3rem;
+  border-bottom-width: 1px;
+  border-bottom-color: #ff7c00;
+  margin-bottom: 0;
+}
+
+/* Preserve camera 16:9 */
+.widget-renderer.config-tcp-layout .ctcp-left-column .camera-inner--ratio {
+  aspect-ratio: 16 / 9;
+}
+
+/* Tighten card padding */
+.widget-renderer.config-tcp-layout .card-glass {
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.95);
+}
+
+/* Responsive: stack columns on narrow screens */
+@media (max-width: 1100px) {
+  .widget-renderer.config-tcp-layout {
+    grid-template-columns: 1fr;
+  }
+}

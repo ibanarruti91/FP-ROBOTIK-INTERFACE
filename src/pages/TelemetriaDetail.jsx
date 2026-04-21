@@ -346,6 +346,8 @@ function TelemetriaDetail() {
               corriente: data.herramienta?.corriente ?? baseTelemetry.herramienta?.corriente,
               potencia: data.herramienta?.potencia ?? baseTelemetry.herramienta?.potencia
             },
+            // Map tool configuration from MQTT config_herramienta block (static config, not live RTDE)
+            config_herramienta: data.config_herramienta ?? baseTelemetry.config_herramienta ?? null,
             // Map hardware_io from new UR Polyscope-style JSON structure
             // { control_box: { digital, analog }, tool: { digital, analog, power } }
             // Supports both legacy (analog_io/herramienta) and new extended formats
