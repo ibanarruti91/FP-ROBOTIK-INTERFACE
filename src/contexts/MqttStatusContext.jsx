@@ -136,11 +136,7 @@ export const MqttStatusProvider = ({ children }) => {
 
   // MQTT Connection Effect
   useEffect(() => {
-    const mqttHost = import.meta.env.VITE_MQTT_HOST || '10.20.250.120';
-    const client = mqtt.connect(`ws://${mqttHost}:9001`, {
-      username: 'urvisual',
-      password: 'root',
-    });
+    const client = mqtt.connect('wss://broker.emqx.io:8084/mqtt');
     clientRef.current = client;
 
     client.on('connect', () => {
