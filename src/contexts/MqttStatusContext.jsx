@@ -92,6 +92,13 @@ export const MqttStatusProvider = ({ children }) => {
   // when a genuinely new ERROR event arrives.
   const [lastError, setLastError] = useState(null);
 
+  // ── Status topic payload ──────────────────────────────────────────────────
+  // Stores the last payload received on salesianos/robot/iban/status.
+  // Fields: center_id, center_name, iot_online, modo_origen, data_status, …
+  // data_status: 'active' → telemetry running; 'idle' → center reachable but
+  // telemetry paused.  Both mean the center is ONLINE.
+  const [statusData, setStatusData] = useState(null);
+
   // ── Diagnóstico (from principal.diagnostico.last_error) ──────────────────
   // Reflects Node-RED's own last_error field directly — no frontend inference.
   const [diagnosticoLastError, setDiagnosticoLastError] = useState(null);
@@ -186,6 +193,7 @@ export const MqttStatusProvider = ({ children }) => {
       try {
         const data = JSON.parse(message.toString());
         const now = Date.now();
+        console.log('[MQTT]', topic, data);
 
         if (topic === 'salesianos/robot/iban/step_capture') {
           if (!isPausedStepCaptureRef.current) {
@@ -267,8 +275,11 @@ export const MqttStatusProvider = ({ children }) => {
           // ── status topic: drives ONLINE/OFFLINE and lastMessageTime ──────────
           // This is the ONLY place that updates lastMessageTime and sets ONLINE.
           // The watchdog (below) will set OFFLINE if this heartbeat stops arriving.
+          // data_status: 'active' → telemetry running; 'idle' → center reachable
+          // but telemetry paused.  Both values keep the badge ONLINE.
           setLastMessageTime(now);
           setStatus('ONLINE');
+          setStatusData(data);
           console.log('Estado del centro recibido (status topic):', data);
         } else {
           // ── principal topic ───────────────────────────────────────────────
@@ -446,6 +457,7 @@ export const MqttStatusProvider = ({ children }) => {
     // ── Diagnóstico ───────────────────────────────────────────────────────
     diagnosticoLastError,
     diagnosticoMessages,
+    statusData,
   };
 
   return (

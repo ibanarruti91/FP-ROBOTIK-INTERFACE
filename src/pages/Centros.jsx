@@ -5,7 +5,7 @@ import './Centros.css';
 
 function Centros() {
   const navigate = useNavigate();
-  const { status } = useMqttStatus();
+  const { status, statusData } = useMqttStatus();
 
   const handleCentroClick = (centroId, estado) => {
     if (estado !== 'PROXIMAMENTE') {
@@ -22,8 +22,14 @@ function Centros() {
       
       <div className="centros-grid">
         {Object.entries(CENTROS).map(([id, centro]) => {
-          // Use dynamic status from MQTT watchdog for Salesianos Urnieta
-          const dynamicEstado = id === 'salesianos-urnieta' ? status : centro.estado;
+          // Badge for salesianos-urnieta is driven exclusively by the
+          // salesianos/robot/iban/status topic (via `status`).
+          // data_status: 'active' → telemetry running (ONLINE)
+          // data_status: 'idle'   → center reachable but telemetry paused (ONLINE)
+          // No status message / watchdog timeout             → OFFLINE
+          const isUrnieta = id === 'salesianos-urnieta';
+          const dynamicEstado = isUrnieta ? status : centro.estado;
+          const isIdle = isUrnieta && status === 'ONLINE' && statusData?.data_status === 'idle';
           
           return (
             <div
@@ -36,10 +42,16 @@ function Centros() {
                 {dynamicEstado === 'PROXIMAMENTE' && (
                   <span className="badge-proximamente">Próximamente</span>
                 )}
-                {dynamicEstado === 'ONLINE' && (
+                {dynamicEstado === 'ONLINE' && !isIdle && (
                   <span className="badge-online">
                     <span className="status-dot"></span>
                     Online
+                  </span>
+                )}
+                {dynamicEstado === 'ONLINE' && isIdle && (
+                  <span className="badge-online">
+                    <span className="status-dot"></span>
+                    Online (sin telemetría)
                   </span>
                 )}
                 {dynamicEstado === 'OFFLINE' && (
@@ -62,8 +74,10 @@ function Centros() {
               </div>
               
               <p className="centro-description">
-                {dynamicEstado === 'ONLINE' 
+                {dynamicEstado === 'ONLINE' && !isIdle
                   ? 'Haz clic para acceder a los datos de telemetría en tiempo real'
+                  : dynamicEstado === 'ONLINE' && isIdle
+                  ? 'Centro conectado - Telemetría pausada'
                   : dynamicEstado === 'PROXIMAMENTE'
                   ? 'Este centro estará disponible próximamente'
                   : 'Centro sin conexión - Haz clic para ver la telemetría'}
