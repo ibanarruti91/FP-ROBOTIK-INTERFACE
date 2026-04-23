@@ -27,4 +27,8 @@ export const MqttStatusContext = createContext({
   nodeRedEventsBufferLimit: null,
   // ── Diagnóstico (from principal.diagnostico) ──────────────────────────────
   diagnosticoLastError: null,
+  // ── Status topic payload ──────────────────────────────────────────────────
+  // Full payload from salesianos/robot/iban/status (center_id, center_name,
+  // iot_online, modo_origen, data_status, …).  null until first message.
+  statusData: null,
 });
