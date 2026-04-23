@@ -169,6 +169,17 @@ export const MqttStatusProvider = ({ children }) => {
           console.log('Suscrito al topic: salesianos/robot/iban/events_buffer');
         }
       });
+      // ── status topic: single source of truth for ONLINE/OFFLINE ────────────
+      // Node-RED publishes a heartbeat here regardless of whether telemetry is
+      // active.  The watchdog uses this topic — NOT principal — to decide if
+      // the IoT centre is reachable.
+      client.subscribe('salesianos/robot/iban/status', (err) => {
+        if (err) {
+          console.error('Error al suscribirse al topic status:', err);
+        } else {
+          console.log('Suscrito al topic: salesianos/robot/iban/status');
+        }
+      });
     });
 
     client.on('message', (topic, message) => {
@@ -252,10 +263,18 @@ export const MqttStatusProvider = ({ children }) => {
             });
             if (typeof data.count === 'number') setNodeRedEventsTotal(data.count);
           }
-        } else {
-          // ── principal topic ───────────────────────────────────────────────
+        } else if (topic === 'salesianos/robot/iban/status') {
+          // ── status topic: drives ONLINE/OFFLINE and lastMessageTime ──────────
+          // This is the ONLY place that updates lastMessageTime and sets ONLINE.
+          // The watchdog (below) will set OFFLINE if this heartbeat stops arriving.
           setLastMessageTime(now);
           setStatus('ONLINE');
+          console.log('Estado del centro recibido (status topic):', data);
+        } else {
+          // ── principal topic ───────────────────────────────────────────────
+          // Updates telemetryData and all diagnostic/event state.
+          // Does NOT set status or lastMessageTime — that is driven solely by
+          // the status topic above.
 
           // ── Derived Diagnostic Buffer ─────────────────────────────────────
           // Compara el estado MQTT anterior con el nuevo y genera los eventos que
