@@ -24,9 +24,9 @@ function Centros() {
         {Object.entries(CENTROS).map(([id, centro]) => {
           // Badge for salesianos-urnieta is driven exclusively by the
           // salesianos/robot/iban/status topic (via `status`).
-          // data_status: 'active' → telemetry running (ONLINE)
-          // data_status: 'idle'   → center reachable but telemetry paused (ONLINE)
-          // No status message / watchdog timeout             → OFFLINE
+          // data_status: 'running' → telemetry active (ONLINE)
+          // data_status: 'idle'    → center reachable but telemetry paused (ONLINE)
+          // No status message / watchdog timeout              → OFFLINE
           const isUrnieta = id === 'salesianos-urnieta';
           const dynamicEstado = isUrnieta ? status : centro.estado;
           const isIdle = isUrnieta && status === 'ONLINE' && statusData?.data_status === 'idle';
