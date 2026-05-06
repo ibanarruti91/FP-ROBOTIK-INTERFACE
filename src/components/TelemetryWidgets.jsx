@@ -690,7 +690,7 @@ export function TcpPose({ data, className = '' }) {
 
   // TCP source badge derived from source_status propagated by the MQTT normaliser.
   const sourceStatus = data?.source_status ?? null;
-  const sourceKey = sourceStatus?.applied ?? sourceStatus?.selected ?? null;
+  const sourceKey = sourceStatus?.applied ?? null;
   const sourceBadge = (() => {
     if (!sourceKey) return null;
     const k = String(sourceKey).toLowerCase();
