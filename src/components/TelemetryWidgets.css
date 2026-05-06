@@ -1391,6 +1391,43 @@
   font-style: italic;
 }
 
+/* TCP source origin badge (modbus / rtde / rtde_fallback) */
+.tcp-source-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 0.35rem;
+  padding: 0.18rem 0.6rem;
+  border-radius: 4px;
+  border: 1px solid;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tcp-source-modbus {
+  background: rgba(0, 200, 83, 0.15);
+  border-color: rgba(0, 200, 83, 0.55);
+  color: #00c853;
+  text-shadow: 0 0 6px rgba(0, 200, 83, 0.6);
+}
+
+.tcp-source-rtde {
+  background: rgba(0, 123, 255, 0.15);
+  border-color: rgba(0, 123, 255, 0.55);
+  color: #4d9fff;
+  text-shadow: 0 0 6px rgba(0, 123, 255, 0.6);
+}
+
+.tcp-source-fallback {
+  background: rgba(255, 160, 0, 0.15);
+  border-color: rgba(255, 160, 0, 0.55);
+  color: #ffa000;
+  text-shadow: 0 0 6px rgba(255, 160, 0, 0.6);
+}
+
 /* Segmented control RAD / DEG */
 .tcp-pose-unit-segmented {
   display: flex;

@@ -240,7 +240,36 @@ function TelemetriaDetail() {
           position: data.tcp?.position ?? baseTelemetry.tcp?.position,
           orientation: data.tcp?.orientation ?? baseTelemetry.tcp?.orientation,
           speed: data.tcp?.speed ?? baseTelemetry.tcp?.speed,
-          velocity: data.tcp?.velocity ?? baseTelemetry.tcp?.velocity
+          velocity: data.tcp?.velocity ?? baseTelemetry.tcp?.velocity,
+          // TCP source status: prefer the structured tcp_source_status object,
+          // then fall back to flat fields scattered across the payload.
+          source_status: (() => {
+            const s = data.tcp_source_status;
+            // Normalise source key: replace hyphens with underscores so the
+            // render layer only needs to handle one canonical form.
+            const normaliseKey = (k) => (typeof k === 'string' ? k.replace(/-/g, '_') : k);
+            if (s && typeof s === 'object') {
+              return {
+                ...s,
+                applied: normaliseKey(s.applied),
+                selected: normaliseKey(s.selected),
+              };
+            }
+            // Try flat fields from tcp sub-object or top level
+            const applied = normaliseKey(
+              data.tcp?.source ?? data.tcp?.publish_source ??
+              data.tcp_publish_source ?? data.tcp_source_label ?? null
+            );
+            if (applied) {
+              return {
+                applied,
+                selected: normaliseKey(data.tcp?.selected_source ?? applied),
+                label: data.tcp?.source_label ?? data.tcp_source_label ?? null,
+                modbus_age_ms: data.tcp?.modbus_age_ms ?? null,
+              };
+            }
+            return baseTelemetry.tcp?.source_status ?? null;
+          })()
         },
         joints: (() => {
           const j = data.joints ?? baseTelemetry.joints;
