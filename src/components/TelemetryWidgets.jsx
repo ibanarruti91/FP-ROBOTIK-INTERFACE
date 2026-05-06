@@ -688,6 +688,25 @@ export function TcpPose({ data, className = '' }) {
 
   const angleUnitLabel = angleUnit === 'deg' ? '°' : 'rad';
 
+  // TCP source badge derived from source_status propagated by the MQTT normaliser.
+  const sourceStatus = data?.source_status ?? null;
+  const sourceKey = sourceStatus?.applied ?? sourceStatus?.selected ?? null;
+  const sourceBadge = (() => {
+    if (!sourceKey) return null;
+    const k = String(sourceKey).toLowerCase();
+    if (k === 'modbus') {
+      const age = sourceStatus?.modbus_age_ms != null
+        ? ` · ${sourceStatus.modbus_age_ms} ms`
+        : '';
+      return { label: `TCP: Modbus${age}`, colorClass: 'tcp-source-modbus' };
+    }
+    if (k === 'rtde_fallback') {
+      return { label: 'TCP: RTDE fallback', colorClass: 'tcp-source-fallback' };
+    }
+    // 'rtde' or any unrecognised value → blue RTDE badge
+    return { label: 'TCP: RTDE', colorClass: 'tcp-source-rtde' };
+  })();
+
   return (
     <CardGlass className={`tcp-pose ${className}`}>
       <div className="tcp-pose-header">
@@ -697,6 +716,11 @@ export function TcpPose({ data, className = '' }) {
             <span className="tcp-pose-ref-icon">⊙</span>
             REFERENCIA ACTIVA: BASE
           </div>
+          {sourceBadge && (
+            <div className={`tcp-source-badge ${sourceBadge.colorClass}`}>
+              {sourceBadge.label}
+            </div>
+          )}
           <div className="tcp-pose-ref-note">Todos los valores TCP se expresan respecto al sistema Base del robot</div>
         </div>
         <div className="tcp-pose-unit-segmented">
