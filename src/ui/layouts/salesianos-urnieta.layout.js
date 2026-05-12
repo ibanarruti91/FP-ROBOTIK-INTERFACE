@@ -192,15 +192,15 @@ export const SALESIANOS_LAYOUT = {
       ]
     },
     {
-      id: "capturas",
-      label: "Registro de Step Point",
+      id: "validacion-pasos",
+      label: "Validador de pasos",
       color: "#10b981", // Emerald green
       groups: [
         {
-          title: "TABLA DE CAPTURAS DE PASO EN TIEMPO REAL",
+          title: "RESULTADOS DE VALIDACIÓN DE PASOS",
           className: "cap-table",
           widgets: [
-            { type: "step-capture-table", path: "step_capture", columns: 2 }
+            { type: "step-validation-table", path: "step_validation", columns: 2 }
           ]
         }
       ]

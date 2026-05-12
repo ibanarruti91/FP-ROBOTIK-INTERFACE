@@ -43,7 +43,6 @@ function Validacion() {
   // isPaused state drives the UI button toggle.
   const [isPaused, setIsPaused] = useState(false);
   const [currentProgram, setCurrentProgram] = useState(null);
-  const [currentChecksum, setCurrentChecksum] = useState(null);
   const [currentOrigen, setCurrentOrigen] = useState(null);
   const isPausedRef = useRef(false);
 
@@ -86,9 +85,6 @@ function Validacion() {
         };
         if (data.program_name) {
           setCurrentProgram(data.program_name);
-        }
-        if (data.checksum != null) {
-          setCurrentChecksum(data.checksum);
         }
         if (data.origen != null) {
           setCurrentOrigen(data.origen);

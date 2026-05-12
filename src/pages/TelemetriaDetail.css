@@ -81,7 +81,7 @@
   color: #8a2be2;
 }
 
-.tab-button[data-section="capturas"].active {
+.tab-button[data-section="validacion-pasos"].active {
   border-color: #10b981;
   background: rgba(16, 185, 129, 0.15);
   box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
