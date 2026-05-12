@@ -316,8 +316,7 @@ export function DataTable({ label, data, unit, format }) {
 /**
  * Panel de logs/mensajes
  */
-export function LogPanel({ messages, className = '', compact = false }) {
-  void messages;
+export function LogPanel({ messages: _MESSAGES, className = '', compact = false }) {
   // eventLog and clearEventLog come from MqttStatusContext so that:
   //  • clearing truly empties the in-memory buffer (not just the view), and
   //  • the cleared state survives tab switches / component remounts.

@@ -16,7 +16,7 @@ const STEP_VALIDATION_STORAGE_KEY = 'fp-step-validation-records-v1';
 
 const ARROW_SEPARATOR = ' -> ';
 
-// Accept any centre segment so the shared viewer can listen to every
+// Accept any center segment so the shared viewer can listen to every
 // `salesianos/robot/<center>/step_validation` feed on the same broker.
 function isStepValidationTopic(topic) {
   return /^salesianos\/robot\/[^/]+\/step_validation$/.test(topic);
