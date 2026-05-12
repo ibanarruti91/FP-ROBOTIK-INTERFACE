@@ -1143,7 +1143,7 @@ function formatStepValidationNumber(value, digits = 3) {
   return Number(value).toFixed(digits);
 }
 
-function buildExportTimestampTag() {
+function formatExportTimestamp() {
   return new Date()
     .toISOString()
     .replace(/:/g, '-')
@@ -1250,7 +1250,7 @@ export function StepValidationTable({ records = [], className = '' }) {
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      const stamp = buildExportTimestampTag();
+      const stamp = formatExportTimestamp();
       link.href = url;
       link.download = `step_validation_${stamp}.csv`;
       document.body.appendChild(link);
@@ -1337,7 +1337,7 @@ export function StepValidationTable({ records = [], className = '' }) {
       });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      const stamp = buildExportTimestampTag();
+      const stamp = formatExportTimestamp();
       link.href = url;
       link.download = `step_validation_${stamp}.xlsx`;
       document.body.appendChild(link);
@@ -1361,7 +1361,7 @@ export function StepValidationTable({ records = [], className = '' }) {
       <div className="svt-subtitle">
         <p>
           Escuchando <code>salesianos/robot/+/step_validation</code>. Esta vista solo almacena/visualiza resultados ya evaluados externamente:
-          <strong> no valida pasos, no compara planned/captured y no depende del conversor.</strong>
+          <strong>no valida pasos, no compara planned/captured y no depende del conversor.</strong>
         </p>
         <p>
           <strong>Nota:</strong> <code>step_capture</code> es captura cruda para validación externa; <code>step_validation</code> es resultado final para este visor.
