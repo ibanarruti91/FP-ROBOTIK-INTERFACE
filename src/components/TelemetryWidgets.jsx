@@ -321,10 +321,32 @@ export function LogPanel({ messages: MESSAGES, className = '', compact = false }
   //  • clearing truly empties the in-memory buffer (not just the view), and
   //  • the cleared state survives tab switches / component remounts.
   const { eventLog, clearEventLog } = useContext(MqttStatusContext);
+  const renderedMessages = useMemo(() => {
+    if (eventLog.length > 0) return eventLog;
+    if (Array.isArray(MESSAGES)) {
+      return MESSAGES.map((msg) => ({
+        time: msg?.hora ?? msg?.time ?? '',
+        text: msg?.msg ?? msg?.mensaje ?? msg?.txt ?? msg?.message ?? '',
+      })).filter(msg => msg.text);
+    }
+    if (typeof MESSAGES === 'string' && MESSAGES.trim().length > 0) {
+      return MESSAGES
+        .split('\n')
+        .map(line => line.trim())
+        .filter(Boolean)
+        .map((line) => {
+          const arrowIndex = line.indexOf(' -> ');
+          return arrowIndex === -1
+            ? { time: '', text: line }
+            : { time: line.slice(0, arrowIndex).trim(), text: line.slice(arrowIndex + 4).trim() };
+        });
+    }
+    return [];
+  }, [eventLog, MESSAGES]);
 
   const handleExportCsv = () => {
     const csvLines = ['Hora,Evento'];
-    eventLog.forEach(({ time, text }) => {
+    renderedMessages.forEach(({ time, text }) => {
       // Wrap fields in quotes and escape any internal quotes
       const safeTime = `"${String(time).replace(/"/g, '""')}"`;
       const safeText = `"${String(text).replace(/"/g, '""')}"`;
@@ -349,7 +371,7 @@ export function LogPanel({ messages: MESSAGES, className = '', compact = false }
           <button
             className="log-btn log-btn--export"
             onClick={handleExportCsv}
-            disabled={eventLog.length === 0}
+            disabled={renderedMessages.length === 0}
             title="Exportar registro a CSV"
           >
             ⬇ Exportar a Excel
@@ -364,11 +386,11 @@ export function LogPanel({ messages: MESSAGES, className = '', compact = false }
           </button>
         </div>
       </div>
-      {eventLog.length === 0 ? (
+      {renderedMessages.length === 0 ? (
         <div className="log-empty">No hay mensajes</div>
       ) : (
         <div className="log-messages">
-          {eventLog.map((row, index) => (
+          {renderedMessages.map((row, index) => (
             <div key={index} className="log-message">
               {row.time && <span className="log-time">{row.time}</span>}
               <span className="log-text">{row.text}</span>
