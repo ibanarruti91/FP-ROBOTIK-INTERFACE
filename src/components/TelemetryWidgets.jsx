@@ -1293,6 +1293,7 @@ export function StepValidationTable({ records = [], className = '' }) {
                 <th>Captured Y</th>
                 <th>Captured Z</th>
                 <th>Snapshot match</th>
+                <th>Topic MQTT</th>
               </tr>
             </thead>
             <tbody>
@@ -1327,6 +1328,7 @@ export function StepValidationTable({ records = [], className = '' }) {
                       </span>
                     ) : '—'}
                   </td>
+                  <td className="svt-td-topic">{record._topic ?? '—'}</td>
                 </tr>
               ))}
             </tbody>

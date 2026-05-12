@@ -1972,10 +1972,11 @@
   border: 1px solid rgba(52, 211, 153, 0.35);
 }
 
-.svt-match--no {
-  color: #f87171;
-  background: rgba(248, 113, 113, 0.14);
-  border: 1px solid rgba(248, 113, 113, 0.35);
+.svt-td-topic {
+  color: var(--text-secondary);
+  font-family: 'Courier New', monospace;
+  font-size: 0.78rem;
+  white-space: nowrap;
 }
 
 .sct-empty {
