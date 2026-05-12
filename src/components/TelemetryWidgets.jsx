@@ -1127,7 +1127,15 @@ function formatStepValidationDateTime(timestamp) {
   const date = new Date(timestamp);
   return Number.isNaN(date.getTime())
     ? String(timestamp)
-    : date.toLocaleString('es-ES');
+    : date.toLocaleString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+      });
 }
 
 function formatStepValidationNumber(value, digits = 3) {
@@ -1136,8 +1144,11 @@ function formatStepValidationNumber(value, digits = 3) {
 }
 
 function buildExportTimestampTag() {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}-${String(now.getSeconds()).padStart(2, '0')}`;
+  return new Date()
+    .toISOString()
+    .replace(/:/g, '-')
+    .replace(/\..+$/, '')
+    .replace('T', '_');
 }
 
 function getStepValidationStatusClass(status) {
