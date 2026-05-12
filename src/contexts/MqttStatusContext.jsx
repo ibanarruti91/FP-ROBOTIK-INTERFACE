@@ -10,8 +10,153 @@ import {
 } from '../servicios/diagnosticBuffer.js';
 
 const MAX_STEP_CAPTURE_RECORDS = 50;
+const MAX_STEP_VALIDATION_RECORDS = 200;
+const STEP_VALIDATION_TOPIC = 'salesianos/robot/+/step_validation';
+const STEP_VALIDATION_STORAGE_KEY = 'fp-step-validation-records-v1';
 
 const ARROW_SEPARATOR = ' -> ';
+
+function isStepValidationTopic(topic) {
+  return /^salesianos\/robot\/[^/]+\/step_validation$/.test(topic);
+}
+
+function inferCenterIdFromTopic(topic) {
+  return typeof topic === 'string' ? topic.split('/')[2] ?? null : null;
+}
+
+function normalizeNumber(value) {
+  if (value === null || value === undefined || value === '') return null;
+  const numericValue = Number(value);
+  return Number.isFinite(numericValue) ? numericValue : null;
+}
+
+function normalizeTimestamp(value, fallbackMs) {
+  if (typeof value === 'string' || typeof value === 'number') {
+    const date = new Date(value);
+    if (!Number.isNaN(date.getTime())) {
+      return date.toISOString();
+    }
+  }
+  return new Date(fallbackMs).toISOString();
+}
+
+function getStepValidationSortValue(record) {
+  const timestampValue = Date.parse(record?.timestamp ?? '');
+  if (!Number.isNaN(timestampValue)) return timestampValue;
+  return Number(record?._receivedAt) || 0;
+}
+
+function sortAndTrimStepValidationRecords(records) {
+  return [...records]
+    .filter(Boolean)
+    .sort((a, b) => {
+      const tsDiff = getStepValidationSortValue(b) - getStepValidationSortValue(a);
+      if (tsDiff !== 0) return tsDiff;
+      return (Number(b?._receivedAt) || 0) - (Number(a?._receivedAt) || 0);
+    })
+    .slice(0, MAX_STEP_VALIDATION_RECORDS);
+}
+
+function isLikelyStepValidationPayload(payload) {
+  if (!payload || typeof payload !== 'object') return false;
+  if (payload.message_type === 'step_validation_result') return true;
+  return (
+    payload.validation?.status != null ||
+    payload.validation_status != null ||
+    payload.errors?.position_error_mm != null ||
+    payload.step?.step_id != null ||
+    payload.step_id != null ||
+    payload.snapshot_check?.match != null
+  );
+}
+
+function normalizeStepValidationRecord(payload, topic, receivedAt) {
+  if (!isLikelyStepValidationPayload(payload)) return null;
+
+  const plannedPosition = payload.planned?.position_mm ?? payload.planned_position_mm ?? null;
+  const capturedPosition =
+    payload.captured?.position_mm ??
+    payload.captured_tcp_mm ??
+    payload.tcp_position_mm ??
+    null;
+  const validationStatusRaw = payload.validation?.status ?? payload.validation_status ?? 'UNKNOWN';
+
+  return {
+    _id: `${receivedAt}-${Math.random().toString(36).slice(2, 10)}`,
+    _receivedAt: receivedAt,
+    _topic: topic,
+    timestamp: normalizeTimestamp(payload.timestamp, receivedAt),
+    center_id: payload.center_id ?? inferCenterIdFromTopic(topic),
+    center_name: payload.center_name ?? null,
+    schema_version: payload.schema_version ?? null,
+    message_type: payload.message_type ?? null,
+    snapshot_short:
+      payload.snapshot_short ??
+      payload.program_identity?.snapshot_short ??
+      payload.snapshot_check?.received_snapshot_short ??
+      payload.snapshot_check?.expected_snapshot_short ??
+      null,
+    program_name: payload.program_identity?.program_name ?? payload.program_name ?? null,
+    step_id: payload.step_id ?? payload.step?.step_id ?? null,
+    event_counter:
+      payload.event_counter ??
+      payload.event_seq ??
+      payload.step?.event_counter ??
+      payload.step?.event_seq ??
+      null,
+    event_seq: payload.event_seq ?? payload.step?.event_seq ?? null,
+    step_label: payload.step?.step_label ?? payload.step_label ?? null,
+    step_type: payload.step?.step_type ?? payload.step_type ?? null,
+    validation_status:
+      typeof validationStatusRaw === 'string'
+        ? validationStatusRaw.toUpperCase()
+        : validationStatusRaw ?? 'UNKNOWN',
+    validation_code: payload.validation?.code ?? payload.validation_code ?? null,
+    validation_text: payload.validation?.text ?? payload.validation_text ?? null,
+    tolerance_ok_mm: normalizeNumber(payload.validation?.tolerance_ok_mm ?? payload.tolerance_ok_mm),
+    tolerance_warning_mm: normalizeNumber(payload.validation?.tolerance_warning_mm ?? payload.tolerance_warning_mm),
+    total_error_mm: normalizeNumber(payload.errors?.position_error_mm ?? payload.position_error_mm),
+    dx_mm: normalizeNumber(payload.errors?.dx_mm ?? payload.dx_mm),
+    dy_mm: normalizeNumber(payload.errors?.dy_mm ?? payload.dy_mm),
+    dz_mm: normalizeNumber(payload.errors?.dz_mm ?? payload.dz_mm),
+    planned_x_mm: normalizeNumber(plannedPosition?.x),
+    planned_y_mm: normalizeNumber(plannedPosition?.y),
+    planned_z_mm: normalizeNumber(plannedPosition?.z),
+    captured_x_mm: normalizeNumber(capturedPosition?.x),
+    captured_y_mm: normalizeNumber(capturedPosition?.y),
+    captured_z_mm: normalizeNumber(capturedPosition?.z),
+    snapshot_match:
+      typeof payload.snapshot_check?.match === 'boolean' ? payload.snapshot_check.match : null,
+    expected_snapshot_short: payload.snapshot_check?.expected_snapshot_short ?? null,
+    received_snapshot_short: payload.snapshot_check?.received_snapshot_short ?? null,
+    raw_capture_line: payload.raw_capture?.raw_socket_line ?? payload.raw_socket_line ?? null,
+  };
+}
+
+function loadStepValidationRecords() {
+  if (typeof window === 'undefined') return [];
+  try {
+    const stored = window.localStorage.getItem(STEP_VALIDATION_STORAGE_KEY);
+    if (!stored) return [];
+    const parsed = JSON.parse(stored);
+    if (!Array.isArray(parsed)) return [];
+    return sortAndTrimStepValidationRecords(
+      parsed
+        .filter(record => record && typeof record === 'object')
+        .map((record, index) => ({
+          ...record,
+          _id: record._id ?? `stored-${index}-${Date.now()}`,
+          _receivedAt:
+            Number(record._receivedAt) ||
+            Date.parse(record.timestamp ?? '') ||
+            Date.now(),
+        })),
+    );
+  } catch (error) {
+    console.error('Error al cargar step_validation desde localStorage:', error);
+    return [];
+  }
+}
 
 /**
  * Normalises the `data` field of a single event.
@@ -73,6 +218,7 @@ export const MqttStatusProvider = ({ children }) => {
   const [lastMessageTime, setLastMessageTime] = useState(null);
   const [telemetryData, setTelemetryData] = useState(null);
   const [stepCaptureRecords, setStepCaptureRecords] = useState([]);
+  const [stepValidationRecords, setStepValidationRecords] = useState(loadStepValidationRecords);
   const [currentProgram, setCurrentProgram] = useState(null);
   const [currentChecksum, setCurrentChecksum] = useState(null);
   const [isPausedStepCapture, setIsPausedStepCapture] = useState(false);
@@ -162,6 +308,13 @@ export const MqttStatusProvider = ({ children }) => {
           console.log('Suscrito al topic: salesianos/robot/iban/step_capture');
         }
       });
+      client.subscribe(STEP_VALIDATION_TOPIC, (err) => {
+        if (err) {
+          console.error('Error al suscribirse al topic step_validation:', err);
+        } else {
+          console.log(`Suscrito al topic: ${STEP_VALIDATION_TOPIC}`);
+        }
+      });
       client.subscribe('salesianos/robot/iban/events_derived', (err) => {
         if (err) {
           console.error('Error al suscribirse al topic events_derived:', err);
@@ -210,6 +363,13 @@ export const MqttStatusProvider = ({ children }) => {
           }
           if (data.checksum != null) {
             setCurrentChecksum(data.checksum);
+          }
+        } else if (isStepValidationTopic(topic)) {
+          const normalizedRecord = normalizeStepValidationRecord(data, topic, now);
+          if (normalizedRecord) {
+            setStepValidationRecords(prev =>
+              sortAndTrimStepValidationRecords([normalizedRecord, ...prev]),
+            );
           }
         } else if (topic === 'salesianos/robot/iban/events_buffer') {
           // ── events_buffer: authoritative resync from Node-RED ───────────
@@ -376,6 +536,18 @@ export const MqttStatusProvider = ({ children }) => {
     };
   }, []);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem(
+        STEP_VALIDATION_STORAGE_KEY,
+        JSON.stringify(sortAndTrimStepValidationRecords(stepValidationRecords)),
+      );
+    } catch (error) {
+      console.error('Error al guardar step_validation en localStorage:', error);
+    }
+  }, [stepValidationRecords]);
+
   const publishCommand = useCallback((topic, payload) => {
     if (clientRef.current && clientRef.current.connected) {
       clientRef.current.publish(topic, JSON.stringify(payload));
@@ -395,6 +567,10 @@ export const MqttStatusProvider = ({ children }) => {
 
   const clearStepCaptureRecords = useCallback(() => {
     setStepCaptureRecords([]);
+  }, []);
+
+  const clearStepValidationRecords = useCallback(() => {
+    setStepValidationRecords([]);
   }, []);
 
   // Clears the accumulated event log.
@@ -438,11 +614,13 @@ export const MqttStatusProvider = ({ children }) => {
     lastMessageTime,
     telemetryData,
     stepCaptureRecords,
+    stepValidationRecords,
     currentProgram,
     currentChecksum,
     isPausedStepCapture,
     togglePauseStepCapture,
     clearStepCaptureRecords,
+    clearStepValidationRecords,
     publishCommand,
     eventLog,
     clearEventLog,

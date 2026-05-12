@@ -316,7 +316,7 @@ export function DataTable({ label, data, unit, format }) {
 /**
  * Panel de logs/mensajes
  */
-export function LogPanel({ messages, className = '', compact = false }) {
+export function LogPanel({ className = '', compact = false }) {
   // eventLog and clearEventLog come from MqttStatusContext so that:
   //  • clearing truly empties the in-memory buffer (not just the view), and
   //  • the cleared state survives tab switches / component remounts.
@@ -1100,6 +1100,221 @@ export function StepCaptureTable({ records = [], className = '' }) {
   );
 }
 
+function formatStepValidationTime(timestamp) {
+  if (!timestamp) return '—';
+  const date = new Date(timestamp);
+  return Number.isNaN(date.getTime())
+    ? String(timestamp)
+    : date.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      });
+}
+
+function formatStepValidationNumber(value, digits = 3) {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) return '—';
+  return Number(value).toFixed(digits);
+}
+
+function getStepValidationStatusClass(status) {
+  switch (String(status ?? 'UNKNOWN').toUpperCase()) {
+    case 'OK':
+      return 'svt-status--ok';
+    case 'WARNING':
+      return 'svt-status--warning';
+    case 'ERROR':
+      return 'svt-status--error';
+    case 'SNAPSHOT_MISMATCH':
+      return 'svt-status--snapshot-mismatch';
+    case 'UNKNOWN_STEP':
+      return 'svt-status--unknown-step';
+    case 'FINISHED':
+      return 'svt-status--finished';
+    case 'PENDING_WEB_VALIDATION':
+      return 'svt-status--pending';
+    default:
+      return 'svt-status--unknown';
+  }
+}
+
+export function StepValidationTable({ records = [], className = '' }) {
+  const { clearStepValidationRecords } = useContext(MqttStatusContext);
+
+  const displayRecords = useMemo(() => (
+    Array.isArray(records) ? records : []
+  ), [records]);
+
+  const handleExport = () => {
+    try {
+      if (displayRecords.length === 0) return;
+      const headers = [
+        'hora',
+        'centro',
+        'center_id',
+        'snapshot_short',
+        'step_id',
+        'event_counter',
+        'step_label',
+        'estado',
+        'texto_validacion',
+        'error_total_mm',
+        'dx_mm',
+        'dy_mm',
+        'dz_mm',
+        'planned_x_mm',
+        'planned_y_mm',
+        'planned_z_mm',
+        'captured_x_mm',
+        'captured_y_mm',
+        'captured_z_mm',
+        'snapshot_match',
+        'program_name',
+        'topic',
+      ];
+      const rows = displayRecords.map((record) => [
+        record.timestamp ?? '',
+        record.center_name ?? record.center_id ?? '',
+        record.center_id ?? '',
+        record.snapshot_short ?? '',
+        record.step_id ?? '',
+        record.event_counter ?? '',
+        record.step_label ?? '',
+        record.validation_status ?? '',
+        record.validation_text ?? '',
+        record.total_error_mm ?? '',
+        record.dx_mm ?? '',
+        record.dy_mm ?? '',
+        record.dz_mm ?? '',
+        record.planned_x_mm ?? '',
+        record.planned_y_mm ?? '',
+        record.planned_z_mm ?? '',
+        record.captured_x_mm ?? '',
+        record.captured_y_mm ?? '',
+        record.captured_z_mm ?? '',
+        record.snapshot_match ?? '',
+        record.program_name ?? '',
+        record._topic ?? '',
+      ]);
+      const csvContent = [headers, ...rows]
+        .map((row) => row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(','))
+        .join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const now = new Date();
+      const stamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}-${String(now.getSeconds()).padStart(2, '0')}`;
+      link.href = url;
+      link.download = `step_validation_${stamp}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error al exportar resultados de validación:', error);
+    }
+  };
+
+  return (
+    <CardGlass className={`step-validation-table ${className}`}>
+      <div className="svt-header">
+        <Activity size={16} className="widget-icon" />
+        {displayRecords.length === 0
+          ? 'Validador de pasos'
+          : `Validador de pasos — ${displayRecords.length} resultado${displayRecords.length !== 1 ? 's' : ''}`}
+      </div>
+
+      <div className="svt-subtitle">
+        Escuchando <code>salesianos/robot/+/step_validation</code> y mostrando solo resultados ya validados.
+      </div>
+
+      <div className="sct-controls">
+        <button
+          className="ctrl-btn ctrl-btn-clear"
+          onClick={clearStepValidationRecords}
+          disabled={displayRecords.length === 0}
+        >
+          🗑 Limpiar resultados
+        </button>
+        <button
+          className="ctrl-btn ctrl-btn-export"
+          onClick={handleExport}
+          disabled={displayRecords.length === 0}
+        >
+          📥 Exportar CSV
+        </button>
+      </div>
+
+      {displayRecords.length === 0 ? (
+        <div className="sct-empty">Esperando datos del topic salesianos/robot/+/step_validation…</div>
+      ) : (
+        <div className="svt-scroll">
+          <table className="svt-tbl">
+            <thead>
+              <tr>
+                <th>Hora</th>
+                <th>Centro</th>
+                <th>Snapshot</th>
+                <th>Step</th>
+                <th>Event</th>
+                <th>Etiqueta</th>
+                <th>Estado</th>
+                <th>Validación</th>
+                <th>Error total (mm)</th>
+                <th>ΔX</th>
+                <th>ΔY</th>
+                <th>ΔZ</th>
+                <th>Planned X</th>
+                <th>Planned Y</th>
+                <th>Planned Z</th>
+                <th>Captured X</th>
+                <th>Captured Y</th>
+                <th>Captured Z</th>
+                <th>Snapshot match</th>
+              </tr>
+            </thead>
+            <tbody>
+              {displayRecords.map((record) => (
+                <tr key={record._id ?? `${record.timestamp ?? ''}-${record.step_id ?? ''}-${record.event_counter ?? ''}`}>
+                  <td className="svt-td-time">{formatStepValidationTime(record.timestamp)}</td>
+                  <td>{record.center_name ?? record.center_id ?? '—'}</td>
+                  <td>{record.snapshot_short ?? '—'}</td>
+                  <td>{record.step_id ?? '—'}</td>
+                  <td>{record.event_counter ?? '—'}</td>
+                  <td>{record.step_label ?? '—'}</td>
+                  <td>
+                    <span className={`svt-status ${getStepValidationStatusClass(record.validation_status)}`}>
+                      {record.validation_status ?? 'UNKNOWN'}
+                    </span>
+                  </td>
+                  <td>{record.validation_text ?? '—'}</td>
+                  <td>{formatStepValidationNumber(record.total_error_mm)}</td>
+                  <td>{formatStepValidationNumber(record.dx_mm)}</td>
+                  <td>{formatStepValidationNumber(record.dy_mm)}</td>
+                  <td>{formatStepValidationNumber(record.dz_mm)}</td>
+                  <td>{formatStepValidationNumber(record.planned_x_mm)}</td>
+                  <td>{formatStepValidationNumber(record.planned_y_mm)}</td>
+                  <td>{formatStepValidationNumber(record.planned_z_mm)}</td>
+                  <td>{formatStepValidationNumber(record.captured_x_mm)}</td>
+                  <td>{formatStepValidationNumber(record.captured_y_mm)}</td>
+                  <td>{formatStepValidationNumber(record.captured_z_mm)}</td>
+                  <td>
+                    {typeof record.snapshot_match === 'boolean' ? (
+                      <span className={`svt-match ${record.snapshot_match ? 'svt-match--yes' : 'svt-match--no'}`}>
+                        {record.snapshot_match ? 'true' : 'false'}
+                      </span>
+                    ) : '—'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </CardGlass>
+  );
+}
+
 /**
  * Safely converts a value to a finite number, or returns null.
  * Handles strings, null, undefined, and NaN from MQTT payloads.
@@ -1337,15 +1552,6 @@ export function HardwareIOTool({ data, className = '' }) {
 }
 
 // ── Helpers shared by the Node-RED panels ────────────────────────────────────
-
-/** Returns true if the diagnostic message text is considered noisy and should
- *  be hidden from the UI. Currently suppresses "URControl..." lines that
- *  contain no useful user-facing information. */
-function isNoisyDiagMessage(msg) {
-  // Check both the raw Node-RED field (msg.msg) and the normalized field (msg.text).
-  const text = String(msg?.msg ?? msg?.text ?? '').trim();
-  return /^URControl/i.test(text);
-}
 
 function formatEventTs(ts) {
   if (!ts) return '—';
