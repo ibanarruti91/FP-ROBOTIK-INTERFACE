@@ -35,7 +35,7 @@ function normalizeNumber(value) {
 function normalizeTimestamp(value, fallbackMs) {
   if (typeof value === 'string' || typeof value === 'number') {
     const normalizedValue =
-      typeof value === 'number' && Math.abs(value) < 1e11
+      typeof value === 'number' && Math.abs(value) < 1e12
         ? value * 1000
         : value;
     const date = new Date(normalizedValue);
