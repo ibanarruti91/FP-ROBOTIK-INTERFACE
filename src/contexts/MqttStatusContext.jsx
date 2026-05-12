@@ -116,6 +116,8 @@ function normalizeStepValidationRecord(payload, topic, receivedAt) {
       payload.step?.event_seq ??
       null,
     event_seq: payload.event_seq ?? payload.step?.event_seq ?? null,
+    // Acepta variantes de proveedores externos: `step_label` y `step_name`,
+    // tanto en raíz como dentro de `step`.
     step_label:
       payload.step?.step_label ??
       payload.step?.step_name ??
