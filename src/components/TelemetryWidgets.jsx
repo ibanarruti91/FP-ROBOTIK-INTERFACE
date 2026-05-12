@@ -1348,9 +1348,13 @@ export function StepValidationTable({ records = [], className = '' }) {
       </div>
 
       <div className="svt-subtitle">
-        Escuchando <code>salesianos/robot/+/step_validation</code>. Esta vista solo almacena/visualiza resultados ya evaluados externamente:
-        <strong>no valida pasos, no compara planned/captured y no depende del conversor.</strong> <br />
-        <strong>Nota:</strong> <code>step_capture</code> es captura cruda para validación externa; <code>step_validation</code> es resultado final para este visor.
+        <p>
+          Escuchando <code>salesianos/robot/+/step_validation</code>. Esta vista solo almacena/visualiza resultados ya evaluados externamente:
+          <strong> no valida pasos, no compara planned/captured y no depende del conversor.</strong>
+        </p>
+        <p>
+          <strong>Nota:</strong> <code>step_capture</code> es captura cruda para validación externa; <code>step_validation</code> es resultado final para este visor.
+        </p>
       </div>
 
       <div className="sct-controls">

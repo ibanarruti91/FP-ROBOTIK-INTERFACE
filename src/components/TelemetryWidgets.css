@@ -1871,6 +1871,10 @@
   font-family: 'Courier New', monospace;
 }
 
+.svt-subtitle p {
+  margin: 0.2rem 0;
+}
+
 .svt-subtitle strong {
   color: #e2e8f0;
   font-weight: 600;
