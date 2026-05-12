@@ -13,6 +13,8 @@ const MAX_STEP_CAPTURE_RECORDS = 50;
 const MAX_STEP_VALIDATION_RECORDS = 200;
 const STEP_VALIDATION_TOPIC = 'salesianos/robot/+/step_validation';
 const STEP_VALIDATION_STORAGE_KEY = 'fp-step-validation-records-v1';
+// step_capture = captura cruda enviada por Node-RED para validación en conversor.
+// step_validation = resultado ya evaluado; en telemetría solo se visualiza/almacena.
 
 const ARROW_SEPARATOR = ' -> ';
 
@@ -114,7 +116,12 @@ function normalizeStepValidationRecord(payload, topic, receivedAt) {
       payload.step?.event_seq ??
       null,
     event_seq: payload.event_seq ?? payload.step?.event_seq ?? null,
-    step_label: payload.step?.step_label ?? payload.step_label ?? null,
+    step_label:
+      payload.step?.step_label ??
+      payload.step?.step_name ??
+      payload.step_label ??
+      payload.step_name ??
+      null,
     step_type: payload.step?.step_type ?? payload.step_type ?? null,
     validation_status:
       typeof validationStatusRaw === 'string'
@@ -124,6 +131,9 @@ function normalizeStepValidationRecord(payload, topic, receivedAt) {
     validation_text: payload.validation?.text ?? payload.validation_text ?? null,
     tolerance_ok_mm: normalizeNumber(payload.validation?.tolerance_ok_mm ?? payload.tolerance_ok_mm),
     tolerance_warning_mm: normalizeNumber(payload.validation?.tolerance_warning_mm ?? payload.tolerance_warning_mm),
+    tolerance_x_mm: normalizeNumber(payload.validation?.tolerances_mm?.x ?? payload.tolerances_mm?.x),
+    tolerance_y_mm: normalizeNumber(payload.validation?.tolerances_mm?.y ?? payload.tolerances_mm?.y),
+    tolerance_z_mm: normalizeNumber(payload.validation?.tolerances_mm?.z ?? payload.tolerances_mm?.z),
     total_error_mm: normalizeNumber(payload.errors?.position_error_mm ?? payload.position_error_mm),
     dx_mm: normalizeNumber(payload.errors?.dx_mm ?? payload.dx_mm),
     dy_mm: normalizeNumber(payload.errors?.dy_mm ?? payload.dy_mm),
@@ -231,7 +241,9 @@ export const MqttStatusProvider = ({ children }) => {
   const [currentProgram, setCurrentProgram] = useState(null);
   const [currentChecksum, setCurrentChecksum] = useState(null);
   const [isPausedStepCapture, setIsPausedStepCapture] = useState(false);
+  const [isPausedStepValidation, setIsPausedStepValidation] = useState(false);
   const isPausedStepCaptureRef = useRef(false);
+  const isPausedStepValidationRef = useRef(false);
   const clientRef = useRef(null);
 
   // ── Derived Diagnostic Buffer ─────────────────────────────────────────────
@@ -374,11 +386,13 @@ export const MqttStatusProvider = ({ children }) => {
             setCurrentChecksum(data.checksum);
           }
         } else if (isStepValidationTopic(topic)) {
-          const normalizedRecord = normalizeStepValidationRecord(data, topic, now);
-          if (normalizedRecord) {
-            setStepValidationRecords(prev =>
-              sortAndTrimStepValidationRecords([normalizedRecord, ...prev]),
-            );
+          if (!isPausedStepValidationRef.current) {
+            const normalizedRecord = normalizeStepValidationRecord(data, topic, now);
+            if (normalizedRecord) {
+              setStepValidationRecords(prev =>
+                sortAndTrimStepValidationRecords([normalizedRecord, ...prev]),
+              );
+            }
           }
         } else if (topic === 'salesianos/robot/iban/events_buffer') {
           // ── events_buffer: authoritative resync from Node-RED ───────────
@@ -574,6 +588,14 @@ export const MqttStatusProvider = ({ children }) => {
     });
   }, []);
 
+  const togglePauseStepValidation = useCallback(() => {
+    setIsPausedStepValidation((prev) => {
+      const next = !prev;
+      isPausedStepValidationRef.current = next;
+      return next;
+    });
+  }, []);
+
   const clearStepCaptureRecords = useCallback(() => {
     setStepCaptureRecords([]);
   }, []);
@@ -627,7 +649,9 @@ export const MqttStatusProvider = ({ children }) => {
     currentProgram,
     currentChecksum,
     isPausedStepCapture,
+    isPausedStepValidation,
     togglePauseStepCapture,
+    togglePauseStepValidation,
     clearStepCaptureRecords,
     clearStepValidationRecords,
     publishCommand,
