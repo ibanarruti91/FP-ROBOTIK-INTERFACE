@@ -1135,6 +1135,11 @@ function formatStepValidationNumber(value, digits = 3) {
   return Number(value).toFixed(digits);
 }
 
+function buildExportTimestampTag() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}-${String(now.getSeconds()).padStart(2, '0')}`;
+}
+
 function getStepValidationStatusClass(status) {
   switch (String(status ?? 'UNKNOWN').toUpperCase()) {
     case 'OK':
@@ -1183,9 +1188,9 @@ export function StepValidationTable({ records = [], className = '' }) {
         'texto_validacion',
         'tolerance_ok_mm',
         'tolerance_warning_mm',
-        'tolerance_x_mm',
-        'tolerance_y_mm',
-        'tolerance_z_mm',
+        'tolerances_x_mm',
+        'tolerances_y_mm',
+        'tolerances_z_mm',
         'error_total_mm',
         'dx_mm',
         'dy_mm',
@@ -1212,9 +1217,9 @@ export function StepValidationTable({ records = [], className = '' }) {
         record.validation_text ?? '',
         record.tolerance_ok_mm ?? '',
         record.tolerance_warning_mm ?? '',
-        record.tolerance_x_mm ?? '',
-        record.tolerance_y_mm ?? '',
-        record.tolerance_z_mm ?? '',
+        record.tolerances_x_mm ?? '',
+        record.tolerances_y_mm ?? '',
+        record.tolerances_z_mm ?? '',
         record.total_error_mm ?? '',
         record.dx_mm ?? '',
         record.dy_mm ?? '',
@@ -1234,8 +1239,7 @@ export function StepValidationTable({ records = [], className = '' }) {
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      const now = new Date();
-      const stamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}-${String(now.getSeconds()).padStart(2, '0')}`;
+      const stamp = buildExportTimestampTag();
       link.href = url;
       link.download = `step_validation_${stamp}.csv`;
       document.body.appendChild(link);
@@ -1267,9 +1271,9 @@ export function StepValidationTable({ records = [], className = '' }) {
         { header: 'texto_validacion', key: 'validation_text', width: 50 },
         { header: 'tolerance_ok_mm', key: 'tolerance_ok_mm', width: 16 },
         { header: 'tolerance_warning_mm', key: 'tolerance_warning_mm', width: 20 },
-        { header: 'tolerance_x_mm', key: 'tolerance_x_mm', width: 15 },
-        { header: 'tolerance_y_mm', key: 'tolerance_y_mm', width: 15 },
-        { header: 'tolerance_z_mm', key: 'tolerance_z_mm', width: 15 },
+        { header: 'tolerances_x_mm', key: 'tolerances_x_mm', width: 15 },
+        { header: 'tolerances_y_mm', key: 'tolerances_y_mm', width: 15 },
+        { header: 'tolerances_z_mm', key: 'tolerances_z_mm', width: 15 },
         { header: 'error_total_mm', key: 'total_error_mm', width: 14 },
         { header: 'dx_mm', key: 'dx_mm', width: 12 },
         { header: 'dy_mm', key: 'dy_mm', width: 12 },
@@ -1298,9 +1302,9 @@ export function StepValidationTable({ records = [], className = '' }) {
           validation_text: record.validation_text ?? '',
           tolerance_ok_mm: record.tolerance_ok_mm ?? '',
           tolerance_warning_mm: record.tolerance_warning_mm ?? '',
-          tolerance_x_mm: record.tolerance_x_mm ?? '',
-          tolerance_y_mm: record.tolerance_y_mm ?? '',
-          tolerance_z_mm: record.tolerance_z_mm ?? '',
+          tolerances_x_mm: record.tolerances_x_mm ?? '',
+          tolerances_y_mm: record.tolerances_y_mm ?? '',
+          tolerances_z_mm: record.tolerances_z_mm ?? '',
           total_error_mm: record.total_error_mm ?? '',
           dx_mm: record.dx_mm ?? '',
           dy_mm: record.dy_mm ?? '',
@@ -1322,8 +1326,7 @@ export function StepValidationTable({ records = [], className = '' }) {
       });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      const now = new Date();
-      const stamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}-${String(now.getSeconds()).padStart(2, '0')}`;
+      const stamp = buildExportTimestampTag();
       link.href = url;
       link.download = `step_validation_${stamp}.xlsx`;
       document.body.appendChild(link);
@@ -1346,7 +1349,7 @@ export function StepValidationTable({ records = [], className = '' }) {
 
       <div className="svt-subtitle">
         Escuchando <code>salesianos/robot/+/step_validation</code>. Esta vista solo almacena/visualiza resultados ya evaluados externamente:
-        <strong> no valida pasos, no compara planned/captured y no depende del conversor.</strong> <br />
+        <strong>no valida pasos, no compara planned/captured y no depende del conversor.</strong> <br />
         <strong>Nota:</strong> <code>step_capture</code> es captura cruda para validación externa; <code>step_validation</code> es resultado final para este visor.
       </div>
 
@@ -1436,9 +1439,9 @@ export function StepValidationTable({ records = [], className = '' }) {
                   <td>{record.validation_text ?? '—'}</td>
                   <td>{formatStepValidationNumber(record.tolerance_ok_mm)}</td>
                   <td>{formatStepValidationNumber(record.tolerance_warning_mm)}</td>
-                  <td>{formatStepValidationNumber(record.tolerance_x_mm)}</td>
-                  <td>{formatStepValidationNumber(record.tolerance_y_mm)}</td>
-                  <td>{formatStepValidationNumber(record.tolerance_z_mm)}</td>
+                  <td>{formatStepValidationNumber(record.tolerances_x_mm)}</td>
+                  <td>{formatStepValidationNumber(record.tolerances_y_mm)}</td>
+                  <td>{formatStepValidationNumber(record.tolerances_z_mm)}</td>
                   <td>{formatStepValidationNumber(record.total_error_mm)}</td>
                   <td>{formatStepValidationNumber(record.dx_mm)}</td>
                   <td>{formatStepValidationNumber(record.dy_mm)}</td>
