@@ -1264,6 +1264,31 @@ function getRecordSequenceValue(record) {
   return Number.isFinite(num) ? num : null;
 }
 
+function getCycleRecordPriority(recordType) {
+  if (recordType === 'cycle_start') return 0;
+  if (recordType === 'capture_point') return 1;
+  if (recordType === 'cycle_end') return 2;
+  return 3;
+}
+
+function getCompactCycleLabel(record) {
+  if (record?.record_type === 'program_end') return 'PRG';
+  if (record?.cycle == null) return '—';
+  return `C${record.cycle}`;
+}
+
+function getCompactEventLabel(record) {
+  if (record?.record_type === 'cycle_start') return 'Inicio ciclo';
+  if (record?.record_type === 'cycle_end') return 'Fin ciclo';
+  if (record?.record_type === 'capture_point') {
+    const baseLabel = record?.type_label ?? 'Paso';
+    const stepId = formatStepRegistryValue(record?.step_id);
+    if (stepId === '—') return baseLabel;
+    return `${baseLabel} · Step ${stepId}`;
+  }
+  return record?.type_label ?? '—';
+}
+
 function buildStepRegistryView(records) {
   const source = Array.isArray(records) ? records : [];
   const ordered = [...source].sort((a, b) => {
@@ -1366,6 +1391,13 @@ function buildStepRegistryView(records) {
 
   const cycleGroups = cycleOrder.map((cycleNumber) => {
     const cycle = cyclesByNumber.get(cycleNumber);
+    const orderedCycleRecords = [...cycle.records].sort((a, b) => {
+      const priorityDiff = getCycleRecordPriority(a.record_type) - getCycleRecordPriority(b.record_type);
+      if (priorityDiff !== 0) return priorityDiff;
+      const sortDiff = getStepRegistrySortValue(a) - getStepRegistrySortValue(b);
+      if (sortDiff !== 0) return sortDiff;
+      return (Number(a?._receivedAt) || 0) - (Number(b?._receivedAt) || 0);
+    });
     const isCompleted = Boolean(cycle.startTime && cycle.endTime);
     const startMs = Date.parse(cycle.startTime ?? '');
     const endMs = Date.parse(cycle.endTime ?? '');
@@ -1374,6 +1406,7 @@ function buildStepRegistryView(records) {
       : null;
     return {
       ...cycle,
+      records: orderedCycleRecords,
       state: isCompleted ? 'completed' : 'in_progress',
       stateLabel: isCompleted ? 'Completado' : 'En curso',
       durationSeconds,
@@ -1415,7 +1448,7 @@ export function StepRegistryTable({ records = [], className = '' }) {
   } = useContext(MqttStatusContext);
 
   const registry = useMemo(() => buildStepRegistryView(records), [records]);
-  const displayRows = registry.tableRows;
+  const displayRows = [...registry.tableRows].reverse();
   const hasRows = displayRows.length > 0;
 
   const handleExportExcel = async () => {
@@ -1601,14 +1634,14 @@ export function StepRegistryTable({ records = [], className = '' }) {
         <div className="svt-content">
           <div className="spr-cycle-scroll">
             <div className="spr-cycle-list">
-              {registry.cycleGroups.map((cycle) => (
+              {[...registry.cycleGroups].reverse().map((cycle) => (
                 <div
                   key={`cycle-${cycle.cycleNumber}`}
                   className={`spr-cycle-card ${cycle.state === 'in_progress' ? 'spr-cycle-card--open' : ''}`}
                 >
                   <div className="spr-cycle-header">
                     <div className="spr-cycle-title">
-                      {cycle.cycleLabel ?? `Ciclo ${cycle.cycleNumber}`}
+                      {`Ciclo ${cycle.cycleNumber}`}
                       <span className={`spr-chip ${cycle.state === 'completed' ? 'spr-chip--completed' : 'spr-chip--progress'}`}>
                         {cycle.stateLabel}
                       </span>
@@ -1628,11 +1661,7 @@ export function StepRegistryTable({ records = [], className = '' }) {
                           <span className={`spr-chip spr-chip--type spr-chip--${record.record_type}`}>
                             {record.badge_label}
                           </span>
-                          <span className="spr-row-title">
-                            {record.type_label}
-                            {' | '}
-                            step_id {formatStepRegistryValue(record.step_id)}
-                          </span>
+                          <span className="spr-row-title">{getCompactEventLabel(record)}</span>
                         </div>
                         <div className="spr-row-meta">
                           <span>Nº registro {formatStepRegistryValue(record.event_counter)}</span>
@@ -1667,11 +1696,7 @@ export function StepRegistryTable({ records = [], className = '' }) {
                       >
                         <div className="spr-row-main">
                           <span className="spr-chip spr-chip--type spr-chip--capture_point">Punto capturado</span>
-                          <span className="spr-row-title">
-                            {record.type_label}
-                            {' | '}
-                            step_id {formatStepRegistryValue(record.step_id)}
-                          </span>
+                          <span className="spr-row-title">{getCompactEventLabel(record)}</span>
                         </div>
                         <div className="spr-row-meta">
                           <span>Nº registro {formatStepRegistryValue(record.event_counter)}</span>
@@ -1711,18 +1736,18 @@ export function StepRegistryTable({ records = [], className = '' }) {
                 <tr>
                   <th>Fecha/hora</th>
                   <th>Programa</th>
-                  <th>Ciclo</th>
-                  <th>Tipo</th>
-                  <th>Nº registro</th>
-                  <th>step_id</th>
-                  <th>Snapshot</th>
-                  <th>X real</th>
-                  <th>Y real</th>
-                  <th>Z real</th>
-                  <th>RX</th>
-                  <th>RY</th>
-                  <th>RZ</th>
-                  <th>Topic MQTT</th>
+                  <th>Ciclo nº</th>
+                  <th>Evento</th>
+                  <th>Registro</th>
+                  <th>Step ID</th>
+                  <th>Versión</th>
+                  <th>X</th>
+                  <th>Y</th>
+                  <th>Z</th>
+                  <th className="svt-col-rot">RX</th>
+                  <th className="svt-col-rot">RY</th>
+                  <th className="svt-col-rot">RZ</th>
+                  <th className="svt-col-topic">TOPIC MQTT</th>
                 </tr>
               </thead>
               <tbody>
@@ -1731,23 +1756,23 @@ export function StepRegistryTable({ records = [], className = '' }) {
                     <td className="svt-td-time">{formatStepRegistryDateTime(record.timestamp)}</td>
                     <td>{record.program_name ?? '—'}</td>
                     <td>
-                      {record.record_type === 'program_end'
-                        ? 'Programa'
-                        : record.cycle == null
-                          ? 'Sin ciclo asignado'
-                          : record.cycle}
+                      <span className="svt-badge svt-badge--cycle">{getCompactCycleLabel(record)}</span>
                     </td>
-                    <td>{record.type_label}</td>
+                    <td>
+                      <span className={`svt-badge svt-badge--event spr-chip--${record.record_type}`}>
+                        {record.type_label}
+                      </span>
+                    </td>
                     <td>{formatStepRegistryValue(record.event_counter)}</td>
                     <td>{formatStepRegistryValue(record.step_id)}</td>
                     <td>{record.snapshot_short ?? '—'}</td>
                     <td>{formatStepRegistryValue(record.x_real_capturada_mm, 3)}</td>
                     <td>{formatStepRegistryValue(record.y_real_capturada_mm, 3)}</td>
                     <td>{formatStepRegistryValue(record.z_real_capturada_mm, 3)}</td>
-                    <td>{formatStepRegistryValue(record.rx, 5)}</td>
-                    <td>{formatStepRegistryValue(record.ry, 5)}</td>
-                    <td>{formatStepRegistryValue(record.rz, 5)}</td>
-                    <td className="svt-td-topic">{record._topic ?? '—'}</td>
+                    <td className="svt-td-rot">{formatStepRegistryValue(record.rx, 5)}</td>
+                    <td className="svt-td-rot">{formatStepRegistryValue(record.ry, 5)}</td>
+                    <td className="svt-td-rot">{formatStepRegistryValue(record.rz, 5)}</td>
+                    <td className="svt-td-topic svt-col-topic">{record._topic ?? '—'}</td>
                   </tr>
                 ))}
               </tbody>
