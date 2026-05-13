@@ -1173,27 +1173,61 @@ function getStepRegistrySortValue(record) {
   return Number(record?._receivedAt) || 0;
 }
 
-function getStepRecordKind(stepId) {
-  const numericStepId = Number(stepId);
-  if (Number.isFinite(numericStepId) && numericStepId >= 9001 && numericStepId <= 9099) {
+function toNullableNumber(value) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function humanizeStepRole(stepRole) {
+  if (!stepRole) return null;
+  if (stepRole === 'cycle_start') return 'Inicio ciclo';
+  if (stepRole === 'cycle_end') return 'Fin ciclo';
+  return String(stepRole)
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, char => char.toUpperCase());
+}
+
+function getStepRecordKind(record) {
+  const numericStepId = toNullableNumber(record?.step_id);
+  const eventType = String(record?.event_type ?? '').toLowerCase();
+  const markerType = String(record?.marker_type ?? '').toLowerCase();
+  const stepType = String(record?.step_type ?? '').toLowerCase();
+  const stepRole = String(record?.step_role ?? '').toLowerCase();
+  const stepRoleLabel = record?.step_role_label ?? humanizeStepRole(stepRole);
+  const cycleFromPayload = toNullableNumber(record?.cycle_number);
+
+  const isCycleStart = eventType === 'cycle_start'
+    || markerType === 'cycle_start'
+    || stepRole === 'cycle_start'
+    || numericStepId === 10000;
+  const isCycleEnd = eventType === 'cycle_end'
+    || markerType === 'cycle_end'
+    || stepRole === 'cycle_end'
+    || numericStepId === 20000;
+  const isProgramEnd = numericStepId === 9999;
+  const isWorkStep = eventType === 'work_step'
+    || stepType === 'work_step'
+    || (!isCycleStart && !isCycleEnd && !isProgramEnd);
+
+  if (isCycleStart) {
     return {
       rawStepId: numericStepId,
       recordType: 'cycle_start',
-      cycle: numericStepId - 9000,
+      cycle: cycleFromPayload,
       typeLabel: 'Inicio ciclo',
       badgeLabel: 'Inicio ciclo',
     };
   }
-  if (Number.isFinite(numericStepId) && numericStepId >= 9101 && numericStepId <= 9199) {
+  if (isCycleEnd) {
     return {
       rawStepId: numericStepId,
       recordType: 'cycle_end',
-      cycle: numericStepId - 9100,
+      cycle: cycleFromPayload,
       typeLabel: 'Fin ciclo',
       badgeLabel: 'Fin ciclo',
     };
   }
-  if (numericStepId === 9999) {
+  if (isProgramEnd) {
     return {
       rawStepId: numericStepId,
       recordType: 'program_end',
@@ -1202,10 +1236,20 @@ function getStepRecordKind(stepId) {
       badgeLabel: 'Fin programa',
     };
   }
+  if (isWorkStep) {
+    return {
+      rawStepId: numericStepId,
+      recordType: 'capture_point',
+      cycle: cycleFromPayload,
+      typeLabel: stepRoleLabel ?? 'Paso de trabajo',
+      badgeLabel: stepRoleLabel ?? 'Paso',
+    };
+  }
+
   return {
     rawStepId: Number.isFinite(numericStepId) ? numericStepId : null,
     recordType: 'capture_point',
-    cycle: null,
+    cycle: cycleFromPayload,
     typeLabel: 'Punto capturado',
     badgeLabel: 'Punto capturado',
   };
@@ -1240,6 +1284,7 @@ function buildStepRegistryView(records) {
         startTime: null,
         endTime: null,
         pointCount: 0,
+        cycleLabel: null,
         firstSequence: null,
         lastSequence: null,
         programName: null,
@@ -1251,9 +1296,9 @@ function buildStepRegistryView(records) {
   };
 
   ordered.forEach((record) => {
-    const kind = getStepRecordKind(record?.step_id);
+    const kind = getStepRecordKind(record);
     let assignedCycle = kind.cycle;
-    if (kind.recordType === 'capture_point') {
+    if (kind.recordType === 'capture_point' && assignedCycle == null) {
       assignedCycle = openCycle;
     }
 
@@ -1266,8 +1311,12 @@ function buildStepRegistryView(records) {
       cycle: assignedCycle,
     };
 
-    if (kind.recordType === 'cycle_start') {
+    if (kind.recordType === 'cycle_start' && assignedCycle != null) {
+      openCycle = assignedCycle;
+    } else if (kind.recordType === 'cycle_start') {
       openCycle = kind.cycle;
+    } else if (kind.recordType === 'cycle_end' && assignedCycle != null && openCycle === assignedCycle) {
+      openCycle = null;
     } else if (kind.recordType === 'cycle_end' && openCycle === kind.cycle) {
       openCycle = null;
     }
@@ -1288,6 +1337,9 @@ function buildStepRegistryView(records) {
     cycle.records.push(normalizedRow);
     if (normalizedRow.program_name && !cycle.programName) {
       cycle.programName = normalizedRow.program_name;
+    }
+    if (normalizedRow.cycle_label && !cycle.cycleLabel) {
+      cycle.cycleLabel = normalizedRow.cycle_label;
     }
     if (normalizedRow.snapshot_short && !cycle.snapshotShort) {
       cycle.snapshotShort = normalizedRow.snapshot_short;
@@ -1475,13 +1527,9 @@ export function StepRegistryTable({ records = [], className = '' }) {
         <p>
           Fuente MQTT:
           {' '}
-          <code>salesianos/robot/+/step_capture</code>
+          <code>salesianos/robot/iban/step_capture</code>
           {' '}
-          con
-          {' '}
-          <code>schema_version = "step_capture_socket_clean_v3"</code>
-          {' '}
-          y
+          y mensajes
           {' '}
           <code>message_type = "step_capture"</code>.
         </p>
@@ -1557,7 +1605,7 @@ export function StepRegistryTable({ records = [], className = '' }) {
               >
                 <div className="spr-cycle-header">
                   <div className="spr-cycle-title">
-                    Ciclo {cycle.cycleNumber}
+                    {cycle.cycleLabel ?? `Ciclo ${cycle.cycleNumber}`}
                     <span className={`spr-chip ${cycle.state === 'completed' ? 'spr-chip--completed' : 'spr-chip--progress'}`}>
                       {cycle.stateLabel}
                     </span>
@@ -1578,9 +1626,9 @@ export function StepRegistryTable({ records = [], className = '' }) {
                           {record.badge_label}
                         </span>
                         <span className="spr-row-title">
-                          {record.record_type === 'capture_point'
-                            ? `Punto de paso ${formatStepRegistryValue(record.step_id)}`
-                            : record.type_label}
+                          {record.type_label}
+                          {' | '}
+                          step_id {formatStepRegistryValue(record.step_id)}
                         </span>
                       </div>
                       <div className="spr-row-meta">
@@ -1617,7 +1665,9 @@ export function StepRegistryTable({ records = [], className = '' }) {
                       <div className="spr-row-main">
                         <span className="spr-chip spr-chip--type spr-chip--capture_point">Punto capturado</span>
                         <span className="spr-row-title">
-                          Punto de paso {formatStepRegistryValue(record.step_id)}
+                          {record.type_label}
+                          {' | '}
+                          step_id {formatStepRegistryValue(record.step_id)}
                         </span>
                       </div>
                       <div className="spr-row-meta">
@@ -1660,7 +1710,7 @@ export function StepRegistryTable({ records = [], className = '' }) {
                   <th>Ciclo</th>
                   <th>Tipo</th>
                   <th>Nº registro</th>
-                  <th>Punto de paso</th>
+                  <th>step_id</th>
                   <th>Snapshot</th>
                   <th>X real</th>
                   <th>Y real</th>
@@ -1685,7 +1735,7 @@ export function StepRegistryTable({ records = [], className = '' }) {
                     </td>
                     <td>{record.type_label}</td>
                     <td>{formatStepRegistryValue(record.event_counter)}</td>
-                    <td>{record.record_type === 'capture_point' ? formatStepRegistryValue(record.step_id) : '—'}</td>
+                    <td>{formatStepRegistryValue(record.step_id)}</td>
                     <td>{record.snapshot_short ?? '—'}</td>
                     <td>{formatStepRegistryValue(record.x_real_capturada_mm, 3)}</td>
                     <td>{formatStepRegistryValue(record.y_real_capturada_mm, 3)}</td>
