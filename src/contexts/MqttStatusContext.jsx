@@ -53,13 +53,13 @@ function getCaptureOrientation(payload) {
   );
 }
 
-function isValidStepCapturePayload(payload) {
+function isStepCaptureSocketCleanV3(payload) {
   if (!payload || typeof payload !== 'object') return false;
   return payload.schema_version === STEP_CAPTURE_SCHEMA;
 }
 
 function normalizeStepCaptureRecord(payload, topic, receivedAt) {
-  if (!isValidStepCapturePayload(payload)) return null;
+  if (!isStepCaptureSocketCleanV3(payload)) return null;
 
   const position = payload.tcp_position_mm ?? null;
   const orientation = getCaptureOrientation(payload);
