@@ -193,11 +193,11 @@ export const SALESIANOS_LAYOUT = {
     },
     {
       id: "validacion-pasos",
-      label: "Registro de pasos",
+      label: "Registro de puntos",
       color: "#10b981", // Emerald green
       groups: [
         {
-          title: "REGISTRO DE CAPTURAS MQTT",
+          title: "Registro de ciclos y puntos de paso",
           className: "cap-table",
           widgets: [
             { type: "step-registry-table", path: "step_capture", columns: 2 }

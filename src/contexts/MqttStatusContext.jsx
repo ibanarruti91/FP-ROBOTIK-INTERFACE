@@ -55,7 +55,10 @@ function getCaptureOrientation(payload) {
 
 function isStepCaptureSocketCleanV3(payload) {
   if (!payload || typeof payload !== 'object') return false;
-  return payload.schema_version === STEP_CAPTURE_SCHEMA;
+  return (
+    payload.schema_version === STEP_CAPTURE_SCHEMA
+    && payload.message_type === 'step_capture'
+  );
 }
 
 function normalizeStepCaptureRecord(payload, topic, receivedAt) {
