@@ -1211,14 +1211,6 @@ function getStepRecordKind(stepId) {
   };
 }
 
-function formatCycleDurationSeconds(startTime, endTime) {
-  const startMs = Date.parse(startTime ?? '');
-  const endMs = Date.parse(endTime ?? '');
-  if (Number.isNaN(startMs) || Number.isNaN(endMs)) return '—';
-  const seconds = Math.max(0, (endMs - startMs) / 1000);
-  return `${seconds.toFixed(1)} s`;
-}
-
 function getRecordSequenceValue(record) {
   const value = record?.event_counter;
   const num = Number(value);
@@ -1321,12 +1313,18 @@ function buildStepRegistryView(records) {
   const cycleGroups = cycleOrder.map((cycleNumber) => {
     const cycle = cyclesByNumber.get(cycleNumber);
     const isCompleted = Boolean(cycle.startTime && cycle.endTime);
+    const startMs = Date.parse(cycle.startTime ?? '');
+    const endMs = Date.parse(cycle.endTime ?? '');
+    const durationSeconds = isCompleted && !Number.isNaN(startMs) && !Number.isNaN(endMs)
+      ? Math.max(0, (endMs - startMs) / 1000)
+      : null;
     return {
       ...cycle,
       state: isCompleted ? 'completed' : 'in_progress',
       stateLabel: isCompleted ? 'Completado' : 'En curso',
-      durationLabel: isCompleted
-        ? formatCycleDurationSeconds(cycle.startTime, cycle.endTime)
+      durationSeconds,
+      durationLabel: durationSeconds !== null
+        ? `${durationSeconds.toFixed(1)} s`
         : '—',
     };
   });
@@ -1441,9 +1439,7 @@ export function StepRegistryTable({ records = [], className = '' }) {
           estado_ciclo: cycle.stateLabel,
           fecha_inicio: cycle.startTime ?? '',
           fecha_fin: cycle.endTime ?? '',
-          duracion_s: cycle.startTime && cycle.endTime
-            ? Number.parseFloat(cycle.durationLabel)
-            : '',
+          duracion_s: cycle.durationSeconds ?? '',
           numero_puntos_capturados: cycle.pointCount,
           primer_numero_registro: cycle.firstSequence ?? '',
           ultimo_numero_registro: cycle.lastSequence ?? '',
