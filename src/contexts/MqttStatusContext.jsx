@@ -99,8 +99,8 @@ function loadStepCaptureRecords() {
           _id: record._id ?? `stored-${index}-${Date.now()}`,
           _receivedAt:
             Number(record._receivedAt) ||
-             Date.parse(record.timestamp ?? '') ||
-             Date.now(),
+            Date.parse(record.timestamp ?? '') ||
+            Date.now(),
         })),
     );
   } catch (error) {
