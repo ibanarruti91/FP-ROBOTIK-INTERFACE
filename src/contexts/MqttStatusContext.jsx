@@ -9,159 +9,89 @@ import {
   reclassifyNodeRedSafetyEvent,
 } from '../servicios/diagnosticBuffer.js';
 
-const MAX_STEP_CAPTURE_RECORDS = 50;
-const MAX_STEP_VALIDATION_RECORDS = 200;
-const STEP_VALIDATION_TOPIC = 'salesianos/robot/+/step_validation';
-const STEP_VALIDATION_STORAGE_KEY = 'fp-step-validation-records-v1';
-// step_capture = captura cruda enviada por Node-RED para validación en conversor.
-// step_validation = resultado ya evaluado; en telemetría solo se visualiza/almacena.
+const MAX_STEP_CAPTURE_RECORDS = 200;
+const STEP_CAPTURE_TOPIC = 'salesianos/robot/+/step_capture';
+const STEP_CAPTURE_SCHEMA = 'step_capture_socket_clean_v3';
+const STEP_CAPTURE_STORAGE_KEY = 'fp-step-capture-records-v2';
 
 const ARROW_SEPARATOR = ' -> ';
 
-// Accept any center segment so the shared viewer can listen to every
-// `salesianos/robot/<center>/step_validation` feed on the same broker.
-function isStepValidationTopic(topic) {
-  return /^salesianos\/robot\/[^/]+\/step_validation$/.test(topic);
+function isStepCaptureTopic(topic) {
+  return /^salesianos\/robot\/[^/]+\/step_capture$/.test(topic);
 }
 
 function inferCenterIdFromTopic(topic) {
   return typeof topic === 'string' ? topic.split('/')[2] ?? null : null;
 }
 
-function normalizeNumber(value) {
-  if (value === null || value === undefined || value === '') return null;
-  const numericValue = Number(value);
-  return Number.isFinite(numericValue) ? numericValue : null;
-}
-
-function normalizeTimestamp(value, fallbackMs) {
-  if (typeof value === 'string' || typeof value === 'number') {
-    const normalizedValue =
-      typeof value === 'number' && Math.abs(value) < 1e12
-        ? value * 1000
-        : value;
-    const date = new Date(normalizedValue);
-    if (!Number.isNaN(date.getTime())) {
-      return date.toISOString();
-    }
-  }
-  return new Date(fallbackMs).toISOString();
-}
-
-function getStepValidationSortValue(record) {
+function getStepCaptureSortValue(record) {
   const timestampValue = Date.parse(record?.timestamp ?? '');
   if (!Number.isNaN(timestampValue)) return timestampValue;
   return Number(record?._receivedAt) || 0;
 }
 
-function sortAndTrimStepValidationRecords(records) {
+function sortAndTrimStepCaptureRecords(records) {
   return [...records]
     .filter(Boolean)
     .sort((a, b) => {
-      const tsDiff = getStepValidationSortValue(b) - getStepValidationSortValue(a);
+      const tsDiff = getStepCaptureSortValue(b) - getStepCaptureSortValue(a);
       if (tsDiff !== 0) return tsDiff;
       return (Number(b?._receivedAt) || 0) - (Number(a?._receivedAt) || 0);
     })
-    .slice(0, MAX_STEP_VALIDATION_RECORDS);
+    .slice(0, MAX_STEP_CAPTURE_RECORDS);
 }
 
-function isLikelyStepValidationPayload(payload) {
-  if (!payload || typeof payload !== 'object') return false;
-  if (payload.message_type === 'step_validation_result') return true;
-  // The converter web may send compatible variants while keeping the same
-  // validation semantics, so accept the message when the core validation fields
-  // are present even if `message_type` is missing.
+function getCaptureOrientation(payload) {
   return (
-    payload.validation?.status != null ||
-    payload.validation_status != null ||
-    payload.errors?.position_error_mm != null ||
-    payload.step?.step_id != null ||
-    payload.step_id != null ||
-    payload.snapshot_check?.match != null
+    payload?.orientation ??
+    payload?.orientacion ??
+    payload?.tcp_orientation ??
+    payload?.tcp_orientacion ??
+    payload?.tcp?.orientation ??
+    payload?.tcp?.orientacion ??
+    null
   );
 }
 
-function normalizeStepValidationRecord(payload, topic, receivedAt) {
-  if (!isLikelyStepValidationPayload(payload)) return null;
+function isValidStepCapturePayload(payload) {
+  if (!payload || typeof payload !== 'object') return false;
+  return payload.schema_version === STEP_CAPTURE_SCHEMA;
+}
 
-  const plannedPosition = payload.planned?.position_mm ?? payload.planned_position_mm ?? null;
-  const capturedPosition =
-    payload.captured?.position_mm ??
-    payload.captured_tcp_mm ??
-    payload.tcp_position_mm ??
-    null;
-  const validationStatusRaw = payload.validation?.status ?? payload.validation_status ?? 'UNKNOWN';
+function normalizeStepCaptureRecord(payload, topic, receivedAt) {
+  if (!isValidStepCapturePayload(payload)) return null;
+
+  const position = payload.tcp_position_mm ?? null;
+  const orientation = getCaptureOrientation(payload);
 
   return {
     _id: `${receivedAt}-${Math.random().toString(36).slice(2, 10)}`,
     _receivedAt: receivedAt,
     _topic: topic,
-    timestamp: normalizeTimestamp(payload.timestamp, receivedAt),
+    timestamp: payload.timestamp ?? new Date(receivedAt).toISOString(),
+    schema_version: payload.schema_version,
     center_id: payload.center_id ?? inferCenterIdFromTopic(topic),
-    center_name: payload.center_name ?? null,
-    schema_version: payload.schema_version ?? null,
-    message_type: payload.message_type ?? null,
-    snapshot_short:
-      payload.snapshot_short ??
-      payload.program_identity?.snapshot_short ??
-      payload.snapshot_check?.received_snapshot_short ??
-      payload.snapshot_check?.expected_snapshot_short ??
-      null,
-    program_name: payload.program_identity?.program_name ?? payload.program_name ?? null,
-    step_id: payload.step_id ?? payload.step?.step_id ?? null,
-    event_counter:
-      payload.event_counter ??
-      payload.event_seq ??
-      payload.step?.event_counter ??
-      payload.step?.event_seq ??
-      null,
-    event_seq: payload.event_seq ?? payload.step?.event_seq ?? null,
-    // Acepta variantes de proveedores externos: `step_label` y `step_name`,
-    // tanto en raíz como dentro de `step`.
-    step_label:
-      payload.step?.step_label ??
-      payload.step?.step_name ??
-      payload.step_label ??
-      payload.step_name ??
-      null,
-    step_type: payload.step?.step_type ?? payload.step_type ?? null,
-    validation_status:
-      typeof validationStatusRaw === 'string'
-        ? validationStatusRaw.toUpperCase()
-        : validationStatusRaw ?? 'UNKNOWN',
-    validation_code: payload.validation?.code ?? payload.validation_code ?? null,
-    validation_text: payload.validation?.text ?? payload.validation_text ?? null,
-    tolerance_ok_mm: normalizeNumber(payload.validation?.tolerance_ok_mm ?? payload.tolerance_ok_mm),
-    tolerance_warning_mm: normalizeNumber(payload.validation?.tolerance_warning_mm ?? payload.tolerance_warning_mm),
-    tolerances_x_mm: normalizeNumber(payload.validation?.tolerances_mm?.x ?? payload.tolerances_mm?.x),
-    tolerances_y_mm: normalizeNumber(payload.validation?.tolerances_mm?.y ?? payload.tolerances_mm?.y),
-    tolerances_z_mm: normalizeNumber(payload.validation?.tolerances_mm?.z ?? payload.tolerances_mm?.z),
-    total_error_mm: normalizeNumber(payload.errors?.position_error_mm ?? payload.position_error_mm),
-    dx_mm: normalizeNumber(payload.errors?.dx_mm ?? payload.dx_mm),
-    dy_mm: normalizeNumber(payload.errors?.dy_mm ?? payload.dy_mm),
-    dz_mm: normalizeNumber(payload.errors?.dz_mm ?? payload.dz_mm),
-    planned_x_mm: normalizeNumber(plannedPosition?.x),
-    planned_y_mm: normalizeNumber(plannedPosition?.y),
-    planned_z_mm: normalizeNumber(plannedPosition?.z),
-    captured_x_mm: normalizeNumber(capturedPosition?.x),
-    captured_y_mm: normalizeNumber(capturedPosition?.y),
-    captured_z_mm: normalizeNumber(capturedPosition?.z),
-    snapshot_match:
-      typeof payload.snapshot_check?.match === 'boolean' ? payload.snapshot_check.match : null,
-    expected_snapshot_short: payload.snapshot_check?.expected_snapshot_short ?? null,
-    received_snapshot_short: payload.snapshot_check?.received_snapshot_short ?? null,
-    raw_capture_line: payload.raw_capture?.raw_socket_line ?? payload.raw_socket_line ?? null,
+    program_name: payload.program_name ?? payload.program_identity?.program_name ?? null,
+    snapshot_short: payload.snapshot_short ?? payload.program_identity?.snapshot_short ?? null,
+    step_id: payload.step_id ?? null,
+    event_counter: payload.event_counter ?? null,
+    x_real_capturada_mm: position?.x ?? null,
+    y_real_capturada_mm: position?.y ?? null,
+    z_real_capturada_mm: position?.z ?? null,
+    rx: orientation?.rx ?? null,
+    ry: orientation?.ry ?? null,
+    rz: orientation?.rz ?? null,
   };
 }
 
-function loadStepValidationRecords() {
+function loadStepCaptureRecords() {
   if (typeof window === 'undefined') return [];
   try {
-    const stored = window.localStorage.getItem(STEP_VALIDATION_STORAGE_KEY);
+    const stored = window.localStorage.getItem(STEP_CAPTURE_STORAGE_KEY);
     if (!stored) return [];
     const parsed = JSON.parse(stored);
     if (!Array.isArray(parsed)) return [];
-    return sortAndTrimStepValidationRecords(
+    return sortAndTrimStepCaptureRecords(
       parsed
         .filter(record => record && typeof record === 'object')
         .map((record, index) => ({
@@ -169,12 +99,12 @@ function loadStepValidationRecords() {
           _id: record._id ?? `stored-${index}-${Date.now()}`,
           _receivedAt:
             Number(record._receivedAt) ||
-            Date.parse(record.timestamp ?? '') ||
-            Date.now(),
+             Date.parse(record.timestamp ?? '') ||
+             Date.now(),
         })),
     );
   } catch (error) {
-    console.error('Error al cargar step_validation desde localStorage:', error);
+    console.error('Error al cargar step_capture desde localStorage:', error);
     return [];
   }
 }
@@ -238,14 +168,11 @@ export const MqttStatusProvider = ({ children }) => {
   const [status, setStatus] = useState('OFFLINE');
   const [lastMessageTime, setLastMessageTime] = useState(null);
   const [telemetryData, setTelemetryData] = useState(null);
-  const [stepCaptureRecords, setStepCaptureRecords] = useState([]);
-  const [stepValidationRecords, setStepValidationRecords] = useState(loadStepValidationRecords);
+  const [stepCaptureRecords, setStepCaptureRecords] = useState(loadStepCaptureRecords);
   const [currentProgram, setCurrentProgram] = useState(null);
   const [currentChecksum, setCurrentChecksum] = useState(null);
   const [isPausedStepCapture, setIsPausedStepCapture] = useState(false);
-  const [isPausedStepValidation, setIsPausedStepValidation] = useState(false);
   const isPausedStepCaptureRef = useRef(false);
-  const isPausedStepValidationRef = useRef(false);
   const clientRef = useRef(null);
 
   // ── Derived Diagnostic Buffer ─────────────────────────────────────────────
@@ -324,18 +251,11 @@ export const MqttStatusProvider = ({ children }) => {
           console.log('Suscrito al topic: salesianos/robot/iban/principal');
         }
       });
-      client.subscribe('salesianos/robot/iban/step_capture', (err) => {
+      client.subscribe(STEP_CAPTURE_TOPIC, (err) => {
         if (err) {
           console.error('Error al suscribirse al topic step_capture:', err);
         } else {
-          console.log('Suscrito al topic: salesianos/robot/iban/step_capture');
-        }
-      });
-      client.subscribe(STEP_VALIDATION_TOPIC, (err) => {
-        if (err) {
-          console.error('Error al suscribirse al topic step_validation:', err);
-        } else {
-          console.log(`Suscrito al topic: ${STEP_VALIDATION_TOPIC}`);
+          console.log(`Suscrito al topic: ${STEP_CAPTURE_TOPIC}`);
         }
       });
       client.subscribe('salesianos/robot/iban/events_derived', (err) => {
@@ -371,29 +291,19 @@ export const MqttStatusProvider = ({ children }) => {
         const now = Date.now();
         console.log('[MQTT]', topic, data);
 
-        if (topic === 'salesianos/robot/iban/step_capture') {
+        if (isStepCaptureTopic(topic)) {
           if (!isPausedStepCaptureRef.current) {
-            const record = { ...data, _receivedAt: now };
-            setStepCaptureRecords((prev) => {
-              const updated = [...prev, record];
-              return updated.length > MAX_STEP_CAPTURE_RECORDS
-                ? updated.slice(updated.length - MAX_STEP_CAPTURE_RECORDS)
-                : updated;
-            });
-          }
-          if (data.program_name) {
-            setCurrentProgram(data.program_name);
-          }
-          if (data.checksum != null) {
-            setCurrentChecksum(data.checksum);
-          }
-        } else if (isStepValidationTopic(topic)) {
-          if (!isPausedStepValidationRef.current) {
-            const normalizedRecord = normalizeStepValidationRecord(data, topic, now);
+            const normalizedRecord = normalizeStepCaptureRecord(data, topic, now);
             if (normalizedRecord) {
-              setStepValidationRecords(prev =>
-                sortAndTrimStepValidationRecords([normalizedRecord, ...prev]),
+              setStepCaptureRecords(prev =>
+                sortAndTrimStepCaptureRecords([normalizedRecord, ...prev]),
               );
+              if (normalizedRecord.program_name) {
+                setCurrentProgram(normalizedRecord.program_name);
+              }
+              if (data.checksum != null) {
+                setCurrentChecksum(data.checksum);
+              }
             }
           }
         } else if (topic === 'salesianos/robot/iban/events_buffer') {
@@ -565,13 +475,13 @@ export const MqttStatusProvider = ({ children }) => {
     if (typeof window === 'undefined') return;
     try {
       window.localStorage.setItem(
-        STEP_VALIDATION_STORAGE_KEY,
-        JSON.stringify(sortAndTrimStepValidationRecords(stepValidationRecords)),
+        STEP_CAPTURE_STORAGE_KEY,
+        JSON.stringify(sortAndTrimStepCaptureRecords(stepCaptureRecords)),
       );
     } catch (error) {
-      console.error('Error al guardar step_validation en localStorage:', error);
+      console.error('Error al guardar step_capture en localStorage:', error);
     }
-  }, [stepValidationRecords]);
+  }, [stepCaptureRecords]);
 
   const publishCommand = useCallback((topic, payload) => {
     if (clientRef.current && clientRef.current.connected) {
@@ -590,20 +500,8 @@ export const MqttStatusProvider = ({ children }) => {
     });
   }, []);
 
-  const togglePauseStepValidation = useCallback(() => {
-    setIsPausedStepValidation((prev) => {
-      const next = !prev;
-      isPausedStepValidationRef.current = next;
-      return next;
-    });
-  }, []);
-
   const clearStepCaptureRecords = useCallback(() => {
     setStepCaptureRecords([]);
-  }, []);
-
-  const clearStepValidationRecords = useCallback(() => {
-    setStepValidationRecords([]);
   }, []);
 
   // Clears the accumulated event log.
@@ -647,15 +545,11 @@ export const MqttStatusProvider = ({ children }) => {
     lastMessageTime,
     telemetryData,
     stepCaptureRecords,
-    stepValidationRecords,
     currentProgram,
     currentChecksum,
     isPausedStepCapture,
-    isPausedStepValidation,
     togglePauseStepCapture,
-    togglePauseStepValidation,
     clearStepCaptureRecords,
-    clearStepValidationRecords,
     publishCommand,
     eventLog,
     clearEventLog,
