@@ -54,10 +54,11 @@ function getCaptureOrientation(payload) {
 
 function isStepCapturePayload(payload) {
   if (!payload || typeof payload !== 'object') return false;
-  return (
-    payload.message_type === 'step_capture'
-    || (typeof payload.schema_version === 'string' && payload.schema_version.startsWith('step_capture_socket_clean_'))
-  );
+  const hasExpectedMessageType = payload.message_type === 'step_capture';
+  const hasCompatibleSchema = payload.schema_version == null
+    || (typeof payload.schema_version === 'string'
+      && payload.schema_version.startsWith('step_capture_socket_clean_'));
+  return hasExpectedMessageType && hasCompatibleSchema;
 }
 
 function normalizeStepCaptureRecord(payload, topic, receivedAt) {
@@ -73,6 +74,7 @@ function normalizeStepCaptureRecord(payload, topic, receivedAt) {
     payload.step_id ?? 'na',
     timestamp,
     receivedAt,
+    Math.random().toString(36).slice(2, 10),
   ].join('_');
 
   return {

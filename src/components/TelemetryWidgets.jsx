@@ -1173,6 +1173,9 @@ function getStepRegistrySortValue(record) {
   return Number(record?._receivedAt) || 0;
 }
 
+const CYCLE_START_STEP_ID = 10000;
+const CYCLE_END_STEP_ID = 20000;
+
 function toNullableNumber(value) {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
@@ -1199,11 +1202,11 @@ function getStepRecordKind(record) {
   const isCycleStart = eventType === 'cycle_start'
     || markerType === 'cycle_start'
     || stepRole === 'cycle_start'
-    || numericStepId === 10000;
+    || numericStepId === CYCLE_START_STEP_ID;
   const isCycleEnd = eventType === 'cycle_end'
     || markerType === 'cycle_end'
     || stepRole === 'cycle_end'
-    || numericStepId === 20000;
+    || numericStepId === CYCLE_END_STEP_ID;
   const isProgramEnd = numericStepId === 9999;
   const isWorkStep = eventType === 'work_step'
     || stepType === 'work_step'
@@ -1311,10 +1314,8 @@ function buildStepRegistryView(records) {
       cycle: assignedCycle,
     };
 
-    if (kind.recordType === 'cycle_start' && assignedCycle != null) {
-      openCycle = assignedCycle;
-    } else if (kind.recordType === 'cycle_start') {
-      openCycle = kind.cycle;
+    if (kind.recordType === 'cycle_start') {
+      openCycle = assignedCycle ?? kind.cycle;
     } else if (kind.recordType === 'cycle_end' && assignedCycle != null && openCycle === assignedCycle) {
       openCycle = null;
     } else if (kind.recordType === 'cycle_end' && openCycle === kind.cycle) {
