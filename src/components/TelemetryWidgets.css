@@ -2184,7 +2184,15 @@
 }
 
 .svt-col-topic {
-  display: none;
+  width: 160px;
+  max-width: 160px;
+}
+
+.svt-td-topic.svt-col-topic {
+  max-width: 160px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sct-empty {
