@@ -1272,7 +1272,7 @@ function getCycleRecordPriority(recordType) {
 }
 
 function getCompactCycleLabel(record) {
-  if (record?.record_type === 'program_end') return 'PRG';
+  if (record?.record_type === 'program_end') return 'Programa';
   if (record?.cycle == null) return '—';
   return `C${record.cycle}`;
 }
@@ -1641,7 +1641,7 @@ export function StepRegistryTable({ records = [], className = '' }) {
                 >
                   <div className="spr-cycle-header">
                     <div className="spr-cycle-title">
-                      {`Ciclo ${cycle.cycleNumber}`}
+                      {`Ciclo ${formatStepRegistryValue(cycle.cycleNumber)}`}
                       <span className={`spr-chip ${cycle.state === 'completed' ? 'spr-chip--completed' : 'spr-chip--progress'}`}>
                         {cycle.stateLabel}
                       </span>
