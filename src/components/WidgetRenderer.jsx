@@ -2,7 +2,7 @@
  * WidgetRenderer - Renderiza widgets basándose en su tipo y configuración
  */
 
-import { KpiCard, StatusPill, StatusDynamic, DataTable, LogPanel, SafetyPanel, DigitalIO, AnalogIO, GestionPanel, SecurityLedsPanel, ToolPanel, TcpPose, JointsGrid, SystemMetricCard, StepCaptureTable, StepValidationTable, HardwareIOControlBox, HardwareIOTool, DiagnosticBufferPanel, NodeRedEventsPanel, NodeRedDiagMessagesPanel, TcpConfigPanel, TcpConfigMain, TcpPayloadPanel, TcpFlangeSchematic } from './TelemetryWidgets';
+import { KpiCard, StatusPill, StatusDynamic, DataTable, LogPanel, SafetyPanel, DigitalIO, AnalogIO, GestionPanel, SecurityLedsPanel, ToolPanel, TcpPose, JointsGrid, SystemMetricCard, StepCaptureTable, StepRegistryTable, HardwareIOControlBox, HardwareIOTool, DiagnosticBufferPanel, NodeRedEventsPanel, NodeRedDiagMessagesPanel, TcpConfigPanel, TcpConfigMain, TcpPayloadPanel, TcpFlangeSchematic } from './TelemetryWidgets';
 import { CameraWidget } from './CameraWidget';
 import { PerformanceChart } from './PerformanceChart';
 import './WidgetRenderer.css';
@@ -200,9 +200,9 @@ function renderWidget(widget, data, key) {
         />
       );
 
-    case 'step-validation-table':
+    case 'step-registry-table':
       return (
-        <StepValidationTable
+        <StepRegistryTable
           key={key}
           records={Array.isArray(value) ? value : []}
           className="full-width"

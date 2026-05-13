@@ -1122,7 +1122,7 @@ export function StepCaptureTable({ records = [], className = '' }) {
   );
 }
 
-function formatStepValidationDateTime(timestamp) {
+function formatStepRegistryDateTime(timestamp) {
   if (!timestamp) return '—';
   const date = new Date(timestamp);
   return Number.isNaN(date.getTime())
@@ -1138,9 +1138,9 @@ function formatStepValidationDateTime(timestamp) {
       });
 }
 
-function formatStepValidationNumber(value, digits = 3) {
-  if (value === null || value === undefined || Number.isNaN(Number(value))) return '—';
-  return Number(value).toFixed(digits);
+function formatStepRegistryValue(value) {
+  if (value === null || value === undefined || value === '') return '—';
+  return String(value);
 }
 
 function formatExportTimestamp() {
@@ -1151,32 +1151,11 @@ function formatExportTimestamp() {
     .replace('T', '_');
 }
 
-function getStepValidationStatusClass(status) {
-  switch (String(status ?? 'UNKNOWN').toUpperCase()) {
-    case 'OK':
-      return 'svt-status--ok';
-    case 'WARNING':
-      return 'svt-status--warning';
-    case 'ERROR':
-      return 'svt-status--error';
-    case 'SNAPSHOT_MISMATCH':
-      return 'svt-status--snapshot-mismatch';
-    case 'UNKNOWN_STEP':
-      return 'svt-status--unknown-step';
-    case 'FINISHED':
-      return 'svt-status--finished';
-    case 'PENDING_WEB_VALIDATION':
-      return 'svt-status--pending';
-    default:
-      return 'svt-status--unknown';
-  }
-}
-
-export function StepValidationTable({ records = [], className = '' }) {
+export function StepRegistryTable({ records = [], className = '' }) {
   const {
-    isPausedStepValidation,
-    togglePauseStepValidation,
-    clearStepValidationRecords,
+    isPausedStepCapture,
+    togglePauseStepCapture,
+    clearStepCaptureRecords,
   } = useContext(MqttStatusContext);
 
   const displayRecords = useMemo(() => (
@@ -1188,61 +1167,31 @@ export function StepValidationTable({ records = [], className = '' }) {
       if (displayRecords.length === 0) return;
       const headers = [
         'topic_mqtt_origen',
-        'hora',
-        'centro',
-        'center_id',
+        'fecha_hora',
+        'programa',
         'snapshot_short',
         'step_id',
         'event_counter',
-        'step_label',
-        'estado',
-        'texto_validacion',
-        'tolerance_ok_mm',
-        'tolerance_warning_mm',
-        'tolerances_x_mm',
-        'tolerances_y_mm',
-        'tolerances_z_mm',
-        'error_total_mm',
-        'dx_mm',
-        'dy_mm',
-        'dz_mm',
-        'planned_x_mm',
-        'planned_y_mm',
-        'planned_z_mm',
-        'captured_x_mm',
-        'captured_y_mm',
-        'captured_z_mm',
-        'snapshot_match',
-        'program_name',
+        'x_real_capturada_mm',
+        'y_real_capturada_mm',
+        'z_real_capturada_mm',
+        'rx',
+        'ry',
+        'rz',
       ];
       const rows = displayRecords.map((record) => [
         record._topic ?? '',
         record.timestamp ?? '',
-        record.center_name ?? record.center_id ?? '',
-        record.center_id ?? '',
+        record.program_name ?? '',
         record.snapshot_short ?? '',
         record.step_id ?? '',
         record.event_counter ?? '',
-        record.step_label ?? '',
-        record.validation_status ?? '',
-        record.validation_text ?? '',
-        record.tolerance_ok_mm ?? '',
-        record.tolerance_warning_mm ?? '',
-        record.tolerances_x_mm ?? '',
-        record.tolerances_y_mm ?? '',
-        record.tolerances_z_mm ?? '',
-        record.total_error_mm ?? '',
-        record.dx_mm ?? '',
-        record.dy_mm ?? '',
-        record.dz_mm ?? '',
-        record.planned_x_mm ?? '',
-        record.planned_y_mm ?? '',
-        record.planned_z_mm ?? '',
-        record.captured_x_mm ?? '',
-        record.captured_y_mm ?? '',
-        record.captured_z_mm ?? '',
-        record.snapshot_match ?? '',
-        record.program_name ?? '',
+        record.x_real_capturada_mm ?? '',
+        record.y_real_capturada_mm ?? '',
+        record.z_real_capturada_mm ?? '',
+        record.rx ?? '',
+        record.ry ?? '',
+        record.rz ?? '',
       ]);
       const csvContent = [headers, ...rows]
         .map((row) => row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(','))
@@ -1252,13 +1201,13 @@ export function StepValidationTable({ records = [], className = '' }) {
       const link = document.createElement('a');
       const stamp = formatExportTimestamp();
       link.href = url;
-      link.download = `step_validation_${stamp}.csv`;
+      link.download = `registro_pasos_${stamp}.csv`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error al exportar resultados de validación:', error);
+      console.error('Error al exportar el registro de pasos:', error);
     }
   };
 
@@ -1268,66 +1217,36 @@ export function StepValidationTable({ records = [], className = '' }) {
       const workbook = new ExcelJS.Workbook();
       workbook.creator = 'FP-ROBOTIK-INTERFACE';
       workbook.created = new Date();
-      const sheet = workbook.addWorksheet('Step Validation');
+      const sheet = workbook.addWorksheet('Registro de pasos');
       sheet.columns = [
         { header: 'topic_mqtt_origen', key: 'topic', width: 40 },
         { header: 'fecha_hora', key: 'timestamp', width: 24 },
-        { header: 'centro', key: 'center', width: 24 },
-        { header: 'center_id', key: 'center_id', width: 14 },
+        { header: 'programa', key: 'program_name', width: 28 },
         { header: 'snapshot_short', key: 'snapshot_short', width: 18 },
         { header: 'step_id', key: 'step_id', width: 12 },
         { header: 'event_counter', key: 'event_counter', width: 14 },
-        { header: 'step_label', key: 'step_label', width: 24 },
-        { header: 'estado', key: 'validation_status', width: 18 },
-        { header: 'texto_validacion', key: 'validation_text', width: 50 },
-        { header: 'tolerance_ok_mm', key: 'tolerance_ok_mm', width: 16 },
-        { header: 'tolerance_warning_mm', key: 'tolerance_warning_mm', width: 20 },
-        { header: 'tolerances_x_mm', key: 'tolerances_x_mm', width: 15 },
-        { header: 'tolerances_y_mm', key: 'tolerances_y_mm', width: 15 },
-        { header: 'tolerances_z_mm', key: 'tolerances_z_mm', width: 15 },
-        { header: 'error_total_mm', key: 'total_error_mm', width: 14 },
-        { header: 'dx_mm', key: 'dx_mm', width: 12 },
-        { header: 'dy_mm', key: 'dy_mm', width: 12 },
-        { header: 'dz_mm', key: 'dz_mm', width: 12 },
-        { header: 'planned_x_mm', key: 'planned_x_mm', width: 14 },
-        { header: 'planned_y_mm', key: 'planned_y_mm', width: 14 },
-        { header: 'planned_z_mm', key: 'planned_z_mm', width: 14 },
-        { header: 'captured_x_mm', key: 'captured_x_mm', width: 14 },
-        { header: 'captured_y_mm', key: 'captured_y_mm', width: 14 },
-        { header: 'captured_z_mm', key: 'captured_z_mm', width: 14 },
-        { header: 'snapshot_match', key: 'snapshot_match', width: 14 },
-        { header: 'program_name', key: 'program_name', width: 28 },
+        { header: 'x_real_capturada_mm', key: 'x_real_capturada_mm', width: 20 },
+        { header: 'y_real_capturada_mm', key: 'y_real_capturada_mm', width: 20 },
+        { header: 'z_real_capturada_mm', key: 'z_real_capturada_mm', width: 20 },
+        { header: 'rx', key: 'rx', width: 14 },
+        { header: 'ry', key: 'ry', width: 14 },
+        { header: 'rz', key: 'rz', width: 14 },
       ];
       sheet.getRow(1).font = { bold: true };
       displayRecords.forEach((record) => {
         sheet.addRow({
           topic: record._topic ?? '',
           timestamp: record.timestamp ?? '',
-          center: record.center_name ?? record.center_id ?? '',
-          center_id: record.center_id ?? '',
+          program_name: record.program_name ?? '',
           snapshot_short: record.snapshot_short ?? '',
           step_id: record.step_id ?? '',
           event_counter: record.event_counter ?? '',
-          step_label: record.step_label ?? '',
-          validation_status: record.validation_status ?? '',
-          validation_text: record.validation_text ?? '',
-          tolerance_ok_mm: record.tolerance_ok_mm ?? '',
-          tolerance_warning_mm: record.tolerance_warning_mm ?? '',
-          tolerances_x_mm: record.tolerances_x_mm ?? '',
-          tolerances_y_mm: record.tolerances_y_mm ?? '',
-          tolerances_z_mm: record.tolerances_z_mm ?? '',
-          total_error_mm: record.total_error_mm ?? '',
-          dx_mm: record.dx_mm ?? '',
-          dy_mm: record.dy_mm ?? '',
-          dz_mm: record.dz_mm ?? '',
-          planned_x_mm: record.planned_x_mm ?? '',
-          planned_y_mm: record.planned_y_mm ?? '',
-          planned_z_mm: record.planned_z_mm ?? '',
-          captured_x_mm: record.captured_x_mm ?? '',
-          captured_y_mm: record.captured_y_mm ?? '',
-          captured_z_mm: record.captured_z_mm ?? '',
-          snapshot_match: record.snapshot_match ?? '',
-          program_name: record.program_name ?? '',
+          x_real_capturada_mm: record.x_real_capturada_mm ?? '',
+          y_real_capturada_mm: record.y_real_capturada_mm ?? '',
+          z_real_capturada_mm: record.z_real_capturada_mm ?? '',
+          rx: record.rx ?? '',
+          ry: record.ry ?? '',
+          rz: record.rz ?? '',
         });
       });
 
@@ -1339,13 +1258,13 @@ export function StepValidationTable({ records = [], className = '' }) {
       const link = document.createElement('a');
       const stamp = formatExportTimestamp();
       link.href = url;
-      link.download = `step_validation_${stamp}.xlsx`;
+      link.download = `registro_pasos_${stamp}.xlsx`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error al exportar resultados de validación a Excel:', error);
+      console.error('Error al exportar el registro de pasos a Excel:', error);
     }
   };
 
@@ -1354,33 +1273,31 @@ export function StepValidationTable({ records = [], className = '' }) {
       <div className="svt-header">
         <Activity size={16} className="widget-icon" />
         {displayRecords.length === 0
-          ? 'Validador de pasos'
-          : `Validador de pasos — ${displayRecords.length} resultado${displayRecords.length !== 1 ? 's' : ''}`}
+          ? 'Registro de pasos'
+          : `Registro de pasos — ${displayRecords.length} captura${displayRecords.length !== 1 ? 's' : ''}`}
       </div>
 
       <div className="svt-subtitle">
         <p>
-          Escuchando <code>salesianos/robot/+/step_validation</code>. Esta vista solo almacena/visualiza resultados ya evaluados externamente:
-          <strong>no valida pasos, no compara planned/captured y no depende del conversor.</strong>
-        </p>
-        <p>
-          <strong>Nota:</strong> <code>step_capture</code> es captura cruda para validación externa; <code>step_validation</code> es resultado final para este visor.
+          Escuchando <code>salesianos/robot/+/step_capture</code> y almacenando solo payloads con
+          {' '}
+          <code>schema_version = "step_capture_socket_clean_v3"</code>.
         </p>
       </div>
 
       <div className="sct-controls">
         <button
-          className={`ctrl-btn ${isPausedStepValidation ? 'ctrl-btn-start' : 'ctrl-btn-pause'}`}
-          onClick={togglePauseStepValidation}
+          className={`ctrl-btn ${isPausedStepCapture ? 'ctrl-btn-start' : 'ctrl-btn-pause'}`}
+          onClick={togglePauseStepCapture}
         >
-          {isPausedStepValidation ? '▶ Iniciar recopilación local' : '⏸ Pausar recopilación local'}
+          {isPausedStepCapture ? '▶ Reanudar recopilación local' : '⏸ Pausar recopilación local'}
         </button>
         <button
           className="ctrl-btn ctrl-btn-clear"
-          onClick={clearStepValidationRecords}
+          onClick={clearStepCaptureRecords}
           disabled={displayRecords.length === 0}
         >
-          🗑 Limpiar resultados
+          🗑 Limpiar buffer
         </button>
         <button
           className="ctrl-btn ctrl-btn-export"
@@ -1400,9 +1317,9 @@ export function StepValidationTable({ records = [], className = '' }) {
 
       {displayRecords.length === 0 ? (
         <div className="sct-empty">
-          {isPausedStepValidation
-            ? 'Recopilación local en pausa. Reanuda para guardar nuevos resultados de step_validation.'
-            : 'Esperando datos del topic salesianos/robot/+/step_validation…'}
+          {isPausedStepCapture
+            ? 'Recopilación local en pausa. Reanuda para guardar nuevas capturas MQTT.'
+            : 'Esperando capturas válidas del topic salesianos/robot/+/step_capture…'}
         </div>
       ) : (
         <div className="svt-scroll">
@@ -1411,69 +1328,33 @@ export function StepValidationTable({ records = [], className = '' }) {
               <tr>
                 <th>Topic MQTT</th>
                 <th>Fecha/hora</th>
-                <th>Centro</th>
+                <th>Programa</th>
                 <th>Snapshot</th>
                 <th>Step</th>
                 <th>Event</th>
-                <th>Etiqueta</th>
-                <th>Estado</th>
-                <th>Validación</th>
-                <th>Tol OK</th>
-                <th>Tol Warn</th>
-                <th>Tol X</th>
-                <th>Tol Y</th>
-                <th>Tol Z</th>
-                <th>Error total (mm)</th>
-                <th>ΔX</th>
-                <th>ΔY</th>
-                <th>ΔZ</th>
-                <th>Planned X</th>
-                <th>Planned Y</th>
-                <th>Planned Z</th>
-                <th>Captured X</th>
-                <th>Captured Y</th>
-                <th>Captured Z</th>
-                <th>Snapshot match</th>
+                <th>X real capturada</th>
+                <th>Y real capturada</th>
+                <th>Z real capturada</th>
+                <th>RX</th>
+                <th>RY</th>
+                <th>RZ</th>
               </tr>
             </thead>
             <tbody>
               {displayRecords.map((record) => (
                 <tr key={record._id ?? `${record.timestamp ?? ''}-${record.step_id ?? ''}-${record.event_counter ?? ''}`}>
                   <td className="svt-td-topic">{record._topic ?? '—'}</td>
-                  <td className="svt-td-time">{formatStepValidationDateTime(record.timestamp)}</td>
-                  <td>{record.center_name ?? record.center_id ?? '—'}</td>
+                  <td className="svt-td-time">{formatStepRegistryDateTime(record.timestamp)}</td>
+                  <td>{record.program_name ?? '—'}</td>
                   <td>{record.snapshot_short ?? '—'}</td>
                   <td>{record.step_id ?? '—'}</td>
                   <td>{record.event_counter ?? '—'}</td>
-                  <td>{record.step_label ?? '—'}</td>
-                  <td>
-                    <span className={`svt-status ${getStepValidationStatusClass(record.validation_status)}`}>
-                      {record.validation_status ?? 'UNKNOWN'}
-                    </span>
-                  </td>
-                  <td>{record.validation_text ?? '—'}</td>
-                  <td>{formatStepValidationNumber(record.tolerance_ok_mm)}</td>
-                  <td>{formatStepValidationNumber(record.tolerance_warning_mm)}</td>
-                  <td>{formatStepValidationNumber(record.tolerances_x_mm)}</td>
-                  <td>{formatStepValidationNumber(record.tolerances_y_mm)}</td>
-                  <td>{formatStepValidationNumber(record.tolerances_z_mm)}</td>
-                  <td>{formatStepValidationNumber(record.total_error_mm)}</td>
-                  <td>{formatStepValidationNumber(record.dx_mm)}</td>
-                  <td>{formatStepValidationNumber(record.dy_mm)}</td>
-                  <td>{formatStepValidationNumber(record.dz_mm)}</td>
-                  <td>{formatStepValidationNumber(record.planned_x_mm)}</td>
-                  <td>{formatStepValidationNumber(record.planned_y_mm)}</td>
-                  <td>{formatStepValidationNumber(record.planned_z_mm)}</td>
-                  <td>{formatStepValidationNumber(record.captured_x_mm)}</td>
-                  <td>{formatStepValidationNumber(record.captured_y_mm)}</td>
-                  <td>{formatStepValidationNumber(record.captured_z_mm)}</td>
-                  <td>
-                    {typeof record.snapshot_match === 'boolean' ? (
-                      <span className={`svt-match ${record.snapshot_match ? 'svt-match--yes' : 'svt-match--no'}`}>
-                        {record.snapshot_match ? 'true' : 'false'}
-                      </span>
-                    ) : '—'}
-                  </td>
+                  <td>{formatStepRegistryValue(record.x_real_capturada_mm)}</td>
+                  <td>{formatStepRegistryValue(record.y_real_capturada_mm)}</td>
+                  <td>{formatStepRegistryValue(record.z_real_capturada_mm)}</td>
+                  <td>{formatStepRegistryValue(record.rx)}</td>
+                  <td>{formatStepRegistryValue(record.ry)}</td>
+                  <td>{formatStepRegistryValue(record.rz)}</td>
                 </tr>
               ))}
             </tbody>
