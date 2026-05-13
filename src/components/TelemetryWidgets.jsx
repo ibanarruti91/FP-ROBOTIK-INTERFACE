@@ -1138,8 +1138,24 @@ function formatStepRegistryDateTime(timestamp) {
       });
 }
 
-function formatStepRegistryValue(value) {
+function formatStepRegistryTimeOnly(timestamp) {
+  if (!timestamp) return '—';
+  const date = new Date(timestamp);
+  return Number.isNaN(date.getTime())
+    ? String(timestamp)
+    : date.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+      });
+}
+
+function formatStepRegistryValue(value, decimals = null) {
   if (value === null || value === undefined || value === '') return '—';
+  if (typeof value === 'number' && Number.isFinite(value) && Number.isInteger(decimals) && decimals >= 0) {
+    return value.toFixed(decimals);
+  }
   return String(value);
 }
 
@@ -1151,6 +1167,194 @@ function formatExportTimestamp() {
     .replace('T', '_');
 }
 
+function getStepRegistrySortValue(record) {
+  const timestampValue = Date.parse(record?.timestamp ?? '');
+  if (!Number.isNaN(timestampValue)) return timestampValue;
+  return Number(record?._receivedAt) || 0;
+}
+
+function getStepRecordKind(stepId) {
+  const numericStepId = Number(stepId);
+  if (Number.isFinite(numericStepId) && numericStepId >= 9001 && numericStepId <= 9099) {
+    return {
+      rawStepId: numericStepId,
+      recordType: 'cycle_start',
+      cycle: numericStepId - 9000,
+      typeLabel: 'Inicio ciclo',
+      badgeLabel: 'Inicio ciclo',
+    };
+  }
+  if (Number.isFinite(numericStepId) && numericStepId >= 9101 && numericStepId <= 9199) {
+    return {
+      rawStepId: numericStepId,
+      recordType: 'cycle_end',
+      cycle: numericStepId - 9100,
+      typeLabel: 'Fin ciclo',
+      badgeLabel: 'Fin ciclo',
+    };
+  }
+  if (numericStepId === 9999) {
+    return {
+      rawStepId: numericStepId,
+      recordType: 'program_end',
+      cycle: null,
+      typeLabel: 'Fin programa',
+      badgeLabel: 'Fin programa',
+    };
+  }
+  return {
+    rawStepId: Number.isFinite(numericStepId) ? numericStepId : null,
+    recordType: 'capture_point',
+    cycle: null,
+    typeLabel: 'Punto capturado',
+    badgeLabel: 'Punto capturado',
+  };
+}
+
+function formatCycleDurationSeconds(startTime, endTime) {
+  const startMs = Date.parse(startTime ?? '');
+  const endMs = Date.parse(endTime ?? '');
+  if (Number.isNaN(startMs) || Number.isNaN(endMs)) return '—';
+  const seconds = Math.max(0, (endMs - startMs) / 1000);
+  return `${seconds.toFixed(1)} s`;
+}
+
+function getRecordSequenceValue(record) {
+  const value = record?.event_counter;
+  const num = Number(value);
+  return Number.isFinite(num) ? num : null;
+}
+
+function buildStepRegistryView(records) {
+  const source = Array.isArray(records) ? records : [];
+  const ordered = [...source].sort((a, b) => {
+    const diff = getStepRegistrySortValue(a) - getStepRegistrySortValue(b);
+    if (diff !== 0) return diff;
+    return (Number(a?._receivedAt) || 0) - (Number(b?._receivedAt) || 0);
+  });
+
+  const cyclesByNumber = new Map();
+  const cycleOrder = [];
+  const tableRows = [];
+  const programEndRows = [];
+  const uncategorizedRows = [];
+  let openCycle = null;
+
+  const ensureCycle = (cycleNumber) => {
+    if (!cyclesByNumber.has(cycleNumber)) {
+      cyclesByNumber.set(cycleNumber, {
+        cycleNumber,
+        records: [],
+        startTime: null,
+        endTime: null,
+        pointCount: 0,
+        firstSequence: null,
+        lastSequence: null,
+        programName: null,
+        snapshotShort: null,
+      });
+      cycleOrder.push(cycleNumber);
+    }
+    return cyclesByNumber.get(cycleNumber);
+  };
+
+  ordered.forEach((record) => {
+    const kind = getStepRecordKind(record?.step_id);
+    let assignedCycle = kind.cycle;
+    if (kind.recordType === 'capture_point') {
+      assignedCycle = openCycle;
+    }
+
+    const normalizedRow = {
+      ...record,
+      raw_step_id: kind.rawStepId,
+      record_type: kind.recordType,
+      type_label: kind.typeLabel,
+      badge_label: kind.badgeLabel,
+      cycle: assignedCycle,
+    };
+
+    if (kind.recordType === 'cycle_start') {
+      openCycle = kind.cycle;
+    } else if (kind.recordType === 'cycle_end' && openCycle === kind.cycle) {
+      openCycle = null;
+    }
+
+    tableRows.push(normalizedRow);
+
+    if (kind.recordType === 'program_end') {
+      programEndRows.push(normalizedRow);
+      return;
+    }
+
+    if (assignedCycle == null) {
+      uncategorizedRows.push(normalizedRow);
+      return;
+    }
+
+    const cycle = ensureCycle(assignedCycle);
+    cycle.records.push(normalizedRow);
+    if (normalizedRow.program_name && !cycle.programName) {
+      cycle.programName = normalizedRow.program_name;
+    }
+    if (normalizedRow.snapshot_short && !cycle.snapshotShort) {
+      cycle.snapshotShort = normalizedRow.snapshot_short;
+    }
+    if (kind.recordType === 'cycle_start' && !cycle.startTime) {
+      cycle.startTime = normalizedRow.timestamp ?? null;
+    }
+    if (kind.recordType === 'cycle_end') {
+      cycle.endTime = normalizedRow.timestamp ?? null;
+    }
+    if (kind.recordType === 'capture_point') {
+      cycle.pointCount += 1;
+    }
+    const sequence = getRecordSequenceValue(normalizedRow);
+    if (sequence !== null && cycle.firstSequence === null) {
+      cycle.firstSequence = sequence;
+    }
+    if (sequence !== null) {
+      cycle.lastSequence = sequence;
+    }
+  });
+
+  const cycleGroups = cycleOrder.map((cycleNumber) => {
+    const cycle = cyclesByNumber.get(cycleNumber);
+    const isCompleted = Boolean(cycle.startTime && cycle.endTime);
+    return {
+      ...cycle,
+      state: isCompleted ? 'completed' : 'in_progress',
+      stateLabel: isCompleted ? 'Completado' : 'En curso',
+      durationLabel: isCompleted
+        ? formatCycleDurationSeconds(cycle.startTime, cycle.endTime)
+        : '—',
+    };
+  });
+
+  let latestProgram = null;
+  let latestCapture = null;
+  for (let i = ordered.length - 1; i >= 0; i -= 1) {
+    const row = ordered[i];
+    if (!latestProgram && row?.program_name) latestProgram = row.program_name;
+    if (!latestCapture && row?.timestamp) latestCapture = row.timestamp;
+    if (latestProgram && latestCapture) break;
+  }
+
+  const openCycleGroup = [...cycleGroups].reverse().find((group) => group.state === 'in_progress') ?? null;
+  const completedCycles = cycleGroups.filter((group) => group.state === 'completed').length;
+
+  return {
+    tableRows,
+    cycleGroups,
+    uncategorizedRows,
+    programEndRows,
+    latestProgram,
+    latestCapture,
+    openCycle: openCycleGroup?.cycleNumber ?? null,
+    completedCycles,
+  };
+}
+
 export function StepRegistryTable({ records = [], className = '' }) {
   const {
     isPausedStepCapture,
@@ -1158,95 +1362,91 @@ export function StepRegistryTable({ records = [], className = '' }) {
     clearStepCaptureRecords,
   } = useContext(MqttStatusContext);
 
-  const displayRecords = useMemo(() => (
-    Array.isArray(records) ? records : []
-  ), [records]);
-
-  const handleExport = () => {
-    try {
-      if (displayRecords.length === 0) return;
-      const headers = [
-        'topic_mqtt_origen',
-        'fecha_hora',
-        'programa',
-        'snapshot_short',
-        'step_id',
-        'event_counter',
-        'x_real_capturada_mm',
-        'y_real_capturada_mm',
-        'z_real_capturada_mm',
-        'rx',
-        'ry',
-        'rz',
-      ];
-      const rows = displayRecords.map((record) => [
-        record._topic ?? '',
-        record.timestamp ?? '',
-        record.program_name ?? '',
-        record.snapshot_short ?? '',
-        record.step_id ?? '',
-        record.event_counter ?? '',
-        record.x_real_capturada_mm ?? '',
-        record.y_real_capturada_mm ?? '',
-        record.z_real_capturada_mm ?? '',
-        record.rx ?? '',
-        record.ry ?? '',
-        record.rz ?? '',
-      ]);
-      const csvContent = [headers, ...rows]
-        .map((row) => row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(','))
-        .join('\n');
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      const stamp = formatExportTimestamp();
-      link.href = url;
-      link.download = `registro_pasos_${stamp}.csv`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error al exportar el registro de pasos:', error);
-    }
-  };
+  const registry = useMemo(() => buildStepRegistryView(records), [records]);
+  const displayRows = registry.tableRows;
+  const hasRows = displayRows.length > 0;
 
   const handleExportExcel = async () => {
     try {
-      if (displayRecords.length === 0) return;
+      if (!hasRows) return;
       const workbook = new ExcelJS.Workbook();
       workbook.creator = 'FP-ROBOTIK-INTERFACE';
       workbook.created = new Date();
-      const sheet = workbook.addWorksheet('Registro de pasos');
-      sheet.columns = [
-        { header: 'topic_mqtt_origen', key: 'topic', width: 40 },
-        { header: 'fecha_hora', key: 'timestamp', width: 24 },
-        { header: 'programa', key: 'program_name', width: 28 },
+
+      const recordsSheet = workbook.addWorksheet('Registros');
+      recordsSheet.columns = [
+        { header: 'fecha_hora', key: 'fecha_hora', width: 24 },
+        { header: 'programa', key: 'programa', width: 28 },
         { header: 'snapshot_short', key: 'snapshot_short', width: 18 },
-        { header: 'step_id', key: 'step_id', width: 12 },
-        { header: 'event_counter', key: 'event_counter', width: 14 },
-        { header: 'x_real_capturada_mm', key: 'x_real_capturada_mm', width: 20 },
-        { header: 'y_real_capturada_mm', key: 'y_real_capturada_mm', width: 20 },
-        { header: 'z_real_capturada_mm', key: 'z_real_capturada_mm', width: 20 },
-        { header: 'rx', key: 'rx', width: 14 },
-        { header: 'ry', key: 'ry', width: 14 },
-        { header: 'rz', key: 'rz', width: 14 },
+        { header: 'ciclo', key: 'ciclo', width: 16 },
+        { header: 'tipo_registro', key: 'tipo_registro', width: 20 },
+        { header: 'numero_registro', key: 'numero_registro', width: 16 },
+        { header: 'punto_de_paso', key: 'punto_de_paso', width: 16 },
+        { header: 'x_real_mm', key: 'x_real_mm', width: 14 },
+        { header: 'y_real_mm', key: 'y_real_mm', width: 14 },
+        { header: 'z_real_mm', key: 'z_real_mm', width: 14 },
+        { header: 'rx_rad', key: 'rx_rad', width: 14 },
+        { header: 'ry_rad', key: 'ry_rad', width: 14 },
+        { header: 'rz_rad', key: 'rz_rad', width: 14 },
+        { header: 'topic_mqtt', key: 'topic_mqtt', width: 42 },
+        { header: 'raw_step_id', key: 'raw_step_id', width: 14 },
+        { header: 'raw_event_counter', key: 'raw_event_counter', width: 18 },
       ];
-      sheet.getRow(1).font = { bold: true };
-      displayRecords.forEach((record) => {
-        sheet.addRow({
-          topic: record._topic ?? '',
-          timestamp: record.timestamp ?? '',
-          program_name: record.program_name ?? '',
+
+      recordsSheet.getRow(1).font = { bold: true };
+      displayRows.forEach((record) => {
+        recordsSheet.addRow({
+          fecha_hora: record.timestamp ?? '',
+          programa: record.program_name ?? '',
           snapshot_short: record.snapshot_short ?? '',
-          step_id: record.step_id ?? '',
-          event_counter: record.event_counter ?? '',
-          x_real_capturada_mm: record.x_real_capturada_mm ?? '',
-          y_real_capturada_mm: record.y_real_capturada_mm ?? '',
-          z_real_capturada_mm: record.z_real_capturada_mm ?? '',
-          rx: record.rx ?? '',
-          ry: record.ry ?? '',
-          rz: record.rz ?? '',
+          ciclo: record.record_type === 'program_end'
+            ? 'Programa'
+            : record.cycle == null
+              ? 'Sin ciclo asignado'
+              : String(record.cycle),
+          tipo_registro: record.type_label ?? '',
+          numero_registro: record.event_counter ?? '',
+          punto_de_paso: record.record_type === 'capture_point' ? (record.step_id ?? '') : '',
+          x_real_mm: record.x_real_capturada_mm ?? '',
+          y_real_mm: record.y_real_capturada_mm ?? '',
+          z_real_mm: record.z_real_capturada_mm ?? '',
+          rx_rad: record.rx ?? '',
+          ry_rad: record.ry ?? '',
+          rz_rad: record.rz ?? '',
+          topic_mqtt: record._topic ?? '',
+          raw_step_id: record.raw_step_id ?? '',
+          raw_event_counter: record.event_counter ?? '',
+        });
+      });
+
+      const cyclesSheet = workbook.addWorksheet('Ciclos');
+      cyclesSheet.columns = [
+        { header: 'programa', key: 'programa', width: 28 },
+        { header: 'snapshot_short', key: 'snapshot_short', width: 18 },
+        { header: 'ciclo', key: 'ciclo', width: 10 },
+        { header: 'estado_ciclo', key: 'estado_ciclo', width: 16 },
+        { header: 'fecha_inicio', key: 'fecha_inicio', width: 24 },
+        { header: 'fecha_fin', key: 'fecha_fin', width: 24 },
+        { header: 'duracion_s', key: 'duracion_s', width: 14 },
+        { header: 'numero_puntos_capturados', key: 'numero_puntos_capturados', width: 24 },
+        { header: 'primer_numero_registro', key: 'primer_numero_registro', width: 24 },
+        { header: 'ultimo_numero_registro', key: 'ultimo_numero_registro', width: 24 },
+      ];
+      cyclesSheet.getRow(1).font = { bold: true };
+      registry.cycleGroups.forEach((cycle) => {
+        cyclesSheet.addRow({
+          programa: cycle.programName ?? '',
+          snapshot_short: cycle.snapshotShort ?? '',
+          ciclo: cycle.cycleNumber,
+          estado_ciclo: cycle.stateLabel,
+          fecha_inicio: cycle.startTime ?? '',
+          fecha_fin: cycle.endTime ?? '',
+          duracion_s: cycle.startTime && cycle.endTime
+            ? Number.parseFloat(cycle.durationLabel)
+            : '',
+          numero_puntos_capturados: cycle.pointCount,
+          primer_numero_registro: cycle.firstSequence ?? '',
+          ultimo_numero_registro: cycle.lastSequence ?? '',
         });
       });
 
@@ -1258,13 +1458,13 @@ export function StepRegistryTable({ records = [], className = '' }) {
       const link = document.createElement('a');
       const stamp = formatExportTimestamp();
       link.href = url;
-      link.download = `registro_pasos_${stamp}.xlsx`;
+      link.download = `registro_puntos_${stamp}.xlsx`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error al exportar el registro de pasos a Excel:', error);
+      console.error('Error al exportar el registro de puntos a Excel:', error);
     }
   };
 
@@ -1272,17 +1472,54 @@ export function StepRegistryTable({ records = [], className = '' }) {
     <CardGlass className={`step-validation-table ${className}`}>
       <div className="svt-header">
         <Activity size={16} className="widget-icon" />
-        {displayRecords.length === 0
-          ? 'Registro de pasos'
-          : `Registro de pasos — ${displayRecords.length} captura${displayRecords.length !== 1 ? 's' : ''}`}
+        Registro de ciclos y puntos de paso
       </div>
 
       <div className="svt-subtitle">
         <p>
-          Escuchando <code>salesianos/robot/+/step_capture</code> y almacenando solo payloads con
+          Fuente MQTT:
           {' '}
-          <code>schema_version = "step_capture_socket_clean_v3"</code>.
+          <code>salesianos/robot/+/step_capture</code>
+          {' '}
+          con
+          {' '}
+          <code>schema_version = "step_capture_socket_clean_v3"</code>
+          {' '}
+          y
+          {' '}
+          <code>message_type = "step_capture"</code>.
         </p>
+      </div>
+
+      <div className="spr-summary-grid">
+        <div className="spr-summary-card">
+          <div className="spr-summary-label">Estado de recopilación</div>
+          <div className={`spr-summary-value ${isPausedStepCapture ? 'spr-summary-value--paused' : 'spr-summary-value--active'}`}>
+            {isPausedStepCapture ? 'Pausado' : 'Recopilando'}
+          </div>
+        </div>
+        <div className="spr-summary-card">
+          <div className="spr-summary-label">Programa</div>
+          <div className="spr-summary-value">{registry.latestProgram ?? '—'}</div>
+        </div>
+        <div className="spr-summary-card">
+          <div className="spr-summary-label">Total de registros</div>
+          <div className="spr-summary-value">{displayRows.length}</div>
+        </div>
+        <div className="spr-summary-card">
+          <div className="spr-summary-label">Ciclos completos</div>
+          <div className="spr-summary-value">{registry.completedCycles}</div>
+        </div>
+        <div className="spr-summary-card">
+          <div className="spr-summary-label">Ciclo actual</div>
+          <div className="spr-summary-value">
+            {registry.openCycle == null ? 'Ninguno' : `Ciclo ${registry.openCycle}`}
+          </div>
+        </div>
+        <div className="spr-summary-card">
+          <div className="spr-summary-label">Última captura</div>
+          <div className="spr-summary-value">{formatStepRegistryTimeOnly(registry.latestCapture)}</div>
+        </div>
       </div>
 
       <div className="sct-controls">
@@ -1290,76 +1527,183 @@ export function StepRegistryTable({ records = [], className = '' }) {
           className={`ctrl-btn ${isPausedStepCapture ? 'ctrl-btn-start' : 'ctrl-btn-pause'}`}
           onClick={togglePauseStepCapture}
         >
-          {isPausedStepCapture ? '▶ Reanudar recopilación local' : '⏸ Pausar recopilación local'}
+          {isPausedStepCapture ? '▶ Iniciar / reanudar recopilación' : '⏸ Pausar recopilación'}
         </button>
         <button
           className="ctrl-btn ctrl-btn-clear"
           onClick={clearStepCaptureRecords}
-          disabled={displayRecords.length === 0}
+          disabled={!hasRows}
         >
-          🗑 Limpiar buffer
-        </button>
-        <button
-          className="ctrl-btn ctrl-btn-export"
-          onClick={handleExport}
-          disabled={displayRecords.length === 0}
-        >
-          📥 Exportar CSV
+          🗑 Borrar registro
         </button>
         <button
           className="ctrl-btn ctrl-btn-export"
           onClick={handleExportExcel}
-          disabled={displayRecords.length === 0}
+          disabled={!hasRows}
         >
           📊 Exportar Excel
         </button>
       </div>
 
-      {displayRecords.length === 0 ? (
+      {!hasRows ? (
         <div className="sct-empty">
           {isPausedStepCapture
             ? 'Recopilación local en pausa. Reanuda para guardar nuevas capturas MQTT.'
-            : 'Esperando capturas válidas del topic salesianos/robot/+/step_capture…'}
+            : 'Esperando capturas MQTT válidas de step_capture…'}
         </div>
       ) : (
-        <div className="svt-scroll">
-          <table className="svt-tbl">
-            <thead>
-              <tr>
-                <th>Topic MQTT</th>
-                <th>Fecha/hora</th>
-                <th>Programa</th>
-                <th>Snapshot</th>
-                <th>Step</th>
-                <th>Event</th>
-                <th>X real capturada</th>
-                <th>Y real capturada</th>
-                <th>Z real capturada</th>
-                <th>RX</th>
-                <th>RY</th>
-                <th>RZ</th>
-              </tr>
-            </thead>
-            <tbody>
-              {displayRecords.map((record) => (
-                <tr key={record._id ?? `${record.timestamp ?? ''}-${record.step_id ?? ''}-${record.event_counter ?? ''}`}>
-                  <td className="svt-td-topic">{record._topic ?? '—'}</td>
-                  <td className="svt-td-time">{formatStepRegistryDateTime(record.timestamp)}</td>
-                  <td>{record.program_name ?? '—'}</td>
-                  <td>{record.snapshot_short ?? '—'}</td>
-                  <td>{record.step_id ?? '—'}</td>
-                  <td>{record.event_counter ?? '—'}</td>
-                  <td>{formatStepRegistryValue(record.x_real_capturada_mm)}</td>
-                  <td>{formatStepRegistryValue(record.y_real_capturada_mm)}</td>
-                  <td>{formatStepRegistryValue(record.z_real_capturada_mm)}</td>
-                  <td>{formatStepRegistryValue(record.rx)}</td>
-                  <td>{formatStepRegistryValue(record.ry)}</td>
-                  <td>{formatStepRegistryValue(record.rz)}</td>
+        <>
+          <div className="spr-cycle-list">
+            {registry.cycleGroups.map((cycle) => (
+              <div
+                key={`cycle-${cycle.cycleNumber}`}
+                className={`spr-cycle-card ${cycle.state === 'in_progress' ? 'spr-cycle-card--open' : ''}`}
+              >
+                <div className="spr-cycle-header">
+                  <div className="spr-cycle-title">
+                    Ciclo {cycle.cycleNumber}
+                    <span className={`spr-chip ${cycle.state === 'completed' ? 'spr-chip--completed' : 'spr-chip--progress'}`}>
+                      {cycle.stateLabel}
+                    </span>
+                  </div>
+                  <div className="spr-cycle-meta">
+                    <span>{cycle.pointCount} punto{cycle.pointCount !== 1 ? 's' : ''}</span>
+                    <span>Duración {cycle.durationLabel}</span>
+                  </div>
+                </div>
+                <div className="spr-cycle-body">
+                  {cycle.records.map((record) => (
+                    <div
+                      key={record._id ?? `${record.timestamp ?? ''}-${record.step_id ?? ''}-${record.event_counter ?? ''}`}
+                      className="spr-row"
+                    >
+                      <div className="spr-row-main">
+                        <span className={`spr-chip spr-chip--type spr-chip--${record.record_type}`}>
+                          {record.badge_label}
+                        </span>
+                        <span className="spr-row-title">
+                          {record.record_type === 'capture_point'
+                            ? `Punto de paso ${formatStepRegistryValue(record.step_id)}`
+                            : record.type_label}
+                        </span>
+                      </div>
+                      <div className="spr-row-meta">
+                        <span>Nº registro {formatStepRegistryValue(record.event_counter)}</span>
+                        <span>{formatStepRegistryDateTime(record.timestamp)}</span>
+                      </div>
+                      {record.record_type === 'capture_point' && (
+                        <div className="spr-row-coords">
+                          <span>X {formatStepRegistryValue(record.x_real_capturada_mm, 3)}</span>
+                          <span>Y {formatStepRegistryValue(record.y_real_capturada_mm, 3)}</span>
+                          <span>Z {formatStepRegistryValue(record.z_real_capturada_mm, 3)}</span>
+                          <span>RX {formatStepRegistryValue(record.rx, 5)}</span>
+                          <span>RY {formatStepRegistryValue(record.ry, 5)}</span>
+                          <span>RZ {formatStepRegistryValue(record.rz, 5)}</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            {registry.uncategorizedRows.length > 0 && (
+              <div className="spr-cycle-card spr-cycle-card--uncategorized">
+                <div className="spr-cycle-header">
+                  <div className="spr-cycle-title">Sin ciclo asignado</div>
+                </div>
+                <div className="spr-cycle-body">
+                  {registry.uncategorizedRows.map((record) => (
+                    <div
+                      key={record._id ?? `${record.timestamp ?? ''}-${record.step_id ?? ''}-${record.event_counter ?? ''}`}
+                      className="spr-row"
+                    >
+                      <div className="spr-row-main">
+                        <span className="spr-chip spr-chip--type spr-chip--capture_point">Punto capturado</span>
+                        <span className="spr-row-title">
+                          Punto de paso {formatStepRegistryValue(record.step_id)}
+                        </span>
+                      </div>
+                      <div className="spr-row-meta">
+                        <span>Nº registro {formatStepRegistryValue(record.event_counter)}</span>
+                        <span>{formatStepRegistryDateTime(record.timestamp)}</span>
+                      </div>
+                      <div className="spr-row-coords">
+                        <span>X {formatStepRegistryValue(record.x_real_capturada_mm, 3)}</span>
+                        <span>Y {formatStepRegistryValue(record.y_real_capturada_mm, 3)}</span>
+                        <span>Z {formatStepRegistryValue(record.z_real_capturada_mm, 3)}</span>
+                        <span>RX {formatStepRegistryValue(record.rx, 5)}</span>
+                        <span>RY {formatStepRegistryValue(record.ry, 5)}</span>
+                        <span>RZ {formatStepRegistryValue(record.rz, 5)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {registry.programEndRows.map((record) => (
+              <div
+                key={record._id ?? `program-end-${record.timestamp ?? ''}-${record.event_counter ?? ''}`}
+                className="spr-program-end"
+              >
+                <span className="spr-chip spr-chip--type spr-chip--program_end">Fin programa</span>
+                <span>Fin de programa</span>
+                <span>· Nº registro {formatStepRegistryValue(record.event_counter)}</span>
+                <span>· {formatStepRegistryDateTime(record.timestamp)}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="svt-scroll">
+            <table className="svt-tbl">
+              <thead>
+                <tr>
+                  <th>Fecha/hora</th>
+                  <th>Programa</th>
+                  <th>Ciclo</th>
+                  <th>Tipo</th>
+                  <th>Nº registro</th>
+                  <th>Punto de paso</th>
+                  <th>Snapshot</th>
+                  <th>X real</th>
+                  <th>Y real</th>
+                  <th>Z real</th>
+                  <th>RX</th>
+                  <th>RY</th>
+                  <th>RZ</th>
+                  <th>Topic MQTT</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {displayRows.map((record) => (
+                  <tr key={record._id ?? `${record.timestamp ?? ''}-${record.step_id ?? ''}-${record.event_counter ?? ''}`}>
+                    <td className="svt-td-time">{formatStepRegistryDateTime(record.timestamp)}</td>
+                    <td>{record.program_name ?? '—'}</td>
+                    <td>
+                      {record.record_type === 'program_end'
+                        ? 'Programa'
+                        : record.cycle == null
+                          ? 'Sin ciclo asignado'
+                          : record.cycle}
+                    </td>
+                    <td>{record.type_label}</td>
+                    <td>{formatStepRegistryValue(record.event_counter)}</td>
+                    <td>{record.record_type === 'capture_point' ? formatStepRegistryValue(record.step_id) : '—'}</td>
+                    <td>{record.snapshot_short ?? '—'}</td>
+                    <td>{formatStepRegistryValue(record.x_real_capturada_mm, 3)}</td>
+                    <td>{formatStepRegistryValue(record.y_real_capturada_mm, 3)}</td>
+                    <td>{formatStepRegistryValue(record.z_real_capturada_mm, 3)}</td>
+                    <td>{formatStepRegistryValue(record.rx, 5)}</td>
+                    <td>{formatStepRegistryValue(record.ry, 5)}</td>
+                    <td>{formatStepRegistryValue(record.rz, 5)}</td>
+                    <td className="svt-td-topic">{record._topic ?? '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </CardGlass>
   );
