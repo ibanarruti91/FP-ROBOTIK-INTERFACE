@@ -10,8 +10,7 @@ import {
 } from '../servicios/diagnosticBuffer.js';
 
 const MAX_STEP_CAPTURE_RECORDS = 200;
-const STEP_CAPTURE_TOPIC = 'salesianos/robot/+/step_capture';
-const STEP_CAPTURE_SCHEMA = 'step_capture_socket_clean_v3';
+const STEP_CAPTURE_TOPIC = 'salesianos/robot/iban/step_capture';
 const STEP_CAPTURE_STORAGE_KEY = 'fp-step-capture-records-v2';
 
 const ARROW_SEPARATOR = ' -> ';
@@ -53,29 +52,47 @@ function getCaptureOrientation(payload) {
   );
 }
 
-function isStepCaptureSocketCleanV3(payload) {
+function isStepCapturePayload(payload) {
   if (!payload || typeof payload !== 'object') return false;
   return (
-    payload.schema_version === STEP_CAPTURE_SCHEMA
-    && payload.message_type === 'step_capture'
+    payload.message_type === 'step_capture'
+    || (typeof payload.schema_version === 'string' && payload.schema_version.startsWith('step_capture_socket_clean_'))
   );
 }
 
 function normalizeStepCaptureRecord(payload, topic, receivedAt) {
-  if (!isStepCaptureSocketCleanV3(payload)) return null;
+  if (!isStepCapturePayload(payload)) return null;
 
   const position = payload.tcp_position_mm ?? null;
   const orientation = getCaptureOrientation(payload);
+  const timestamp = payload.timestamp ?? new Date(receivedAt).toISOString();
+  const uniqueSuffix = [
+    payload.snapshot_short ?? 'na',
+    payload.event_counter ?? 'na',
+    payload.cycle_number ?? 'na',
+    payload.step_id ?? 'na',
+    timestamp,
+    receivedAt,
+  ].join('_');
 
   return {
-    _id: `${receivedAt}-${Math.random().toString(36).slice(2, 10)}`,
+    _id: `${topic}_${uniqueSuffix}`,
     _receivedAt: receivedAt,
     _topic: topic,
-    timestamp: payload.timestamp ?? new Date(receivedAt).toISOString(),
-    schema_version: payload.schema_version,
+    timestamp,
+    schema_version: payload.schema_version ?? null,
     center_id: payload.center_id ?? inferCenterIdFromTopic(topic),
     program_name: payload.program_name ?? payload.program_identity?.program_name ?? null,
     snapshot_short: payload.snapshot_short ?? payload.program_identity?.snapshot_short ?? null,
+    cycle_number: payload.cycle_number ?? null,
+    cycle_label: payload.cycle_label ?? null,
+    cycle_assigned: payload.cycle_assigned ?? null,
+    cycle_source: payload.cycle_source ?? null,
+    event_type: payload.event_type ?? null,
+    marker_type: payload.marker_type ?? null,
+    step_role: payload.step_role ?? null,
+    step_role_label: payload.step_role_label ?? null,
+    step_type: payload.step_type ?? null,
     step_id: payload.step_id ?? null,
     event_counter: payload.event_counter ?? null,
     x_real_capturada_mm: position?.x ?? null,
@@ -295,6 +312,7 @@ export const MqttStatusProvider = ({ children }) => {
         console.log('[MQTT]', topic, data);
 
         if (isStepCaptureTopic(topic)) {
+          console.log('[STEP_CAPTURE MQTT]', topic, data);
           if (!isPausedStepCaptureRef.current) {
             const normalizedRecord = normalizeStepCaptureRecord(data, topic, now);
             if (normalizedRecord) {
