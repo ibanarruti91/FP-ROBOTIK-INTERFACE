@@ -1301,7 +1301,7 @@ function buildStepRegistryView(records) {
   ordered.forEach((record) => {
     const kind = getStepRecordKind(record);
     let assignedCycle = kind.cycle;
-    if (kind.recordType === 'capture_point' && assignedCycle == null) {
+    if (kind.recordType === 'capture_point' && (assignedCycle === null || assignedCycle === undefined)) {
       assignedCycle = openCycle;
     }
 
@@ -1316,10 +1316,11 @@ function buildStepRegistryView(records) {
 
     if (kind.recordType === 'cycle_start') {
       openCycle = assignedCycle ?? kind.cycle;
-    } else if (kind.recordType === 'cycle_end' && assignedCycle != null && openCycle === assignedCycle) {
-      openCycle = null;
-    } else if (kind.recordType === 'cycle_end' && openCycle === kind.cycle) {
-      openCycle = null;
+    } else if (kind.recordType === 'cycle_end') {
+      const endCycle = assignedCycle ?? kind.cycle;
+      if (endCycle !== null && endCycle !== undefined && openCycle === endCycle) {
+        openCycle = null;
+      }
     }
 
     tableRows.push(normalizedRow);

@@ -55,7 +55,7 @@ function getCaptureOrientation(payload) {
 function isStepCapturePayload(payload) {
   if (!payload || typeof payload !== 'object') return false;
   const hasExpectedMessageType = payload.message_type === 'step_capture';
-  const hasCompatibleSchema = payload.schema_version == null
+  const hasCompatibleSchema = (payload.schema_version === null || payload.schema_version === undefined)
     || (typeof payload.schema_version === 'string'
       && payload.schema_version.startsWith('step_capture_socket_clean_'));
   return hasExpectedMessageType && hasCompatibleSchema;
