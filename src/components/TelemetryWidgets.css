@@ -1950,12 +1950,11 @@
   --cycle-bg-soft: rgba(var(--cycle-accent-rgb), 0.08);
   --cycle-border-soft: rgba(var(--cycle-accent-rgb), 0.34);
   --cycle-header-soft: rgba(var(--cycle-accent-rgb), 0.12);
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  border: 1px solid var(--cycle-border-soft);
   border-radius: 12px;
   background: rgba(10, 20, 24, 0.55);
   overflow: hidden;
   box-shadow: inset 3px 0 0 var(--cycle-border-soft);
-  border-color: var(--cycle-border-soft);
   background-image: linear-gradient(180deg, var(--cycle-bg-soft) 0%, rgba(10, 20, 24, 0.55) 65%);
 }
 
