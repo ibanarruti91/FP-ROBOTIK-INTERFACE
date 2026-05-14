@@ -1274,7 +1274,24 @@ function getCycleRecordPriority(recordType) {
 function getCompactCycleLabel(record) {
   if (record?.record_type === 'program_end') return 'Programa';
   if (record?.cycle == null) return '—';
-  return `C${record.cycle}`;
+  return String(record.cycle);
+}
+
+const STEP_REGISTRY_CYCLE_COLOR_CLASSES = [
+  '1',
+  '2',
+  '3',
+  '4',
+  '5',
+  '6',
+];
+
+function getStepRegistryCycleColorClass(cycleNumber, prefix) {
+  const numericCycle = Number(cycleNumber);
+  if (!Number.isFinite(numericCycle)) return '';
+  const baseIndex = Math.abs(Math.trunc(numericCycle)) - 1;
+  const safeIndex = ((baseIndex % STEP_REGISTRY_CYCLE_COLOR_CLASSES.length) + STEP_REGISTRY_CYCLE_COLOR_CLASSES.length) % STEP_REGISTRY_CYCLE_COLOR_CLASSES.length;
+  return `${prefix}${STEP_REGISTRY_CYCLE_COLOR_CLASSES[safeIndex]}`;
 }
 
 function getCompactEventLabel(record) {
@@ -1637,7 +1654,7 @@ export function StepRegistryTable({ records = [], className = '' }) {
               {[...registry.cycleGroups].reverse().map((cycle) => (
                 <div
                   key={`cycle-${cycle.cycleNumber}`}
-                  className={`spr-cycle-card ${cycle.state === 'in_progress' ? 'spr-cycle-card--open' : ''}`}
+                  className={`spr-cycle-card ${cycle.state === 'in_progress' ? 'spr-cycle-card--open' : ''} ${getStepRegistryCycleColorClass(cycle.cycleNumber, 'spr-cycle-color-')}`}
                 >
                   <div className="spr-cycle-header">
                     <div className="spr-cycle-title">
@@ -1752,11 +1769,14 @@ export function StepRegistryTable({ records = [], className = '' }) {
               </thead>
               <tbody>
                 {displayRows.map((record) => (
-                  <tr key={record._id ?? `${record.timestamp ?? ''}-${record.step_id ?? ''}-${record.event_counter ?? ''}`}>
+                  <tr
+                    key={record._id ?? `${record.timestamp ?? ''}-${record.step_id ?? ''}-${record.event_counter ?? ''}`}
+                    className={record.cycle == null ? '' : `svt-row-cycle ${getStepRegistryCycleColorClass(record.cycle, 'svt-cycle-color-')}`}
+                  >
                     <td className="svt-td-time">{formatStepRegistryDateTime(record.timestamp)}</td>
                     <td>{record.program_name ?? '—'}</td>
                     <td>
-                      <span className="svt-badge svt-badge--cycle">{getCompactCycleLabel(record)}</span>
+                      <span className={`svt-badge svt-badge--cycle ${getStepRegistryCycleColorClass(record.cycle, 'svt-cycle-color-')}`}>{getCompactCycleLabel(record)}</span>
                     </td>
                     <td>
                       <span className={`svt-badge svt-badge--event spr-chip--${record.record_type}`}>

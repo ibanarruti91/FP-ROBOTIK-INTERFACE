@@ -1945,10 +1945,18 @@
 }
 
 .spr-cycle-card {
+  --cycle-accent-rgb: 16, 185, 129;
+  --cycle-accent: #10b981;
+  --cycle-bg-soft: rgba(var(--cycle-accent-rgb), 0.08);
+  --cycle-border-soft: rgba(var(--cycle-accent-rgb), 0.34);
+  --cycle-header-soft: rgba(var(--cycle-accent-rgb), 0.12);
   border: 1px solid rgba(16, 185, 129, 0.25);
   border-radius: 12px;
   background: rgba(10, 20, 24, 0.55);
   overflow: hidden;
+  box-shadow: inset 3px 0 0 var(--cycle-border-soft);
+  border-color: var(--cycle-border-soft);
+  background-image: linear-gradient(180deg, var(--cycle-bg-soft) 0%, rgba(10, 20, 24, 0.55) 65%);
 }
 
 .spr-cycle-card--open {
@@ -1960,6 +1968,7 @@
 .spr-cycle-card--uncategorized {
   border-color: rgba(148, 163, 184, 0.4);
   background: rgba(15, 23, 42, 0.55);
+  box-shadow: none;
 }
 
 .spr-cycle-header {
@@ -1969,6 +1978,7 @@
   gap: 0.8rem;
   padding: 0.7rem 0.85rem;
   border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+  background: linear-gradient(90deg, var(--cycle-header-soft) 0%, rgba(15, 23, 42, 0.22) 45%, transparent 100%);
 }
 
 .spr-cycle-title {
@@ -1998,6 +2008,7 @@
 .spr-row {
   padding: 0.62rem 0.85rem;
   border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+  background: rgba(var(--cycle-accent-rgb), 0.04);
 }
 
 .spr-row:last-child {
@@ -2088,6 +2099,42 @@
   background: rgba(245, 158, 11, 0.15);
 }
 
+.spr-cycle-color-1,
+.svt-cycle-color-1 {
+  --cycle-accent-rgb: 56, 189, 248;
+  --cycle-accent: #38bdf8;
+}
+
+.spr-cycle-color-2,
+.svt-cycle-color-2 {
+  --cycle-accent-rgb: 52, 211, 153;
+  --cycle-accent: #34d399;
+}
+
+.spr-cycle-color-3,
+.svt-cycle-color-3 {
+  --cycle-accent-rgb: 168, 85, 247;
+  --cycle-accent: #a855f7;
+}
+
+.spr-cycle-color-4,
+.svt-cycle-color-4 {
+  --cycle-accent-rgb: 251, 191, 36;
+  --cycle-accent: #fbbf24;
+}
+
+.spr-cycle-color-5,
+.svt-cycle-color-5 {
+  --cycle-accent-rgb: 244, 114, 182;
+  --cycle-accent: #f472b6;
+}
+
+.spr-cycle-color-6,
+.svt-cycle-color-6 {
+  --cycle-accent-rgb: 45, 212, 191;
+  --cycle-accent: #2dd4bf;
+}
+
 .spr-program-end {
   display: inline-flex;
   align-items: center;
@@ -2171,10 +2218,33 @@
   background: rgba(56, 189, 248, 0.12);
 }
 
+.svt-badge--cycle.svt-cycle-color-1,
+.svt-badge--cycle.svt-cycle-color-2,
+.svt-badge--cycle.svt-cycle-color-3,
+.svt-badge--cycle.svt-cycle-color-4,
+.svt-badge--cycle.svt-cycle-color-5,
+.svt-badge--cycle.svt-cycle-color-6 {
+  color: var(--cycle-accent);
+  border-color: rgba(var(--cycle-accent-rgb), 0.5);
+  background: rgba(var(--cycle-accent-rgb), 0.16);
+}
+
 .svt-badge--event {
   color: #e2e8f0;
   border-color: rgba(148, 163, 184, 0.35);
   background: rgba(15, 23, 42, 0.45);
+}
+
+.svt-tbl tbody tr.svt-row-cycle > td {
+  background: rgba(var(--cycle-accent-rgb), 0.08);
+}
+
+.svt-tbl tbody tr.svt-row-cycle:hover > td {
+  background: rgba(var(--cycle-accent-rgb), 0.14);
+}
+
+.svt-tbl tbody tr.svt-row-cycle > td:first-child {
+  box-shadow: inset 3px 0 0 rgba(var(--cycle-accent-rgb), 0.48);
 }
 
 .svt-col-rot,
