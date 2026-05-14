@@ -1277,7 +1277,7 @@ function getCompactCycleLabel(record) {
   return String(record.cycle);
 }
 
-const STEP_REGISTRY_CYCLE_COLOR_CLASSES = [
+const STEP_REGISTRY_CYCLE_COLOR_SUFFIXES = [
   '1',
   '2',
   '3',
@@ -1286,12 +1286,17 @@ const STEP_REGISTRY_CYCLE_COLOR_CLASSES = [
   '6',
 ];
 
-function getStepRegistryCycleColorClass(cycleNumber, prefix) {
+function getStepRegistryCycleColorIndex(cycleNumber) {
   const numericCycle = Number(cycleNumber);
-  if (!Number.isFinite(numericCycle)) return '';
-  const baseIndex = Math.abs(Math.trunc(numericCycle)) - 1;
-  const safeIndex = ((baseIndex % STEP_REGISTRY_CYCLE_COLOR_CLASSES.length) + STEP_REGISTRY_CYCLE_COLOR_CLASSES.length) % STEP_REGISTRY_CYCLE_COLOR_CLASSES.length;
-  return `${prefix}${STEP_REGISTRY_CYCLE_COLOR_CLASSES[safeIndex]}`;
+  if (!Number.isFinite(numericCycle)) return null;
+  const normalizedCycle = Math.max(0, Math.abs(Math.trunc(numericCycle)) - 1);
+  return normalizedCycle % STEP_REGISTRY_CYCLE_COLOR_SUFFIXES.length;
+}
+
+function getStepRegistryCycleColorClass(cycleNumber, prefix) {
+  const colorIndex = getStepRegistryCycleColorIndex(cycleNumber);
+  if (colorIndex == null) return '';
+  return `${prefix}${STEP_REGISTRY_CYCLE_COLOR_SUFFIXES[colorIndex]}`;
 }
 
 function getCompactEventLabel(record) {
