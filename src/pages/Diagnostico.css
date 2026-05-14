@@ -67,6 +67,33 @@
   color: var(--text-secondary, #94a3b8);
 }
 
+/* ── Toggle "Mostrar eventos técnicos" ───────────────────────────────────── */
+
+.diag-toggle-technical {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-secondary, #94a3b8);
+  background: transparent;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 20px;
+  padding: 2px 10px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+  white-space: nowrap;
+}
+
+.diag-toggle-technical:hover {
+  color: var(--accent-cyan, #00e5ff);
+  border-color: rgba(0, 229, 255, 0.4);
+  background: rgba(0, 229, 255, 0.06);
+}
+
+.diag-toggle-technical--active {
+  color: var(--accent-cyan, #00e5ff);
+  border-color: rgba(0, 229, 255, 0.5);
+  background: rgba(0, 229, 255, 0.1);
+}
+
 .diag-card-body {
   padding: 16px 18px;
   flex: 1;

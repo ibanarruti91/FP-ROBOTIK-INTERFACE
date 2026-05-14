@@ -192,6 +192,15 @@ function LastStateItem({ label, event, isError }) {
   );
 }
 
+// ── Hidden event types (filtered from the visible buffer by default) ──────────
+// These events are technically valid but clutter the diagnostic view.
+// They are still received and stored in the MQTT buffer — only the rendering
+// is suppressed.  Use the "Mostrar eventos técnicos" toggle to reveal them.
+
+const HIDDEN_EVENT_TYPES_BY_DEFAULT = new Set([
+  'tool.voltage.changed',
+]);
+
 // ── Main page component ───────────────────────────────────────────────────────
 
 function Diagnostico() {
@@ -203,9 +212,17 @@ function Diagnostico() {
     nodeRedEventsBufferLimit,
   } = useMqttStatus();
 
-  // Filter events: never show events marked visible === false.
+  const [showTechnicalEvents, setShowTechnicalEvents] = useState(false);
+
+  // Filter events:
+  //   1. Never show events marked visible === false.
+  //   2. Hide HIDDEN_EVENT_TYPES_BY_DEFAULT unless the toggle is on.
   // The buffer is already sorted newest-first by MqttStatusContext.
-  const visibleEvents = nodeRedEventsBuffer.filter(e => e.visible !== false);
+  const visibleEvents = nodeRedEventsBuffer.filter(e => {
+    if (e.visible === false) return false;
+    if (!showTechnicalEvents && HIDDEN_EVENT_TYPES_BY_DEFAULT.has(e.type)) return false;
+    return true;
+  });
 
   // Upper panel: only error-level events, newest first, max 3.
   // Source is nodeRedEventsBuffer (same as the lower buffer) so errors always
@@ -312,6 +329,14 @@ function Diagnostico() {
             {nodeRedEventsBufferLimit != null && (
               <span className="diag-card-meta">límite: {nodeRedEventsBufferLimit}</span>
             )}
+            <button
+              className={`diag-toggle-technical${showTechnicalEvents ? ' diag-toggle-technical--active' : ''}`}
+              onClick={() => setShowTechnicalEvents(v => !v)}
+              title="Mostrar/ocultar eventos técnicos (p.ej. tool.voltage.changed)"
+              aria-pressed={showTechnicalEvents}
+            >
+              {showTechnicalEvents ? '🔧 Ocultar técnicos' : '🔧 Mostrar técnicos'}
+            </button>
           </div>
           <div className="diag-card-body diag-card-body--scroll">
             {visibleEvents.length === 0 ? (
