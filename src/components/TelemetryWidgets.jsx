@@ -1289,8 +1289,9 @@ const STEP_REGISTRY_CYCLE_COLOR_SUFFIXES = [
 function getStepRegistryCycleColorIndex(cycleNumber) {
   const numericCycle = Number(cycleNumber);
   if (!Number.isFinite(numericCycle)) return null;
-  const normalizedCycleNumber = Math.abs(Math.trunc(numericCycle));
-  const zeroBasedCycleIndex = normalizedCycleNumber > 0 ? normalizedCycleNumber - 1 : 0;
+  const normalizedCycleNumber = Math.trunc(numericCycle);
+  if (normalizedCycleNumber <= 0) return null;
+  const zeroBasedCycleIndex = normalizedCycleNumber - 1;
   return zeroBasedCycleIndex % STEP_REGISTRY_CYCLE_COLOR_SUFFIXES.length;
 }
 
