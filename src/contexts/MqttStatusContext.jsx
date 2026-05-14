@@ -15,6 +15,22 @@ const STEP_CAPTURE_STORAGE_KEY = 'fp-step-capture-records-v2';
 
 const ARROW_SEPARATOR = ' -> ';
 
+// ── Technical event types ─────────────────────────────────────────────────────
+// Events whose type is in this set are routed to a separate technical buffer
+// instead of the main nodeRedEventsBuffer.  This prevents noisy high-frequency
+// events from displacing important operational events (safety, robot_mode, etc.)
+// that share the same 100-event buffer limit.
+//
+// MQTT reception is unaffected — events are received normally and stored; only
+// the storage destination changes.  The technical buffer is exposed separately
+// so the Diagnostico page can show them via the "Mostrar técnicos" toggle.
+const TECHNICAL_EVENT_TYPES = new Set([
+  'tool.voltage.changed',
+]);
+
+/** Maximum number of technical events kept for on-demand display. */
+const MAX_TECHNICAL_EVENTS_BUFFER = 50;
+
 function isStepCaptureTopic(topic) {
   return /^salesianos\/robot\/[^/]+\/step_capture$/.test(topic);
 }
@@ -239,6 +255,13 @@ export const MqttStatusProvider = ({ children }) => {
   // MQTT message callbacks (avoids stale-closure reads of the state value).
   const nodeRedEventsBufferLimitRef = useRef(null);
 
+  // ── Node-RED Technical Events ─────────────────────────────────────────────
+  // Events in TECHNICAL_EVENT_TYPES are routed here instead of the main buffer.
+  // This keeps the main buffer free for important operational events.
+  // Capped at MAX_TECHNICAL_EVENTS_BUFFER (never competes for the main limit).
+  const [nodeRedTechnicalEventsBuffer, setNodeRedTechnicalEventsBuffer] = useState([]);
+  const nodeRedTechnicalEventIdsRef = useRef(new Set());
+
   // ── Event log ────────────────────────────────────────────────────────────────
   // eventLog accumulates incoming events in {time, text} format.
   // It lives in the context (not in LogPanel) so that:
@@ -335,9 +358,11 @@ export const MqttStatusProvider = ({ children }) => {
           const events = Array.isArray(data.events) ? data.events : [];
 
           if (data.action === 'cleared') {
-            // Backend cleared the buffer — empty everything.
+            // Backend cleared the buffer — empty everything including technical.
             nodeRedEventIdsRef.current = new Set();
+            nodeRedTechnicalEventIdsRef.current = new Set();
             setNodeRedEventsBuffer([]);
+            setNodeRedTechnicalEventsBuffer([]);
             setNodeRedEventsTotal(0);
           } else {
             // Normalize data fields (JSON strings → objects) then re-classify
@@ -352,8 +377,16 @@ export const MqttStatusProvider = ({ children }) => {
                 if (tsDiff !== 0) return tsDiff;
                 return (b.priority ?? 0) - (a.priority ?? 0);
               });
-            nodeRedEventIdsRef.current = new Set(sorted.map(e => e.id).filter(Boolean));
-            setNodeRedEventsBuffer(sorted);
+
+            // Split into technical (noisy, high-frequency) and operational events
+            // so that technical events never consume slots in the main buffer.
+            const mainEvents = sorted.filter(e => !TECHNICAL_EVENT_TYPES.has(e.type));
+            const techEvents = sorted.filter(e => TECHNICAL_EVENT_TYPES.has(e.type));
+
+            nodeRedEventIdsRef.current = new Set(mainEvents.map(e => e.id).filter(Boolean));
+            nodeRedTechnicalEventIdsRef.current = new Set(techEvents.map(e => e.id).filter(Boolean));
+            setNodeRedEventsBuffer(mainEvents);
+            setNodeRedTechnicalEventsBuffer(techEvents.slice(0, MAX_TECHNICAL_EVENTS_BUFFER));
             if (typeof data.total === 'number') {
               setNodeRedEventsTotal(data.total);
             }
@@ -367,15 +400,24 @@ export const MqttStatusProvider = ({ children }) => {
           // ── events_derived: incremental events from Node-RED ─────────────
           // Normalize data fields then re-classify safety events so Node-RED
           // level fallbacks ('info') are corrected before adding to the buffer.
+          // Technical events are routed to their own buffer so they don't
+          // displace operational events from the main buffer.
           const incoming = normalizeEvents(Array.isArray(data.events) ? data.events : [])
             .map(reclassifyNodeRedSafetyEvent);
-          const newEvents = incoming.filter(e => e.id && !nodeRedEventIdsRef.current.has(e.id));
-          if (newEvents.length > 0) {
-            newEvents.forEach(e => nodeRedEventIdsRef.current.add(e.id));
+
+          const newMainEvents = incoming.filter(
+            e => e.id && !TECHNICAL_EVENT_TYPES.has(e.type) && !nodeRedEventIdsRef.current.has(e.id),
+          );
+          const newTechEvents = incoming.filter(
+            e => e.id && TECHNICAL_EVENT_TYPES.has(e.type) && !nodeRedTechnicalEventIdsRef.current.has(e.id),
+          );
+
+          if (newMainEvents.length > 0) {
+            newMainEvents.forEach(e => nodeRedEventIdsRef.current.add(e.id));
             setNodeRedEventsBuffer(prev => {
               // Prepend new events, then re-sort to maintain newest-first order
               // with priority as the tiebreaker for identical timestamps.
-              const merged = [...newEvents, ...prev];
+              const merged = [...newMainEvents, ...prev];
               merged.sort((a, b) => {
                 const tsDiff = (b.ts ?? 0) - (a.ts ?? 0);
                 if (tsDiff !== 0) return tsDiff;
@@ -387,7 +429,26 @@ export const MqttStatusProvider = ({ children }) => {
                 ? merged.slice(0, limit)
                 : merged;
             });
-            if (typeof data.count === 'number') setNodeRedEventsTotal(data.count);
+          }
+
+          if (newTechEvents.length > 0) {
+            newTechEvents.forEach(e => nodeRedTechnicalEventIdsRef.current.add(e.id));
+            setNodeRedTechnicalEventsBuffer(prev => {
+              const merged = [...newTechEvents, ...prev];
+              // Sort newest-first with priority tiebreaker (mirrors main buffer).
+              merged.sort((a, b) => {
+                const tsDiff = (b.ts ?? 0) - (a.ts ?? 0);
+                if (tsDiff !== 0) return tsDiff;
+                return (b.priority ?? 0) - (a.priority ?? 0);
+              });
+              return merged.length > MAX_TECHNICAL_EVENTS_BUFFER
+                ? merged.slice(0, MAX_TECHNICAL_EVENTS_BUFFER)
+                : merged;
+            });
+          }
+
+          if ((newMainEvents.length > 0 || newTechEvents.length > 0) && typeof data.count === 'number') {
+            setNodeRedEventsTotal(data.count);
           }
         } else if (topic === 'salesianos/robot/iban/status') {
           // ── status topic: drives ONLINE/OFFLINE and lastMessageTime ──────────
@@ -584,6 +645,7 @@ export const MqttStatusProvider = ({ children }) => {
     nodeRedEventsBuffer,
     nodeRedEventsTotal,
     nodeRedEventsBufferLimit,
+    nodeRedTechnicalEventsBuffer,
     // ── Diagnóstico ───────────────────────────────────────────────────────
     diagnosticoLastError,
     diagnosticoMessages,

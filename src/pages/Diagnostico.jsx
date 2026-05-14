@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMqttStatus } from '../hooks/useMqttStatus';
 import { getStateTransition, normalizeEventData } from '../servicios/rtdeLabels.js';
@@ -192,15 +192,6 @@ function LastStateItem({ label, event, isError }) {
   );
 }
 
-// ── Hidden event types (filtered from the visible buffer by default) ──────────
-// These events are technically valid but clutter the diagnostic view.
-// They are still received and stored in the MQTT buffer — only the rendering
-// is suppressed.  Use the "Mostrar eventos técnicos" toggle to reveal them.
-
-const HIDDEN_EVENT_TYPES_BY_DEFAULT = new Set([
-  'tool.voltage.changed',
-]);
-
 // ── Main page component ───────────────────────────────────────────────────────
 
 function Diagnostico() {
@@ -210,19 +201,28 @@ function Diagnostico() {
     nodeRedEventsBuffer,
     nodeRedEventsTotal,
     nodeRedEventsBufferLimit,
+    nodeRedTechnicalEventsBuffer,
   } = useMqttStatus();
 
   const [showTechnicalEvents, setShowTechnicalEvents] = useState(false);
 
-  // Filter events:
-  //   1. Never show events marked visible === false.
-  //   2. Hide HIDDEN_EVENT_TYPES_BY_DEFAULT unless the toggle is on.
-  // The buffer is already sorted newest-first by MqttStatusContext.
-  const visibleEvents = nodeRedEventsBuffer.filter(e => {
-    if (e.visible === false) return false;
-    if (!showTechnicalEvents && HIDDEN_EVENT_TYPES_BY_DEFAULT.has(e.type)) return false;
-    return true;
-  });
+  // Build the list of events to display.
+  //   - Never show events explicitly marked visible === false.
+  //   - When toggle is off: only main buffer (technical events are already in
+  //     their own separate buffer and do NOT appear here at all).
+  //   - When toggle is on: merge technical events and re-sort newest-first.
+  // The main buffer is already sorted newest-first by MqttStatusContext.
+  const visibleEvents = useMemo(() => {
+    const base = nodeRedEventsBuffer.filter(e => e.visible !== false);
+    if (!showTechnicalEvents) return base;
+    const merged = [...base, ...nodeRedTechnicalEventsBuffer];
+    merged.sort((a, b) => {
+      const tsDiff = (b.ts ?? 0) - (a.ts ?? 0);
+      if (tsDiff !== 0) return tsDiff;
+      return (b.priority ?? 0) - (a.priority ?? 0);
+    });
+    return merged;
+  }, [nodeRedEventsBuffer, nodeRedTechnicalEventsBuffer, showTechnicalEvents]);
 
   // Upper panel: only error-level events, newest first, max 3.
   // Source is nodeRedEventsBuffer (same as the lower buffer) so errors always
@@ -231,7 +231,8 @@ function Diagnostico() {
     .filter(e => (e.level ?? '').toLowerCase() === 'error')
     .slice(0, 3);
 
-  // Level breakdown — computed on visible events only (hidden events never count).
+  // Level breakdown — computed on visible events only (technical events never
+  // count unless the toggle is on and they're merged into visibleEvents).
   const { errorCount, warnCount, infoCount } = visibleEvents.reduce(
     (acc, e) => {
       const lvl = (e.level ?? '').toLowerCase();
@@ -366,6 +367,12 @@ function Diagnostico() {
               <div className="diag-counter-row">
                 <span className="diag-counter-label">Total acumulado (Node-RED)</span>
                 <span className="diag-counter-value">{nodeRedEventsTotal}</span>
+              </div>
+            )}
+            {!showTechnicalEvents && nodeRedTechnicalEventsBuffer.length > 0 && (
+              <div className="diag-counter-row diag-counter-row--technical">
+                <span className="diag-counter-label">Eventos técnicos ocultos</span>
+                <span className="diag-counter-value diag-counter-value--muted">{nodeRedTechnicalEventsBuffer.length}</span>
               </div>
             )}
             <div className="diag-counter-breakdown">

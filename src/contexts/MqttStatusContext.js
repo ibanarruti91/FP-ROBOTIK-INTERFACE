@@ -25,6 +25,9 @@ export const MqttStatusContext = createContext({
   nodeRedEventsBuffer: [],
   nodeRedEventsTotal: 0,
   nodeRedEventsBufferLimit: null,
+  // Technical events (e.g. tool.voltage.changed) routed to a separate buffer
+  // so they never displace operational events from the main buffer limit.
+  nodeRedTechnicalEventsBuffer: [],
   // ── Diagnóstico (from principal.diagnostico) ──────────────────────────────
   diagnosticoLastError: null,
   // ── Status topic payload ──────────────────────────────────────────────────
