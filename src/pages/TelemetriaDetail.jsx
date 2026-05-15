@@ -80,6 +80,29 @@ function normalizeTool(data) {
   };
 }
 
+const clampPercent = (n) => Math.max(0, Math.min(100, n));
+
+const normalizeToPercent = (value, min, max) => {
+  if (value === null || value === undefined) return null;
+  if (max <= min) return null;
+  return clampPercent(((value - min) / (max - min)) * 100);
+};
+
+function estimateCpuLoadFallback({ controllerTemp, power, speed }) {
+  const tempNorm = normalizeToPercent(controllerTemp, 30, 70);
+  const powerNorm = normalizeToPercent(power, 0, 500);
+  const speedNorm = normalizeToPercent(speed, 0, 1000);
+
+  if (tempNorm === null && powerNorm === null && speedNorm === null) return null;
+
+  const estimate =
+    (tempNorm ?? 0) * 0.45 +
+    (powerNorm ?? 0) * 0.35 +
+    (speedNorm ?? 0) * 0.2;
+
+  return Math.round(clampPercent(estimate));
+}
+
 function TelemetriaDetail() {
   const { centroId } = useParams();
   const navigate = useNavigate();
@@ -457,12 +480,18 @@ function TelemetriaDetail() {
             const n = Number(v);
             return isFinite(n) ? n : null;
           };
+          const speed = toNum(data.telemetry?.speed ?? data.sistema?.velocidad_tcp);
+          const power = toNum(data.telemetry?.power ?? data.sistema?.potencia_total);
+          const controllerTemp = toNum(data.telemetry?.controller_temp ?? data.sistema?.temperatura_control);
+          const cpuLoadRaw = toNum(data.telemetry?.cpu_load);
+          // Estimated fallback for UI continuity when backend CPU telemetry is missing/invalid.
+          const cpuLoad = cpuLoadRaw ?? estimateCpuLoadFallback({ controllerTemp, power, speed });
           return {
-            speed:                 toNum(data.telemetry?.speed           ?? data.sistema?.velocidad_tcp),
-            power:                 toNum(data.telemetry?.power           ?? data.sistema?.potencia_total),
-            controller_temp:       toNum(data.telemetry?.controller_temp ?? data.sistema?.temperatura_control),
+            speed,
+            power,
+            controller_temp:       controllerTemp,
             main_voltage:          toNum(data.telemetry?.main_voltage),
-            cpu_load:              toNum(data.telemetry?.cpu_load),
+            cpu_load:              cpuLoad,
             ciclos:                toNum(data.telemetry?.ciclos          ?? data.programa?.ciclos),
             // tiempo_funcionamiento is a pre-formatted HH:MM:SS string from the backend,
             // so it is intentionally kept as a string (not converted with toNum()).
