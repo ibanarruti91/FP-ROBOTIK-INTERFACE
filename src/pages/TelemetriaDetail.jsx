@@ -81,6 +81,9 @@ function normalizeTool(data) {
 }
 
 const clampPercent = (n) => Math.max(0, Math.min(100, n));
+const TEMP_CPU_WEIGHT = 0.45;
+const POWER_CPU_WEIGHT = 0.35;
+const SPEED_CPU_WEIGHT = 0.2;
 
 const normalizeToPercent = (value, min, max) => {
   if (value === null || value === undefined) return null;
@@ -89,16 +92,22 @@ const normalizeToPercent = (value, min, max) => {
 };
 
 function estimateCpuLoadFallback({ controllerTemp, power, speed }) {
+  // Heuristic ranges were chosen from the repository's expected telemetry scale in
+  // the main tab widgets, so each signal contributes in comparable 0-100 terms:
+  // controllerTemp (°C) ~30-70, power (W) ~0-500, speed (mm/s) ~0-1000.
   const tempNorm = normalizeToPercent(controllerTemp, 30, 70);
   const powerNorm = normalizeToPercent(power, 0, 500);
   const speedNorm = normalizeToPercent(speed, 0, 1000);
 
   if (tempNorm === null && powerNorm === null && speedNorm === null) return null;
 
+  // Estimated activity blend (not real CPU telemetry): temperature has highest
+  // influence, then power, then speed because thermal/power signals are generally
+  // more stable workload indicators than transient motion speed spikes.
   const estimate =
-    (tempNorm ?? 0) * 0.45 +
-    (powerNorm ?? 0) * 0.35 +
-    (speedNorm ?? 0) * 0.2;
+    (tempNorm ?? 0) * TEMP_CPU_WEIGHT +
+    (powerNorm ?? 0) * POWER_CPU_WEIGHT +
+    (speedNorm ?? 0) * SPEED_CPU_WEIGHT;
 
   return Math.round(clampPercent(estimate));
 }
