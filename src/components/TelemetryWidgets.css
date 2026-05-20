@@ -1856,9 +1856,34 @@
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) minmax(220px, 0.9fr);
+  grid-template-rows: minmax(250px, 0.85fr) minmax(220px, 1fr);
   gap: 0.9rem;
   overflow: hidden;
+}
+
+.svt-camera-panel {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.svt-camera-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #34d399;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.svt-camera-widget {
+  width: 100%;
+  min-height: 0;
+}
+
+.svt-camera-widget.camera-widget.nexus-card {
+  margin: 0;
 }
 
 .svt-empty {
@@ -1867,6 +1892,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.svt-table-empty {
+  border: 1px solid rgba(52, 211, 153, 0.16);
+  border-radius: 12px;
 }
 
 .spr-cycle-scroll {
