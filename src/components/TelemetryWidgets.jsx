@@ -7,6 +7,7 @@ import { Zap, Thermometer, Settings, Gauge, Activity, Cpu, RefreshCw, Clock } fr
 import ExcelJS from 'exceljs';
 import { MqttStatusContext } from '../contexts/MqttStatusContext.js';
 import { getStateTransition, normalizeEventData } from '../servicios/rtdeLabels.js';
+import { CameraWidget } from './CameraWidget';
 import './TelemetryWidgets.css';
 
 /**
@@ -1301,18 +1302,6 @@ function getStepRegistryCycleColorClass(cycleNumber, prefix) {
   return `${prefix}${STEP_REGISTRY_CYCLE_COLOR_SUFFIXES[colorIndex]}`;
 }
 
-function getCompactEventLabel(record) {
-  if (record?.record_type === 'cycle_start') return 'Inicio ciclo';
-  if (record?.record_type === 'cycle_end') return 'Fin ciclo';
-  if (record?.record_type === 'capture_point') {
-    const baseLabel = record?.type_label ?? 'Paso';
-    const stepId = formatStepRegistryValue(record?.step_id);
-    if (stepId === '—') return baseLabel;
-    return `${baseLabel} · Step ${stepId}`;
-  }
-  return record?.type_label ?? '—';
-}
-
 function buildStepRegistryView(records) {
   const source = Array.isArray(records) ? records : [];
   const ordered = [...source].sort((a, b) => {
@@ -1466,6 +1455,7 @@ function buildStepRegistryView(records) {
 
 export function StepRegistryTable({ records = [], className = '' }) {
   const {
+    telemetryData,
     isPausedStepCapture,
     togglePauseStepCapture,
     clearStepCaptureRecords,
@@ -1474,6 +1464,7 @@ export function StepRegistryTable({ records = [], className = '' }) {
   const registry = useMemo(() => buildStepRegistryView(records), [records]);
   const displayRows = [...registry.tableRows].reverse();
   const hasRows = displayRows.length > 0;
+  const cameraStreamUrl = telemetryData?.camera?.stream ?? '';
 
   const handleExportExcel = async () => {
     try {
@@ -1648,112 +1639,13 @@ export function StepRegistryTable({ records = [], className = '' }) {
         </button>
       </div>
 
-      {!hasRows ? (
-        <div className="sct-empty svt-empty">
-          {isPausedStepCapture
-            ? 'Recopilación local en pausa. Reanuda para guardar nuevas capturas MQTT.'
-            : 'Esperando capturas MQTT válidas de step_capture…'}
+      <div className="svt-content">
+        <div className="svt-camera-panel">
+          <div className="svt-camera-title">CÁMARA EN VIVO</div>
+          <CameraWidget streamUrl={cameraStreamUrl} className="svt-camera-widget" borderColor="#10b981" />
         </div>
-      ) : (
-        <div className="svt-content">
-          <div className="spr-cycle-scroll">
-            <div className="spr-cycle-list">
-              {[...registry.cycleGroups].reverse().map((cycle) => (
-                <div
-                  key={`cycle-${cycle.cycleNumber}`}
-                  className={`spr-cycle-card ${cycle.state === 'in_progress' ? 'spr-cycle-card--open' : ''} ${getStepRegistryCycleColorClass(cycle.cycleNumber, 'spr-cycle-color-')}`}
-                >
-                  <div className="spr-cycle-header">
-                    <div className="spr-cycle-title">
-                      {`Ciclo ${formatStepRegistryValue(cycle.cycleNumber)}`}
-                      <span className={`spr-chip ${cycle.state === 'completed' ? 'spr-chip--completed' : 'spr-chip--progress'}`}>
-                        {cycle.stateLabel}
-                      </span>
-                    </div>
-                    <div className="spr-cycle-meta">
-                      <span>{cycle.pointCount} punto{cycle.pointCount !== 1 ? 's' : ''}</span>
-                      <span>Duración {cycle.durationLabel}</span>
-                    </div>
-                  </div>
-                  <div className="spr-cycle-body">
-                    {cycle.records.map((record) => (
-                      <div
-                        key={record._id ?? `${record.timestamp ?? ''}-${record.step_id ?? ''}-${record.event_counter ?? ''}`}
-                        className="spr-row"
-                      >
-                        <div className="spr-row-main">
-                          <span className={`spr-chip spr-chip--type spr-chip--${record.record_type}`}>
-                            {record.badge_label}
-                          </span>
-                          <span className="spr-row-title">{getCompactEventLabel(record)}</span>
-                        </div>
-                        <div className="spr-row-meta">
-                          <span>Nº registro {formatStepRegistryValue(record.event_counter)}</span>
-                          <span>{formatStepRegistryDateTime(record.timestamp)}</span>
-                        </div>
-                        {record.record_type === 'capture_point' && (
-                          <div className="spr-row-coords">
-                            <span>X {formatStepRegistryValue(record.x_real_capturada_mm, 3)}</span>
-                            <span>Y {formatStepRegistryValue(record.y_real_capturada_mm, 3)}</span>
-                            <span>Z {formatStepRegistryValue(record.z_real_capturada_mm, 3)}</span>
-                            <span>RX {formatStepRegistryValue(record.rx, 5)}</span>
-                            <span>RY {formatStepRegistryValue(record.ry, 5)}</span>
-                            <span>RZ {formatStepRegistryValue(record.rz, 5)}</span>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
 
-              {registry.uncategorizedRows.length > 0 && (
-                <div className="spr-cycle-card spr-cycle-card--uncategorized">
-                  <div className="spr-cycle-header">
-                    <div className="spr-cycle-title">Sin ciclo asignado</div>
-                  </div>
-                  <div className="spr-cycle-body">
-                    {registry.uncategorizedRows.map((record) => (
-                      <div
-                        key={record._id ?? `${record.timestamp ?? ''}-${record.step_id ?? ''}-${record.event_counter ?? ''}`}
-                        className="spr-row"
-                      >
-                        <div className="spr-row-main">
-                          <span className="spr-chip spr-chip--type spr-chip--capture_point">Punto capturado</span>
-                          <span className="spr-row-title">{getCompactEventLabel(record)}</span>
-                        </div>
-                        <div className="spr-row-meta">
-                          <span>Nº registro {formatStepRegistryValue(record.event_counter)}</span>
-                          <span>{formatStepRegistryDateTime(record.timestamp)}</span>
-                        </div>
-                        <div className="spr-row-coords">
-                          <span>X {formatStepRegistryValue(record.x_real_capturada_mm, 3)}</span>
-                          <span>Y {formatStepRegistryValue(record.y_real_capturada_mm, 3)}</span>
-                          <span>Z {formatStepRegistryValue(record.z_real_capturada_mm, 3)}</span>
-                          <span>RX {formatStepRegistryValue(record.rx, 5)}</span>
-                          <span>RY {formatStepRegistryValue(record.ry, 5)}</span>
-                          <span>RZ {formatStepRegistryValue(record.rz, 5)}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {registry.programEndRows.map((record) => (
-                <div
-                  key={record._id ?? `program-end-${record.timestamp ?? ''}-${record.event_counter ?? ''}`}
-                  className="spr-program-end"
-                >
-                  <span className="spr-chip spr-chip--type spr-chip--program_end">Fin programa</span>
-                  <span>Fin de programa</span>
-                  <span>· Nº registro {formatStepRegistryValue(record.event_counter)}</span>
-                  <span>· {formatStepRegistryDateTime(record.timestamp)}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
+        {hasRows ? (
           <div className="svt-scroll">
             <table className="svt-tbl">
               <thead>
@@ -1805,8 +1697,14 @@ export function StepRegistryTable({ records = [], className = '' }) {
               </tbody>
             </table>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="sct-empty svt-empty svt-table-empty">
+            {isPausedStepCapture
+              ? 'Recopilación local en pausa. Reanuda para guardar nuevas capturas MQTT.'
+              : 'Esperando capturas MQTT válidas de step_capture…'}
+          </div>
+        )}
+      </div>
     </CardGlass>
   );
 }
