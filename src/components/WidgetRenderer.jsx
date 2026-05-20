@@ -205,6 +205,7 @@ function renderWidget(widget, data, key) {
         <StepRegistryTable
           key={key}
           records={Array.isArray(value) ? value : []}
+          streamUrl={getNestedValue(data, 'camera.stream') ?? ''}
           className="full-width"
         />
       );

@@ -1453,9 +1453,8 @@ function buildStepRegistryView(records) {
   };
 }
 
-export function StepRegistryTable({ records = [], className = '' }) {
+export function StepRegistryTable({ records = [], streamUrl = '', className = '' }) {
   const {
-    telemetryData,
     isPausedStepCapture,
     togglePauseStepCapture,
     clearStepCaptureRecords,
@@ -1464,7 +1463,7 @@ export function StepRegistryTable({ records = [], className = '' }) {
   const registry = useMemo(() => buildStepRegistryView(records), [records]);
   const displayRows = [...registry.tableRows].reverse();
   const hasRows = displayRows.length > 0;
-  const cameraStreamUrl = telemetryData?.camera?.stream ?? '';
+  const cameraStreamUrl = streamUrl;
 
   const handleExportExcel = async () => {
     try {
