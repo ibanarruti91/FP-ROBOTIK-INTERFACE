@@ -197,6 +197,13 @@ export const SALESIANOS_LAYOUT = {
       color: "#10b981", // Emerald green
       groups: [
         {
+          title: "CÁMARA EN VIVO",
+          className: "vp-camera",
+          widgets: [
+            { type: "camera", path: "camera.stream", dismissible: true, borderColor: "#10b981" }
+          ]
+        },
+        {
           title: "Registro de ciclos y puntos de paso",
           className: "cap-table",
           widgets: [
