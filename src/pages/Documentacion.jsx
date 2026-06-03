@@ -12,7 +12,7 @@ function Documentacion() {
         <div className="doc-card">
           <div className="doc-card-header">
             <span className="doc-icon">📚</span>
-            <h2>Documentación del proyecto</h2>
+            <h2>Recursos disponibles</h2>
           </div>
           <div className="doc-card-body">
             <p>
