@@ -33,9 +33,8 @@ function Sidebar() {
     {
       id: 4,
       title: 'Documentación del proyecto',
-      path: 'https://sites.google.com/salesianosurnieta.com/sitefprobotikinterfacerev2/site-fp-robotik-interface',
-      icon: '📚',
-      external: true
+      path: '/documentacion',
+      icon: '📚'
     }
   ];
 
