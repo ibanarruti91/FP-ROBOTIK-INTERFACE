@@ -3,7 +3,7 @@ import './Conversor.css';
 function Conversor() {
 
   const handleOpenConverter = () => {
-    window.open('https://yunamuno.github.io/FP_Robotik_Interface_v2/', '_blank', 'noopener,noreferrer');
+    window.open('https://yunamuno.github.io/FP_Robotik_Interface/', '_blank', 'noopener,noreferrer');
   };
 
   return (
