@@ -29,6 +29,13 @@ function Sidebar() {
       title: 'Cámara en Directo Multicentros',
       path: '/selector-centros',
       icon: '📹'
+    },
+    {
+      id: 4,
+      title: 'Documentación del proyecto',
+      path: 'https://sites.google.com/salesianosurnieta.com/sitefprobotikinterfacerev2/site-fp-robotik-interface',
+      icon: '📚',
+      external: true
     }
   ];
 
@@ -47,18 +54,31 @@ function Sidebar() {
 
       {/* NAVEGACIÓN PRINCIPAL */}
       <nav className="sidebar-nav">
-        {menuItems.map((item) => (
-          <NavLink
-            key={item.id}
-            to={item.path}
-            className={({ isActive }) => 
-              `nav-card ${isActive ? 'active' : ''}`
-            }
-          >
-            <span className="nav-icon">{item.icon}</span>
-            <span className="nav-title">{item.title}</span>
-          </NavLink>
-        ))}
+        {menuItems.map((item) =>
+          item.external ? (
+            <a
+              key={item.id}
+              href={item.path}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="nav-card"
+            >
+              <span className="nav-icon">{item.icon}</span>
+              <span className="nav-title">{item.title}</span>
+            </a>
+          ) : (
+            <NavLink
+              key={item.id}
+              to={item.path}
+              className={({ isActive }) =>
+                `nav-card ${isActive ? 'active' : ''}`
+              }
+            >
+              <span className="nav-icon">{item.icon}</span>
+              <span className="nav-title">{item.title}</span>
+            </NavLink>
+          )
+        )}
       </nav>
 
       {/* FOOTER: Botón de Información (Separado abajo) */}
